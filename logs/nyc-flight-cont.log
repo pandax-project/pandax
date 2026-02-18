@@ -1,0 +1,121 @@
+Annotated notebook saved to /home/dias-benchmarks/new_notebooks/nyc-flight/cell_exec_info.ipynb
+Executing code: import sys, os
+sys.path.insert(0, os.path.abspath('/home/ElasticNotebook'))
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df
+import pickle
+import cudf
+Executing code: %%RecordEventWithColumnInfo
+import IPython
+import numpy as np
+import scipy as sp
+import pandas as pd
+import matplotlib
+import sklearn
+import matplotlib.pyplot as plt
+import time
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+flights_df = pd.read_csv('/home/dias-benchmarks/new_notebooks/nyc-flight/nyc_flights.csv')
+Executing code: %%RecordEventWithColumnInfo
+### cell 1 ###
+
+flights_df.shape, flights_df.columns, flights_df.dtypes
+Executing code: %%RecordEventWithColumnInfo
+### cell 2 ###
+
+flights_df.dest.unique()
+flights_df.head(10)
+Executing code: %%RecordEventWithColumnInfo
+### cell 3 ###
+
+flights_df['dest'][flights_df['dest'] == 'SEA'].value_counts()
+Executing code: %%RecordEventWithColumnInfo
+### cell 4 ###
+
+flights_df['carrier'][flights_df['dest'] == 'SEA'].value_counts()
+Executing code: %%RecordEventWithColumnInfo
+### cell 5 ###
+
+len(flights_df['tailnum'][flights_df['dest'] == 'SEA'].unique())
+Executing code: %%RecordEventWithColumnInfo
+### cell 6 ###
+
+flights_df['arr_delay'][flights_df['dest'] == 'SEA'].mean()
+Executing code: %%RecordEventWithColumnInfo
+### cell 7 ###
+
+f = flights_df[flights_df['dest'] == 'SEA'].groupby('origin').size()
+f_total = len(flights_df[flights_df.dest == 'SEA'])
+f.loc['EWR'] / f_total, f.loc['JFK'] / f_total
+Executing code: %%RecordEventWithColumnInfo
+### cell 8 ###
+
+df = flights_df.groupby(['month', 'day'], as_index=False).agg({'dep_delay': np.mean})
+df2 = flights_df.groupby(['month', 'day'], as_index=False).agg({'arr_delay': np.mean})
+df.loc[df['dep_delay'].idxmax()], df2.loc[df2['arr_delay'].idxmax()]
+Executing code: %%RecordEventWithColumnInfo
+### cell 9 ###
+
+df
+Executing code: %%RecordEventWithColumnInfo
+### cell 10 ###
+
+df = flights_df.groupby(['day', 'month'], as_index=False).agg({'arr_delay': np.mean, 'dep_delay': np.mean})
+df['total_delay'] = df['arr_delay'] + df['dep_delay']
+df.sort_values('total_delay', ascending=False).head(1)
+Executing code: %%RecordEventWithColumnInfo
+### cell 11 ###
+
+ds = flights_df.dropna(subset=['dep_delay']).groupby(['month'])['dep_delay'].mean()
+ds
+Executing code: %%RecordEventWithColumnInfo
+### cell 12 ###
+
+dt = flights_df.dropna(subset=['dep_delay']).groupby(['hour'])['dep_delay'].mean()
+dt
+Executing code: %%RecordEventWithColumnInfo
+### cell 13 ###
+
+df = flights_df
+df['speed'] = df['distance'] / df['air_time']
+df[df['speed'] == df.speed.max()]
+Executing code: %%RecordEventWithColumnInfo
+### cell 14 ###
+
+count = len(flights_df)
+df = flights_df.groupby(['carrier', 'flight', 'dest']).size().reset_index(name='Size')
+for i in df.index:
+    if df.loc[i]['Size'] == 365:
+        print('Carrier: %s, Flight: %s, Destination: %s' % (df.loc[i]['carrier'], df.loc[i]['flight'], df.loc[i]['dest']))
+Executing code: %%RecordEventWithColumnInfo
+### cell 15 ###
+
+gdf = flights_df
+counts = gdf.groupby(['carrier', 'flight', 'dest']).size().reset_index(name='size')
+complete_year = counts[counts['size'] == 365]
+complete_year[['carrier', 'flight', 'dest']]
+Executing code: %%RecordEventWithColumnInfo
+### cell 16 ###
+
+df = flights_df[flights_df['month'] == 6]
+df = df.groupby('carrier', as_index=False).agg({'arr_delay': np.mean, 'dep_delay': np.mean})
+df['total_delay'] = df['arr_delay'] + df['dep_delay']
+for i in df.index:
+    if df.loc[i]['total_delay'] == df['total_delay'].min():
+        print(df.loc[i]['carrier'], df.loc[i]['total_delay'])
+df
+Executing code: %%RecordEventWithColumnInfo
+### cell 17 ###
+
+weather_df = pd.read_csv('/home/dias-benchmarks/new_notebooks/nyc-flight/nyc_weather.csv')
+df = flights_df
+df_c = pd.merge(df, weather_df, on=['month', 'day', 'hour', 'origin'])
+df_c.head(10)
+Executing code: %PrintCellInfo cell_exec_info
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Ran small notebook to get cell exec info in 13.645987510681152 seconds
+Getting cudf profile information...
+Annotated notebook saved to /home/dias-benchmarks/new_notebooks/nyc-flight/cudf_profile.ipynb

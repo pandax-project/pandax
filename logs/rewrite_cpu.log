@@ -1,0 +1,71 @@
+---------------------------------------
+processing notebooks/mpwolke/just-you-wait-rishi-sunak/src/rewritten_cpu/o4_mini_high.ipynb
+Execution time: 112.96340775489807 seconds
+112.06563353538513 112.96340775489807
+Average execution time: 112.5145206451416 seconds
+---------------------------------------
+processing notebooks/nickwan/creating-player-stats-using-tracking-data/src/rewritten_cpu/o4_mini_high.ipynb
+Execution time: 3.320326089859009 seconds
+3.257516860961914 3.320326089859009
+Average execution time: 3.2889214754104614 seconds
+---------------------------------------
+processing notebooks/paultimothymooney/kaggle-survey-2022-all-results/src/rewritten_cpu/o4_mini_high.ipynb
+Execution time: 12.80859899520874 seconds
+13.057578325271606 12.80859899520874
+Average execution time: 12.933088660240173 seconds
+---------------------------------------
+processing notebooks/pmarcelino/comprehensive-data-exploration-with-python/src/rewritten_cpu/o4_mini_high.ipynb
+Execution time: 7.951857805252075 seconds
+8.004060745239258 7.951857805252075
+Average execution time: 7.9779592752456665 seconds
+---------------------------------------
+processing notebooks/roopacalistus/retail-supermarket-store-analysis/src/rewritten_cpu/o4_mini_high.ipynb
+Execution time: 9.973966360092163 seconds
+9.945288181304932 9.973966360092163
+Average execution time: 9.959627270698547 seconds
+---------------------------------------
+processing notebooks/saisandeepjallepalli/adidas-retail-eda-data-visualization/src/rewritten_cpu/o4_mini_high.ipynb
+Execution time: 11.041608333587646 seconds
+10.850561618804932 11.041608333587646
+Average execution time: 10.946084976196289 seconds
+---------------------------------------
+processing notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/rewritten_cpu/o4_mini_high.ipynb
+Execution time: 3.685798168182373 seconds
+3.7229349613189697 3.685798168182373
+Average execution time: 3.7043665647506714 seconds
+---------------------------------------
+processing notebooks/sanket7994/imdb-dataset-eda-project/src/rewritten_cpu/o4_mini_high.ipynb
+Execution time: 20.379779815673828 seconds
+20.608922719955444 20.379779815673828
+Average execution time: 20.494351267814636 seconds
+---------------------------------------
+processing notebooks/spscientist/student-performance-in-exams/src/rewritten_cpu/o4_mini_high.ipynb
+Execution time: 1.885847568511963 seconds
+1.8780179023742676 1.885847568511963
+Average execution time: 1.8819327354431152 seconds
+---------------------------------------
+processing new_notebooks/nyc-flight/rewritten_cpu/o4_mini_high.ipynb
+Execution time: 13.5857093334198 seconds
+13.490439891815186 13.5857093334198
+Average execution time: 13.538074612617493 seconds
+---------------------------------------
+processing new_notebooks/imdb/rewritten_cpu/o4_mini_high.ipynb
+Execution time: 3.706646680831909 seconds
+3.6788666248321533 3.706646680831909
+Average execution time: 3.6927566528320312 seconds
+---------------------------------------
+processing new_notebooks/us-birth/rewritten_cpu/o4_mini_high.ipynb
+Execution time: 7.982710599899292 seconds
+8.06560468673706 7.982710599899292
+Average execution time: 8.024157643318176 seconds
+---------------------------------------
+processing new_notebooks/nyc-taxi/rewritten_cpu/o4_mini_high.ipynb
+Execution time: 52.44332718849182 seconds
+51.79939532279968 52.44332718849182
+Average execution time: 52.12136125564575 seconds
+---------------------------------------
+processing new_notebooks/nyc-airbnb/rewritten_cpu/o4_mini_high.ipynb
+Execution time: 2.1252784729003906 seconds
+2.17802095413208 2.1252784729003906
+Average execution time: 2.1516497135162354 seconds
+Failed paths: []

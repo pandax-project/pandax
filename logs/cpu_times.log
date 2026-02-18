@@ -1,0 +1,2298 @@
+---------------------------------------
+processing notebooks/aieducation/what-course-are-you-going-to-take/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 300` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_90.ipynb
+Running with `factor = 90`...
+Time taken: 11.058990716934204 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_120.ipynb
+Running with `factor = 120`...
+Time taken: 12.779973983764648 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_150.ipynb
+Running with `factor = 150`...
+Time taken: 15.48457145690918 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_180.ipynb
+Running with `factor = 180`...
+Time taken: 17.217424869537354 seconds
+Predictions at factor = 1000:
+Cell 0: 385.5
+Cell 1: 0.2633
+Cell 2: 0.4227599999999999
+Cell 3: 546.0
+Cell 4: 97.7675
+Cell 5: 1537.0999999999997
+Cell 6: 9460.999999999998
+Cell 7: 0.0057225
+Cell 8: 12.091999999999999
+Cell 9: 28.945999999999998
+Cell 10: 401.69999999999993
+Cell 11: 0.006440000000000001
+Cell 12: 3608.7999999999993
+Cell 13: 3.838599999999999
+Cell 14: 0.0061425
+Cell 15: 226.57999999999998
+Cell 16: 0.006557500000000001
+Cell 17: 120.36
+Cell 18: 405.0999999999999
+Cell 19: 0.1585
+Cell 20: 214.79999999999995
+Cell 21: 0.0073875
+Cell 22: 104.58999999999997
+Cell 23: 0.014175
+Cell 24: 365.0
+Cell 25: 0.01251
+Cell 26: 1410.3999999999996
+Cell 27: 0.007452499999999999
+Cell 28: 847.9999999999999
+Cell 29: 6.5859999999999985
+Cell 30: 1.14875
+Cell 31: 620.0
+Cell 32: 196.10999999999999
+Cell 33: 143.75999999999996
+Cell 34: 76.8
+Cell 35: 77.225
+Cell 36: 145.76
+Cell 37: 253.47999999999996
+Cell 38: 223.52999999999997
+Cell 39: 59.409999999999975
+Cell 40: 150.67000000000002
+Cell 41: 141.11999999999995
+Cell 42: 4.449999999999999
+Cell 43: 4.023
+Cell 44: 172.53999999999996
+Cell 45: 174.20999999999998
+Cell 46: 9.444999999999997
+Annotated notebook saved to notebooks/aieducation/what-course-are-you-going-to-take/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 385.5, Actual 513.0
+Error: 0.24853801169590642
+Cell 1: Predicted 0.2633, Actual 0.23800000000000002
+Error: 0.10630252100840319
+Cell 2: Predicted 0.4227599999999999, Actual 0.228
+Error: 0.854210526315789
+Cell 3: Predicted 546.0, Actual 585.0
+Error: 0.06666666666666667
+Cell 4: Predicted 97.7675, Actual 3.83
+Error: 24.52676240208877
+Cell 5: Predicted 1537.0999999999997, Actual 2210.0
+Error: 0.3044796380090499
+Cell 6: Predicted 9460.999999999998, Actual 9300.0
+Error: 0.017311827956989052
+Cell 7: Predicted 0.0057225, Actual 0.006200000000000001
+Error: 0.07701612903225813
+Cell 8: Predicted 12.091999999999999, Actual 9.36
+Error: 0.29188034188034184
+Cell 9: Predicted 28.945999999999998, Actual 25.8
+Error: 0.12193798449612392
+Cell 10: Predicted 401.69999999999993, Actual 447.0
+Error: 0.10134228187919478
+Cell 11: Predicted 0.006440000000000001, Actual 0.00644
+Error: 1.3468349968764028e-16
+Cell 12: Predicted 3608.7999999999993, Actual 3180.0
+Error: 0.13484276729559724
+Cell 13: Predicted 3.838599999999999, Actual 2.71
+Error: 0.4164575645756455
+Cell 14: Predicted 0.0061425, Actual 0.00572
+Error: 0.07386363636363638
+Cell 15: Predicted 226.57999999999998, Actual 245.0
+Error: 0.07518367346938783
+Cell 16: Predicted 0.006557500000000001, Actual 0.01
+Error: 0.34424999999999994
+Cell 17: Predicted 120.36, Actual 4.52
+Error: 25.6283185840708
+Cell 18: Predicted 405.0999999999999, Actual 566.0
+Error: 0.28427561837455845
+Cell 19: Predicted 0.1585, Actual 0.153
+Error: 0.035947712418300685
+Cell 20: Predicted 214.79999999999995, Actual 384.0
+Error: 0.4406250000000001
+Cell 21: Predicted 0.0073875, Actual 0.00691
+Error: 0.06910274963820544
+Cell 22: Predicted 104.58999999999997, Actual 94.1
+Error: 0.11147715196599342
+Cell 23: Predicted 0.014175, Actual 0.00739
+Error: 0.9181326116373478
+Cell 24: Predicted 365.0, Actual 333.0
+Error: 0.0960960960960961
+Cell 25: Predicted 0.01251, Actual 0.00834
+Error: 0.5
+Cell 26: Predicted 1410.3999999999996, Actual 1130.0
+Error: 0.24814159292035365
+Cell 27: Predicted 0.007452499999999999, Actual 0.00834
+Error: 0.10641486810551572
+Cell 28: Predicted 847.9999999999999, Actual 700.0
+Error: 0.21142857142857127
+Cell 29: Predicted 6.5859999999999985, Actual 5.52
+Error: 0.19311594202898533
+Cell 30: Predicted 1.14875, Actual 1.32
+Error: 0.12973484848484856
+Cell 31: Predicted 620.0, Actual 407.0
+Error: 0.5233415233415234
+Cell 32: Predicted 196.10999999999999, Actual 150.0
+Error: 0.3073999999999999
+Cell 33: Predicted 143.75999999999996, Actual 163.0
+Error: 0.11803680981595115
+Cell 34: Predicted 76.8, Actual 153.0
+Error: 0.4980392156862745
+Cell 35: Predicted 77.225, Actual 152.0
+Error: 0.49194078947368425
+Cell 36: Predicted 145.76, Actual 221.0
+Error: 0.34045248868778283
+Cell 37: Predicted 253.47999999999996, Actual 324.0
+Error: 0.21765432098765444
+Cell 38: Predicted 223.52999999999997, Actual 288.0
+Error: 0.22385416666666677
+Cell 39: Predicted 59.409999999999975, Actual 73.0
+Error: 0.18616438356164416
+Cell 40: Predicted 150.67000000000002, Actual 149.0
+Error: 0.011208053691275274
+Cell 41: Predicted 141.11999999999995, Actual 153.0
+Error: 0.07764705882352975
+Cell 42: Predicted 4.449999999999999, Actual 4.98
+Error: 0.10642570281124519
+Cell 43: Predicted 4.023, Actual 3.82
+Error: 0.053141361256544464
+Cell 44: Predicted 172.53999999999996, Actual 174.0
+Error: 0.008390804597701359
+Cell 45: Predicted 174.20999999999998, Actual 245.0
+Error: 0.28893877551020414
+Cell 46: Predicted 9.444999999999997, Actual 13.3
+Error: 0.28984962406015063
+Writing data to CSV file... notebooks/aieducation/what-course-are-you-going-to-take/src/rewritten_cpu/prediction_times.csv
+Average error percentage: 1.2867306893377697
+Average absolute error: 69.27035260638293
+total original cpu time: 22414.938339999993
+total predicted cpu time: 22238.75279749999
+total absolute error: 3255.706572499998
+---------------------------------------
+processing notebooks/saisandeepjallepalli/adidas-retail-eda-data-visualization/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 1000` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_300.ipynb
+Running with `factor = 300`...
+Time taken: 7.681948661804199 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_400.ipynb
+Running with `factor = 400`...
+Time taken: 8.50535273551941 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_500.ipynb
+Running with `factor = 500`...
+Time taken: 9.90164589881897 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_600.ipynb
+Running with `factor = 600`...
+Time taken: 11.267212629318237 seconds
+Predictions at factor = 1000:
+Cell 0: 588.75
+Cell 1: 0.16575
+Cell 2: 681.1999999999999
+Cell 3: 0.03164
+Cell 4: 839.6000000000001
+Cell 5: 47.85000000000001
+Cell 6: 114.91
+Cell 7: 53.754
+Cell 8: 752.3000000000001
+Cell 9: 516.8
+Cell 10: 69.70999999999998
+Cell 11: 0.13725
+Cell 12: 633.8
+Cell 13: 0.21300000000000002
+Cell 14: 0.0152
+Cell 15: 0.2953999999999999
+Cell 16: 1388.3000000000002
+Cell 17: 1808.8
+Cell 18: 133.98
+Cell 19: 74.02000000000001
+Cell 20: 0.27775000000000005
+Cell 21: 99.26
+Cell 22: 39.46
+Cell 23: 71.36999999999999
+Cell 24: 7.371
+Cell 25: 15.503000000000002
+Cell 26: 9.367
+Cell 27: 0.66625
+Cell 28: 0.72175
+Cell 29: 1.7662
+Cell 30: 66.91
+Cell 31: 59.91999999999999
+Cell 32: 7.026
+Cell 33: 8.166
+Cell 34: 9.911999999999999
+Cell 35: 0.782
+Cell 36: 1.3253999999999997
+Cell 37: 2.1833
+Cell 38: 73.62
+Cell 39: 63.61999999999999
+Cell 40: 3.761
+Cell 41: 9.491999999999999
+Cell 42: 8.971
+Cell 43: 8.053
+Cell 44: 10.364
+Cell 45: 4.380000000000001
+Cell 46: 19.28
+Cell 47: 7.036
+Cell 48: 5.555
+Cell 49: 5.633
+Cell 50: 11.838000000000001
+Cell 51: 10.751000000000001
+Cell 52: 5.640000000000001
+Cell 53: 28.304
+Cell 54: 42.41
+Cell 55: 26.32
+Cell 56: 53.57000000000001
+Cell 57: 129.07
+Cell 58: 90.94999999999999
+Cell 59: 98.03
+Cell 60: 117.88999999999999
+Cell 61: 62.790000000000006
+Cell 62: 54.209999999999994
+Cell 63: 68.6
+Cell 64: 133.07999999999998
+Cell 65: 135.68
+Cell 66: 118.21
+Cell 67: 59.03999999999999
+Cell 68: 143.46999999999997
+Cell 69: 196.88
+Cell 70: 208.26
+Cell 71: 236.7
+Cell 72: 81.51
+Cell 73: 69.97
+Cell 74: 79.22
+Cell 75: 66.84
+Cell 76: 137.35999999999999
+Cell 77: 17.168
+Cell 78: 8.753
+Cell 79: 11.737
+Cell 80: 8.642999999999999
+Cell 81: 16.105999999999998
+Cell 82: 0.96425
+Cell 83: 0.98
+Cell 84: 0.92425
+Cell 85: 215.44
+Cell 86: 226.93
+Cell 87: 9.406
+Cell 88: 3.1475
+Cell 89: 4.7275
+Cell 90: 0.55675
+Cell 91: 1.0552000000000001
+Cell 92: 1.9085000000000003
+Cell 93: 235.54999999999995
+Cell 94: 197.57
+Cell 95: 0.021875
+Annotated notebook saved to notebooks/saisandeepjallepalli/adidas-retail-eda-data-visualization/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 588.75, Actual 896.0
+Error: 0.34291294642857145
+Cell 1: Predicted 0.16575, Actual 0.138
+Error: 0.20108695652173908
+Cell 2: Predicted 681.1999999999999, Actual 534.0
+Error: 0.27565543071161036
+Cell 3: Predicted 0.03164, Actual 0.0217
+Error: 0.45806451612903226
+Cell 4: Predicted 839.6000000000001, Actual 653.0
+Error: 0.285758039816233
+Cell 5: Predicted 47.85000000000001, Actual 46.9
+Error: 0.02025586353944584
+Cell 6: Predicted 114.91, Actual 109.0
+Error: 0.0542201834862385
+Cell 7: Predicted 53.754, Actual 52.0
+Error: 0.03373076923076919
+Cell 8: Predicted 752.3000000000001, Actual 992.0
+Error: 0.24163306451612895
+Cell 9: Predicted 516.8, Actual 687.0
+Error: 0.24774381368267837
+Cell 10: Predicted 69.70999999999998, Actual 60.5
+Error: 0.15223140495867735
+Cell 11: Predicted 0.13725, Actual 0.121
+Error: 0.13429752066115716
+Cell 12: Predicted 633.8, Actual 477.0
+Error: 0.32872117400419276
+Cell 13: Predicted 0.21300000000000002, Actual 0.192
+Error: 0.1093750000000001
+Cell 14: Predicted 0.0152, Actual 0.0169
+Error: 0.10059171597633128
+Cell 15: Predicted 0.2953999999999999, Actual 0.177
+Error: 0.6689265536723158
+Cell 16: Predicted 1388.3000000000002, Actual 1450.0
+Error: 0.04255172413793091
+Cell 17: Predicted 1808.8, Actual 2120.0
+Error: 0.1467924528301887
+Cell 18: Predicted 133.98, Actual 103.0
+Error: 0.3007766990291261
+Cell 19: Predicted 74.02000000000001, Actual 72.2
+Error: 0.025207756232687083
+Cell 20: Predicted 0.27775000000000005, Actual 0.224
+Error: 0.23995535714285735
+Cell 21: Predicted 99.26, Actual 58.5
+Error: 0.6967521367521369
+Cell 22: Predicted 39.46, Actual 39.4
+Error: 0.0015228426395939665
+Cell 23: Predicted 71.36999999999999, Actual 55.7
+Error: 0.2813285457809692
+Cell 24: Predicted 7.371, Actual 7.98
+Error: 0.0763157894736842
+Cell 25: Predicted 15.503000000000002, Actual 8.27
+Error: 0.8746070133010886
+Cell 26: Predicted 9.367, Actual 7.83
+Error: 0.19629629629629639
+Cell 27: Predicted 0.66625, Actual 0.847
+Error: 0.21340023612750883
+Cell 28: Predicted 0.72175, Actual 0.884
+Error: 0.18354072398190047
+Cell 29: Predicted 1.7662, Actual 1.8
+Error: 0.018777777777777806
+Cell 30: Predicted 66.91, Actual 65.8
+Error: 0.016869300911854096
+Cell 31: Predicted 59.91999999999999, Actual 60.6
+Error: 0.01122112211221145
+Cell 32: Predicted 7.026, Actual 4.84
+Error: 0.4516528925619835
+Cell 33: Predicted 8.166, Actual 5.65
+Error: 0.4453097345132743
+Cell 34: Predicted 9.911999999999999, Actual 7.11
+Error: 0.3940928270042192
+Cell 35: Predicted 0.782, Actual 0.8320000000000001
+Error: 0.060096153846153896
+Cell 36: Predicted 1.3253999999999997, Actual 0.6900000000000001
+Error: 0.9208695652173907
+Cell 37: Predicted 2.1833, Actual 1.42
+Error: 0.5375352112676057
+Cell 38: Predicted 73.62, Actual 54.0
+Error: 0.3633333333333334
+Cell 39: Predicted 63.61999999999999, Actual 51.6
+Error: 0.23294573643410832
+Cell 40: Predicted 3.761, Actual 3.29
+Error: 0.14316109422492404
+Cell 41: Predicted 9.491999999999999, Actual 4.9
+Error: 0.9371428571428568
+Cell 42: Predicted 8.971, Actual 4.68
+Error: 0.9168803418803421
+Cell 43: Predicted 8.053, Actual 4.85
+Error: 0.660412371134021
+Cell 44: Predicted 10.364, Actual 4.21
+Error: 1.4617577197149645
+Cell 45: Predicted 4.380000000000001, Actual 4.37
+Error: 0.0022883295194509553
+Cell 46: Predicted 19.28, Actual 9.12
+Error: 1.1140350877192986
+Cell 47: Predicted 7.036, Actual 8.29
+Error: 0.15126658624849212
+Cell 48: Predicted 5.555, Actual 8.67
+Error: 0.359284890426759
+Cell 49: Predicted 5.633, Actual 8.83
+Error: 0.3620611551528879
+Cell 50: Predicted 11.838000000000001, Actual 8.27
+Error: 0.4314389359129385
+Cell 51: Predicted 10.751000000000001, Actual 7.81
+Error: 0.3765685019206148
+Cell 52: Predicted 5.640000000000001, Actual 7.58
+Error: 0.25593667546174137
+Cell 53: Predicted 28.304, Actual 24.2
+Error: 0.1695867768595041
+Cell 54: Predicted 42.41, Actual 39.2
+Error: 0.08188775510204065
+Cell 55: Predicted 26.32, Actual 35.8
+Error: 0.26480446927374296
+Cell 56: Predicted 53.57000000000001, Actual 39.9
+Error: 0.342606516290727
+Cell 57: Predicted 129.07, Actual 81.4
+Error: 0.5856265356265354
+Cell 58: Predicted 90.94999999999999, Actual 62.3
+Error: 0.45987158908507214
+Cell 59: Predicted 98.03, Actual 80.6
+Error: 0.2162531017369728
+Cell 60: Predicted 117.88999999999999, Actual 74.3
+Error: 0.5866756393001344
+Cell 61: Predicted 62.790000000000006, Actual 34.9
+Error: 0.799140401146132
+Cell 62: Predicted 54.209999999999994, Actual 53.5
+Error: 0.013271028037383061
+Cell 63: Predicted 68.6, Actual 40.1
+Error: 0.7107231920199499
+Cell 64: Predicted 133.07999999999998, Actual 96.0
+Error: 0.3862499999999998
+Cell 65: Predicted 135.68, Actual 101.0
+Error: 0.34336633663366345
+Cell 66: Predicted 118.21, Actual 126.0
+Error: 0.061825396825396874
+Cell 67: Predicted 59.03999999999999, Actual 142.0
+Error: 0.5842253521126761
+Cell 68: Predicted 143.46999999999997, Actual 111.0
+Error: 0.29252252252252225
+Cell 69: Predicted 196.88, Actual 281.0
+Error: 0.2993594306049822
+Cell 70: Predicted 208.26, Actual 266.0
+Error: 0.21706766917293235
+Cell 71: Predicted 236.7, Actual 265.0
+Error: 0.10679245283018872
+Cell 72: Predicted 81.51, Actual 73.0
+Error: 0.11657534246575349
+Cell 73: Predicted 69.97, Actual 66.7
+Error: 0.04902548725637175
+Cell 74: Predicted 79.22, Actual 76.3
+Error: 0.038269986893840126
+Cell 75: Predicted 66.84, Actual 67.6
+Error: 0.011242603550295724
+Cell 76: Predicted 137.35999999999999, Actual 134.0
+Error: 0.02507462686567153
+Cell 77: Predicted 17.168, Actual 9.47
+Error: 0.8128827877507918
+Cell 78: Predicted 8.753, Actual 8.55
+Error: 0.02374269005847946
+Cell 79: Predicted 11.737, Actual 7.83
+Error: 0.49897828863346105
+Cell 80: Predicted 8.642999999999999, Actual 7.61
+Error: 0.1357424441524308
+Cell 81: Predicted 16.105999999999998, Actual 16.0
+Error: 0.006624999999999881
+Cell 82: Predicted 0.96425, Actual 1.56
+Error: 0.3818910256410256
+Cell 83: Predicted 0.98, Actual 1.23
+Error: 0.2032520325203252
+Cell 84: Predicted 0.92425, Actual 1.37
+Error: 0.3253649635036497
+Cell 85: Predicted 215.44, Actual 207.0
+Error: 0.04077294685990337
+Cell 86: Predicted 226.93, Actual 215.0
+Error: 0.055488372093023285
+Cell 87: Predicted 9.406, Actual 7.43
+Error: 0.26594885598923296
+Cell 88: Predicted 3.1475, Actual 4.65
+Error: 0.32311827956989253
+Cell 89: Predicted 4.7275, Actual 7.56
+Error: 0.37466931216931215
+Cell 90: Predicted 0.55675, Actual 0.742
+Error: 0.24966307277628036
+Cell 91: Predicted 1.0552000000000001, Actual 0.795
+Error: 0.32729559748427683
+Cell 92: Predicted 1.9085000000000003, Actual 1.42
+Error: 0.3440140845070425
+Cell 93: Predicted 235.54999999999995, Actual 216.0
+Error: 0.09050925925925905
+Cell 94: Predicted 197.57, Actual 214.0
+Error: 0.07677570093457947
+Cell 95: Predicted 0.021875, Actual 0.0217
+Error: 0.00806451612903217
+Writing data to CSV file... notebooks/saisandeepjallepalli/adidas-retail-eda-data-visualization/src/rewritten_cpu/prediction_times.csv
+Average error percentage: 0.30068785594525815
+Average absolute error: 25.747342864583327
+total original cpu time: 12072.152300000002
+total predicted cpu time: 11754.566714999999
+total absolute error: 2471.7449149999998
+---------------------------------------
+processing notebooks/dataranch/supermarket-sales-prediction-xgboost-fastai/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 50` in cell 3
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_15.ipynb
+Running with `factor = 15`...
+Time taken: 3.2322845458984375 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_20.ipynb
+Running with `factor = 20`...
+Time taken: 3.985691547393799 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_25.ipynb
+Running with `factor = 25`...
+Time taken: 4.465930700302124 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_30.ipynb
+Running with `factor = 30`...
+Time taken: 4.769244432449341 seconds
+Predictions at factor = 1000:
+Cell 0: 310.8
+Cell 1: 2973.0
+Cell 2: 0.0059
+Cell 3: 270.2099999999999
+Cell 4: 83.46
+Cell 5: 0.4846000000000001
+Cell 6: 130.57000000000002
+Cell 7: 0.00942
+Cell 8: 786.3000000000001
+Cell 9: 11.764999999999997
+Annotated notebook saved to notebooks/dataranch/supermarket-sales-prediction-xgboost-fastai/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 310.8, Actual 251.0
+Error: 0.23824701195219128
+Cell 1: Predicted 2973.0, Actual 3700.0
+Error: 0.19648648648648648
+Cell 2: Predicted 0.0059, Actual 0.00572
+Error: 0.031468531468531395
+Cell 3: Predicted 270.2099999999999, Actual 155.0
+Error: 0.7432903225806446
+Cell 4: Predicted 83.46, Actual 74.3
+Error: 0.12328398384925972
+Cell 5: Predicted 0.4846000000000001, Actual 0.193
+Error: 1.5108808290155444
+Cell 6: Predicted 130.57000000000002, Actual 104.0
+Error: 0.25548076923076946
+Cell 7: Predicted 0.00942, Actual 0.00954
+Error: 0.012578616352201291
+Cell 8: Predicted 786.3000000000001, Actual 482.0
+Error: 0.6313278008298756
+Cell 9: Predicted 11.764999999999997, Actual 3.23
+Error: 2.6424148606811135
+Writing data to CSV file... notebooks/dataranch/supermarket-sales-prediction-xgboost-fastai/src/rewritten_cpu/prediction_times.csv
+Average error percentage: 0.6385459212446618
+Average absolute error: 125.08669000000002
+total original cpu time: 4769.73826
+total predicted cpu time: 4566.604920000001
+total absolute error: 1250.8669000000002
+---------------------------------------
+processing notebooks/kkhandekar/environmental-vs-ai-startups-india-eda/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 3000` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_900.ipynb
+Running with `factor = 900`...
+Time taken: 3.460172414779663 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_1200.ipynb
+Running with `factor = 1200`...
+Time taken: 3.462740659713745 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_1500.ipynb
+Running with `factor = 1500`...
+Time taken: 4.3077309131622314 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_1800.ipynb
+Running with `factor = 1800`...
+Time taken: 4.55981707572937 seconds
+Predictions at factor = 1000:
+Cell 0: 924.5999999999997
+Cell 1: 3045.999999999999
+Cell 2: 958.8999999999999
+Annotated notebook saved to notebooks/kkhandekar/environmental-vs-ai-startups-india-eda/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 924.5999999999997, Actual 683.0
+Error: 0.353733528550512
+Cell 1: Predicted 3045.999999999999, Actual 2630.0
+Error: 0.15817490494296543
+Cell 2: Predicted 958.8999999999999, Actual 1350.0
+Error: 0.2897037037037038
+Writing data to CSV file... notebooks/kkhandekar/environmental-vs-ai-startups-india-eda/src/rewritten_cpu/prediction_times.csv
+Average error percentage: 0.2672040457323937
+Average absolute error: 349.5666666666663
+total original cpu time: 4663.0
+total predicted cpu time: 4929.499999999998
+total absolute error: 1048.699999999999
+---------------------------------------
+processing notebooks/roopacalistus/retail-supermarket-store-analysis/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 800` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_240.ipynb
+Running with `factor = 240`...
+Time taken: 6.582439422607422 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_320.ipynb
+Running with `factor = 320`...
+Time taken: 7.763483285903931 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_400.ipynb
+Running with `factor = 400`...
+Time taken: 9.305653095245361 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_480.ipynb
+Running with `factor = 480`...
+Time taken: 10.863481283187866 seconds
+Predictions at factor = 1000:
+Cell 0: 947.3
+Cell 1: 0.16075
+Cell 2: 4.4925
+Cell 3: 6225.0
+Cell 4: 7.908999999999999
+Cell 5: 627.3999999999999
+Cell 6: 4.154999999999999
+Cell 7: 551.0
+Cell 8: 478.59999999999997
+Cell 9: 494.4
+Cell 10: 484.79999999999995
+Cell 11: 223.25
+Cell 12: 630.6999999999999
+Cell 13: 0.012650999999999996
+Cell 14: 733.0999999999999
+Cell 15: 852.9999999999998
+Annotated notebook saved to notebooks/roopacalistus/retail-supermarket-store-analysis/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 947.3, Actual 904.0
+Error: 0.04789823008849552
+Cell 1: Predicted 0.16075, Actual 0.201
+Error: 0.2002487562189055
+Cell 2: Predicted 4.4925, Actual 4.16
+Error: 0.07992788461538451
+Cell 3: Predicted 6225.0, Actual 5680.0
+Error: 0.09595070422535211
+Cell 4: Predicted 7.908999999999999, Actual 3.74
+Error: 1.1147058823529408
+Cell 5: Predicted 627.3999999999999, Actual 481.0
+Error: 0.3043659043659041
+Cell 6: Predicted 4.154999999999999, Actual 3.74
+Error: 0.11096256684491955
+Cell 7: Predicted 551.0, Actual 508.0
+Error: 0.08464566929133858
+Cell 8: Predicted 478.59999999999997, Actual 387.0
+Error: 0.23669250645994824
+Cell 9: Predicted 494.4, Actual 538.0
+Error: 0.0810408921933086
+Cell 10: Predicted 484.79999999999995, Actual 584.0
+Error: 0.16986301369863022
+Cell 11: Predicted 223.25, Actual 461.0
+Error: 0.5157266811279827
+Cell 12: Predicted 630.6999999999999, Actual 584.0
+Error: 0.07996575342465742
+Cell 13: Predicted 0.012650999999999996, Actual 0.00596
+Error: 1.1226510067114086
+Cell 14: Predicted 733.0999999999999, Actual 650.0
+Error: 0.1278461538461537
+Cell 15: Predicted 852.9999999999998, Actual 600.0
+Error: 0.4216666666666663
+Writing data to CSV file... notebooks/roopacalistus/retail-supermarket-store-analysis/src/rewritten_cpu/prediction_times.csv
+Average error percentage: 0.2996348920082498
+Average absolute error: 102.35084006249997
+total original cpu time: 11388.84696
+total predicted cpu time: 12265.279900999998
+total absolute error: 1637.6134409999993
+---------------------------------------
+processing notebooks/paultimothymooney/kaggle-survey-2022-all-results/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 1.0` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_0.3.ipynb
+Running with `factor = 0.3`...
+Time taken: 12.551071882247925 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_0.4.ipynb
+Running with `factor = 0.4`...
+Time taken: 12.73514437675476 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_0.5.ipynb
+Running with `factor = 0.5`...
+Time taken: 13.60314416885376 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_0.6.ipynb
+Running with `factor = 0.6`...
+Time taken: 15.575866222381592 seconds
+Predictions at factor = 1000:
+Cell 0: 5582.5
+Cell 1: 47.325
+Cell 2: 0.3564000000000001
+Cell 3: 8.295
+Cell 4: 8.3375
+Cell 5: 786.8000000000002
+Cell 6: 8.174000000000001
+Cell 7: 47.740000000000016
+Cell 8: 13.281000000000004
+Cell 9: 24.875
+Cell 10: 1.8675
+Cell 11: 19.610000000000007
+Cell 12: 37.0
+Cell 13: 1736.2000000000007
+Cell 14: 78.03000000000003
+Cell 15: 13.940000000000003
+Cell 16: 40.650000000000006
+Cell 17: 4.5874999999999995
+Cell 18: 51.56
+Cell 19: 6.7170000000000005
+Cell 20: 29.080000000000005
+Cell 21: 0.0067350000000000005
+Cell 22: 305.9700000000001
+Cell 23: 0.015366000000000001
+Cell 24: 65.62000000000002
+Cell 25: 1104.4000000000003
+Cell 26: 14.925
+Cell 27: 703.7000000000002
+Cell 28: 15.075
+Cell 29: 4.875
+Cell 30: 39.570000000000014
+Cell 31: 24.950000000000003
+Cell 32: 86.20000000000002
+Cell 33: 1432.7000000000005
+Cell 34: 658.5000000000002
+Cell 35: 85.87
+Cell 36: 0.0092525
+Cell 37: 0.008812500000000001
+Cell 38: 42.525
+Cell 39: 0.0081075
+Cell 40: 6.331000000000001
+Cell 41: 5.717499999999999
+Cell 42: 30.05
+Cell 43: 4.755000000000001
+Cell 44: 5.535
+Cell 45: 4.5975
+Cell 46: 8.771
+Cell 47: 22.70000000000001
+Cell 48: 19.57
+Cell 49: 8.313000000000002
+Cell 50: 10.286000000000001
+Cell 51: 21.016000000000005
+Cell 52: 7.223000000000001
+Cell 53: 18.004000000000005
+Cell 54: 50.36
+Cell 55: 5.726000000000001
+Cell 56: 0.00745
+Cell 57: 20.135000000000005
+Cell 58: 0.007035
+Cell 59: 0.006915000000000001
+Cell 60: 66.48000000000002
+Cell 61: 17.131999999999998
+Cell 62: 88.93
+Cell 63: 36.32000000000001
+Cell 64: 81.29000000000002
+Cell 65: 0.014980999999999998
+Cell 66: 479.40000000000015
+Cell 67: 5.07
+Cell 68: 13.799999999999999
+Cell 69: 72.96000000000004
+Cell 70: 0.0347
+Cell 71: 2.84
+Annotated notebook saved to notebooks/paultimothymooney/kaggle-survey-2022-all-results/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 5582.5, Actual 6150.0
+Error: 0.09227642276422764
+Cell 1: Predicted 47.325, Actual 79.2
+Error: 0.4024621212121212
+Cell 2: Predicted 0.3564000000000001, Actual 0.148
+Error: 1.408108108108109
+Cell 3: Predicted 8.295, Actual 13.3
+Error: 0.37631578947368427
+Cell 4: Predicted 8.3375, Actual 14.9
+Error: 0.44043624161073824
+Cell 5: Predicted 786.8000000000002, Actual 751.0
+Error: 0.04766977363515337
+Cell 6: Predicted 8.174000000000001, Actual 7.02
+Error: 0.16438746438746463
+Cell 7: Predicted 47.740000000000016, Actual 29.3
+Error: 0.629351535836178
+Cell 8: Predicted 13.281000000000004, Actual 6.45
+Error: 1.059069767441861
+Cell 9: Predicted 24.875, Actual 29.2
+Error: 0.14811643835616436
+Cell 10: Predicted 1.8675, Actual 3.55
+Error: 0.47394366197183097
+Cell 11: Predicted 19.610000000000007, Actual 16.8
+Error: 0.1672619047619051
+Cell 12: Predicted 37.0, Actual 30.1
+Error: 0.22923588039867104
+Cell 13: Predicted 1736.2000000000007, Actual 1490.0
+Error: 0.16523489932885954
+Cell 14: Predicted 78.03000000000003, Actual 80.0
+Error: 0.02462499999999963
+Cell 15: Predicted 13.940000000000003, Actual 14.8
+Error: 0.058108108108107945
+Cell 16: Predicted 40.650000000000006, Actual 43.8
+Error: 0.0719178082191779
+Cell 17: Predicted 4.5874999999999995, Actual 7.55
+Error: 0.39238410596026496
+Cell 18: Predicted 51.56, Actual 49.4
+Error: 0.04372469635627538
+Cell 19: Predicted 6.7170000000000005, Actual 7.01
+Error: 0.041797432239657525
+Cell 20: Predicted 29.080000000000005, Actual 38.9
+Error: 0.25244215938303327
+Cell 21: Predicted 0.0067350000000000005, Actual 0.00763
+Error: 0.11730013106159884
+Cell 22: Predicted 305.9700000000001, Actual 188.0
+Error: 0.6275000000000005
+Cell 23: Predicted 0.015366000000000001, Actual 0.00668
+Error: 1.300299401197605
+Cell 24: Predicted 65.62000000000002, Actual 36.2
+Error: 0.8127071823204424
+Cell 25: Predicted 1104.4000000000003, Actual 1250.0
+Error: 0.11647999999999975
+Cell 26: Predicted 14.925, Actual 23.5
+Error: 0.36489361702127654
+Cell 27: Predicted 703.7000000000002, Actual 890.0
+Error: 0.20932584269662904
+Cell 28: Predicted 15.075, Actual 33.0
+Error: 0.5431818181818182
+Cell 29: Predicted 4.875, Actual 5.05
+Error: 0.03465346534653462
+Cell 30: Predicted 39.570000000000014, Actual 46.8
+Error: 0.15448717948717913
+Cell 31: Predicted 24.950000000000003, Actual 53.5
+Error: 0.5336448598130841
+Cell 32: Predicted 86.20000000000002, Actual 110.0
+Error: 0.2163636363636362
+Cell 33: Predicted 1432.7000000000005, Actual 1350.0
+Error: 0.06125925925925963
+Cell 34: Predicted 658.5000000000002, Actual 466.0
+Error: 0.41309012875536527
+Cell 35: Predicted 85.87, Actual 80.1
+Error: 0.07203495630461935
+Cell 36: Predicted 0.0092525, Actual 0.0117
+Error: 0.2091880341880342
+Cell 37: Predicted 0.008812500000000001, Actual 0.0114
+Error: 0.22697368421052627
+Cell 38: Predicted 42.525, Actual 37.4
+Error: 0.13703208556149732
+Cell 39: Predicted 0.0081075, Actual 0.00691
+Error: 0.17329956584659909
+Cell 40: Predicted 6.331000000000001, Actual 3.83
+Error: 0.6530026109660577
+Cell 41: Predicted 5.717499999999999, Actual 5.61
+Error: 0.019162210338680756
+Cell 42: Predicted 30.05, Actual 17.7
+Error: 0.6977401129943503
+Cell 43: Predicted 4.755000000000001, Actual 5.21
+Error: 0.08733205374280215
+Cell 44: Predicted 5.535, Actual 6.59
+Error: 0.16009104704097113
+Cell 45: Predicted 4.5975, Actual 3.93
+Error: 0.1698473282442748
+Cell 46: Predicted 8.771, Actual 5.06
+Error: 0.7333992094861663
+Cell 47: Predicted 22.70000000000001, Actual 18.1
+Error: 0.25414364640884024
+Cell 48: Predicted 19.57, Actual 16.2
+Error: 0.20802469135802476
+Cell 49: Predicted 8.313000000000002, Actual 5.45
+Error: 0.5253211009174316
+Cell 50: Predicted 10.286000000000001, Actual 6.66
+Error: 0.5444444444444446
+Cell 51: Predicted 21.016000000000005, Actual 22.3
+Error: 0.05757847533632266
+Cell 52: Predicted 7.223000000000001, Actual 5.81
+Error: 0.2432013769363169
+Cell 53: Predicted 18.004000000000005, Actual 14.5
+Error: 0.24165517241379345
+Cell 54: Predicted 50.36, Actual 33.1
+Error: 0.5214501510574018
+Cell 55: Predicted 5.726000000000001, Actual 4.13
+Error: 0.38644067796610193
+Cell 56: Predicted 0.00745, Actual 0.00691
+Error: 0.07814761215629518
+Cell 57: Predicted 20.135000000000005, Actual 11.9
+Error: 0.6920168067226895
+Cell 58: Predicted 0.007035, Actual 0.00572
+Error: 0.22989510489510476
+Cell 59: Predicted 0.006915000000000001, Actual 0.00572
+Error: 0.20891608391608404
+Cell 60: Predicted 66.48000000000002, Actual 66.0
+Error: 0.0072727272727275485
+Cell 61: Predicted 17.131999999999998, Actual 12.5
+Error: 0.37055999999999983
+Cell 62: Predicted 88.93, Actual 65.4
+Error: 0.3597859327217125
+Cell 63: Predicted 36.32000000000001, Actual 20.2
+Error: 0.7980198019801984
+Cell 64: Predicted 81.29000000000002, Actual 59.9
+Error: 0.35709515859766316
+Cell 65: Predicted 0.014980999999999998, Actual 0.00858
+Error: 0.7460372960372956
+Cell 66: Predicted 479.40000000000015, Actual 468.0
+Error: 0.024358974358974675
+Cell 67: Predicted 5.07, Actual 6.64
+Error: 0.23644578313253004
+Cell 68: Predicted 13.799999999999999, Actual 21.3
+Error: 0.3521126760563381
+Cell 69: Predicted 72.96000000000004, Actual 83.0
+Error: 0.1209638554216863
+Cell 70: Predicted 0.0347, Actual 0.0305
+Error: 0.13770491803278698
+Cell 71: Predicted 2.84, Actual 3.61
+Error: 0.21329639889196678
+Writing data to CSV file... notebooks/paultimothymooney/kaggle-survey-2022-all-results/src/rewritten_cpu/prediction_times.csv
+Average error percentage: 0.32566732787521147
+Average absolute error: 27.419560618055574
+total original cpu time: 14424.709749999995
+total predicted cpu time: 14245.237254500003
+total absolute error: 1974.2083645000014
+---------------------------------------
+processing notebooks/madhurpant/beautiful-kaggle-2022-analysis/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 10` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_3.ipynb
+Running with `factor = 3`...
+Time taken: 5.093445777893066 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_4.ipynb
+Running with `factor = 4`...
+Time taken: 4.869778633117676 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_5.ipynb
+Running with `factor = 5`...
+Time taken: 5.054009675979614 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_6.ipynb
+Running with `factor = 6`...
+Time taken: 5.335476636886597 seconds
+Predictions at factor = 1000:
+Cell 0: 1012.75
+Cell 1: 0.474
+Cell 2: 51.169999999999995
+Cell 3: 34.26
+Cell 4: 19.386
+Cell 5: 10.523999999999997
+Cell 6: 21.255
+Cell 7: 14.588
+Cell 8: 18.486
+Cell 9: 15.44
+Cell 10: 31.149999999999995
+Cell 11: 30.179999999999993
+Cell 12: 21.625999999999998
+Cell 13: 35.0
+Cell 14: 40.51
+Cell 15: 664.6999999999999
+Cell 16: 25.375
+Cell 17: 219.28999999999996
+Cell 18: 18.525
+Annotated notebook saved to notebooks/madhurpant/beautiful-kaggle-2022-analysis/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 1012.75, Actual 1410.0
+Error: 0.2817375886524823
+Cell 1: Predicted 0.474, Actual 0.628
+Error: 0.24522292993630576
+Cell 2: Predicted 51.169999999999995, Actual 88.2
+Error: 0.4198412698412699
+Cell 3: Predicted 34.26, Actual 28.1
+Error: 0.21921708185053368
+Cell 4: Predicted 19.386, Actual 13.9
+Error: 0.3946762589928057
+Cell 5: Predicted 10.523999999999997, Actual 6.86
+Error: 0.5341107871720112
+Cell 6: Predicted 21.255, Actual 13.8
+Error: 0.5402173913043476
+Cell 7: Predicted 14.588, Actual 17.4
+Error: 0.16160919540229882
+Cell 8: Predicted 18.486, Actual 16.1
+Error: 0.1481987577639751
+Cell 9: Predicted 15.44, Actual 14.4
+Error: 0.07222222222222216
+Cell 10: Predicted 31.149999999999995, Actual 26.4
+Error: 0.1799242424242423
+Cell 11: Predicted 30.179999999999993, Actual 20.4
+Error: 0.4794117647058821
+Cell 12: Predicted 21.625999999999998, Actual 15.9
+Error: 0.3601257861635218
+Cell 13: Predicted 35.0, Actual 24.1
+Error: 0.45228215767634844
+Cell 14: Predicted 40.51, Actual 30.6
+Error: 0.32385620915032665
+Cell 15: Predicted 664.6999999999999, Actual 541.0
+Error: 0.2286506469500923
+Cell 16: Predicted 25.375, Actual 40.6
+Error: 0.375
+Cell 17: Predicted 219.28999999999996, Actual 192.0
+Error: 0.1421354166666665
+Cell 18: Predicted 18.525, Actual 28.1
+Error: 0.3407473309608542
+Writing data to CSV file... notebooks/madhurpant/beautiful-kaggle-2022-analysis/src/rewritten_cpu/prediction_times.csv
+Average error percentage: 0.31048352830716774
+Average absolute error: 35.80489473684211
+total original cpu time: 2528.488
+total predicted cpu time: 2284.6890000000003
+total absolute error: 680.293
+---------------------------------------
+processing notebooks/nickwan/creating-player-stats-using-tracking-data/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 1.0` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_0.3.ipynb
+Running with `factor = 0.3`...
+Time taken: 6.008563756942749 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_0.4.ipynb
+Running with `factor = 0.4`...
+Time taken: 6.205240488052368 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_0.5.ipynb
+Running with `factor = 0.5`...
+Time taken: 6.577017068862915 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_0.6.ipynb
+Running with `factor = 0.6`...
+Time taken: 6.835539817810059 seconds
+Predictions at factor = 1000:
+Cell 0: 2620.0
+Cell 1: 422.60000000000014
+Cell 2: 158.56
+Cell 3: 2.2649999999999997
+Cell 4: 101.33000000000001
+Cell 5: 6.384000000000002
+Cell 6: 59.35400000000002
+Cell 7: 1.61
+Cell 8: 6.66
+Cell 9: 0.1345
+Cell 10: 57.90000000000002
+Cell 11: 0.3530600000000001
+Cell 12: 4.359999999999999
+Cell 13: 1.6925
+Annotated notebook saved to notebooks/nickwan/creating-player-stats-using-tracking-data/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 2620.0, Actual 3000.0
+Error: 0.12666666666666668
+Cell 1: Predicted 422.60000000000014, Actual 316.0
+Error: 0.33734177215189914
+Cell 2: Predicted 158.56, Actual 115.0
+Error: 0.37878260869565217
+Cell 3: Predicted 2.2649999999999997, Actual 2.95
+Error: 0.23220338983050862
+Cell 4: Predicted 101.33000000000001, Actual 91.6
+Error: 0.10622270742358099
+Cell 5: Predicted 6.384000000000002, Actual 2.32
+Error: 1.7517241379310353
+Cell 6: Predicted 59.35400000000002, Actual 118.0
+Error: 0.49699999999999983
+Cell 7: Predicted 1.61, Actual 2.58
+Error: 0.375968992248062
+Cell 8: Predicted 6.66, Actual 20.6
+Error: 0.6766990291262136
+Cell 9: Predicted 0.1345, Actual 0.257
+Error: 0.47665369649805445
+Cell 10: Predicted 57.90000000000002, Actual 31.0
+Error: 0.8677419354838716
+Cell 11: Predicted 0.3530600000000001, Actual 0.0844
+Error: 3.1831753554502384
+Cell 12: Predicted 4.359999999999999, Actual 3.42
+Error: 0.2748538011695905
+Cell 13: Predicted 1.6925, Actual 1.15
+Error: 0.4717391304347826
+Writing data to CSV file... notebooks/nickwan/creating-player-stats-using-tracking-data/src/rewritten_cpu/prediction_times.csv
+Average error percentage: 0.6969123730792969
+Average absolute error: 46.21204714285715
+total original cpu time: 3704.9614
+total predicted cpu time: 3443.2030600000003
+total absolute error: 646.96866
+---------------------------------------
+processing notebooks/spscientist/student-performance-in-exams/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 1000` in cell 2
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_300.ipynb
+Running with `factor = 300`...
+Time taken: 3.648695230484009 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_400.ipynb
+Running with `factor = 400`...
+Time taken: 3.985579013824463 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_500.ipynb
+Running with `factor = 500`...
+Time taken: 3.7997519969940186 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_600.ipynb
+Running with `factor = 600`...
+Time taken: 4.418254375457764 seconds
+Predictions at factor = 1000:
+Cell 0: 266.62
+Cell 1: 210.28
+Cell 2: 0.21325
+Cell 3: 239.76000000000002
+Cell 4: 176.76
+Cell 5: 70.89999999999999
+Cell 6: 73.87
+Cell 7: 71.8
+Cell 8: 254.47999999999996
+Cell 9: 358.20000000000005
+Cell 10: 155.2
+Annotated notebook saved to notebooks/spscientist/student-performance-in-exams/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 266.62, Actual 345.0
+Error: 0.22718840579710142
+Cell 1: Predicted 210.28, Actual 191.0
+Error: 0.10094240837696336
+Cell 2: Predicted 0.21325, Actual 0.153
+Error: 0.3937908496732026
+Cell 3: Predicted 239.76000000000002, Actual 106.0
+Error: 1.2618867924528303
+Cell 4: Predicted 176.76, Actual 208.0
+Error: 0.15019230769230774
+Cell 5: Predicted 70.89999999999999, Actual 71.5
+Error: 0.008391608391608511
+Cell 6: Predicted 73.87, Actual 70.9
+Error: 0.041889985895627625
+Cell 7: Predicted 71.8, Actual 71.1
+Error: 0.009845288326301025
+Cell 8: Predicted 254.47999999999996, Actual 391.0
+Error: 0.3491560102301791
+Cell 9: Predicted 358.20000000000005, Actual 476.0
+Error: 0.24747899159663855
+Cell 10: Predicted 155.2, Actual 211.0
+Error: 0.2644549763033176
+Writing data to CSV file... notebooks/spscientist/student-performance-in-exams/src/rewritten_cpu/prediction_times.csv
+Average error percentage: 0.2777470567941889
+Average absolute error: 52.46456818181818
+total original cpu time: 2141.6530000000002
+total predicted cpu time: 1878.08325
+total absolute error: 577.11025
+---------------------------------------
+processing notebooks/erikbruin/nlp-on-student-writing-eda/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 1000` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_300.ipynb
+Running with `factor = 300`...
+Time taken: 7.2134716510772705 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_400.ipynb
+Running with `factor = 400`...
+Time taken: 7.9619104862213135 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_500.ipynb
+Running with `factor = 500`...
+Time taken: 7.570947170257568 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_600.ipynb
+Running with `factor = 600`...
+Time taken: 7.9639692306518555 seconds
+Predictions at factor = 1000:
+Cell 0: 1063.25
+Cell 1: 0.9669
+Cell 2: 30.308
+Cell 3: 4.6575
+Cell 4: 0.716
+Cell 5: 9.8825
+Cell 6: 1.9
+Cell 7: 4.710999999999999
+Cell 8: 3.245
+Cell 9: 7.382499999999999
+Cell 10: 9.131
+Cell 11: 1431.0
+Cell 12: 5.8820000000000014
+Cell 13: 3.7474999999999996
+Cell 14: 0.67425
+Cell 15: 3.761
+Cell 16: 3.7099999999999995
+Cell 17: 1.1071
+Cell 18: 4.215
+Cell 19: 0.00793
+Cell 20: 0.00858
+Cell 21: 52.45
+Cell 22: 66.28000000000002
+Cell 23: 22.729999999999997
+Cell 24: 268.15999999999997
+Cell 25: 585.3
+Cell 26: 1050.0
+Cell 27: 0.2958
+Annotated notebook saved to notebooks/erikbruin/nlp-on-student-writing-eda/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 1063.25, Actual 990.0
+Error: 0.073989898989899
+Cell 1: Predicted 0.9669, Actual 1.19
+Error: 0.18747899159663864
+Cell 2: Predicted 30.308, Actual 34.2
+Error: 0.11380116959064335
+Cell 3: Predicted 4.6575, Actual 5.23
+Error: 0.10946462715105175
+Cell 4: Predicted 0.716, Actual 0.798
+Error: 0.10275689223057653
+Cell 5: Predicted 9.8825, Actual 10.7
+Error: 0.07640186915887842
+Cell 6: Predicted 1.9, Actual 2.32
+Error: 0.18103448275862066
+Cell 7: Predicted 4.710999999999999, Actual 2.99
+Error: 0.5755852842809361
+Cell 8: Predicted 3.245, Actual 3.72
+Error: 0.12768817204301078
+Cell 9: Predicted 7.382499999999999, Actual 7.73
+Error: 0.04495472186287206
+Cell 10: Predicted 9.131, Actual 5.39
+Error: 0.6940630797773656
+Cell 11: Predicted 1431.0, Actual 1070.0
+Error: 0.33738317757009345
+Cell 12: Predicted 5.8820000000000014, Actual 4.83
+Error: 0.2178053830227746
+Cell 13: Predicted 3.7474999999999996, Actual 3.05
+Error: 0.22868852459016387
+Cell 14: Predicted 0.67425, Actual 0.599
+Error: 0.1256260434056762
+Cell 15: Predicted 3.761, Actual 2.57
+Error: 0.4634241245136188
+Cell 16: Predicted 3.7099999999999995, Actual 1.65
+Error: 1.2484848484848483
+Cell 17: Predicted 1.1071, Actual 0.916
+Error: 0.20862445414847153
+Cell 18: Predicted 4.215, Actual 4.12
+Error: 0.023058252427184404
+Cell 19: Predicted 0.00793, Actual 0.00644
+Error: 0.23136645962732905
+Cell 20: Predicted 0.00858, Actual 0.00691
+Error: 0.2416787264833575
+Cell 21: Predicted 52.45, Actual 52.8
+Error: 0.006628787878787771
+Cell 22: Predicted 66.28000000000002, Actual 88.1
+Error: 0.24767309875141863
+Cell 23: Predicted 22.729999999999997, Actual 19.9
+Error: 0.14221105527638184
+Cell 24: Predicted 268.15999999999997, Actual 188.0
+Error: 0.4263829787234041
+Cell 25: Predicted 585.3, Actual 432.0
+Error: 0.354861111111111
+Cell 26: Predicted 1050.0, Actual 1040.0
+Error: 0.009615384615384616
+Cell 27: Predicted 0.2958, Actual 0.122
+Error: 1.4245901639344263
+Writing data to CSV file... notebooks/erikbruin/nlp-on-student-writing-eda/src/rewritten_cpu/prediction_times.csv
+Average error percentage: 0.2937614915716044
+Average absolute error: 25.733586071428565
+total original cpu time: 3972.938350000001
+total predicted cpu time: 4635.47956
+total absolute error: 720.54041
+---------------------------------------
+processing notebooks/josecode1/billionaires-statistics-2023/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 800` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_240.ipynb
+Running with `factor = 240`...
+Time taken: 5.444918632507324 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_320.ipynb
+Running with `factor = 320`...
+Time taken: 5.800546646118164 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_400.ipynb
+Running with `factor = 400`...
+Time taken: 6.777546405792236 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_480.ipynb
+Running with `factor = 480`...
+Time taken: 7.561112642288208 seconds
+Predictions at factor = 1000:
+Cell 0: 2016.7999999999997
+Cell 1: 0.30089999999999995
+Cell 2: 1877.3999999999996
+Cell 3: 104.86999999999999
+Cell 4: 0.0072125
+Cell 5: 42.47
+Cell 6: 1.0522999999999998
+Cell 7: 355.69999999999993
+Cell 8: 26.75
+Cell 9: 23.125
+Cell 10: 0.169
+Cell 11: 167.01
+Cell 12: 98.875
+Cell 13: 1918.0
+Cell 14: 0.20625000000000002
+Cell 15: 159.26999999999998
+Cell 16: 17.417
+Annotated notebook saved to notebooks/josecode1/billionaires-statistics-2023/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 2016.7999999999997, Actual 728.0
+Error: 1.77032967032967
+Cell 1: Predicted 0.30089999999999995, Actual 0.233
+Error: 0.29141630901287524
+Cell 2: Predicted 1877.3999999999996, Actual 2070.0
+Error: 0.09304347826086974
+Cell 3: Predicted 104.86999999999999, Actual 98.9
+Error: 0.060364004044489224
+Cell 4: Predicted 0.0072125, Actual 0.00572
+Error: 0.2609265734265734
+Cell 5: Predicted 42.47, Actual 31.2
+Error: 0.3612179487179487
+Cell 6: Predicted 1.0522999999999998, Actual 0.81
+Error: 0.29913580246913546
+Cell 7: Predicted 355.69999999999993, Actual 281.0
+Error: 0.2658362989323841
+Cell 8: Predicted 26.75, Actual 28.8
+Error: 0.07118055555555558
+Cell 9: Predicted 23.125, Actual 33.3
+Error: 0.30555555555555547
+Cell 10: Predicted 0.169, Actual 0.124
+Error: 0.36290322580645173
+Cell 11: Predicted 167.01, Actual 143.0
+Error: 0.16790209790209784
+Cell 12: Predicted 98.875, Actual 231.0
+Error: 0.571969696969697
+Cell 13: Predicted 1918.0, Actual 2090.0
+Error: 0.08229665071770335
+Cell 14: Predicted 0.20625000000000002, Actual 0.166
+Error: 0.24246987951807233
+Cell 15: Predicted 159.26999999999998, Actual 144.0
+Error: 0.10604166666666653
+Cell 16: Predicted 17.417, Actual 16.9
+Error: 0.030591715976331542
+Writing data to CSV file... notebooks/josecode1/billionaires-statistics-2023/src/rewritten_cpu/prediction_times.csv
+Average error percentage: 0.3143047723448281
+Average absolute error: 113.52258485294118
+total original cpu time: 5897.43872
+total predicted cpu time: 6809.4226625
+total absolute error: 1929.8839425
+---------------------------------------
+processing notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 2500` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_750.ipynb
+Running with `factor = 750`...
+Time taken: 4.464005708694458 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_1000.ipynb
+Running with `factor = 1000`...
+Time taken: 5.653268575668335 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_1250.ipynb
+Running with `factor = 1250`...
+Time taken: 5.748584508895874 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_1500.ipynb
+Running with `factor = 1500`...
+Time taken: 6.429889440536499 seconds
+Predictions at factor = 1000:
+Cell 0: 461.29999999999995
+Cell 1: 43.0
+Cell 2: 1029.1
+Cell 3: 919.6999999999998
+Cell 4: 975.2999999999998
+Cell 5: 968.3
+Annotated notebook saved to notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 461.29999999999995, Actual 525.0
+Error: 0.12133333333333342
+Cell 1: Predicted 43.0, Actual 144.0
+Error: 0.7013888888888888
+Cell 2: Predicted 1029.1, Actual 856.0
+Error: 0.2022196261682242
+Cell 3: Predicted 919.6999999999998, Actual 860.0
+Error: 0.06941860465116258
+Cell 4: Predicted 975.2999999999998, Actual 705.0
+Error: 0.38340425531914873
+Cell 5: Predicted 968.3, Actual 797.0
+Error: 0.21493099121706394
+Writing data to CSV file... notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/rewritten_cpu/prediction_times.csv
+Average error percentage: 0.282115949929637
+Average absolute error: 139.84999999999994
+total original cpu time: 3887.0
+total predicted cpu time: 4396.699999999999
+total absolute error: 839.0999999999996
+---------------------------------------
+processing notebooks/ampiiere/animal-crossing-villager-popularity-analysis/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 100` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_30.ipynb
+Running with `factor = 30`...
+Time taken: 4.354828834533691 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_40.ipynb
+Running with `factor = 40`...
+Time taken: 5.069530963897705 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_50.ipynb
+Running with `factor = 50`...
+Time taken: 5.6719748973846436 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_60.ipynb
+Running with `factor = 60`...
+Time taken: 6.403123378753662 seconds
+Predictions at factor = 1000:
+Cell 0: 40.8
+Cell 1: 0.131125
+Cell 2: 0.195
+Cell 3: 21.625000000000004
+Cell 4: 5.7625
+Cell 5: 1.9775
+Cell 6: 2.1825
+Cell 7: 5.31
+Cell 8: 1.4475
+Cell 9: 4.024
+Cell 10: 0.9685
+Cell 11: 2002.9999999999998
+Cell 12: 290.24
+Cell 13: 365.2699999999999
+Cell 14: 5.172999999999998
+Cell 15: 0.010069999999999999
+Cell 16: 113.57999999999996
+Cell 17: 406.91999999999996
+Cell 18: 566.7399999999999
+Cell 19: 226.06999999999996
+Cell 20: 192.2
+Cell 21: 192.19
+Cell 22: 358.6199999999999
+Cell 23: 582.8
+Cell 24: 0.41550000000000004
+Cell 25: 0.006975
+Cell 26: 278.59999999999997
+Cell 27: 341.46000000000004
+Annotated notebook saved to notebooks/ampiiere/animal-crossing-villager-popularity-analysis/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 40.8, Actual 54.7
+Error: 0.2541133455210239
+Cell 1: Predicted 0.131125, Actual 0.146
+Error: 0.10188356164383562
+Cell 2: Predicted 0.195, Actual 0.152
+Error: 0.28289473684210537
+Cell 3: Predicted 21.625000000000004, Actual 42.2
+Error: 0.4875592417061611
+Cell 4: Predicted 5.7625, Actual 7.13
+Error: 0.19179523141654975
+Cell 5: Predicted 1.9775, Actual 2.51
+Error: 0.21215139442231068
+Cell 6: Predicted 2.1825, Actual 3.68
+Error: 0.406929347826087
+Cell 7: Predicted 5.31, Actual 9.15
+Error: 0.41967213114754104
+Cell 8: Predicted 1.4475, Actual 2.75
+Error: 0.47363636363636363
+Cell 9: Predicted 4.024, Actual 6.95
+Error: 0.4210071942446043
+Cell 10: Predicted 0.9685, Actual 1.37
+Error: 0.29306569343065697
+Cell 11: Predicted 2002.9999999999998, Actual 2970.0
+Error: 0.32558922558922565
+Cell 12: Predicted 290.24, Actual 443.0
+Error: 0.34483069977426634
+Cell 13: Predicted 365.2699999999999, Actual 612.0
+Error: 0.40315359477124196
+Cell 14: Predicted 5.172999999999998, Actual 4.7
+Error: 0.10063829787234002
+Cell 15: Predicted 0.010069999999999999, Actual 0.0117
+Error: 0.13931623931623943
+Cell 16: Predicted 113.57999999999996, Actual 291.0
+Error: 0.6096907216494847
+Cell 17: Predicted 406.91999999999996, Actual 677.0
+Error: 0.39893648449039887
+Cell 18: Predicted 566.7399999999999, Actual 571.0
+Error: 0.007460595446585122
+Cell 19: Predicted 226.06999999999996, Actual 275.0
+Error: 0.17792727272727285
+Cell 20: Predicted 192.2, Actual 180.0
+Error: 0.06777777777777771
+Cell 21: Predicted 192.19, Actual 325.0
+Error: 0.4086461538461538
+Cell 22: Predicted 358.6199999999999, Actual 744.0
+Error: 0.5179838709677421
+Cell 23: Predicted 582.8, Actual 651.0
+Error: 0.10476190476190483
+Cell 24: Predicted 0.41550000000000004, Actual 0.368
+Error: 0.12907608695652187
+Cell 25: Predicted 0.006975, Actual 0.00572
+Error: 0.2194055944055944
+Cell 26: Predicted 278.59999999999997, Actual 513.0
+Error: 0.4569200779727096
+Cell 27: Predicted 341.46000000000004, Actual 498.0
+Error: 0.3143373493975903
+Writing data to CSV file... notebooks/ampiiere/animal-crossing-villager-popularity-analysis/src/rewritten_cpu/prediction_times.csv
+Average error percentage: 0.2953985781985818
+Average absolute error: 103.70120571428575
+total original cpu time: 8885.82342
+total predicted cpu time: 6007.71917
+total absolute error: 2903.6337600000015
+---------------------------------------
+processing notebooks/sanket7994/imdb-dataset-eda-project/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 1.0` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_0.3.ipynb
+Running with `factor = 0.3`...
+Time taken: 24.6079523563385 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_0.4.ipynb
+Running with `factor = 0.4`...
+Time taken: 24.86947989463806 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_0.5.ipynb
+Running with `factor = 0.5`...
+Time taken: 25.67742609977722 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_0.6.ipynb
+Running with `factor = 0.6`...
+Time taken: 25.86322259902954 seconds
+Predictions at factor = 1000:
+Cell 0: 17950.0
+Cell 1: 0.15350000000000003
+Cell 2: 8.335
+Cell 3: 8.757000000000001
+Cell 4: 400.3
+Cell 5: 6.222000000000002
+Cell 6: 108.0
+Cell 7: 60.0
+Cell 8: 6.514000000000002
+Cell 9: 0.8935
+Cell 10: 93.26000000000002
+Cell 11: 3601.000000000001
+Cell 12: 160.56000000000003
+Cell 13: 197.43000000000006
+Cell 14: 95.81
+Cell 15: 183.03000000000003
+Cell 16: 185.89000000000004
+Annotated notebook saved to notebooks/sanket7994/imdb-dataset-eda-project/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 17950.0, Actual 17700.0
+Error: 0.014124293785310734
+Cell 1: Predicted 0.15350000000000003, Actual 0.163
+Error: 0.058282208588956934
+Cell 2: Predicted 8.335, Actual 15.7
+Error: 0.46910828025477697
+Cell 3: Predicted 8.757000000000001, Actual 8.29
+Error: 0.05633293124246108
+Cell 4: Predicted 400.3, Actual 459.0
+Error: 0.1278867102396514
+Cell 5: Predicted 6.222000000000002, Actual 9.58
+Error: 0.3505219206680582
+Cell 6: Predicted 108.0, Actual 168.0
+Error: 0.35714285714285715
+Cell 7: Predicted 60.0, Actual 136.0
+Error: 0.5588235294117647
+Cell 8: Predicted 6.514000000000002, Actual 9.36
+Error: 0.3040598290598288
+Cell 9: Predicted 0.8935, Actual 1.3
+Error: 0.31269230769230777
+Cell 10: Predicted 93.26000000000002, Actual 101.0
+Error: 0.07663366336633644
+Cell 11: Predicted 3601.000000000001, Actual 4490.0
+Error: 0.19799554565701538
+Cell 12: Predicted 160.56000000000003, Actual 96.3
+Error: 0.6672897196261686
+Cell 13: Predicted 197.43000000000006, Actual 129.0
+Error: 0.5304651162790702
+Cell 14: Predicted 95.81, Actual 90.4
+Error: 0.05984513274336279
+Cell 15: Predicted 183.03000000000003, Actual 178.0
+Error: 0.0282584269662923
+Cell 16: Predicted 185.89000000000004, Actual 174.0
+Error: 0.06833333333333358
+Writing data to CSV file... notebooks/sanket7994/imdb-dataset-eda-project/src/rewritten_cpu/prediction_times.csv
+Average error percentage: 0.24928210623867955
+Average absolute error: 88.8771764705882
+total original cpu time: 23766.093000000004
+total predicted cpu time: 23066.155
+total absolute error: 1510.9119999999991
+---------------------------------------
+processing notebooks/ibtesama/getting-started-with-a-movie-recommendation-system/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 10` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_3.ipynb
+Running with `factor = 3`...
+Time taken: 29.004011392593384 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_4.ipynb
+Running with `factor = 4`...
+Time taken: 39.05247783660889 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_5.ipynb
+Running with `factor = 5`...
+Time taken: 45.18153381347656 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_6.ipynb
+Running with `factor = 6`...
+Time taken: 54.789557695388794 seconds
+Predictions at factor = 1000:
+Cell 0: 468.25
+Cell 1: 75.46999999999998
+Cell 2: 0.25810999999999995
+Cell 3: 0.5229999999999999
+Cell 4: 1.85
+Cell 5: 7.659000000000001
+Cell 6: 3.0
+Cell 7: 6.693999999999999
+Cell 8: 28.98899999999999
+Cell 9: 0.2677999999999999
+Cell 10: 8.409
+Cell 11: 82500.0
+Cell 12: 1487.6
+Cell 13: 7.855
+Cell 14: 739.22
+Cell 15: 34.775000000000006
+Annotated notebook saved to notebooks/ibtesama/getting-started-with-a-movie-recommendation-system/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 468.25, Actual 590.0
+Error: 0.20635593220338982
+Cell 1: Predicted 75.46999999999998, Actual 40.0
+Error: 0.8867499999999996
+Cell 2: Predicted 0.25810999999999995, Actual 0.147
+Error: 0.7558503401360542
+Cell 3: Predicted 0.5229999999999999, Actual 0.71
+Error: 0.26338028169014094
+Cell 4: Predicted 1.85, Actual 1.76
+Error: 0.05113636363636368
+Cell 5: Predicted 7.659000000000001, Actual 6.07
+Error: 0.2617792421746294
+Cell 6: Predicted 3.0, Actual 2.56
+Error: 0.17187499999999997
+Cell 7: Predicted 6.693999999999999, Actual 2.5
+Error: 1.6775999999999995
+Cell 8: Predicted 28.98899999999999, Actual 25.9
+Error: 0.11926640926640894
+Cell 9: Predicted 0.2677999999999999, Actual 0.232
+Error: 0.15431034482758582
+Cell 10: Predicted 8.409, Actual 7.26
+Error: 0.1582644628099175
+Cell 11: Predicted 82500.0, Actual 86000.0
+Error: 0.040697674418604654
+Cell 12: Predicted 1487.6, Actual 1410.0
+Error: 0.055035460992907737
+Cell 13: Predicted 7.855, Actual 6.65
+Error: 0.181203007518797
+Cell 14: Predicted 739.22, Actual 624.0
+Error: 0.18464743589743593
+Cell 15: Predicted 34.775000000000006, Actual 59.7
+Error: 0.41750418760469005
+Writing data to CSV file... notebooks/ibtesama/getting-started-with-a-movie-recommendation-system/src/rewritten_cpu/prediction_times.csv
+Average error percentage: 0.3491035089485578
+Average absolute error: 242.940931875
+total original cpu time: 88777.48899999999
+total predicted cpu time: 85370.81990999999
+total absolute error: 3887.05491
+---------------------------------------
+processing notebooks/mpwolke/just-you-wait-rishi-sunak/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 1.0` in cell 2
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_0.3.ipynb
+Running with `factor = 0.3`...
+Time taken: 18.020406007766724 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_0.4.ipynb
+Running with `factor = 0.4`...
+Time taken: 21.036882400512695 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_0.5.ipynb
+Running with `factor = 0.5`...
+Time taken: 22.892866849899292 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_0.6.ipynb
+Running with `factor = 0.6`...
+Time taken: 25.905705451965332 seconds
+Predictions at factor = 1000:
+Cell 0: 445.5
+Cell 1: 0.21525
+Cell 2: 980.0
+Cell 3: 15.6325
+Cell 4: 1.7675
+Cell 5: 47.620000000000005
+Cell 6: 20951.000000000004
+Cell 7: 0.21225000000000002
+Cell 8: 27.892000000000007
+Cell 9: 0.00824
+Cell 10: 59.09000000000001
+Cell 11: 122.4
+Cell 12: 0.0252
+Cell 13: 0.122
+Cell 14: 3575.0
+Cell 15: 10.364
+Cell 16: 499.5000000000001
+Cell 17: 3377.000000000001
+Cell 18: 1777.6000000000004
+Cell 19: 0.16925
+Annotated notebook saved to notebooks/mpwolke/just-you-wait-rishi-sunak/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 445.5, Actual 349.0
+Error: 0.27650429799426934
+Cell 1: Predicted 0.21525, Actual 0.27
+Error: 0.20277777777777783
+Cell 2: Predicted 980.0, Actual 939.0
+Error: 0.043663471778487756
+Cell 3: Predicted 15.6325, Actual 36.2
+Error: 0.5681629834254144
+Cell 4: Predicted 1.7675, Actual 1.77
+Error: 0.0014124293785310433
+Cell 5: Predicted 47.620000000000005, Actual 79.4
+Error: 0.40025188916876575
+Cell 6: Predicted 20951.000000000004, Actual 23300.0
+Error: 0.10081545064377667
+Cell 7: Predicted 0.21225000000000002, Actual 0.189
+Error: 0.12301587301587312
+Cell 8: Predicted 27.892000000000007, Actual 16.3
+Error: 0.7111656441717795
+Cell 9: Predicted 0.00824, Actual 0.00691
+Error: 0.19247467438494942
+Cell 10: Predicted 59.09000000000001, Actual 75.7
+Error: 0.21941875825627466
+Cell 11: Predicted 122.4, Actual 149.0
+Error: 0.17852348993288586
+Cell 12: Predicted 0.0252, Actual 0.0317
+Error: 0.20504731861198736
+Cell 13: Predicted 0.122, Actual 0.11
+Error: 0.10909090909090906
+Cell 14: Predicted 3575.0, Actual 3620.0
+Error: 0.012430939226519336
+Cell 15: Predicted 10.364, Actual 11.2
+Error: 0.07464285714285701
+Cell 16: Predicted 499.5000000000001, Actual 632.0
+Error: 0.20965189873417703
+Cell 17: Predicted 3377.000000000001, Actual 3460.0
+Error: 0.02398843930635812
+Cell 18: Predicted 1777.6000000000004, Actual 2380.0
+Error: 0.25310924369747884
+Cell 19: Predicted 0.16925, Actual 0.152
+Error: 0.11348684210526326
+Writing data to CSV file... notebooks/mpwolke/just-you-wait-rishi-sunak/src/rewritten_cpu/prediction_times.csv
+Average error percentage: 0.20098175939221674
+Average absolute error: 172.87515399999975
+total original cpu time: 35050.32961
+total predicted cpu time: 31891.11819000001
+total absolute error: 3457.5030799999954
+---------------------------------------
+processing notebooks/joshuaswords/netflix-data-visualization/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 200` in cell 2
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_60.ipynb
+Running with `factor = 60`...
+Time taken: 8.625224113464355 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_80.ipynb
+Running with `factor = 80`...
+Time taken: 10.542639255523682 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_100.ipynb
+Running with `factor = 100`...
+Time taken: 12.39252495765686 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_120.ipynb
+Running with `factor = 120`...
+Time taken: 15.10620927810669 seconds
+Predictions at factor = 1000:
+Cell 0: 386.0
+Cell 1: 805.0999999999999
+Cell 2: 1289.3999999999996
+Cell 3: 778.0
+Cell 4: 1172.8999999999999
+Cell 5: 1122.4999999999998
+Cell 6: 173.05999999999997
+Cell 7: 0.41779999999999995
+Cell 8: 5672.0
+Cell 9: 175.16000000000003
+Cell 10: 238.0
+Cell 11: 59.55
+Cell 12: 380.0999999999999
+Cell 13: 222.97999999999996
+Cell 14: 151.55999999999997
+Cell 15: 153.25
+Cell 16: 2.79
+Cell 17: 594.75
+Cell 18: 2773.2
+Cell 19: 421.9
+Cell 20: 333.7
+Cell 21: 481.4999999999999
+Cell 22: 91.6
+Cell 23: 237.25
+Cell 24: 796.6999999999998
+Cell 25: 412.0
+Annotated notebook saved to notebooks/joshuaswords/netflix-data-visualization/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 386.0, Actual 326.0
+Error: 0.18404907975460122
+Cell 1: Predicted 805.0999999999999, Actual 772.0
+Error: 0.04287564766839366
+Cell 2: Predicted 1289.3999999999996, Actual 1450.0
+Error: 0.11075862068965542
+Cell 3: Predicted 778.0, Actual 812.0
+Error: 0.04187192118226601
+Cell 4: Predicted 1172.8999999999999, Actual 5.92
+Error: 197.12499999999997
+Cell 5: Predicted 1122.4999999999998, Actual 882.0
+Error: 0.272675736961451
+Cell 6: Predicted 173.05999999999997, Actual 104.0
+Error: 0.6640384615384612
+Cell 7: Predicted 0.41779999999999995, Actual 0.44
+Error: 0.05045454545454558
+Cell 8: Predicted 5672.0, Actual 5000.0
+Error: 0.1344
+Cell 9: Predicted 175.16000000000003, Actual 124.0
+Error: 0.4125806451612905
+Cell 10: Predicted 238.0, Actual 437.0
+Error: 0.45537757437070936
+Cell 11: Predicted 59.55, Actual 105.0
+Error: 0.4328571428571429
+Cell 12: Predicted 380.0999999999999, Actual 352.0
+Error: 0.0798295454545452
+Cell 13: Predicted 222.97999999999996, Actual 230.0
+Error: 0.03052173913043495
+Cell 14: Predicted 151.55999999999997, Actual 152.0
+Error: 0.002894736842105435
+Cell 15: Predicted 153.25, Actual 149.0
+Error: 0.028523489932885907
+Cell 16: Predicted 2.79, Actual 3.09
+Error: 0.09708737864077664
+Cell 17: Predicted 594.75, Actual 625.0
+Error: 0.0484
+Cell 18: Predicted 2773.2, Actual 2830.0
+Error: 0.020070671378091938
+Cell 19: Predicted 421.9, Actual 470.0
+Error: 0.10234042553191494
+Cell 20: Predicted 333.7, Actual 407.0
+Error: 0.18009828009828013
+Cell 21: Predicted 481.4999999999999, Actual 417.0
+Error: 0.1546762589928055
+Cell 22: Predicted 91.6, Actual 175.0
+Error: 0.4765714285714286
+Cell 23: Predicted 237.25, Actual 440.0
+Error: 0.46079545454545456
+Cell 24: Predicted 796.6999999999998, Actual 676.0
+Error: 0.1785502958579879
+Cell 25: Predicted 412.0, Actual 341.0
+Error: 0.20821114369501467
+Writing data to CSV file... notebooks/joshuaswords/netflix-data-visualization/src/rewritten_cpu/prediction_times.csv
+Average error percentage: 7.769058085550393
+Average absolute error: 135.49162307692308
+total original cpu time: 17285.45
+total predicted cpu time: 18925.3678
+total absolute error: 3522.7822
+---------------------------------------
+processing notebooks/pmarcelino/comprehensive-data-exploration-with-python/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 300` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_90.ipynb
+Running with `factor = 90`...
+Time taken: 5.831160545349121 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_120.ipynb
+Running with `factor = 120`...
+Time taken: 7.000490665435791 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_150.ipynb
+Running with `factor = 150`...
+Time taken: 7.9492082595825195 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_180.ipynb
+Running with `factor = 180`...
+Time taken: 9.081719875335693 seconds
+Predictions at factor = 1000:
+Cell 0: 1680.1999999999998
+Cell 1: 0.018004
+Cell 2: 25.61999999999999
+Cell 3: 34.132000000000005
+Cell 4: 7.783199999999999
+Cell 5: 7.431999999999999
+Cell 6: 7.998999999999997
+Cell 7: 8.369
+Cell 8: 2307.2999999999993
+Cell 9: 53.89999999999999
+Cell 10: 2335.5
+Cell 11: 631.6999999999999
+Cell 12: 85.36999999999999
+Cell 13: 1.495
+Cell 14: 696.3
+Cell 15: 4.278999999999999
+Cell 16: 4.078999999999999
+Cell 17: 6.337999999999999
+Cell 18: 3.0839999999999996
+Cell 19: 4.523
+Cell 20: 345.38
+Cell 21: 388.28
+Cell 22: 1844.6999999999998
+Annotated notebook saved to notebooks/pmarcelino/comprehensive-data-exploration-with-python/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 1680.1999999999998, Actual 1130.0
+Error: 0.4869026548672565
+Cell 1: Predicted 0.018004, Actual 0.00811
+Error: 1.2199753390875463
+Cell 2: Predicted 25.61999999999999, Actual 18.2
+Error: 0.40769230769230724
+Cell 3: Predicted 34.132000000000005, Actual 13.9
+Error: 1.4555395683453243
+Cell 4: Predicted 7.783199999999999, Actual 3.05
+Error: 1.5518688524590163
+Cell 5: Predicted 7.431999999999999, Actual 4.46
+Error: 0.666367713004484
+Cell 6: Predicted 7.998999999999997, Actual 4.5
+Error: 0.7775555555555549
+Cell 7: Predicted 8.369, Actual 3.47
+Error: 1.4118155619596537
+Cell 8: Predicted 2307.2999999999993, Actual 1760.0
+Error: 0.31096590909090865
+Cell 9: Predicted 53.89999999999999, Actual 42.6
+Error: 0.2652582159624411
+Cell 10: Predicted 2335.5, Actual 2380.0
+Error: 0.018697478991596638
+Cell 11: Predicted 631.6999999999999, Actual 822.0
+Error: 0.23150851581508525
+Cell 12: Predicted 85.36999999999999, Actual 75.3
+Error: 0.13373173970783525
+Cell 13: Predicted 1.495, Actual 2.15
+Error: 0.3046511627906976
+Cell 14: Predicted 696.3, Actual 694.0
+Error: 0.0033141210374639115
+Cell 15: Predicted 4.278999999999999, Actual 3.38
+Error: 0.2659763313609465
+Cell 16: Predicted 4.078999999999999, Actual 4.09
+Error: 0.002689486552567484
+Cell 17: Predicted 6.337999999999999, Actual 4.14
+Error: 0.5309178743961351
+Cell 18: Predicted 3.0839999999999996, Actual 2.71
+Error: 0.13800738007380062
+Cell 19: Predicted 4.523, Actual 5.31
+Error: 0.14821092278719397
+Cell 20: Predicted 345.38, Actual 290.0
+Error: 0.1909655172413793
+Cell 21: Predicted 388.28, Actual 286.0
+Error: 0.35762237762237753
+Cell 22: Predicted 1844.6999999999998, Actual 1220.0
+Error: 0.5120491803278687
+Writing data to CSV file... notebooks/pmarcelino/comprehensive-data-exploration-with-python/src/rewritten_cpu/prediction_times.csv
+Average error percentage: 0.49531668550997565
+Average absolute error: 95.08778669565214
+total original cpu time: 8769.26811
+total predicted cpu time: 10483.781203999999
+total absolute error: 2187.0190939999984
+---------------------------------------
+processing notebooks/gksriharsha/eda-speedtests/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 1000` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_300.ipynb
+Running with `factor = 300`...
+Time taken: 3.8978517055511475 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_400.ipynb
+Running with `factor = 400`...
+Time taken: 4.517691135406494 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_500.ipynb
+Running with `factor = 500`...
+Time taken: 5.049766302108765 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_600.ipynb
+Running with `factor = 600`...
+Time taken: 5.923871278762817 seconds
+Predictions at factor = 1000:
+Cell 0: 1510.1
+Cell 1: 369.29999999999995
+Cell 2: 741.2
+Cell 3: 311.92
+Cell 4: 56.525
+Cell 5: 0.021950000000000004
+Cell 6: 1.86
+Cell 7: 1.615
+Cell 8: 1271.1999999999998
+Cell 9: 1.325
+Cell 10: 1.05825
+Cell 11: 0.996
+Cell 12: 0.9835
+Cell 13: 1.0972
+Cell 14: 0.7505
+Cell 15: 1.10375
+Cell 16: 0.775
+Cell 17: 1324.6999999999998
+Cell 18: 1.1875
+Cell 19: 1.20475
+Cell 20: 1.1487500000000002
+Cell 21: 1.038
+Cell 22: 1.32
+Cell 23: 0.9516000000000001
+Cell 24: 0.7334000000000002
+Cell 25: 1.0505
+Annotated notebook saved to notebooks/gksriharsha/eda-speedtests/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 1510.1, Actual 1090.0
+Error: 0.3854128440366972
+Cell 1: Predicted 369.29999999999995, Actual 453.0
+Error: 0.1847682119205299
+Cell 2: Predicted 741.2, Actual 922.0
+Error: 0.19609544468546633
+Cell 3: Predicted 311.92, Actual 309.0
+Error: 0.009449838187702318
+Cell 4: Predicted 56.525, Actual 120.0
+Error: 0.5289583333333333
+Cell 5: Predicted 0.021950000000000004, Actual 0.0253
+Error: 0.1324110671936757
+Cell 6: Predicted 1.86, Actual 1.79
+Error: 0.03910614525139668
+Cell 7: Predicted 1.615, Actual 1.08
+Error: 0.49537037037037024
+Cell 8: Predicted 1271.1999999999998, Actual 1210.0
+Error: 0.050578512396694066
+Cell 9: Predicted 1.325, Actual 1.5
+Error: 0.1166666666666667
+Cell 10: Predicted 1.05825, Actual 1.13
+Error: 0.06349557522123893
+Cell 11: Predicted 0.996, Actual 1.02
+Error: 0.023529411764705903
+Cell 12: Predicted 0.9835, Actual 1.02
+Error: 0.03578431372549017
+Cell 13: Predicted 1.0972, Actual 0.8270000000000001
+Error: 0.32672309552599743
+Cell 14: Predicted 0.7505, Actual 1.1
+Error: 0.31772727272727286
+Cell 15: Predicted 1.10375, Actual 0.9430000000000001
+Error: 0.17046659597030747
+Cell 16: Predicted 0.775, Actual 0.634
+Error: 0.22239747634069404
+Cell 17: Predicted 1324.6999999999998, Actual 1160.0
+Error: 0.1419827586206895
+Cell 18: Predicted 1.1875, Actual 1.19
+Error: 0.002100840336134409
+Cell 19: Predicted 1.20475, Actual 1.73
+Error: 0.3036127167630058
+Cell 20: Predicted 1.1487500000000002, Actual 1.37
+Error: 0.16149635036496346
+Cell 21: Predicted 1.038, Actual 1.03
+Error: 0.0077669902912621425
+Cell 22: Predicted 1.32, Actual 1.19
+Error: 0.1092436974789917
+Cell 23: Predicted 0.9516000000000001, Actual 0.6880000000000001
+Error: 0.383139534883721
+Cell 24: Predicted 0.7334000000000002, Actual 1.43
+Error: 0.487132867132867
+Cell 25: Predicted 1.0505, Actual 1.21
+Error: 0.1318181818181818
+Writing data to CSV file... notebooks/gksriharsha/eda-speedtests/src/rewritten_cpu/prediction_times.csv
+Average error percentage: 0.193355196654156
+Average absolute error: 37.720721153846135
+total original cpu time: 5284.907300000001
+total predicted cpu time: 5605.16565
+total absolute error: 980.7387499999998
+---------------------------------------
+processing notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 200` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_60.ipynb
+Running with `factor = 60`...
+Time taken: 7.357012748718262 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_80.ipynb
+Running with `factor = 80`...
+Time taken: 9.664397478103638 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_100.ipynb
+Running with `factor = 100`...
+Time taken: 10.762897253036499 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_120.ipynb
+Running with `factor = 120`...
+Time taken: 13.819705963134766 seconds
+Predictions at factor = 1000:
+Cell 0: 417.09999999999997
+Cell 1: 0.1965
+Cell 2: 0.14033
+Cell 3: 0.0137
+Cell 4: 0.009613
+Cell 5: 121.88999999999999
+Cell 6: 269.93999999999994
+Cell 7: 367.00999999999993
+Cell 8: 18586.0
+Cell 9: 1.7214999999999998
+Cell 10: 0.66775
+Annotated notebook saved to notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 417.09999999999997, Actual 252.0
+Error: 0.65515873015873
+Cell 1: Predicted 0.1965, Actual 0.276
+Error: 0.2880434782608696
+Cell 2: Predicted 0.14033, Actual 0.0808
+Error: 0.7367574257425744
+Cell 3: Predicted 0.0137, Actual 0.0117
+Error: 0.17094017094017094
+Cell 4: Predicted 0.009613, Actual 0.00572
+Error: 0.6805944055944055
+Cell 5: Predicted 121.88999999999999, Actual 125.0
+Error: 0.02488000000000011
+Cell 6: Predicted 269.93999999999994, Actual 277.0
+Error: 0.02548736462093884
+Cell 7: Predicted 367.00999999999993, Actual 332.0
+Error: 0.10545180722891546
+Cell 8: Predicted 18586.0, Actual 17800.0
+Error: 0.044157303370786515
+Cell 9: Predicted 1.7214999999999998, Actual 1.2
+Error: 0.4345833333333332
+Cell 10: Predicted 0.66775, Actual 0.641
+Error: 0.04173166926677058
+Writing data to CSV file... notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/rewritten_cpu/prediction_times.csv
+Average error percentage: 0.29161688077431774
+Average absolute error: 90.63392481818181
+total original cpu time: 18788.215220000002
+total predicted cpu time: 19764.689393
+total absolute error: 996.973173
+---------------------------------------
+processing new_notebooks/us-birth/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 500` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_150.ipynb
+Running with `factor = 150`...
+Time taken: 5.406291246414185 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_200.ipynb
+Running with `factor = 200`...
+Time taken: 6.145994663238525 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_250.ipynb
+Running with `factor = 250`...
+Time taken: 8.051730394363403 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_300.ipynb
+Running with `factor = 300`...
+Time taken: 8.753216981887817 seconds
+Predictions at factor = 1000:
+Cell 0: 924.2999999999998
+Cell 1: 21.255000000000003
+Cell 2: 877.0999999999999
+Cell 3: 379.17999999999995
+Cell 4: 111.19999999999996
+Cell 5: 1192.3000000000002
+Cell 6: 931.2
+Cell 7: 41.84
+Cell 8: 1356.1999999999998
+Cell 9: 782.1999999999999
+Cell 10: 1644.3
+Cell 11: 75.72999999999999
+Cell 12: 366.06
+Cell 13: 351.0
+Cell 14: 185.08
+Cell 15: 0.263
+Cell 16: 968.7
+Cell 17: 0.018875000000000003
+Cell 18: 3.4525
+Annotated notebook saved to new_notebooks/us-birth/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 924.2999999999998, Actual 631.0
+Error: 0.46481774960380323
+Cell 1: Predicted 21.255000000000003, Actual 7.06
+Error: 2.010623229461757
+Cell 2: Predicted 877.0999999999999, Actual 676.0
+Error: 0.29748520710059156
+Cell 3: Predicted 379.17999999999995, Actual 292.0
+Error: 0.2985616438356163
+Cell 4: Predicted 111.19999999999996, Actual 81.0
+Error: 0.372839506172839
+Cell 5: Predicted 1192.3000000000002, Actual 867.0
+Error: 0.3752018454440602
+Cell 6: Predicted 931.2, Actual 936.0
+Error: 0.00512820512820508
+Cell 7: Predicted 41.84, Actual 43.5
+Error: 0.03816091954022981
+Cell 8: Predicted 1356.1999999999998, Actual 1420.0
+Error: 0.04492957746478886
+Cell 9: Predicted 782.1999999999999, Actual 731.0
+Error: 0.07004103967168253
+Cell 10: Predicted 1644.3, Actual 1350.0
+Error: 0.21799999999999997
+Cell 11: Predicted 75.72999999999999, Actual 65.3
+Error: 0.15972434915773343
+Cell 12: Predicted 366.06, Actual 316.0
+Error: 0.15841772151898734
+Cell 13: Predicted 351.0, Actual 365.0
+Error: 0.038356164383561646
+Cell 14: Predicted 185.08, Actual 182.0
+Error: 0.016923076923076992
+Cell 15: Predicted 0.263, Actual 0.22
+Error: 0.1954545454545455
+Cell 16: Predicted 968.7, Actual 961.0
+Error: 0.008012486992715968
+Cell 17: Predicted 0.018875000000000003, Actual 0.0167
+Error: 0.13023952095808403
+Cell 18: Predicted 3.4525, Actual 3.89
+Error: 0.11246786632390746
+Writing data to CSV file... new_notebooks/us-birth/rewritten_cpu/prediction_times.csv
+Average error percentage: 0.26396761342822034
+Average absolute error: 76.4625092105263
+total original cpu time: 8927.9867
+total predicted cpu time: 10211.379374999999
+total absolute error: 1452.7876749999996
+---------------------------------------
+processing new_notebooks/nyc-flight/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 1.0` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_0.3.ipynb
+Running with `factor = 0.3`...
+Time taken: 4.458130598068237 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_0.4.ipynb
+Running with `factor = 0.4`...
+Time taken: 4.315423488616943 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_0.5.ipynb
+Running with `factor = 0.5`...
+Time taken: 4.5286030769348145 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_0.6.ipynb
+Running with `factor = 0.6`...
+Time taken: 4.728246450424194 seconds
+Predictions at factor = 1000:
+Cell 0: 676.5
+Cell 1: 0.25675000000000003
+Cell 2: 7.879999999999999
+Cell 3: 12.605
+Cell 4: 23.824000000000005
+Cell 5: 13.17
+Cell 6: 11.66
+Cell 7: 13.3
+Cell 8: 13.6
+Cell 9: 0.0087125
+Cell 10: 18.754000000000005
+Cell 11: 54.25
+Cell 12: 34.56000000000002
+Cell 13: 1.8900000000000001
+Cell 14: 823.9000000000001
+Cell 15: 28.174999999999997
+Cell 16: 18.853
+Cell 17: 179.5
+Annotated notebook saved to new_notebooks/nyc-flight/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 676.5, Actual 671.0
+Error: 0.00819672131147541
+Cell 1: Predicted 0.25675000000000003, Actual 0.254
+Error: 0.010826771653543427
+Cell 2: Predicted 7.879999999999999, Actual 15.7
+Error: 0.49808917197452235
+Cell 3: Predicted 12.605, Actual 53.9
+Error: 0.7661410018552877
+Cell 4: Predicted 23.824000000000005, Actual 36.4
+Error: 0.34549450549450533
+Cell 5: Predicted 13.17, Actual 33.9
+Error: 0.611504424778761
+Cell 6: Predicted 11.66, Actual 35.4
+Error: 0.6706214689265536
+Cell 7: Predicted 13.3, Actual 37.4
+Error: 0.6443850267379679
+Cell 8: Predicted 13.6, Actual 28.3
+Error: 0.519434628975265
+Cell 9: Predicted 0.0087125, Actual 0.00906
+Error: 0.038355408388521035
+Cell 10: Predicted 18.754000000000005, Actual 25.8
+Error: 0.2731007751937983
+Cell 11: Predicted 54.25, Actual 47.2
+Error: 0.14936440677966095
+Cell 12: Predicted 34.56000000000002, Actual 58.4
+Error: 0.4082191780821915
+Cell 13: Predicted 1.8900000000000001, Actual 2.65
+Error: 0.2867924528301886
+Cell 14: Predicted 823.9000000000001, Actual 750.0
+Error: 0.09853333333333346
+Cell 15: Predicted 28.174999999999997, Actual 100.0
+Error: 0.71825
+Cell 16: Predicted 18.853, Actual 15.6
+Error: 0.20852564102564114
+Cell 17: Predicted 179.5, Actual 206.0
+Error: 0.12864077669902912
+Writing data to CSV file... new_notebooks/nyc-flight/rewritten_cpu/prediction_times.csv
+Average error percentage: 0.354693094113347
+Average absolute error: 20.257672083333333
+total original cpu time: 2117.91306
+total predicted cpu time: 1932.6864625
+total absolute error: 364.6380975
+---------------------------------------
+processing new_notebooks/imdb/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 500` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_150.ipynb
+Running with `factor = 150`...
+Time taken: 4.049259901046753 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_200.ipynb
+Running with `factor = 200`...
+Time taken: 5.012593507766724 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_250.ipynb
+Running with `factor = 250`...
+Time taken: 5.43796706199646 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_300.ipynb
+Running with `factor = 300`...
+Time taken: 6.190308332443237 seconds
+Predictions at factor = 1000:
+Cell 0: 287.0
+Cell 1: 1119.6
+Cell 2: 789.8
+Cell 3: 0.011575
+Cell 4: 830.3999999999999
+Cell 5: 2.5825
+Cell 6: 146.7
+Cell 7: 150.45
+Cell 8: 880.2
+Cell 9: 25.855999999999998
+Cell 10: 304.49
+Cell 11: 7.3870000000000005
+Cell 12: 0.12975
+Cell 13: 88.79999999999998
+Cell 14: 81.6
+Annotated notebook saved to new_notebooks/imdb/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 287.0, Actual 698.0
+Error: 0.5888252148997135
+Cell 1: Predicted 1119.6, Actual 7.91
+Error: 140.54235145385584
+Cell 2: Predicted 789.8, Actual 1040.0
+Error: 0.24057692307692313
+Cell 3: Predicted 0.011575, Actual 0.0126
+Error: 0.08134920634920634
+Cell 4: Predicted 830.3999999999999, Actual 716.0
+Error: 0.15977653631284897
+Cell 5: Predicted 2.5825, Actual 3.83
+Error: 0.32571801566579633
+Cell 6: Predicted 146.7, Actual 234.0
+Error: 0.37307692307692314
+Cell 7: Predicted 150.45, Actual 239.0
+Error: 0.37050209205020923
+Cell 8: Predicted 880.2, Actual 754.0
+Error: 0.16737400530503985
+Cell 9: Predicted 25.855999999999998, Actual 30.7
+Error: 0.15778501628664499
+Cell 10: Predicted 304.49, Actual 297.0
+Error: 0.025218855218855248
+Cell 11: Predicted 7.3870000000000005, Actual 10.2
+Error: 0.2757843137254901
+Cell 12: Predicted 0.12975, Actual 0.17200000000000001
+Error: 0.24563953488372098
+Cell 13: Predicted 88.79999999999998, Actual 113.0
+Error: 0.21415929203539838
+Cell 14: Predicted 81.6, Actual 89.5
+Error: 0.08826815642458107
+Writing data to CSV file... new_notebooks/imdb/rewritten_cpu/prediction_times.csv
+Average error percentage: 9.590427035944481
+Average absolute error: 149.19185166666665
+total original cpu time: 4233.3246
+total predicted cpu time: 4715.0068249999995
+total absolute error: 2237.877775
+---------------------------------------
+processing new_notebooks/nyc-taxi/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 1.0` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_0.3.ipynb
+Running with `factor = 0.3`...
+Error processing new_notebooks/nyc-taxi/rewritten_cpu/o4_mini_high.ipynb Execution failed in cell %%time
+### cell 0 ###
+
+file_loc = '/home/dias-benchmarks/new_notebooks/nyc-taxi/yellow_tripdata.csv'
+factor = 0.3
+# read file
+trip_data = pd.read_csv(file_loc)
+trip_data.sample(frac=factor, random_state=0)
+trip_data.shape, trip_data.head(): [Errno 2] No such file or directory: '/home/dias-benchmarks/new_notebooks/nyc-taxi/yellow_tripdata.csv'
+---------------------------------------
+processing new_notebooks/nyc-airbnb/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 10` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_3.ipynb
+Running with `factor = 3`...
+Time taken: 3.550896406173706 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_4.ipynb
+Running with `factor = 4`...
+Time taken: 3.4694035053253174 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_5.ipynb
+Running with `factor = 5`...
+Time taken: 3.656076192855835 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_6.ipynb
+Running with `factor = 6`...
+Time taken: 3.578113079071045 seconds
+Predictions at factor = 1000:
+Cell 0: 229.0
+Cell 1: 0.0167
+Cell 2: 206.12999999999997
+Cell 3: 37.69
+Cell 4: 98.11999999999998
+Cell 5: 4.333
+Cell 6: 37.279999999999994
+Cell 7: 0.015575
+Cell 8: 56.69999999999999
+Cell 9: 43.17
+Cell 10: 0.052625000000000005
+Cell 11: 4.4
+Cell 12: 23.360999999999997
+Cell 13: 67.38
+Cell 14: 114.57
+Cell 15: 79.44000000000003
+Cell 16: 17.915999999999997
+Cell 17: 19.077999999999996
+Cell 18: 2.2424999999999997
+Annotated notebook saved to new_notebooks/nyc-airbnb/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 229.0, Actual 204.0
+Error: 0.12254901960784313
+Cell 1: Predicted 0.0167, Actual 0.0143
+Error: 0.16783216783216778
+Cell 2: Predicted 206.12999999999997, Actual 159.0
+Error: 0.29641509433962243
+Cell 3: Predicted 37.69, Actual 30.7
+Error: 0.22768729641693808
+Cell 4: Predicted 98.11999999999998, Actual 86.5
+Error: 0.13433526011560665
+Cell 5: Predicted 4.333, Actual 3.42
+Error: 0.26695906432748545
+Cell 6: Predicted 37.279999999999994, Actual 42.2
+Error: 0.11658767772511869
+Cell 7: Predicted 0.015575, Actual 0.024300000000000002
+Error: 0.3590534979423869
+Cell 8: Predicted 56.69999999999999, Actual 84.7
+Error: 0.3305785123966944
+Cell 9: Predicted 43.17, Actual 67.3
+Error: 0.35854383358098063
+Cell 10: Predicted 0.052625000000000005, Actual 0.0689
+Error: 0.2362119013062409
+Cell 11: Predicted 4.4, Actual 4.36
+Error: 0.009174311926605512
+Cell 12: Predicted 23.360999999999997, Actual 20.3
+Error: 0.1507881773399013
+Cell 13: Predicted 67.38, Actual 95.4
+Error: 0.2937106918238995
+Cell 14: Predicted 114.57, Actual 66.0
+Error: 0.7359090909090908
+Cell 15: Predicted 79.44000000000003, Actual 65.9
+Error: 0.2054628224582704
+Cell 16: Predicted 17.915999999999997, Actual 11.1
+Error: 0.6140540540540538
+Cell 17: Predicted 19.077999999999996, Actual 18.2
+Error: 0.048241758241758054
+Cell 18: Predicted 2.2424999999999997, Actual 2.61
+Error: 0.1408045977011495
+Writing data to CSV file... new_notebooks/nyc-airbnb/rewritten_cpu/prediction_times.csv
+Average error percentage: 0.2534157278971481
+Average absolute error: 13.1591
+total original cpu time: 961.7975
+total predicted cpu time: 1040.8953999999999
+total absolute error: 250.0229
+Failed paths: [PosixPath('new_notebooks/nyc-taxi/rewritten_cpu/o4_mini_high.ipynb')]

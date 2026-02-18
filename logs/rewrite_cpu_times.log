@@ -1,0 +1,1325 @@
+---------------------------------------
+processing notebooks/saisandeepjallepalli/adidas-retail-eda-data-visualization/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 1000` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_300.ipynb
+Running with `factor = 300`...
+Time taken: 7.952131748199463 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_400.ipynb
+Running with `factor = 400`...
+Time taken: 9.328688144683838 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_500.ipynb
+Running with `factor = 500`...
+Time taken: 9.97239875793457 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_600.ipynb
+Running with `factor = 600`...
+Time taken: 11.667810201644897 seconds
+Predictions at factor = 1000:
+Cell 0: 1010.7000000000002
+Cell 1: 0.17325000000000002
+Cell 2: 692.1
+Cell 3: 0.023020000000000006
+Cell 4: 818.0999999999999
+Cell 5: 42.150000000000006
+Cell 6: 76.44
+Cell 7: 16.759999999999998
+Cell 8: 745.4000000000001
+Cell 9: 605.0999999999999
+Cell 10: 70.53
+Cell 11: 0.19039999999999999
+Cell 12: 496.00000000000006
+Cell 13: 0.23970000000000005
+Cell 14: 0.015025
+Cell 15: 0.1945
+Cell 16: 1419.7
+Cell 17: 2307.8999999999996
+Cell 18: 162.57999999999998
+Cell 19: 63.65
+Cell 20: 0.2905
+Cell 21: 104.12
+Cell 22: 81.28
+Cell 23: 44.4
+Cell 24: 8.24
+Cell 25: 8.980999999999998
+Cell 26: 6.478
+Cell 27: 0.85075
+Cell 28: 0.6735000000000001
+Cell 29: 1.163
+Cell 30: 66.75
+Cell 31: 70.29
+Cell 32: 2.84
+Cell 33: 3.5300000000000002
+Cell 34: 3.4524999999999997
+Cell 35: 0.6967500000000001
+Cell 36: 0.89175
+Cell 37: 2.4683999999999995
+Cell 38: 76.90999999999998
+Cell 39: 68.66
+Cell 40: 2.36
+Cell 41: 8.635
+Cell 42: 8.855999999999998
+Cell 43: 8.390999999999998
+Cell 44: 8.654
+Cell 45: 11.830000000000002
+Cell 46: 20.214000000000002
+Cell 47: 11.102999999999998
+Cell 48: 13.763
+Cell 49: 5.3325000000000005
+Cell 50: 5.4624999999999995
+Cell 51: 4.6725
+Cell 52: 5.34
+Cell 53: 10.7175
+Cell 54: 22.775
+Cell 55: 20.724999999999998
+Cell 56: 40.32
+Cell 57: 62.0
+Cell 58: 35.824999999999996
+Cell 59: 45.975
+Cell 60: 52.775000000000006
+Cell 61: 26.474999999999998
+Cell 62: 22.9
+Cell 63: 29.54
+Cell 64: 91.18
+Cell 65: 55.425
+Cell 66: 46.325
+Cell 67: 103.32999999999998
+Cell 68: 60.660000000000004
+Cell 69: 233.92
+Cell 70: 216.51
+Cell 71: 178.14
+Cell 72: 58.84
+Cell 73: 52.2
+Cell 74: 51.150000000000006
+Cell 75: 50.72999999999999
+Cell 76: 119.83999999999999
+Cell 77: 4.6225
+Cell 78: 4.609999999999999
+Cell 79: 5.3375
+Cell 80: 4.9425
+Cell 81: 10.155000000000001
+Cell 82: 1.4354999999999998
+Cell 83: 1.116
+Cell 84: 0.9475
+Cell 85: 200.37
+Cell 86: 281.37
+Cell 87: 11.809999999999999
+Cell 88: 10.05
+Cell 89: 13.775999999999996
+Cell 90: 0.7575000000000001
+Cell 91: 0.8062
+Cell 92: 1.7402
+Cell 93: 284.61
+Cell 94: 271.15000000000003
+Cell 95: 0.02325
+Annotated notebook saved to notebooks/saisandeepjallepalli/adidas-retail-eda-data-visualization/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 1010.7000000000002, Actual 1180.0
+Error: 0.14347457627118632
+Cell 1: Predicted 0.17325000000000002, Actual 0.148
+Error: 0.17060810810810828
+Cell 2: Predicted 692.1, Actual 860.0
+Error: 0.19523255813953486
+Cell 3: Predicted 0.023020000000000006, Actual 0.0207
+Error: 0.11207729468599063
+Cell 4: Predicted 818.0999999999999, Actual 566.0
+Error: 0.4454063604240281
+Cell 5: Predicted 42.150000000000006, Actual 35.6
+Error: 0.18398876404494394
+Cell 6: Predicted 76.44, Actual 92.1
+Error: 0.17003257328990226
+Cell 7: Predicted 16.759999999999998, Actual 31.8
+Error: 0.47295597484276736
+Cell 8: Predicted 745.4000000000001, Actual 698.0
+Error: 0.06790830945558753
+Cell 9: Predicted 605.0999999999999, Actual 620.0
+Error: 0.024032258064516275
+Cell 10: Predicted 70.53, Actual 63.3
+Error: 0.11421800947867305
+Cell 11: Predicted 0.19039999999999999, Actual 0.131
+Error: 0.4534351145038166
+Cell 12: Predicted 496.00000000000006, Actual 521.0
+Error: 0.04798464491362753
+Cell 13: Predicted 0.23970000000000005, Actual 0.26
+Error: 0.0780769230769229
+Cell 14: Predicted 0.015025, Actual 0.0174
+Error: 0.13649425287356315
+Cell 15: Predicted 0.1945, Actual 0.257
+Error: 0.24319066147859922
+Cell 16: Predicted 1419.7, Actual 1750.0
+Error: 0.18874285714285713
+Cell 17: Predicted 2307.8999999999996, Actual 2000.0
+Error: 0.1539499999999998
+Cell 18: Predicted 162.57999999999998, Actual 103.0
+Error: 0.5784466019417475
+Cell 19: Predicted 63.65, Actual 83.3
+Error: 0.23589435774309722
+Cell 20: Predicted 0.2905, Actual 0.337
+Error: 0.13798219584569743
+Cell 21: Predicted 104.12, Actual 77.4
+Error: 0.34521963824289403
+Cell 22: Predicted 81.28, Actual 64.6
+Error: 0.2582043343653252
+Cell 23: Predicted 44.4, Actual 39.8
+Error: 0.11557788944723622
+Cell 24: Predicted 8.24, Actual 8.36
+Error: 0.01435406698564584
+Cell 25: Predicted 8.980999999999998, Actual 7.26
+Error: 0.23705234159779592
+Cell 26: Predicted 6.478, Actual 8.22
+Error: 0.2119221411192215
+Cell 27: Predicted 0.85075, Actual 0.916
+Error: 0.0712336244541485
+Cell 28: Predicted 0.6735000000000001, Actual 1.02
+Error: 0.3397058823529411
+Cell 29: Predicted 1.163, Actual 1.7
+Error: 0.31588235294117645
+Cell 30: Predicted 66.75, Actual 68.8
+Error: 0.029796511627906936
+Cell 31: Predicted 70.29, Actual 57.6
+Error: 0.22031250000000008
+Cell 32: Predicted 2.84, Actual 4.81
+Error: 0.40956340956340953
+Cell 33: Predicted 3.5300000000000002, Actual 4.98
+Error: 0.29116465863453816
+Cell 34: Predicted 3.4524999999999997, Actual 4.8
+Error: 0.2807291666666667
+Cell 35: Predicted 0.6967500000000001, Actual 1.11
+Error: 0.37229729729729727
+Cell 36: Predicted 0.89175, Actual 0.9580000000000001
+Error: 0.06915448851774533
+Cell 37: Predicted 2.4683999999999995, Actual 1.6
+Error: 0.5427499999999996
+Cell 38: Predicted 76.90999999999998, Actual 53.8
+Error: 0.42955390334572463
+Cell 39: Predicted 68.66, Actual 52.9
+Error: 0.29792060491493383
+Cell 40: Predicted 2.36, Actual 3.67
+Error: 0.3569482288828338
+Cell 41: Predicted 8.635, Actual 8.04
+Error: 0.0740049751243782
+Cell 42: Predicted 8.855999999999998, Actual 8.05
+Error: 0.10012422360248414
+Cell 43: Predicted 8.390999999999998, Actual 4.81
+Error: 0.7444906444906443
+Cell 44: Predicted 8.654, Actual 5.13
+Error: 0.6869395711500975
+Cell 45: Predicted 11.830000000000002, Actual 6.14
+Error: 0.9267100977198701
+Cell 46: Predicted 20.214000000000002, Actual 17.1
+Error: 0.18210526315789477
+Cell 47: Predicted 11.102999999999998, Actual 10.1
+Error: 0.09930693069306915
+Cell 48: Predicted 13.763, Actual 13.1
+Error: 0.05061068702290079
+Cell 49: Predicted 5.3325000000000005, Actual 14.4
+Error: 0.6296875
+Cell 50: Predicted 5.4624999999999995, Actual 11.2
+Error: 0.5122767857142857
+Cell 51: Predicted 4.6725, Actual 8.97
+Error: 0.4790969899665552
+Cell 52: Predicted 5.34, Actual 8.65
+Error: 0.3826589595375723
+Cell 53: Predicted 10.7175, Actual 16.2
+Error: 0.33842592592592596
+Cell 54: Predicted 22.775, Actual 56.1
+Error: 0.5940285204991088
+Cell 55: Predicted 20.724999999999998, Actual 55.5
+Error: 0.6265765765765767
+Cell 56: Predicted 40.32, Actual 66.3
+Error: 0.3918552036199095
+Cell 57: Predicted 62.0, Actual 174.0
+Error: 0.6436781609195402
+Cell 58: Predicted 35.824999999999996, Actual 89.3
+Error: 0.5988241881298992
+Cell 59: Predicted 45.975, Actual 82.7
+Error: 0.44407496977025396
+Cell 60: Predicted 52.775000000000006, Actual 74.3
+Error: 0.28970390309555843
+Cell 61: Predicted 26.474999999999998, Actual 41.9
+Error: 0.3681384248210024
+Cell 62: Predicted 22.9, Actual 51.9
+Error: 0.558766859344894
+Cell 63: Predicted 29.54, Actual 45.6
+Error: 0.3521929824561404
+Cell 64: Predicted 91.18, Actual 91.4
+Error: 0.002407002188183795
+Cell 65: Predicted 55.425, Actual 93.4
+Error: 0.40658458244111356
+Cell 66: Predicted 46.325, Actual 91.5
+Error: 0.49371584699453547
+Cell 67: Predicted 103.32999999999998, Actual 85.1
+Error: 0.21421856639247933
+Cell 68: Predicted 60.660000000000004, Actual 98.3
+Error: 0.38290946083418104
+Cell 69: Predicted 233.92, Actual 291.0
+Error: 0.19615120274914094
+Cell 70: Predicted 216.51, Actual 216.0
+Error: 0.002361111111111069
+Cell 71: Predicted 178.14, Actual 216.0
+Error: 0.17527777777777784
+Cell 72: Predicted 58.84, Actual 71.9
+Error: 0.1816411682892907
+Cell 73: Predicted 52.2, Actual 67.0
+Error: 0.22089552238805965
+Cell 74: Predicted 51.150000000000006, Actual 75.0
+Error: 0.31799999999999995
+Cell 75: Predicted 50.72999999999999, Actual 64.0
+Error: 0.20734375000000016
+Cell 76: Predicted 119.83999999999999, Actual 167.0
+Error: 0.2823952095808384
+Cell 77: Predicted 4.6225, Actual 10.5
+Error: 0.5597619047619048
+Cell 78: Predicted 4.609999999999999, Actual 11.0
+Error: 0.5809090909090909
+Cell 79: Predicted 5.3375, Actual 15.0
+Error: 0.6441666666666667
+Cell 80: Predicted 4.9425, Actual 12.8
+Error: 0.6138671875
+Cell 81: Predicted 10.155000000000001, Actual 16.0
+Error: 0.36531249999999993
+Cell 82: Predicted 1.4354999999999998, Actual 1.8
+Error: 0.20250000000000015
+Cell 83: Predicted 1.116, Actual 1.61
+Error: 0.3068322981366459
+Cell 84: Predicted 0.9475, Actual 1.7
+Error: 0.4426470588235294
+Cell 85: Predicted 200.37, Actual 201.0
+Error: 0.0031343283582089326
+Cell 86: Predicted 281.37, Actual 208.0
+Error: 0.35274038461538465
+Cell 87: Predicted 11.809999999999999, Actual 8.55
+Error: 0.38128654970760206
+Cell 88: Predicted 10.05, Actual 4.74
+Error: 1.120253164556962
+Cell 89: Predicted 13.775999999999996, Actual 7.98
+Error: 0.7263157894736837
+Cell 90: Predicted 0.7575000000000001, Actual 0.616
+Error: 0.22970779220779233
+Cell 91: Predicted 0.8062, Actual 0.5700000000000001
+Error: 0.4143859649122806
+Cell 92: Predicted 1.7402, Actual 1.61
+Error: 0.08086956521739122
+Cell 93: Predicted 284.61, Actual 208.0
+Error: 0.36831730769230775
+Cell 94: Predicted 271.15000000000003, Actual 213.0
+Error: 0.2730046948356809
+Cell 95: Predicted 0.02325, Actual 0.024300000000000002
+Error: 0.04320987654320997
+Writing data to CSV file... notebooks/saisandeepjallepalli/adidas-retail-eda-data-visualization/src/rewritten_cpu/prediction_times.csv
+Error processing notebooks/saisandeepjallepalli/adidas-retail-eda-data-visualization/src/rewritten_cpu/o4_mini_high.ipynb name 'np' is not defined
+---------------------------------------
+processing notebooks/dataranch/supermarket-sales-prediction-xgboost-fastai/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 50` in cell 3
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_15.ipynb
+Running with `factor = 15`...
+Time taken: 3.308321475982666 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_20.ipynb
+Running with `factor = 20`...
+Time taken: 3.8222436904907227 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_25.ipynb
+Running with `factor = 25`...
+Time taken: 4.272183656692505 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_30.ipynb
+Running with `factor = 30`...
+Time taken: 4.8317906856536865 seconds
+Predictions at factor = 1000:
+Cell 0: 149.325
+Cell 1: 2933.0
+Cell 2: 0.00632
+Cell 3: 304.40999999999997
+Cell 4: 87.22
+Cell 5: 0.23625
+Cell 6: 175.27999999999997
+Cell 7: 0.01067
+Cell 8: 820.1999999999999
+Cell 9: 8.471
+Annotated notebook saved to notebooks/dataranch/supermarket-sales-prediction-xgboost-fastai/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 149.325, Actual 236.0
+Error: 0.36726694915254243
+Cell 1: Predicted 2933.0, Actual 3350.0
+Error: 0.12447761194029851
+Cell 2: Predicted 0.00632, Actual 0.00572
+Error: 0.10489510489510487
+Cell 3: Predicted 304.40999999999997, Actual 168.0
+Error: 0.8119642857142855
+Cell 4: Predicted 87.22, Actual 73.9
+Error: 0.18024357239512845
+Cell 5: Predicted 0.23625, Actual 0.279
+Error: 0.15322580645161302
+Cell 6: Predicted 175.27999999999997, Actual 104.0
+Error: 0.6853846153846151
+Cell 7: Predicted 0.01067, Actual 0.00834
+Error: 0.27937649880095927
+Cell 8: Predicted 820.1999999999999, Actual 521.0
+Error: 0.5742802303262955
+Cell 9: Predicted 8.471, Actual 4.51
+Error: 0.8782705099778272
+Writing data to CSV file... notebooks/dataranch/supermarket-sales-prediction-xgboost-fastai/src/rewritten_cpu/prediction_times.csv
+Error processing notebooks/dataranch/supermarket-sales-prediction-xgboost-fastai/src/rewritten_cpu/o4_mini_high.ipynb name 'np' is not defined
+---------------------------------------
+processing notebooks/kkhandekar/environmental-vs-ai-startups-india-eda/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 3000` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_900.ipynb
+Running with `factor = 900`...
+Time taken: 3.4606544971466064 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_1200.ipynb
+Running with `factor = 1200`...
+Time taken: 3.7815651893615723 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_1500.ipynb
+Running with `factor = 1500`...
+Time taken: 4.345662593841553 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_1800.ipynb
+Running with `factor = 1800`...
+Time taken: 4.52101469039917 seconds
+Predictions at factor = 1000:
+Cell 0: 792.8
+Cell 1: 3028.5999999999995
+Cell 2: 1067.2999999999997
+Annotated notebook saved to notebooks/kkhandekar/environmental-vs-ai-startups-india-eda/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 792.8, Actual 659.0
+Error: 0.20303490136570554
+Cell 1: Predicted 3028.5999999999995, Actual 2600.0
+Error: 0.16484615384615364
+Cell 2: Predicted 1067.2999999999997, Actual 1320.0
+Error: 0.19143939393939416
+Writing data to CSV file... notebooks/kkhandekar/environmental-vs-ai-startups-india-eda/src/rewritten_cpu/prediction_times.csv
+Error processing notebooks/kkhandekar/environmental-vs-ai-startups-india-eda/src/rewritten_cpu/o4_mini_high.ipynb name 'np' is not defined
+---------------------------------------
+processing notebooks/roopacalistus/retail-supermarket-store-analysis/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 800` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_240.ipynb
+Running with `factor = 240`...
+Time taken: 6.337761163711548 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_320.ipynb
+Running with `factor = 320`...
+Time taken: 7.352204322814941 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_400.ipynb
+Running with `factor = 400`...
+Time taken: 9.313315153121948 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_480.ipynb
+Running with `factor = 480`...
+Time taken: 10.470959424972534 seconds
+Predictions at factor = 1000:
+Cell 0: 736.9999999999999
+Cell 1: 0.167
+Cell 2: 3.3475
+Cell 3: 6755.0
+Cell 4: 5.534000000000001
+Cell 5: 549.0
+Cell 6: 4.15
+Cell 7: 684.0999999999999
+Cell 8: 595.9000000000001
+Cell 9: 658.5
+Cell 10: 616.4
+Cell 11: 642.4000000000001
+Cell 12: 698.4
+Cell 13: 0.0062575
+Cell 14: 681.1999999999999
+Cell 15: 542.1999999999999
+Annotated notebook saved to notebooks/roopacalistus/retail-supermarket-store-analysis/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 736.9999999999999, Actual 918.0
+Error: 0.19716775599128553
+Cell 1: Predicted 0.167, Actual 0.231
+Error: 0.27705627705627706
+Cell 2: Predicted 3.3475, Actual 3.58
+Error: 0.06494413407821227
+Cell 3: Predicted 6755.0, Actual 6750.0
+Error: 0.0007407407407407407
+Cell 4: Predicted 5.534000000000001, Actual 5.42
+Error: 0.021033210332103463
+Cell 5: Predicted 549.0, Actual 739.0
+Error: 0.2571041948579161
+Cell 6: Predicted 4.15, Actual 17.8
+Error: 0.7668539325842697
+Cell 7: Predicted 684.0999999999999, Actual 895.0
+Error: 0.23564245810055875
+Cell 8: Predicted 595.9000000000001, Actual 830.0
+Error: 0.2820481927710842
+Cell 9: Predicted 658.5, Actual 759.0
+Error: 0.1324110671936759
+Cell 10: Predicted 616.4, Actual 790.0
+Error: 0.219746835443038
+Cell 11: Predicted 642.4000000000001, Actual 595.0
+Error: 0.07966386554621864
+Cell 12: Predicted 698.4, Actual 654.0
+Error: 0.0678899082568807
+Cell 13: Predicted 0.0062575, Actual 0.00668
+Error: 0.063248502994012
+Cell 14: Predicted 681.1999999999999, Actual 626.0
+Error: 0.08817891373801906
+Cell 15: Predicted 542.1999999999999, Actual 643.0
+Error: 0.1567651632970452
+Writing data to CSV file... notebooks/roopacalistus/retail-supermarket-store-analysis/src/rewritten_cpu/prediction_times.csv
+Error processing notebooks/roopacalistus/retail-supermarket-store-analysis/src/rewritten_cpu/o4_mini_high.ipynb name 'np' is not defined
+---------------------------------------
+processing notebooks/paultimothymooney/kaggle-survey-2022-all-results/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 1` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_0.ipynb
+Running with `factor = 0`...
+Error processing notebooks/paultimothymooney/kaggle-survey-2022-all-results/src/rewritten_cpu/o4_mini_high.ipynb Execution failed in cell %%time
+### cell 4 ###
+
+question_of_interest = 'In which country do you currently reside?'
+responses_in_order = [
+    'Other', 'India', 'United States of America', 'Brazil',
+    'Nigeria', 'Pakistan', 'Japan', 'China',
+    'Egypt', 'Indonesia', 'Mexico', 'Turkey', 'Russia'
+]
+# Clean and consolidate only the relevant series
+country = responses_df_2022_cell10[question_of_interest]
+country = country.replace(
+    'United Kingdom of Great Britain and Northern Ireland',
+    'United Kingdom (UK)'
+)
+country = country.where(country.isin(responses_in_order), 'Other')
+# Compute percentages vectorized
+percentages = (
+    country.value_counts(dropna=False)
+    .mul(100)
+    .div(len(country))
+    .round(1)
+    .sort_index()
+    .loc[responses_in_order]
+)
+percentages_cell17 = percentages.sort_values()
+orientation_for_chart = 'h'
+percentages_cell17.info(): "None of [Index(['Other', 'India', 'United States of America', 'Brazil', 'Nigeria',\n       'Pakistan', 'Japan', 'China', 'Egypt', 'Indonesia', 'Mexico', 'Turkey',\n       'Russia'],\n      dtype='object', name='In which country do you currently reside?')] are in the [index]"
+---------------------------------------
+processing notebooks/madhurpant/beautiful-kaggle-2022-analysis/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 10` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_3.ipynb
+Running with `factor = 3`...
+Error processing notebooks/madhurpant/beautiful-kaggle-2022-analysis/src/rewritten_cpu/o4_mini_high.ipynb Execution failed in cell %%time
+### cell 2 ###
+
+df['Duration (in seconds)'] = df['Duration (in seconds)'].astype('int'): invalid literal for int() with base 10: 'Duration (in seconds)'
+---------------------------------------
+processing notebooks/nickwan/creating-player-stats-using-tracking-data/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 1` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_0.ipynb
+Running with `factor = 0`...
+Time taken: 6.233087062835693 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_0.ipynb
+Running with `factor = 0`...
+Time taken: 6.125383615493774 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_0.ipynb
+Running with `factor = 0`...
+Time taken: 5.870413064956665 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_1.ipynb
+Running with `factor = 1`...
+Time taken: 7.502434968948364 seconds
+Predictions at factor = 1000:
+Cell 0: 2840.0
+Cell 1: 389.0
+Cell 2: 131.0
+Cell 3: 2.66
+Cell 4: 114.99999999999997
+Cell 5: 2.69
+Cell 6: 150.99999999999997
+Cell 7: 3.0199999999999996
+Cell 8: 21.799999999999997
+Cell 9: 0.0948
+Cell 10: 29.799999999999997
+Cell 11: 0.185
+Cell 12: 3.2400000000000007
+Cell 13: 1.0350000000000001
+Annotated notebook saved to notebooks/nickwan/creating-player-stats-using-tracking-data/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 2840.0, Actual 2780.0
+Error: 0.02158273381294964
+Cell 1: Predicted 389.0, Actual 361.0
+Error: 0.07756232686980609
+Cell 2: Predicted 131.0, Actual 129.0
+Error: 0.015503875968992248
+Cell 3: Predicted 2.66, Actual 3.2
+Error: 0.16875
+Cell 4: Predicted 114.99999999999997, Actual 117.0
+Error: 0.01709401709401734
+Cell 5: Predicted 2.69, Actual 3.74
+Error: 0.28074866310160435
+Cell 6: Predicted 150.99999999999997, Actual 143.0
+Error: 0.05594405594405574
+Cell 7: Predicted 3.0199999999999996, Actual 2.07
+Error: 0.4589371980676328
+Cell 8: Predicted 21.799999999999997, Actual 33.4
+Error: 0.34730538922155696
+Cell 9: Predicted 0.0948, Actual 0.2
+Error: 0.526
+Cell 10: Predicted 29.799999999999997, Actual 43.0
+Error: 0.3069767441860466
+Cell 11: Predicted 0.185, Actual 0.232
+Error: 0.20258620689655177
+Cell 12: Predicted 3.2400000000000007, Actual 3.95
+Error: 0.17974683544303785
+Cell 13: Predicted 1.0350000000000001, Actual 1.46
+Error: 0.2910958904109588
+Writing data to CSV file... notebooks/nickwan/creating-player-stats-using-tracking-data/src/rewritten_cpu/prediction_times.csv
+Error processing notebooks/nickwan/creating-player-stats-using-tracking-data/src/rewritten_cpu/o4_mini_high.ipynb name 'np' is not defined
+---------------------------------------
+processing notebooks/spscientist/student-performance-in-exams/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 1000` in cell 2
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_300.ipynb
+Running with `factor = 300`...
+Time taken: 3.4972190856933594 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_400.ipynb
+Running with `factor = 400`...
+Time taken: 3.9401774406433105 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_500.ipynb
+Running with `factor = 500`...
+Time taken: 4.129193544387817 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_600.ipynb
+Running with `factor = 600`...
+Time taken: 4.681598901748657 seconds
+Predictions at factor = 1000:
+Cell 0: 414.4
+Cell 1: 260.36
+Cell 2: 0.3705
+Cell 3: 239.04000000000002
+Cell 4: 234.82
+Cell 5: 101.60999999999999
+Cell 6: 111.39
+Cell 7: 106.75
+Cell 8: 456.3
+Cell 9: 412.9
+Cell 10: 180.19
+Annotated notebook saved to notebooks/spscientist/student-performance-in-exams/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 414.4, Actual 464.0
+Error: 0.10689655172413798
+Cell 1: Predicted 260.36, Actual 316.0
+Error: 0.17607594936708856
+Cell 2: Predicted 0.3705, Actual 0.267
+Error: 0.38764044943820214
+Cell 3: Predicted 239.04000000000002, Actual 121.0
+Error: 0.9755371900826448
+Cell 4: Predicted 234.82, Actual 216.0
+Error: 0.0871296296296296
+Cell 5: Predicted 101.60999999999999, Actual 132.0
+Error: 0.23022727272727284
+Cell 6: Predicted 111.39, Actual 116.0
+Error: 0.03974137931034482
+Cell 7: Predicted 106.75, Actual 78.2
+Error: 0.3650895140664961
+Cell 8: Predicted 456.3, Actual 272.0
+Error: 0.6775735294117647
+Cell 9: Predicted 412.9, Actual 383.0
+Error: 0.07806788511749341
+Cell 10: Predicted 180.19, Actual 149.0
+Error: 0.20932885906040266
+Writing data to CSV file... notebooks/spscientist/student-performance-in-exams/src/rewritten_cpu/prediction_times.csv
+Error processing notebooks/spscientist/student-performance-in-exams/src/rewritten_cpu/o4_mini_high.ipynb name 'np' is not defined
+---------------------------------------
+processing notebooks/erikbruin/nlp-on-student-writing-eda/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 1000` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_300.ipynb
+Running with `factor = 300`...
+Time taken: 14.371675491333008 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_400.ipynb
+Running with `factor = 400`...
+Time taken: 8.27349305152893 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_500.ipynb
+Running with `factor = 500`...
+Time taken: 8.199432849884033 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_600.ipynb
+Running with `factor = 600`...
+Time taken: 7.64630913734436 seconds
+Predictions at factor = 1000:
+Cell 0: 1177.5
+Cell 1: 0.95275
+Cell 2: 13.2125
+Cell 3: 5.22
+Cell 4: 2.2359
+Cell 5: 24.267000000000003
+Cell 6: 3.6259999999999994
+Cell 7: 2.9225
+Cell 8: 4.0675
+Cell 9: 7.7575
+Cell 10: 6.355
+Cell 11: 2391.25
+Cell 12: 4.3525
+Cell 13: 3.7119999999999997
+Cell 14: 0.6823000000000001
+Cell 15: 1.6524999999999999
+Cell 16: 1.7499999999999998
+Cell 17: 0.66525
+Cell 18: 4.947
+Cell 19: 0.012722
+Cell 20: 0.007877499999999999
+Cell 21: 49.4
+Cell 22: 34.55
+Cell 23: 19.625
+Cell 24: 118.825
+Cell 25: 460.5
+Cell 26: 1142.5
+Cell 27: 0.15825
+Annotated notebook saved to notebooks/erikbruin/nlp-on-student-writing-eda/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 1177.5, Actual 1240.0
+Error: 0.05040322580645161
+Cell 1: Predicted 0.95275, Actual 1.31
+Error: 0.27270992366412217
+Cell 2: Predicted 13.2125, Actual 34.3
+Error: 0.6147959183673469
+Cell 3: Predicted 5.22, Actual 9.69
+Error: 0.4613003095975232
+Cell 4: Predicted 2.2359, Actual 0.805
+Error: 1.7775155279503103
+Cell 5: Predicted 24.267000000000003, Actual 11.4
+Error: 1.128684210526316
+Cell 6: Predicted 3.6259999999999994, Actual 2.56
+Error: 0.41640624999999976
+Cell 7: Predicted 2.9225, Actual 9.44
+Error: 0.6904131355932204
+Cell 8: Predicted 4.0675, Actual 3.49
+Error: 0.1654727793696274
+Cell 9: Predicted 7.7575, Actual 6.35
+Error: 0.22165354330708673
+Cell 10: Predicted 6.355, Actual 9.18
+Error: 0.30773420479302827
+Cell 11: Predicted 2391.25, Actual 844.0
+Error: 1.8332345971563981
+Cell 12: Predicted 4.3525, Actual 4.79
+Error: 0.09133611691022965
+Cell 13: Predicted 3.7119999999999997, Actual 2.96
+Error: 0.25405405405405396
+Cell 14: Predicted 0.6823000000000001, Actual 0.931
+Error: 0.26713211600429637
+Cell 15: Predicted 1.6524999999999999, Actual 2.58
+Error: 0.35949612403100784
+Cell 16: Predicted 1.7499999999999998, Actual 2.5
+Error: 0.3000000000000001
+Cell 17: Predicted 0.66525, Actual 0.721
+Error: 0.07732316227461854
+Cell 18: Predicted 4.947, Actual 3.49
+Error: 0.4174785100286532
+Cell 19: Predicted 0.012722, Actual 0.00644
+Error: 0.9754658385093168
+Cell 20: Predicted 0.007877499999999999, Actual 0.00668
+Error: 0.1792664670658681
+Cell 21: Predicted 49.4, Actual 53.4
+Error: 0.0749063670411985
+Cell 22: Predicted 34.55, Actual 59.9
+Error: 0.4232053422370618
+Cell 23: Predicted 19.625, Actual 19.2
+Error: 0.022135416666666706
+Cell 24: Predicted 118.825, Actual 177.0
+Error: 0.32867231638418076
+Cell 25: Predicted 460.5, Actual 463.0
+Error: 0.005399568034557235
+Cell 26: Predicted 1142.5, Actual 1190.0
+Error: 0.03991596638655462
+Cell 27: Predicted 0.15825, Actual 0.291
+Error: 0.4561855670103092
+Writing data to CSV file... notebooks/erikbruin/nlp-on-student-writing-eda/src/rewritten_cpu/prediction_times.csv
+Error processing notebooks/erikbruin/nlp-on-student-writing-eda/src/rewritten_cpu/o4_mini_high.ipynb name 'np' is not defined
+---------------------------------------
+processing notebooks/josecode1/billionaires-statistics-2023/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 800` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_240.ipynb
+Running with `factor = 240`...
+Time taken: 5.269904851913452 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_320.ipynb
+Running with `factor = 320`...
+Time taken: 6.040248394012451 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_400.ipynb
+Running with `factor = 400`...
+Time taken: 6.564058542251587 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_480.ipynb
+Running with `factor = 480`...
+Time taken: 7.518734693527222 seconds
+Predictions at factor = 1000:
+Cell 0: 2052.3999999999996
+Cell 1: 0.206
+Cell 2: 2186.5999999999995
+Cell 3: 55.5
+Cell 4: 0.009232
+Cell 5: 41.587999999999994
+Cell 6: 0.8752500000000001
+Cell 7: 366.78
+Cell 8: 16.05
+Cell 9: 19.425
+Cell 10: 0.19374999999999998
+Cell 11: 66.85
+Cell 12: 209.04999999999995
+Cell 13: 1507.1999999999998
+Cell 14: 0.20725
+Cell 15: 209.25
+Cell 16: 19.21
+Annotated notebook saved to notebooks/josecode1/billionaires-statistics-2023/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 2052.3999999999996, Actual 581.0
+Error: 2.532530120481927
+Cell 1: Predicted 0.206, Actual 0.262
+Error: 0.21374045801526725
+Cell 2: Predicted 2186.5999999999995, Actual 1940.0
+Error: 0.1271134020618554
+Cell 3: Predicted 55.5, Actual 99.6
+Error: 0.44277108433734935
+Cell 4: Predicted 0.009232, Actual 0.00525
+Error: 0.7584761904761905
+Cell 5: Predicted 41.587999999999994, Actual 35.7
+Error: 0.16492997198879525
+Cell 6: Predicted 0.8752500000000001, Actual 0.874
+Error: 0.001430205949656847
+Cell 7: Predicted 366.78, Actual 293.0
+Error: 0.25180887372013644
+Cell 8: Predicted 16.05, Actual 47.5
+Error: 0.6621052631578948
+Cell 9: Predicted 19.425, Actual 34.1
+Error: 0.4303519061583578
+Cell 10: Predicted 0.19374999999999998, Actual 0.233
+Error: 0.16845493562231773
+Cell 11: Predicted 66.85, Actual 263.0
+Error: 0.7458174904942966
+Cell 12: Predicted 209.04999999999995, Actual 263.0
+Error: 0.2051330798479089
+Cell 13: Predicted 1507.1999999999998, Actual 1740.0
+Error: 0.13379310344827597
+Cell 14: Predicted 0.20725, Actual 0.186
+Error: 0.11424731182795694
+Cell 15: Predicted 209.25, Actual 256.0
+Error: 0.1826171875
+Cell 16: Predicted 19.21, Actual 14.9
+Error: 0.28926174496644297
+Writing data to CSV file... notebooks/josecode1/billionaires-statistics-2023/src/rewritten_cpu/prediction_times.csv
+Error processing notebooks/josecode1/billionaires-statistics-2023/src/rewritten_cpu/o4_mini_high.ipynb name 'np' is not defined
+---------------------------------------
+processing notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 2500` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_750.ipynb
+Running with `factor = 750`...
+Time taken: 4.760478258132935 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_1000.ipynb
+Running with `factor = 1000`...
+Time taken: 5.5335915088653564 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_1250.ipynb
+Running with `factor = 1250`...
+Time taken: 5.42823052406311 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_1500.ipynb
+Running with `factor = 1500`...
+Time taken: 5.901763916015625 seconds
+Predictions at factor = 1000:
+Cell 0: 542.0
+Cell 1: 100.20999999999998
+Cell 2: 753.9999999999998
+Cell 3: 814.9999999999998
+Cell 4: 657.8999999999999
+Cell 5: 944.5999999999999
+Annotated notebook saved to notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 542.0, Actual 449.0
+Error: 0.2071269487750557
+Cell 1: Predicted 100.20999999999998, Actual 127.0
+Error: 0.21094488188976393
+Cell 2: Predicted 753.9999999999998, Actual 1170.0
+Error: 0.35555555555555574
+Cell 3: Predicted 814.9999999999998, Actual 919.0
+Error: 0.11316648531011994
+Cell 4: Predicted 657.8999999999999, Actual 727.0
+Error: 0.0950481430536453
+Cell 5: Predicted 944.5999999999999, Actual 853.0
+Error: 0.10738569753810072
+Writing data to CSV file... notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/rewritten_cpu/prediction_times.csv
+Error processing notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/rewritten_cpu/o4_mini_high.ipynb name 'np' is not defined
+---------------------------------------
+processing notebooks/ampiiere/animal-crossing-villager-popularity-analysis/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 100` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_30.ipynb
+Running with `factor = 30`...
+Time taken: 4.02819299697876 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_40.ipynb
+Running with `factor = 40`...
+Time taken: 5.371746063232422 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_50.ipynb
+Running with `factor = 50`...
+Time taken: 5.755086898803711 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_60.ipynb
+Running with `factor = 60`...
+Time taken: 6.696149110794067 seconds
+Predictions at factor = 1000:
+Cell 0: 106.35
+Cell 1: 0.1738
+Cell 2: 0.1675
+Cell 3: 19.375
+Cell 4: 11.518
+Cell 5: 1.6225
+Cell 6: 4.784999999999999
+Cell 7: 5.255
+Cell 8: 1.5
+Cell 9: 3.175
+Cell 10: 0.9845
+Cell 11: 2115.2999999999997
+Cell 12: 267.32
+Cell 13: 378.8
+Cell 14: 4.5089999999999995
+Cell 15: 0.011205000000000001
+Cell 16: 223.76999999999998
+Cell 17: 605.1599999999999
+Cell 18: 586.4399999999999
+Cell 19: 217.39999999999998
+Cell 20: 176.82999999999998
+Cell 21: 167.40999999999997
+Cell 22: 287.20000000000005
+Cell 23: 448.4599999999999
+Cell 24: 0.3985
+Cell 25: 0.034312
+Cell 26: 293.37999999999994
+Cell 27: 310.03999999999996
+Annotated notebook saved to notebooks/ampiiere/animal-crossing-villager-popularity-analysis/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 106.35, Actual 76.2
+Error: 0.39566929133858253
+Cell 1: Predicted 0.1738, Actual 0.27
+Error: 0.3562962962962963
+Cell 2: Predicted 0.1675, Actual 0.232
+Error: 0.27801724137931033
+Cell 3: Predicted 19.375, Actual 57.1
+Error: 0.6606830122591945
+Cell 4: Predicted 11.518, Actual 8.56
+Error: 0.3455607476635514
+Cell 5: Predicted 1.6225, Actual 5.19
+Error: 0.6873795761078998
+Cell 6: Predicted 4.784999999999999, Actual 5.76
+Error: 0.16927083333333343
+Cell 7: Predicted 5.255, Actual 13.7
+Error: 0.6164233576642336
+Cell 8: Predicted 1.5, Actual 3.07
+Error: 0.511400651465798
+Cell 9: Predicted 3.175, Actual 5.37
+Error: 0.4087523277467412
+Cell 10: Predicted 0.9845, Actual 1.03
+Error: 0.04417475728155338
+Cell 11: Predicted 2115.2999999999997, Actual 3000.0
+Error: 0.2949000000000001
+Cell 12: Predicted 267.32, Actual 431.0
+Error: 0.3797679814385151
+Cell 13: Predicted 378.8, Actual 687.0
+Error: 0.44861717612809315
+Cell 14: Predicted 4.5089999999999995, Actual 4.74
+Error: 0.04873417721519003
+Cell 15: Predicted 0.011205000000000001, Actual 0.0105
+Error: 0.06714285714285721
+Cell 16: Predicted 223.76999999999998, Actual 316.0
+Error: 0.29186708860759497
+Cell 17: Predicted 605.1599999999999, Actual 673.0
+Error: 0.10080237741456188
+Cell 18: Predicted 586.4399999999999, Actual 583.0
+Error: 0.005900514579759761
+Cell 19: Predicted 217.39999999999998, Actual 273.0
+Error: 0.20366300366300374
+Cell 20: Predicted 176.82999999999998, Actual 231.0
+Error: 0.23450216450216457
+Cell 21: Predicted 167.40999999999997, Actual 331.0
+Error: 0.4942296072507554
+Cell 22: Predicted 287.20000000000005, Actual 686.0
+Error: 0.58134110787172
+Cell 23: Predicted 448.4599999999999, Actual 821.0
+Error: 0.4537637028014617
+Cell 24: Predicted 0.3985, Actual 0.515
+Error: 0.22621359223300969
+Cell 25: Predicted 0.034312, Actual 0.00525
+Error: 5.535619047619048
+Cell 26: Predicted 293.37999999999994, Actual 625.0
+Error: 0.5305920000000001
+Cell 27: Predicted 310.03999999999996, Actual 499.0
+Error: 0.37867735470941893
+Writing data to CSV file... notebooks/ampiiere/animal-crossing-villager-popularity-analysis/src/rewritten_cpu/prediction_times.csv
+Error processing notebooks/ampiiere/animal-crossing-villager-popularity-analysis/src/rewritten_cpu/o4_mini_high.ipynb name 'np' is not defined
+---------------------------------------
+processing notebooks/sanket7994/imdb-dataset-eda-project/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 1` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_0.ipynb
+Running with `factor = 0`...
+Error processing notebooks/sanket7994/imdb-dataset-eda-project/src/rewritten_cpu/o4_mini_high.ipynb Execution failed in cell %%time
+### cell 0 ###
+
+df  = pd.read_csv('/home/dias-benchmarks/notebooks/sanket7994/imdb-dataset-eda-project/input/imdb-official-movies-dataset/title-ratings.csv')
+df2 = pd.read_csv('/home/dias-benchmarks/notebooks/sanket7994/imdb-dataset-eda-project/input/imdb-official-movies-dataset/title-metadata.csv')
+factor = 0
+
+# Merging Rating and MetaData datsets into single dataframe w.r.t common column
+main_df = pd.merge(df,df2,on='tconst')
+main_df = main_df.sample(frac=factor, random_state=0)
+main_df.head(): You are trying to merge on int64 and object columns for key 'tconst'. If you wish to proceed you should use pd.concat
+---------------------------------------
+processing notebooks/ibtesama/getting-started-with-a-movie-recommendation-system/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 10` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_3.ipynb
+Running with `factor = 3`...
+Time taken: 27.21110463142395 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_4.ipynb
+Running with `factor = 4`...
+Time taken: 37.22458291053772 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_5.ipynb
+Running with `factor = 5`...
+Time taken: 45.84726524353027 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_6.ipynb
+Running with `factor = 6`...
+Time taken: 54.977389335632324 seconds
+Predictions at factor = 1000:
+Cell 0: 559.25
+Cell 1: 34.169999999999995
+Cell 2: 0.118
+Cell 3: 0.6325000000000001
+Cell 4: 1.8399999999999999
+Cell 5: 6.317
+Cell 6: 1.6125
+Cell 7: 2.94
+Cell 8: 11.889999999999999
+Cell 9: 0.16925
+Cell 10: 3.4325
+Cell 11: 86239.99999999999
+Cell 12: 1558.6
+Cell 13: 12.702000000000002
+Cell 14: 724.3199999999999
+Cell 15: 73.26999999999998
+Annotated notebook saved to notebooks/ibtesama/getting-started-with-a-movie-recommendation-system/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 559.25, Actual 598.0
+Error: 0.06479933110367893
+Cell 1: Predicted 34.169999999999995, Actual 36.3
+Error: 0.0586776859504133
+Cell 2: Predicted 0.118, Actual 0.17400000000000002
+Error: 0.3218390804597702
+Cell 3: Predicted 0.6325000000000001, Actual 0.656
+Error: 0.035823170731707266
+Cell 4: Predicted 1.8399999999999999, Actual 1.6
+Error: 0.14999999999999986
+Cell 5: Predicted 6.317, Actual 5.07
+Error: 0.245956607495069
+Cell 6: Predicted 1.6125, Actual 1.96
+Error: 0.1772959183673469
+Cell 7: Predicted 2.94, Actual 4.44
+Error: 0.3378378378378379
+Cell 8: Predicted 11.889999999999999, Actual 25.2
+Error: 0.5281746031746032
+Cell 9: Predicted 0.16925, Actual 0.267
+Error: 0.3661048689138577
+Cell 10: Predicted 3.4325, Actual 7.37
+Error: 0.5342605156037992
+Cell 11: Predicted 86239.99999999999, Actual 86000.0
+Error: 0.0027906976744184356
+Cell 12: Predicted 1558.6, Actual 1720.0
+Error: 0.09383720930232563
+Cell 13: Predicted 12.702000000000002, Actual 8.98
+Error: 0.414476614699332
+Cell 14: Predicted 724.3199999999999, Actual 508.0
+Error: 0.42582677165354316
+Cell 15: Predicted 73.26999999999998, Actual 59.1
+Error: 0.23976311336717393
+Writing data to CSV file... notebooks/ibtesama/getting-started-with-a-movie-recommendation-system/src/rewritten_cpu/prediction_times.csv
+Error processing notebooks/ibtesama/getting-started-with-a-movie-recommendation-system/src/rewritten_cpu/o4_mini_high.ipynb name 'np' is not defined
+---------------------------------------
+processing notebooks/mpwolke/just-you-wait-rishi-sunak/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 1` in cell 2
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_0.ipynb
+Running with `factor = 0`...
+Error processing notebooks/mpwolke/just-you-wait-rishi-sunak/src/rewritten_cpu/o4_mini_high.ipynb Execution failed in cell %%time
+### cell 4 ###
+
+#Code by Leon Wolber https://www.kaggle.com/leonwolber/reddit-nlp-topic-modeling-prediction
+
+# video with the most comments
+
+train[train['likecount'] == train['likecount'].max()]['text'].iloc[0]: single positional indexer is out-of-bounds
+---------------------------------------
+processing notebooks/joshuaswords/netflix-data-visualization/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 200` in cell 2
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_60.ipynb
+Running with `factor = 60`...
+Time taken: 8.57608962059021 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_80.ipynb
+Running with `factor = 80`...
+Time taken: 11.08663558959961 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_100.ipynb
+Running with `factor = 100`...
+Time taken: 11.953620910644531 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_120.ipynb
+Running with `factor = 120`...
+Time taken: 14.175478458404541 seconds
+Predictions at factor = 1000:
+Cell 0: 251.1
+Cell 1: 713.0999999999999
+Cell 2: 1995.0
+Cell 3: 1180.0
+Cell 4: 762.8999999999999
+Cell 5: 668.4
+Cell 6: 98.54
+Cell 7: 0.25975000000000004
+Cell 8: 4976.0
+Cell 9: 135.89999999999998
+Cell 10: 380.3
+Cell 11: 94.47
+Cell 12: 392.79999999999995
+Cell 13: 303.6
+Cell 14: 87.45
+Cell 15: 137.41999999999996
+Cell 16: 2.565
+Cell 17: 511.25
+Cell 18: 2659.0
+Cell 19: 500.5
+Cell 20: 383.4
+Cell 21: 458.9
+Cell 22: 187.60000000000005
+Cell 23: 374.8
+Cell 24: 485.09999999999997
+Cell 25: 298.21999999999997
+Annotated notebook saved to notebooks/joshuaswords/netflix-data-visualization/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 251.1, Actual 355.0
+Error: 0.2926760563380282
+Cell 1: Predicted 713.0999999999999, Actual 807.0
+Error: 0.11635687732342019
+Cell 2: Predicted 1995.0, Actual 1310.0
+Error: 0.5229007633587787
+Cell 3: Predicted 1180.0, Actual 905.0
+Error: 0.30386740331491713
+Cell 4: Predicted 762.8999999999999, Actual 6.37
+Error: 118.76452119309259
+Cell 5: Predicted 668.4, Actual 1040.0
+Error: 0.3573076923076923
+Cell 6: Predicted 98.54, Actual 107.0
+Error: 0.0790654205607476
+Cell 7: Predicted 0.25975000000000004, Actual 0.293
+Error: 0.11348122866894181
+Cell 8: Predicted 4976.0, Actual 5250.0
+Error: 0.05219047619047619
+Cell 9: Predicted 135.89999999999998, Actual 119.0
+Error: 0.14201680672268888
+Cell 10: Predicted 380.3, Actual 403.0
+Error: 0.05632754342431759
+Cell 11: Predicted 94.47, Actual 96.9
+Error: 0.025077399380805023
+Cell 12: Predicted 392.79999999999995, Actual 326.0
+Error: 0.20490797546012257
+Cell 13: Predicted 303.6, Actual 232.0
+Error: 0.30862068965517253
+Cell 14: Predicted 87.45, Actual 202.0
+Error: 0.567079207920792
+Cell 15: Predicted 137.41999999999996, Actual 212.0
+Error: 0.3517924528301889
+Cell 16: Predicted 2.565, Actual 3.55
+Error: 0.27746478873239433
+Cell 17: Predicted 511.25, Actual 615.0
+Error: 0.16869918699186992
+Cell 18: Predicted 2659.0, Actual 2600.0
+Error: 0.022692307692307692
+Cell 19: Predicted 500.5, Actual 554.0
+Error: 0.09657039711191336
+Cell 20: Predicted 383.4, Actual 413.0
+Error: 0.07167070217917682
+Cell 21: Predicted 458.9, Actual 481.0
+Error: 0.04594594594594599
+Cell 22: Predicted 187.60000000000005, Actual 242.0
+Error: 0.22479338842975186
+Cell 23: Predicted 374.8, Actual 397.0
+Error: 0.055919395465994934
+Cell 24: Predicted 485.09999999999997, Actual 573.0
+Error: 0.1534031413612566
+Cell 25: Predicted 298.21999999999997, Actual 315.0
+Error: 0.05326984126984136
+Writing data to CSV file... notebooks/joshuaswords/netflix-data-visualization/src/rewritten_cpu/prediction_times.csv
+Error processing notebooks/joshuaswords/netflix-data-visualization/src/rewritten_cpu/o4_mini_high.ipynb name 'np' is not defined
+---------------------------------------
+processing notebooks/pmarcelino/comprehensive-data-exploration-with-python/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 300` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_90.ipynb
+Running with `factor = 90`...
+Time taken: 6.32717490196228 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_120.ipynb
+Running with `factor = 120`...
+Time taken: 6.697443246841431 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_150.ipynb
+Running with `factor = 150`...
+Time taken: 7.5046820640563965 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_180.ipynb
+Running with `factor = 180`...
+Time taken: 8.733676671981812 seconds
+Predictions at factor = 1000:
+Cell 0: 1815.7999999999993
+Cell 1: 0.012635
+Cell 2: 28.067999999999998
+Cell 3: 30.85
+Cell 4: 7.496999999999998
+Cell 5: 6.948999999999998
+Cell 6: 7.842999999999998
+Cell 7: 7.450199999999999
+Cell 8: 2068.1999999999994
+Cell 9: 41.96
+Cell 10: 1035.0
+Cell 11: 452.4
+Cell 12: 89.77
+Cell 13: 4.083999999999999
+Cell 14: 697.5999999999999
+Cell 15: 4.616
+Cell 16: 2.7075
+Cell 17: 7.062999999999999
+Cell 18: 3.6429999999999993
+Cell 19: 6.705999999999998
+Cell 20: 322.01999999999987
+Cell 21: 244.63999999999993
+Cell 22: 1463.8999999999996
+Annotated notebook saved to notebooks/pmarcelino/comprehensive-data-exploration-with-python/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 1815.7999999999993, Actual 1370.0
+Error: 0.3254014598540141
+Cell 1: Predicted 0.012635, Actual 0.0103
+Error: 0.22669902912621362
+Cell 2: Predicted 28.067999999999998, Actual 17.8
+Error: 0.5768539325842694
+Cell 3: Predicted 30.85, Actual 13.8
+Error: 1.2355072463768115
+Cell 4: Predicted 7.496999999999998, Actual 2.35
+Error: 2.190212765957446
+Cell 5: Predicted 6.948999999999998, Actual 4.21
+Error: 0.650593824228028
+Cell 6: Predicted 7.842999999999998, Actual 4.31
+Error: 0.8197215777262179
+Cell 7: Predicted 7.450199999999999, Actual 3.17
+Error: 1.350220820189274
+Cell 8: Predicted 2068.1999999999994, Actual 1940.0
+Error: 0.0660824742268038
+Cell 9: Predicted 41.96, Actual 51.5
+Error: 0.18524271844660192
+Cell 10: Predicted 1035.0, Actual 2530.0
+Error: 0.5909090909090909
+Cell 11: Predicted 452.4, Actual 636.0
+Error: 0.2886792452830189
+Cell 12: Predicted 89.77, Actual 76.5
+Error: 0.17346405228758166
+Cell 13: Predicted 4.083999999999999, Actual 2.28
+Error: 0.7912280701754382
+Cell 14: Predicted 697.5999999999999, Actual 667.0
+Error: 0.04587706146926523
+Cell 15: Predicted 4.616, Actual 3.33
+Error: 0.38618618618618605
+Cell 16: Predicted 2.7075, Actual 4.14
+Error: 0.3460144927536231
+Cell 17: Predicted 7.062999999999999, Actual 4.3
+Error: 0.6425581395348835
+Cell 18: Predicted 3.6429999999999993, Actual 2.71
+Error: 0.3442804428044278
+Cell 19: Predicted 6.705999999999998, Actual 5.39
+Error: 0.24415584415584382
+Cell 20: Predicted 322.01999999999987, Actual 297.0
+Error: 0.0842424242424238
+Cell 21: Predicted 244.63999999999993, Actual 313.0
+Error: 0.21840255591054336
+Cell 22: Predicted 1463.8999999999996, Actual 1220.0
+Error: 0.19991803278688494
+Writing data to CSV file... notebooks/pmarcelino/comprehensive-data-exploration-with-python/src/rewritten_cpu/prediction_times.csv
+Error processing notebooks/pmarcelino/comprehensive-data-exploration-with-python/src/rewritten_cpu/o4_mini_high.ipynb name 'np' is not defined
+---------------------------------------
+processing notebooks/gksriharsha/eda-speedtests/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 1000` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_300.ipynb
+Running with `factor = 300`...
+Time taken: 4.1121697425842285 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_400.ipynb
+Running with `factor = 400`...
+Time taken: 4.076125860214233 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_500.ipynb
+Running with `factor = 500`...
+Time taken: 5.361492872238159 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_600.ipynb
+Running with `factor = 600`...
+Time taken: 5.762439489364624 seconds
+Predictions at factor = 1000:
+Cell 0: 751.25
+Cell 1: 475.00000000000006
+Cell 2: 944.6
+Cell 3: 458.46999999999997
+Cell 4: 167.72000000000003
+Cell 5: 0.02928
+Cell 6: 1.49
+Cell 7: 1.48
+Cell 8: 1393.4
+Cell 9: 1.1800000000000002
+Cell 10: 0.91675
+Cell 11: 0.94125
+Cell 12: 1.9385999999999999
+Cell 13: 1.9206999999999996
+Cell 14: 1.7860999999999998
+Cell 15: 2.1462000000000003
+Cell 16: 0.9490000000000001
+Cell 17: 1471.3000000000002
+Cell 18: 1.1300000000000001
+Cell 19: 1.2349999999999999
+Cell 20: 1.00475
+Cell 21: 0.98325
+Cell 22: 1.0045
+Cell 23: 1.0338999999999998
+Cell 24: 0.7035
+Cell 25: 0.7927500000000001
+Annotated notebook saved to notebooks/gksriharsha/eda-speedtests/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 751.25, Actual 1460.0
+Error: 0.4854452054794521
+Cell 1: Predicted 475.00000000000006, Actual 361.0
+Error: 0.3157894736842107
+Cell 2: Predicted 944.6, Actual 657.0
+Error: 0.4377473363774734
+Cell 3: Predicted 458.46999999999997, Actual 204.0
+Error: 1.2474019607843136
+Cell 4: Predicted 167.72000000000003, Actual 104.0
+Error: 0.612692307692308
+Cell 5: Predicted 0.02928, Actual 0.025500000000000002
+Error: 0.148235294117647
+Cell 6: Predicted 1.49, Actual 1.56
+Error: 0.04487179487179491
+Cell 7: Predicted 1.48, Actual 2.04
+Error: 0.27450980392156865
+Cell 8: Predicted 1393.4, Actual 1360.0
+Error: 0.02455882352941183
+Cell 9: Predicted 1.1800000000000002, Actual 1.22
+Error: 0.03278688524590149
+Cell 10: Predicted 0.91675, Actual 1.1
+Error: 0.1665909090909092
+Cell 11: Predicted 0.94125, Actual 0.99
+Error: 0.049242424242424206
+Cell 12: Predicted 1.9385999999999999, Actual 0.97
+Error: 0.9985567010309278
+Cell 13: Predicted 1.9206999999999996, Actual 0.6990000000000001
+Error: 1.747782546494992
+Cell 14: Predicted 1.7860999999999998, Actual 0.745
+Error: 1.3974496644295298
+Cell 15: Predicted 2.1462000000000003, Actual 0.834
+Error: 1.5733812949640291
+Cell 16: Predicted 0.9490000000000001, Actual 0.849
+Error: 0.11778563015312142
+Cell 17: Predicted 1471.3000000000002, Actual 1160.0
+Error: 0.2683620689655174
+Cell 18: Predicted 1.1300000000000001, Actual 1.25
+Error: 0.0959999999999999
+Cell 19: Predicted 1.2349999999999999, Actual 0.975
+Error: 0.26666666666666655
+Cell 20: Predicted 1.00475, Actual 0.872
+Error: 0.15223623853211013
+Cell 21: Predicted 0.98325, Actual 0.885
+Error: 0.11101694915254232
+Cell 22: Predicted 1.0045, Actual 0.803
+Error: 0.2509339975093398
+Cell 23: Predicted 1.0338999999999998, Actual 0.599
+Error: 0.7260434056761267
+Cell 24: Predicted 0.7035, Actual 0.978
+Error: 0.28067484662576686
+Cell 25: Predicted 0.7927500000000001, Actual 0.912
+Error: 0.1307565789473684
+Writing data to CSV file... notebooks/gksriharsha/eda-speedtests/src/rewritten_cpu/prediction_times.csv
+Error processing notebooks/gksriharsha/eda-speedtests/src/rewritten_cpu/o4_mini_high.ipynb name 'np' is not defined
+---------------------------------------
+processing notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 200` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_60.ipynb
+Running with `factor = 60`...
+Time taken: 7.6833720207214355 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_80.ipynb
+Running with `factor = 80`...
+Time taken: 9.442625045776367 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_100.ipynb
+Running with `factor = 100`...
+Time taken: 10.709028482437134 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_120.ipynb
+Running with `factor = 120`...
+Time taken: 12.873936176300049 seconds
+Predictions at factor = 1000:
+Cell 0: 219.25
+Cell 1: 0.17325000000000002
+Cell 2: 0.087425
+Cell 3: 0.0159
+Cell 4: 0.0067350000000000005
+Cell 5: 147.29
+Cell 6: 294.52
+Cell 7: 113.15
+Cell 8: 16382.0
+Cell 9: 0.8207500000000001
+Cell 10: 0.45499999999999996
+Annotated notebook saved to notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/rewritten_cpu/original_with_timing.ipynb

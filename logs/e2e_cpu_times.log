@@ -1,0 +1,209 @@
+---------------------------------------
+processing notebooks/aieducation/what-course-are-you-going-to-take/src/bench.ipynb
+Execution time: 32.181583881378174 seconds
+---------------------------------------
+processing notebooks/saisandeepjallepalli/adidas-retail-eda-data-visualization/src/bench.ipynb
+Execution time: 15.115620136260986 seconds
+---------------------------------------
+processing notebooks/dataranch/supermarket-sales-prediction-xgboost-fastai/src/bench.ipynb
+Execution time: 96.91044449806213 seconds
+---------------------------------------
+processing notebooks/kkhandekar/environmental-vs-ai-startups-india-eda/src/bench.ipynb
+Execution time: 5.3986992835998535 seconds
+---------------------------------------
+processing notebooks/roopacalistus/retail-supermarket-store-analysis/src/bench.ipynb
+Execution time: 10.293205738067627 seconds
+---------------------------------------
+processing notebooks/paultimothymooney/kaggle-survey-2022-all-results/src/bench.ipynb
+Execution time: 16.102046012878418 seconds
+---------------------------------------
+processing notebooks/madhurpant/beautiful-kaggle-2022-analysis/src/bench.ipynb
+Error processing notebooks/madhurpant/beautiful-kaggle-2022-analysis/src/bench.ipynb: An error occurred while executing the following cell:
+------------------
+### cell 2 ###
+
+df['Duration (in seconds)'] = df['Duration (in seconds)'].astype('int')
+------------------
+
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mValueError[0m                                Traceback (most recent call last)
+Cell [0;32mIn[5], line 3[0m
+[1;32m      1[0m [38;5;66;03m### cell 2 ###[39;00m
+[0;32m----> 3[0m df[[38;5;124m'[39m[38;5;124mDuration (in seconds)[39m[38;5;124m'[39m] [38;5;241m=[39m [43mdf[49m[43m[[49m[38;5;124;43m'[39;49m[38;5;124;43mDuration (in seconds)[39;49m[38;5;124;43m'[39;49m[43m][49m[38;5;241;43m.[39;49m[43mastype[49m[43m([49m[38;5;124;43m'[39;49m[38;5;124;43mint[39;49m[38;5;124;43m'[39;49m[43m)[49m
+
+File [0;32m/opt/conda/envs/rapids-25.02/lib/python3.10/site-packages/pandas/core/generic.py:6643[0m, in [0;36mNDFrame.astype[0;34m(self, dtype, copy, errors)[0m
+[1;32m   6637[0m     results [38;5;241m=[39m [
+[1;32m   6638[0m         ser[38;5;241m.[39mastype(dtype, copy[38;5;241m=[39mcopy, errors[38;5;241m=[39merrors) [38;5;28;01mfor[39;00m _, ser [38;5;129;01min[39;00m [38;5;28mself[39m[38;5;241m.[39mitems()
+[1;32m   6639[0m     ]
+[1;32m   6641[0m [38;5;28;01melse[39;00m:
+[1;32m   6642[0m     [38;5;66;03m# else, only a single dtype is given[39;00m
+[0;32m-> 6643[0m     new_data [38;5;241m=[39m [38;5;28;43mself[39;49m[38;5;241;43m.[39;49m[43m_mgr[49m[38;5;241;43m.[39;49m[43mastype[49m[43m([49m[43mdtype[49m[38;5;241;43m=[39;49m[43mdtype[49m[43m,[49m[43m [49m[43mcopy[49m[38;5;241;43m=[39;49m[43mcopy[49m[43m,[49m[43m [49m[43merrors[49m[38;5;241;43m=[39;49m[43merrors[49m[43m)[49m
+[1;32m   6644[0m     res [38;5;241m=[39m [38;5;28mself[39m[38;5;241m.[39m_constructor_from_mgr(new_data, axes[38;5;241m=[39mnew_data[38;5;241m.[39maxes)
+[1;32m   6645[0m     [38;5;28;01mreturn[39;00m res[38;5;241m.[39m__finalize__([38;5;28mself[39m, method[38;5;241m=[39m[38;5;124m"[39m[38;5;124mastype[39m[38;5;124m"[39m)
+
+File [0;32m/opt/conda/envs/rapids-25.02/lib/python3.10/site-packages/pandas/core/internals/managers.py:430[0m, in [0;36mBaseBlockManager.astype[0;34m(self, dtype, copy, errors)[0m
+[1;32m    427[0m [38;5;28;01melif[39;00m using_copy_on_write():
+[1;32m    428[0m     copy [38;5;241m=[39m [38;5;28;01mFalse[39;00m
+[0;32m--> 430[0m [38;5;28;01mreturn[39;00m [38;5;28;43mself[39;49m[38;5;241;43m.[39;49m[43mapply[49m[43m([49m
+[1;32m    431[0m [43m    [49m[38;5;124;43m"[39;49m[38;5;124;43mastype[39;49m[38;5;124;43m"[39;49m[43m,[49m
+[1;32m    432[0m [43m    [49m[43mdtype[49m[38;5;241;43m=[39;49m[43mdtype[49m[43m,[49m
+[1;32m    433[0m [43m    [49m[43mcopy[49m[38;5;241;43m=[39;49m[43mcopy[49m[43m,[49m
+[1;32m    434[0m [43m    [49m[43merrors[49m[38;5;241;43m=[39;49m[43merrors[49m[43m,[49m
+[1;32m    435[0m [43m    [49m[43musing_cow[49m[38;5;241;43m=[39;49m[43musing_copy_on_write[49m[43m([49m[43m)[49m[43m,[49m
+[1;32m    436[0m [43m[49m[43m)[49m
+
+File [0;32m/opt/conda/envs/rapids-25.02/lib/python3.10/site-packages/pandas/core/internals/managers.py:363[0m, in [0;36mBaseBlockManager.apply[0;34m(self, f, align_keys, **kwargs)[0m
+[1;32m    361[0m         applied [38;5;241m=[39m b[38;5;241m.[39mapply(f, [38;5;241m*[39m[38;5;241m*[39mkwargs)
+[1;32m    362[0m     [38;5;28;01melse[39;00m:
+[0;32m--> 363[0m         applied [38;5;241m=[39m [38;5;28;43mgetattr[39;49m[43m([49m[43mb[49m[43m,[49m[43m [49m[43mf[49m[43m)[49m[43m([49m[38;5;241;43m*[39;49m[38;5;241;43m*[39;49m[43mkwargs[49m[43m)[49m
+[1;32m    364[0m     result_blocks [38;5;241m=[39m extend_blocks(applied, result_blocks)
+[1;32m    366[0m out [38;5;241m=[39m [38;5;28mtype[39m([38;5;28mself[39m)[38;5;241m.[39mfrom_blocks(result_blocks, [38;5;28mself[39m[38;5;241m.[39maxes)
+
+File [0;32m/opt/conda/envs/rapids-25.02/lib/python3.10/site-packages/pandas/core/internals/blocks.py:758[0m, in [0;36mBlock.astype[0;34m(self, dtype, copy, errors, using_cow, squeeze)[0m
+[1;32m    755[0m         [38;5;28;01mraise[39;00m [38;5;167;01mValueError[39;00m([38;5;124m"[39m[38;5;124mCan not squeeze with more than one column.[39m[38;5;124m"[39m)
+[1;32m    756[0m     values [38;5;241m=[39m values[[38;5;241m0[39m, :]  [38;5;66;03m# type: ignore[call-overload][39;00m
+[0;32m--> 758[0m new_values [38;5;241m=[39m [43mastype_array_safe[49m[43m([49m[43mvalues[49m[43m,[49m[43m [49m[43mdtype[49m[43m,[49m[43m [49m[43mcopy[49m[38;5;241;43m=[39;49m[43mcopy[49m[43m,[49m[43m [49m[43merrors[49m[38;5;241;43m=[39;49m[43merrors[49m[43m)[49m
+[1;32m    760[0m new_values [38;5;241m=[39m maybe_coerce_values(new_values)
+[1;32m    762[0m refs [38;5;241m=[39m [38;5;28;01mNone[39;00m
+
+File [0;32m/opt/conda/envs/rapids-25.02/lib/python3.10/site-packages/pandas/core/dtypes/astype.py:237[0m, in [0;36mastype_array_safe[0;34m(values, dtype, copy, errors)[0m
+[1;32m    234[0m     dtype [38;5;241m=[39m dtype[38;5;241m.[39mnumpy_dtype
+[1;32m    236[0m [38;5;28;01mtry[39;00m:
+[0;32m--> 237[0m     new_values [38;5;241m=[39m [43mastype_array[49m[43m([49m[43mvalues[49m[43m,[49m[43m [49m[43mdtype[49m[43m,[49m[43m [49m[43mcopy[49m[38;5;241;43m=[39;49m[43mcopy[49m[43m)[49m
+[1;32m    238[0m [38;5;28;01mexcept[39;00m ([38;5;167;01mValueError[39;00m, [38;5;167;01mTypeError[39;00m):
+[1;32m    239[0m     [38;5;66;03m# e.g. _astype_nansafe can fail on object-dtype of strings[39;00m
+[1;32m    240[0m     [38;5;66;03m#  trying to convert to float[39;00m
+[1;32m    241[0m     [38;5;28;01mif[39;00m errors [38;5;241m==[39m [38;5;124m"[39m[38;5;124mignore[39m[38;5;124m"[39m:
+
+File [0;32m/opt/conda/envs/rapids-25.02/lib/python3.10/site-packages/pandas/core/dtypes/astype.py:182[0m, in [0;36mastype_array[0;34m(values, dtype, copy)[0m
+[1;32m    179[0m     values [38;5;241m=[39m values[38;5;241m.[39mastype(dtype, copy[38;5;241m=[39mcopy)
+[1;32m    181[0m [38;5;28;01melse[39;00m:
+[0;32m--> 182[0m     values [38;5;241m=[39m [43m_astype_nansafe[49m[43m([49m[43mvalues[49m[43m,[49m[43m [49m[43mdtype[49m[43m,[49m[43m [49m[43mcopy[49m[38;5;241;43m=[39;49m[43mcopy[49m[43m)[49m
+[1;32m    184[0m [38;5;66;03m# in pandas we don't store numpy str dtypes, so convert to object[39;00m
+[1;32m    185[0m [38;5;28;01mif[39;00m [38;5;28misinstance[39m(dtype, np[38;5;241m.[39mdtype) [38;5;129;01mand[39;00m [38;5;28missubclass[39m(values[38;5;241m.[39mdtype[38;5;241m.[39mtype, [38;5;28mstr[39m):
+
+File [0;32m/opt/conda/envs/rapids-25.02/lib/python3.10/site-packages/pandas/core/dtypes/astype.py:133[0m, in [0;36m_astype_nansafe[0;34m(arr, dtype, copy, skipna)[0m
+[1;32m    129[0m     [38;5;28;01mraise[39;00m [38;5;167;01mValueError[39;00m(msg)
+[1;32m    131[0m [38;5;28;01mif[39;00m copy [38;5;129;01mor[39;00m arr[38;5;241m.[39mdtype [38;5;241m==[39m [38;5;28mobject[39m [38;5;129;01mor[39;00m dtype [38;5;241m==[39m [38;5;28mobject[39m:
+[1;32m    132[0m     [38;5;66;03m# Explicit copy, or required since NumPy can't view from / to object.[39;00m
+[0;32m--> 133[0m     [38;5;28;01mreturn[39;00m [43marr[49m[38;5;241;43m.[39;49m[43mastype[49m[43m([49m[43mdtype[49m[43m,[49m[43m [49m[43mcopy[49m[38;5;241;43m=[39;49m[38;5;28;43;01mTrue[39;49;00m[43m)[49m
+[1;32m    135[0m [38;5;28;01mreturn[39;00m arr[38;5;241m.[39mastype(dtype, copy[38;5;241m=[39mcopy)
+
+[0;31mValueError[0m: invalid literal for int() with base 10: 'Duration (in seconds)'
+
+---------------------------------------
+processing notebooks/nickwan/creating-player-stats-using-tracking-data/src/bench.ipynb
+Execution time: 3.4565365314483643 seconds
+---------------------------------------
+processing notebooks/spscientist/student-performance-in-exams/src/bench.ipynb
+Execution time: 17.269182205200195 seconds
+---------------------------------------
+processing notebooks/erikbruin/nlp-on-student-writing-eda/src/bench.ipynb
+Execution time: 52.01393151283264 seconds
+---------------------------------------
+processing notebooks/josecode1/billionaires-statistics-2023/src/bench.ipynb
+Execution time: 8.565668106079102 seconds
+---------------------------------------
+processing notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/bench.ipynb
+Execution time: 3.7796576023101807 seconds
+---------------------------------------
+processing notebooks/ampiiere/animal-crossing-villager-popularity-analysis/src/bench.ipynb
+Execution time: 8.820544242858887 seconds
+---------------------------------------
+processing notebooks/sanket7994/imdb-dataset-eda-project/src/bench.ipynb
+Error processing notebooks/sanket7994/imdb-dataset-eda-project/src/bench.ipynb: An error occurred while executing the following cell:
+------------------
+### cell 11 ###
+
+top_10_highest = imdb_df.groupby(['Title_Name'])[
+    ['Avg_Rating','Total_Votes']].max().sort_values(by=['Avg_Rating','Total_Votes'
+                                                       ], ascending = False).reset_index().head(10)
+
+top_10_highest
+------------------
+
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mKeyError[0m                                  Traceback (most recent call last)
+Cell [0;32mIn[14], line 3[0m
+[1;32m      1[0m [38;5;66;03m### cell 11 ###[39;00m
+[0;32m----> 3[0m top_10_highest [38;5;241m=[39m [43mimdb_df[49m[38;5;241;43m.[39;49m[43mgroupby[49m[43m([49m[43m[[49m[38;5;124;43m'[39;49m[38;5;124;43mTitle_Name[39;49m[38;5;124;43m'[39;49m[43m][49m[43m)[49m[
+[1;32m      4[0m     [[38;5;124m'[39m[38;5;124mAvg_Rating[39m[38;5;124m'[39m,[38;5;124m'[39m[38;5;124mTotal_Votes[39m[38;5;124m'[39m]][38;5;241m.[39mmax()[38;5;241m.[39msort_values(by[38;5;241m=[39m[[38;5;124m'[39m[38;5;124mAvg_Rating[39m[38;5;124m'[39m,[38;5;124m'[39m[38;5;124mTotal_Votes[39m[38;5;124m'[39m
+[1;32m      5[0m                                                        ], ascending [38;5;241m=[39m [38;5;28;01mFalse[39;00m)[38;5;241m.[39mreset_index()[38;5;241m.[39mhead([38;5;241m10[39m)
+[1;32m      7[0m top_10_highest
+
+File [0;32m/opt/conda/envs/rapids-25.02/lib/python3.10/site-packages/pandas/core/frame.py:9183[0m, in [0;36mDataFrame.groupby[0;34m(self, by, axis, level, as_index, sort, group_keys, observed, dropna)[0m
+[1;32m   9180[0m [38;5;28;01mif[39;00m level [38;5;129;01mis[39;00m [38;5;28;01mNone[39;00m [38;5;129;01mand[39;00m by [38;5;129;01mis[39;00m [38;5;28;01mNone[39;00m:
+[1;32m   9181[0m     [38;5;28;01mraise[39;00m [38;5;167;01mTypeError[39;00m([38;5;124m"[39m[38;5;124mYou have to supply one of [39m[38;5;124m'[39m[38;5;124mby[39m[38;5;124m'[39m[38;5;124m and [39m[38;5;124m'[39m[38;5;124mlevel[39m[38;5;124m'[39m[38;5;124m"[39m)
+[0;32m-> 9183[0m [38;5;28;01mreturn[39;00m [43mDataFrameGroupBy[49m[43m([49m
+[1;32m   9184[0m [43m    [49m[43mobj[49m[38;5;241;43m=[39;49m[38;5;28;43mself[39;49m[43m,[49m
+[1;32m   9185[0m [43m    [49m[43mkeys[49m[38;5;241;43m=[39;49m[43mby[49m[43m,[49m
+[1;32m   9186[0m [43m    [49m[43maxis[49m[38;5;241;43m=[39;49m[43maxis[49m[43m,[49m
+[1;32m   9187[0m [43m    [49m[43mlevel[49m[38;5;241;43m=[39;49m[43mlevel[49m[43m,[49m
+[1;32m   9188[0m [43m    [49m[43mas_index[49m[38;5;241;43m=[39;49m[43mas_index[49m[43m,[49m
+[1;32m   9189[0m [43m    [49m[43msort[49m[38;5;241;43m=[39;49m[43msort[49m[43m,[49m
+[1;32m   9190[0m [43m    [49m[43mgroup_keys[49m[38;5;241;43m=[39;49m[43mgroup_keys[49m[43m,[49m
+[1;32m   9191[0m [43m    [49m[43mobserved[49m[38;5;241;43m=[39;49m[43mobserved[49m[43m,[49m
+[1;32m   9192[0m [43m    [49m[43mdropna[49m[38;5;241;43m=[39;49m[43mdropna[49m[43m,[49m
+[1;32m   9193[0m [43m[49m[43m)[49m
+
+File [0;32m/opt/conda/envs/rapids-25.02/lib/python3.10/site-packages/pandas/core/groupby/groupby.py:1329[0m, in [0;36mGroupBy.__init__[0;34m(self, obj, keys, axis, level, grouper, exclusions, selection, as_index, sort, group_keys, observed, dropna)[0m
+[1;32m   1326[0m [38;5;28mself[39m[38;5;241m.[39mdropna [38;5;241m=[39m dropna
+[1;32m   1328[0m [38;5;28;01mif[39;00m grouper [38;5;129;01mis[39;00m [38;5;28;01mNone[39;00m:
+[0;32m-> 1329[0m     grouper, exclusions, obj [38;5;241m=[39m [43mget_grouper[49m[43m([49m
+[1;32m   1330[0m [43m        [49m[43mobj[49m[43m,[49m
+[1;32m   1331[0m [43m        [49m[43mkeys[49m[43m,[49m
+[1;32m   1332[0m [43m        [49m[43maxis[49m[38;5;241;43m=[39;49m[43maxis[49m[43m,[49m
+[1;32m   1333[0m [43m        [49m[43mlevel[49m[38;5;241;43m=[39;49m[43mlevel[49m[43m,[49m
+[1;32m   1334[0m [43m        [49m[43msort[49m[38;5;241;43m=[39;49m[43msort[49m[43m,[49m
+[1;32m   1335[0m [43m        [49m[43mobserved[49m[38;5;241;43m=[39;49m[38;5;28;43;01mFalse[39;49;00m[43m [49m[38;5;28;43;01mif[39;49;00m[43m [49m[43mobserved[49m[43m [49m[38;5;129;43;01mis[39;49;00m[43m [49m[43mlib[49m[38;5;241;43m.[39;49m[43mno_default[49m[43m [49m[38;5;28;43;01melse[39;49;00m[43m [49m[43mobserved[49m[43m,[49m
+[1;32m   1336[0m [43m        [49m[43mdropna[49m[38;5;241;43m=[39;49m[38;5;28;43mself[39;49m[38;5;241;43m.[39;49m[43mdropna[49m[43m,[49m
+[1;32m   1337[0m [43m    [49m[43m)[49m
+[1;32m   1339[0m [38;5;28;01mif[39;00m observed [38;5;129;01mis[39;00m lib[38;5;241m.[39mno_default:
+[1;32m   1340[0m     [38;5;28;01mif[39;00m [38;5;28many[39m(ping[38;5;241m.[39m_passed_categorical [38;5;28;01mfor[39;00m ping [38;5;129;01min[39;00m grouper[38;5;241m.[39mgroupings):
+
+File [0;32m/opt/conda/envs/rapids-25.02/lib/python3.10/site-packages/pandas/core/groupby/grouper.py:1043[0m, in [0;36mget_grouper[0;34m(obj, key, axis, level, sort, observed, validate, dropna)[0m
+[1;32m   1041[0m         in_axis, level, gpr [38;5;241m=[39m [38;5;28;01mFalse[39;00m, gpr, [38;5;28;01mNone[39;00m
+[1;32m   1042[0m     [38;5;28;01melse[39;00m:
+[0;32m-> 1043[0m         [38;5;28;01mraise[39;00m [38;5;167;01mKeyError[39;00m(gpr)
+[1;32m   1044[0m [38;5;28;01melif[39;00m [38;5;28misinstance[39m(gpr, Grouper) [38;5;129;01mand[39;00m gpr[38;5;241m.[39mkey [38;5;129;01mis[39;00m [38;5;129;01mnot[39;00m [38;5;28;01mNone[39;00m:
+[1;32m   1045[0m     [38;5;66;03m# Add key to exclusions[39;00m
+[1;32m   1046[0m     exclusions[38;5;241m.[39madd(gpr[38;5;241m.[39mkey)
+
+[0;31mKeyError[0m: 'Title_Name'
+
+---------------------------------------
+processing notebooks/ibtesama/getting-started-with-a-movie-recommendation-system/src/bench.ipynb
+Execution time: 75.02306008338928 seconds
+---------------------------------------
+processing notebooks/mpwolke/just-you-wait-rishi-sunak/src/bench.ipynb
+Execution time: 119.38587999343872 seconds
+---------------------------------------
+processing notebooks/joshuaswords/netflix-data-visualization/src/bench.ipynb
+Execution time: 16.82420539855957 seconds
+---------------------------------------
+processing notebooks/pmarcelino/comprehensive-data-exploration-with-python/src/bench.ipynb
+Execution time: 8.80417537689209 seconds
+---------------------------------------
+processing notebooks/gksriharsha/eda-speedtests/src/bench.ipynb
+Execution time: 14.010245084762573 seconds
+---------------------------------------
+processing notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/bench.ipynb
+Execution time: 16.131027936935425 seconds
+---------------------------------------
+processing new_notebooks/us-birth/bench.ipynb
+Execution time: 8.183486938476562 seconds
+---------------------------------------
+processing new_notebooks/nyc-flight/bench.ipynb
+Execution time: 1.9521539211273193 seconds
+---------------------------------------
+processing new_notebooks/imdb/bench.ipynb
+Execution time: 5.499248027801514 seconds
+---------------------------------------
+processing new_notebooks/nyc-taxi/bench.ipynb
+Execution time: 141.69461226463318 seconds
+---------------------------------------
+processing new_notebooks/nyc-airbnb/bench.ipynb
+Execution time: 34.415605783462524 seconds
+Failed paths: [PosixPath('notebooks/madhurpant/beautiful-kaggle-2022-analysis/src/bench.ipynb'), PosixPath('notebooks/sanket7994/imdb-dataset-eda-project/src/bench.ipynb')]

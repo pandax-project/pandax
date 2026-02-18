@@ -1,0 +1,70 @@
+---------------------------------------
+processing notebooks/nickwan/creating-player-stats-using-tracking-data/src/rewritten/o4_mini_high.ipynb
+Execution time: 1.2793493270874023 seconds
+1.5883774757385254 1.2793493270874023
+Average execution time: 1.4338634014129639 seconds
+---------------------------------------
+processing notebooks/paultimothymooney/kaggle-survey-2022-all-results/src/rewritten/o4_mini_high.ipynb
+Execution time: 30.984641790390015 seconds
+31.462388038635254 30.984641790390015
+Average execution time: 31.223514914512634 seconds
+---------------------------------------
+processing notebooks/pmarcelino/comprehensive-data-exploration-with-python/src/rewritten/o4_mini_high.ipynb
+Execution time: 11.069173574447632 seconds
+10.978787183761597 11.069173574447632
+Average execution time: 11.023980379104614 seconds
+---------------------------------------
+processing notebooks/roopacalistus/retail-supermarket-store-analysis/src/rewritten/o4_mini_high.ipynb
+Execution time: 22.913946628570557 seconds
+22.8823184967041 22.913946628570557
+Average execution time: 22.89813256263733 seconds
+---------------------------------------
+processing notebooks/saisandeepjallepalli/adidas-retail-eda-data-visualization/src/rewritten/o4_mini_high.ipynb
+column_view::get_data: Unsupported type: 24
+column_view::get_data: Unsupported type: 24
+Execution time: 11.94028639793396 seconds
+12.11977744102478 11.94028639793396
+Average execution time: 12.03003191947937 seconds
+---------------------------------------
+processing notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/rewritten/o4_mini_high.ipynb
+Execution time: 1.1052048206329346 seconds
+1.0946009159088135 1.1052048206329346
+Average execution time: 1.099902868270874 seconds
+---------------------------------------
+processing notebooks/sanket7994/imdb-dataset-eda-project/src/rewritten/o4_mini_high.ipynb
+Execution time: 1.3967280387878418 seconds
+3.6539878845214844 1.3967280387878418
+Average execution time: 2.525357961654663 seconds
+---------------------------------------
+processing notebooks/spscientist/student-performance-in-exams/src/rewritten/o4_mini_high.ipynb
+Execution time: 2.041548728942871 seconds
+2.039337635040283 2.041548728942871
+Average execution time: 2.040443181991577 seconds
+---------------------------------------
+processing new_notebooks/nyc-flight/rewritten/o4_mini_high.ipynb
+Execution time: 15.65801739692688 seconds
+15.56496810913086 15.65801739692688
+Average execution time: 15.61149275302887 seconds
+---------------------------------------
+processing new_notebooks/imdb/rewritten/o4_mini_high.ipynb
+Execution time: 0.5513639450073242 seconds
+0.5645856857299805 0.5513639450073242
+Average execution time: 0.5579748153686523 seconds
+---------------------------------------
+processing new_notebooks/us-birth/rewritten/o4_mini_high.ipynb
+Execution time: 1.4320619106292725 seconds
+1.457951545715332 1.4320619106292725
+Average execution time: 1.4450067281723022 seconds
+---------------------------------------
+processing new_notebooks/nyc-taxi/rewritten/o4_mini_high.ipynb
+Execution time: 110.32753300666809 seconds
+113.93571925163269 110.32753300666809
+Average execution time: 112.13162612915039 seconds
+---------------------------------------
+processing new_notebooks/nyc-airbnb/rewritten/o4_mini_high.ipynb
+column_view::get_data: Unsupported type: 24
+column_view::get_data: Unsupported type: 24
+Execution time: 3.472743511199951 seconds
+4.655776023864746 3.472743511199951
+Average execution time: 4.064259767532349 seconds
+Failed paths: []

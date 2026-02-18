@@ -1,0 +1,8 @@
+COPY customer FROM 'csv_out/customer.csv' (FORMAT 'csv', force_not_null ('c_custkey', 'c_name', 'c_address', 'c_nationkey', 'c_phone', 'c_acctbal', 'c_mktsegment', 'c_comment'), quote '"', DELIMITER ',', HEADER 1);
+COPY lineitem FROM 'csv_out/lineitem.csv' (FORMAT 'csv', force_not_null ('l_orderkey', 'l_partkey', 'l_suppkey', 'l_linenumber', 'l_quantity', 'l_extendedprice', 'l_discount', 'l_tax', 'l_returnflag', 'l_linestatus', 'l_shipdate', 'l_commitdate', 'l_receiptdate', 'l_shipinstruct', 'l_shipmode', 'l_comment'), quote '"', DELIMITER ',', HEADER 1);
+COPY nation FROM 'csv_out/nation.csv' (FORMAT 'csv', force_not_null ('n_nationkey', 'n_name', 'n_regionkey', 'n_comment'), quote '"', DELIMITER ',', HEADER 1);
+COPY orders FROM 'csv_out/orders.csv' (FORMAT 'csv', force_not_null ('o_orderkey', 'o_custkey', 'o_orderstatus', 'o_totalprice', 'o_orderdate', 'o_orderpriority', 'o_clerk', 'o_shippriority', 'o_comment'), quote '"', DELIMITER ',', HEADER 1);
+COPY part FROM 'csv_out/part.csv' (FORMAT 'csv', force_not_null ('p_partkey', 'p_name', 'p_mfgr', 'p_brand', 'p_type', 'p_size', 'p_container', 'p_retailprice', 'p_comment'), quote '"', DELIMITER ',', HEADER 1);
+COPY partsupp FROM 'csv_out/partsupp.csv' (FORMAT 'csv', force_not_null ('ps_partkey', 'ps_suppkey', 'ps_availqty', 'ps_supplycost', 'ps_comment'), quote '"', DELIMITER ',', HEADER 1);
+COPY region FROM 'csv_out/region.csv' (FORMAT 'csv', force_not_null ('r_regionkey', 'r_name', 'r_comment'), quote '"', DELIMITER ',', HEADER 1);
+COPY supplier FROM 'csv_out/supplier.csv' (FORMAT 'csv', force_not_null ('s_suppkey', 's_name', 's_address', 's_nationkey', 's_phone', 's_acctbal', 's_comment'), quote '"', DELIMITER ',', HEADER 1);

@@ -1,0 +1,504 @@
+Found `factor = 10` in cell 0
+Replaced factor in cell with 3
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_3.ipynb
+Running with `factor = 3`...
+Time taken: 5.519221305847168 seconds
+Replaced factor in cell with 4
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_4.ipynb
+Running with `factor = 4`...
+Time taken: 6.195197105407715 seconds
+Replaced factor in cell with 5
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_5.ipynb
+Running with `factor = 5`...
+Time taken: 6.53255033493042 seconds
+Replaced factor in cell with 6
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_6.ipynb
+Running with `factor = 6`...
+Time taken: 9.267932891845703 seconds
+Predictions at factor = 1000:
+Cell 0: 6483.999999999998
+Cell 1: 192.47999999999996
+Cell 2: 274.5
+Annotated notebook saved to /home/dias-benchmarks/tpch/notebooks/q01/rewritten/original_with_timing.ipynb
+Cell 0: Predicted 6483.999999999998, Actual 26400.0
+Error: 0.7543939393939394
+Cell 1: Predicted 192.47999999999996, Actual 682.0
+Error: 0.7177712609970675
+Cell 2: Predicted 274.5, Actual 1900.0
+Error: 0.8555263157894737
+Writing data to CSV file... /home/dias-benchmarks/tpch/notebooks/q01/rewritten/prediction_times.csv
+Average error percentage: 0.7758971720601601
+Average absolute error: 7343.673333333333
+total original gpu time: 28982.0
+total predicted gpu time: 6950.979999999998
+total absolute error: 22031.02
+Found `factor = 10` in cell 0
+Replaced factor in cell with 3
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_3.ipynb
+Running with `factor = 3`...
+Time taken: 9.5941903591156 seconds
+Replaced factor in cell with 4
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_4.ipynb
+Running with `factor = 4`...
+Time taken: 7.601318836212158 seconds
+Replaced factor in cell with 5
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_5.ipynb
+Running with `factor = 5`...
+Time taken: 7.530955076217651 seconds
+Replaced factor in cell with 6
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_6.ipynb
+Running with `factor = 6`...
+Time taken: 8.356170654296875 seconds
+Predictions at factor = 1000:
+Cell 0: 1011.4000000000001
+Cell 1: 4301.999999999999
+Cell 2: 23.55
+Cell 3: 7.2175
+Cell 4: 5.24
+Cell 5: 2.1175
+Cell 6: 26.075000000000003
+Cell 7: 50.599999999999994
+Cell 8: 2.025
+Cell 9: 8.3375
+Cell 10: 1.94
+Cell 11: 1.5525
+Cell 12: 20.28
+Cell 13: 2.3210000000000006
+Cell 14: 1.737
+Cell 15: 14.8
+Cell 16: 2.5029999999999997
+Cell 17: 9.100000000000001
+Cell 18: 2.1975
+Cell 19: 30.3
+Cell 20: 9.209999999999999
+Cell 21: 1.8050000000000002
+Cell 22: 20.9
+Annotated notebook saved to /home/dias-benchmarks/tpch/notebooks/q02/rewritten/original_with_timing.ipynb
+Cell 0: Predicted 1011.4000000000001, Actual 1040.0
+Error: 0.027499999999999913
+Cell 1: Predicted 4301.999999999999, Actual 4370.0
+Error: 0.015560640732265655
+Cell 2: Predicted 23.55, Actual 27.5
+Error: 0.14363636363636362
+Cell 3: Predicted 7.2175, Actual 7.44
+Error: 0.029905913978494642
+Cell 4: Predicted 5.24, Actual 5.34
+Error: 0.01872659176029956
+Cell 5: Predicted 2.1175, Actual 2.4
+Error: 0.11770833333333323
+Cell 6: Predicted 26.075000000000003, Actual 26.2
+Error: 0.004770992366412079
+Cell 7: Predicted 50.599999999999994, Actual 38.5
+Error: 0.3142857142857141
+Cell 8: Predicted 2.025, Actual 1.89
+Error: 0.07142857142857144
+Cell 9: Predicted 8.3375, Actual 9.0
+Error: 0.07361111111111107
+Cell 10: Predicted 1.94, Actual 2.07
+Error: 0.06280193236714972
+Cell 11: Predicted 1.5525, Actual 1.66
+Error: 0.06475903614457827
+Cell 12: Predicted 20.28, Actual 20.9
+Error: 0.029665071770334808
+Cell 13: Predicted 2.3210000000000006, Actual 2.29
+Error: 0.013537117903930385
+Cell 14: Predicted 1.737, Actual 1.85
+Error: 0.061081081081081075
+Cell 15: Predicted 14.8, Actual 11.5
+Error: 0.2869565217391305
+Cell 16: Predicted 2.5029999999999997, Actual 1.53
+Error: 0.6359477124183004
+Cell 17: Predicted 9.100000000000001, Actual 10.4
+Error: 0.12499999999999989
+Cell 18: Predicted 2.1975, Actual 2.4
+Error: 0.08437500000000006
+Cell 19: Predicted 30.3, Actual 17.8
+Error: 0.7022471910112359
+Cell 20: Predicted 9.209999999999999, Actual 9.77
+Error: 0.05731832139201643
+Cell 21: Predicted 1.8050000000000002, Actual 1.99
+Error: 0.09296482412060293
+Cell 22: Predicted 20.9, Actual 17.6
+Error: 0.18749999999999983
+Writing data to CSV file... /home/dias-benchmarks/tpch/notebooks/q02/rewritten/prediction_times.csv
+Average error percentage: 0.14005600185134462
+Average absolute error: 5.978239130434818
+total original gpu time: 5630.029999999999
+total predicted gpu time: 5557.208499999999
+total absolute error: 137.4995000000008
+Found `factor = 10` in cell 0
+Replaced factor in cell with 3
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_3.ipynb
+Running with `factor = 3`...
+Time taken: 17.02542757987976 seconds
+Replaced factor in cell with 4
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_4.ipynb
+Running with `factor = 4`...
+Time taken: 19.614343881607056 seconds
+Replaced factor in cell with 5
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_5.ipynb
+Running with `factor = 5`...
+Time taken: 23.02523112297058 seconds
+Replaced factor in cell with 6
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_6.ipynb
+Running with `factor = 6`...
+Time taken: 28.791287422180176 seconds
+Predictions at factor = 1000:
+Cell 0: 31471.999999999993
+Cell 1: 5991.999999999998
+Cell 2: 741.4000000000001
+Cell 3: 1184.3000000000002
+Annotated notebook saved to /home/dias-benchmarks/tpch/notebooks/q03/rewritten/original_with_timing.ipynb
+Cell 0: Predicted 31471.999999999993, Actual 34400.0
+Error: 0.08511627906976765
+Cell 1: Predicted 5991.999999999998, Actual 6470.0
+Error: 0.0738794435857808
+Cell 2: Predicted 741.4000000000001, Actual 809.0
+Error: 0.08355995055624216
+Cell 3: Predicted 1184.3000000000002, Actual 2270.0
+Error: 0.4782819383259911
+Writing data to CSV file... /home/dias-benchmarks/tpch/notebooks/q03/rewritten/prediction_times.csv
+Average error percentage: 0.18020940288444542
+Average absolute error: 1139.825000000002
+total original gpu time: 43949.0
+total predicted gpu time: 39389.7
+total absolute error: 4559.300000000008
+Found `factor = 10` in cell 0
+Replaced factor in cell with 3
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_3.ipynb
+Running with `factor = 3`...
+Time taken: 16.516711235046387 seconds
+Replaced factor in cell with 4
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_4.ipynb
+Running with `factor = 4`...
+Time taken: 18.856597661972046 seconds
+Replaced factor in cell with 5
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_5.ipynb
+Running with `factor = 5`...
+Time taken: 21.758461952209473 seconds
+Replaced factor in cell with 6
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_6.ipynb
+Running with `factor = 6`...
+Time taken: 27.03041100502014 seconds
+Predictions at factor = 1000:
+Cell 0: 27914.0
+Cell 1: 5987.0
+Cell 2: 79.94999999999999
+Cell 3: 52.4
+Annotated notebook saved to /home/dias-benchmarks/tpch/notebooks/q04/rewritten/original_with_timing.ipynb
+Cell 0: Predicted 27914.0, Actual 19500.0
+Error: 0.43148717948717946
+Cell 1: Predicted 5987.0, Actual 6480.0
+Error: 0.07608024691358024
+Cell 2: Predicted 79.94999999999999, Actual 180.0
+Error: 0.5558333333333334
+Cell 3: Predicted 52.4, Actual 74.0
+Error: 0.2918918918918919
+Writing data to CSV file... /home/dias-benchmarks/tpch/notebooks/q04/rewritten/prediction_times.csv
+Average error percentage: 0.3388231629064963
+Average absolute error: 2257.1625
+total original gpu time: 26234.0
+total predicted gpu time: 34033.35
+total absolute error: 9028.65
+Found `factor = 10` in cell 0
+Replaced factor in cell with 3
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_3.ipynb
+Running with `factor = 3`...
+Time taken: 16.695931673049927 seconds
+Replaced factor in cell with 4
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_4.ipynb
+Running with `factor = 4`...
+Time taken: 19.275837659835815 seconds
+Replaced factor in cell with 5
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_5.ipynb
+Running with `factor = 5`...
+Time taken: 22.750596046447754 seconds
+Replaced factor in cell with 6
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_6.ipynb
+Running with `factor = 6`...
+Time taken: 26.43594241142273 seconds
+Predictions at factor = 1000:
+Cell 0: 27985.999999999996
+Cell 1: 6130.0
+Cell 2: 803.6999999999998
+Cell 3: 7.132
+Cell 4: 7.127000000000001
+Cell 5: 22.225
+Cell 6: 312.7
+Annotated notebook saved to /home/dias-benchmarks/tpch/notebooks/q05/rewritten/original_with_timing.ipynb
+Cell 0: Predicted 27985.999999999996, Actual 9380.0
+Error: 1.9835820895522385
+Cell 1: Predicted 6130.0, Actual 1600.0
+Error: 2.83125
+Cell 2: Predicted 803.6999999999998, Actual 820.0
+Error: 0.019878048780488027
+Cell 3: Predicted 7.132, Actual 5.69
+Error: 0.2534270650263619
+Cell 4: Predicted 7.127000000000001, Actual 5.4
+Error: 0.31981481481481483
+Cell 5: Predicted 22.225, Actual 28.4
+Error: 0.21742957746478864
+Cell 6: Predicted 312.7, Actual 1700.0
+Error: 0.8160588235294117
+Writing data to CSV file... /home/dias-benchmarks/tpch/notebooks/q05/rewritten/prediction_times.csv
+Average error percentage: 0.9202057741668721
+Average absolute error: 3506.991999999999
+total original gpu time: 13539.49
+total predicted gpu time: 35268.88399999999
+total absolute error: 24548.943999999992
+Found `factor = 10` in cell 0
+Replaced factor in cell with 3
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_3.ipynb
+Running with `factor = 3`...
+Time taken: 6.999480485916138 seconds
+Replaced factor in cell with 4
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_4.ipynb
+Running with `factor = 4`...
+Time taken: 6.809083938598633 seconds
+Replaced factor in cell with 5
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_5.ipynb
+Running with `factor = 5`...
+Time taken: 6.743605852127075 seconds
+Replaced factor in cell with 6
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_6.ipynb
+Running with `factor = 6`...
+Time taken: 9.397431135177612 seconds
+Predictions at factor = 1000:
+Cell 0: 6697.999999999998
+Cell 1: 34.925
+Cell 2: 38.5
+Annotated notebook saved to /home/dias-benchmarks/tpch/notebooks/q06/rewritten/original_with_timing.ipynb
+Cell 0: Predicted 6697.999999999998, Actual 42400.0
+Error: 0.8420283018867925
+Cell 1: Predicted 34.925, Actual 228.0
+Error: 0.8468201754385964
+Cell 2: Predicted 38.5, Actual 116.0
+Error: 0.6681034482758621
+Writing data to CSV file... /home/dias-benchmarks/tpch/notebooks/q06/rewritten/prediction_times.csv
+Average error percentage: 0.7856506418670838
+Average absolute error: 11990.858333333332
+total original gpu time: 42744.0
+total predicted gpu time: 6771.424999999998
+total absolute error: 35972.575
+Found `factor = 10` in cell 0
+Replaced factor in cell with 3
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_3.ipynb
+Running with `factor = 3`...
+Time taken: 16.68568205833435 seconds
+Replaced factor in cell with 4
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_4.ipynb
+Running with `factor = 4`...
+Time taken: 20.02622652053833 seconds
+Replaced factor in cell with 5
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_5.ipynb
+Running with `factor = 5`...
+Time taken: 22.67045283317566 seconds
+Replaced factor in cell with 6
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_6.ipynb
+Running with `factor = 6`...
+Time taken: 28.99095106124878 seconds
+Predictions at factor = 1000:
+Cell 0: 31654.0
+Cell 1: 22.25
+Cell 2: 6197.0
+Cell 3: 815.0999999999999
+Cell 4: 5.282500000000001
+Cell 5: 1359.3999999999999
+Cell 6: 12.192000000000004
+Annotated notebook saved to /home/dias-benchmarks/tpch/notebooks/q07/rewritten/original_with_timing.ipynb
+Cell 0: Predicted 31654.0, Actual 21300.0
+Error: 0.4861032863849765
+Cell 1: Predicted 22.25, Actual 38.3
+Error: 0.41906005221932113
+Cell 2: Predicted 6197.0, Actual 6470.0
+Error: 0.04219474497681607
+Cell 3: Predicted 815.0999999999999, Actual 805.0
+Error: 0.012546583850931565
+Cell 4: Predicted 5.282500000000001, Actual 5.61
+Error: 0.05837789661319067
+Cell 5: Predicted 1359.3999999999999, Actual 1300.0
+Error: 0.04569230769230759
+Cell 6: Predicted 12.192000000000004, Actual 15.8
+Error: 0.22835443037974665
+Writing data to CSV file... /home/dias-benchmarks/tpch/notebooks/q07/rewritten/prediction_times.csv
+Average error percentage: 0.18461847173104146
+Average absolute error: 1530.9264999999998
+total original gpu time: 29934.71
+total predicted gpu time: 40065.224500000004
+total absolute error: 10716.485499999999
+Found `factor = 10` in cell 0
+Replaced factor in cell with 3
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_3.ipynb
+Running with `factor = 3`...
+Time taken: 16.886232137680054 seconds
+Replaced factor in cell with 4
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_4.ipynb
+Running with `factor = 4`...
+Time taken: 19.248401403427124 seconds
+Replaced factor in cell with 5
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_5.ipynb
+Running with `factor = 5`...
+Time taken: 24.028870582580566 seconds
+Replaced factor in cell with 6
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_6.ipynb
+Running with `factor = 6`...
+Time taken: 21.028184413909912 seconds
+Predictions at factor = 1000:
+Cell 0: 1000.1999999999999
+Cell 1: 21268.0
+Cell 2: 21.775
+Cell 3: 1822.0
+Cell 4: 216.075
+Cell 5: 4.92
+Cell 6: 5.2
+Cell 7: 785.3999999999999
+Annotated notebook saved to /home/dias-benchmarks/tpch/notebooks/q08/rewritten/original_with_timing.ipynb
+Cell 0: Predicted 1000.1999999999999, Actual 999.0
+Error: 0.0012012012012011328
+Cell 1: Predicted 21268.0, Actual 22000.0
+Error: 0.03327272727272727
+Cell 2: Predicted 21.775, Actual 71.8
+Error: 0.6967270194986073
+Cell 3: Predicted 1822.0, Actual 6890.0
+Error: 0.7355587808417997
+Cell 4: Predicted 216.075, Actual 816.0
+Error: 0.7352022058823529
+Cell 5: Predicted 4.92, Actual 5.42
+Error: 0.09225092250922509
+Cell 6: Predicted 5.2, Actual 5.12
+Error: 0.015625000000000014
+Cell 7: Predicted 785.3999999999999, Actual 1020.0
+Error: 0.23000000000000012
+Writing data to CSV file... /home/dias-benchmarks/tpch/notebooks/q08/rewritten/prediction_times.csv
+Average error percentage: 0.3174797321507392
+Average absolute error: 835.79125
+total original gpu time: 31807.339999999997
+total predicted gpu time: 25123.570000000003
+total absolute error: 6686.330000000001
+Found `factor = 10` in cell 0
+Replaced factor in cell with 3
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_3.ipynb
+Running with `factor = 3`...
+Time taken: 20.212066888809204 seconds
+Replaced factor in cell with 4
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_4.ipynb
+Running with `factor = 4`...
+Time taken: 18.595054388046265 seconds
+Replaced factor in cell with 5
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_5.ipynb
+Running with `factor = 5`...
+Time taken: 9.746729135513306 seconds
+Replaced factor in cell with 6
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_6.ipynb
+Running with `factor = 6`...
+Time taken: 12.813272714614868 seconds
+Predictions at factor = 1000:
+Cell 0: 6222.5
+Cell 1: 653.25
+Cell 2: 807.8000000000001
+Cell 3: 6.690000000000001
+Cell 4: 4371.0
+Cell 5: 14.600000000000001
+Cell 6: 1037.3999999999999
+Annotated notebook saved to /home/dias-benchmarks/tpch/notebooks/q09/rewritten/original_with_timing.ipynb
+Cell 0: Predicted 6222.5, Actual 44200.0
+Error: 0.8592194570135746
+Cell 1: Predicted 653.25, Actual 6480.0
+Error: 0.8991898148148149
+Cell 2: Predicted 807.8000000000001, Actual 807.0
+Error: 0.00099132589838918
+Cell 3: Predicted 6.690000000000001, Actual 5.48
+Error: 0.22080291970802934
+Cell 4: Predicted 4371.0, Actual 4600.0
+Error: 0.049782608695652174
+Cell 5: Predicted 14.600000000000001, Actual 29.0
+Error: 0.49655172413793097
+Cell 6: Predicted 1037.3999999999999, Actual 944.0
+Error: 0.09894067796610155
+Writing data to CSV file... /home/dias-benchmarks/tpch/notebooks/q09/rewritten/prediction_times.csv
+Average error percentage: 0.3750683611763561
+Average absolute error: 6306.151428571429
+total original gpu time: 57065.48
+total predicted gpu time: 13113.24
+total absolute error: 44143.060000000005
+Found `factor = 10` in cell 0
+Replaced factor in cell with 3
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_3.ipynb
+Running with `factor = 3`...
+Time taken: 18.823936939239502 seconds
+Replaced factor in cell with 4
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_4.ipynb
+Running with `factor = 4`...
+Time taken: 19.037232637405396 seconds
+Replaced factor in cell with 5
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_5.ipynb
+Running with `factor = 5`...
+Time taken: 22.82610249519348 seconds
+Replaced factor in cell with 6
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_6.ipynb
+Running with `factor = 6`...
+Time taken: 28.40623664855957 seconds
+Predictions at factor = 1000:
+Cell 0: 31654.0
+Cell 1: 6235.0
+Cell 2: 817.5
+Cell 3: 7.208000000000001
+Cell 4: 210.25
+Annotated notebook saved to /home/dias-benchmarks/tpch/notebooks/q10/rewritten/original_with_timing.ipynb
+Cell 0: Predicted 31654.0, Actual 30800.0
+Error: 0.02772727272727273
+Cell 1: Predicted 6235.0, Actual 6450.0
+Error: 0.03333333333333333
+Cell 2: Predicted 817.5, Actual 809.0
+Error: 0.010506798516687269
+Cell 3: Predicted 7.208000000000001, Actual 6.22
+Error: 0.15884244372990375
+Cell 4: Predicted 210.25, Actual 549.0
+Error: 0.6170309653916212
+Writing data to CSV file... /home/dias-benchmarks/tpch/notebooks/q10/rewritten/prediction_times.csv
+Average error percentage: 0.16948816273976366
+Average absolute error: 283.4476
+total original gpu time: 38614.22
+total predicted gpu time: 38923.958
+total absolute error: 1417.238
+Found `factor = 10` in cell 0
+Replaced factor in cell with 3
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_3.ipynb
+Running with `factor = 3`...
+Time taken: 7.393979787826538 seconds
+Replaced factor in cell with 4
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_4.ipynb
+Running with `factor = 4`...
+Time taken: 6.592484951019287 seconds
+Replaced factor in cell with 5
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_5.ipynb
+Running with `factor = 5`...
+Time taken: 6.994695663452148 seconds
+Replaced factor in cell with 6
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_6.ipynb
+Running with `factor = 6`...
+Time taken: 7.6338372230529785 seconds
+Predictions at factor = 1000:
+Cell 0: 4558.0
+Cell 1: 23.575000000000003
+Cell 2: 5.5275
+Cell 3: 130.0
+Annotated notebook saved to /home/dias-benchmarks/tpch/notebooks/q11/rewritten/original_with_timing.ipynb
+Cell 0: Predicted 4558.0, Actual 4590.0
+Error: 0.006971677559912854
+Cell 1: Predicted 23.575000000000003, Actual 29.5
+Error: 0.20084745762711856
+Cell 2: Predicted 5.5275, Actual 5.81
+Error: 0.04862306368330461
+Cell 3: Predicted 130.0, Actual 173.0
+Error: 0.24855491329479767
+Writing data to CSV file... /home/dias-benchmarks/tpch/notebooks/q11/rewritten/prediction_times.csv
+Average error percentage: 0.12624927804128344
+Average absolute error: 20.301875
+total original gpu time: 4798.31
+total predicted gpu time: 4717.1025
+total absolute error: 81.2075
+Found `factor = 10` in cell 0
+Replaced factor in cell with 3
+Annotated notebook saved to notebook_outputs/o4_mini_high_scheduled_factor_3.ipynb
+Running with `factor = 3`...

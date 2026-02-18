@@ -1,0 +1,766 @@
+Annotated notebook saved to /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/cell_exec_info.ipynb
+Executing code: import sys, os
+sys.path.insert(0, os.path.abspath('/home/ElasticNotebook'))
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df
+import pickle
+import cudf
+Executing code: %%RecordEventWithColumnInfo
+import numpy as np
+import os
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    # STEFANOS: Import Modin Pandas
+    import os
+    os.environ["MODIN_ENGINE"] = "ray"
+    import ray
+    ray.init(num_cpus=int(os.environ['MODIN_CPUS']), runtime_env={'env_vars': {'__MODIN_AUTOIMPORT_PANDAS__': '1'}})
+    import modin.pandas as pd
+else:
+    # STEFANOS: Import regular Pandas
+    import pandas as pd
+import time
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+train_df = pd.read_csv('/home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/input/feedback-prize-english-language-learning/train.csv')
+test_df = pd.read_csv('/home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/input/feedback-prize-english-language-learning/test.csv')
+Executing code: %%RecordEventWithColumnInfo
+### cell 1 ###
+
+factor = 10
+if "IREWR_LESS_REPLICATION" in os.environ and os.environ["IREWR_LESS_REPLICATION"] == "True":
+    factor = factor//5
+train_df = pd.concat([train_df]*factor)
+test_df = pd.concat([test_df]*factor)
+train_df.info()
+Executing code: %%RecordEventWithColumnInfo
+### cell 2 ###
+
+train_df.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 3 ###
+
+test_df.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 4 ###
+
+len(train_df), len(test_df)
+Executing code: %%RecordEventWithColumnInfo
+### cell 5 ###
+
+LABEL_COLUMNS = ['cohesion', 'syntax', 'vocabulary', 'phraseology', 'grammar', 'conventions']
+Executing code: %%RecordEventWithColumnInfo
+### cell 6 ###
+
+texts = train_df.sample(frac=1, random_state=420).head(4)
+Executing code: %%RecordEventWithColumnInfo
+### cell 7 ###
+
+train_df['total_score'] = train_df[LABEL_COLUMNS].sum(axis=1)
+lowest_df = train_df.sort_values('total_score').head(4)
+Executing code: %%RecordEventWithColumnInfo
+### cell 8 ###
+
+train_df['total_score'] = train_df[LABEL_COLUMNS].sum(axis=1)
+highest_df = train_df.sort_values('total_score', ascending=False).head(4)
+Executing code: %%RecordEventWithColumnInfo
+### cell 9 ###
+
+
+train_df['word_count'] = train_df.full_text.apply(lambda x: len(x.split()))
+Executing code: %%RecordEventWithColumnInfo
+### cell 10 ###
+
+train_df['word_count'].mean()
+Executing code: %%RecordEventWithColumnInfo
+### cell 11 ###
+
+train_df['word_count'].max()
+Executing code: %PrintCellInfo cell_exec_info
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Ran small notebook to get cell exec info in 10.818212270736694 seconds
+Getting cudf profile information...
+Annotated notebook saved to /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/cudf_profile.ipynb
+Done getting cudf profile information.
+Ran small notebook to get cudf profile info in 47.84860849380493 seconds
+Annotated notebook saved to /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated.ipynb
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Executing code: %load_ext cudf.pandas
+Executing code: import sys, os
+sys.path.insert(0, os.path.abspath('/home/ElasticNotebook'))
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df
+import pickle
+import cudf
+Executing code: %%RecordEvent
+import numpy as np
+import os
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    # STEFANOS: Import Modin Pandas
+    import os
+    os.environ["MODIN_ENGINE"] = "ray"
+    import ray
+    ray.init(num_cpus=int(os.environ['MODIN_CPUS']), runtime_env={'env_vars': {'__MODIN_AUTOIMPORT_PANDAS__': '1'}})
+    import modin.pandas as pd
+else:
+    # STEFANOS: Import regular Pandas
+    import pandas as pd
+import time
+Executing code: %%RecordEvent
+%%time
+### cell 0 ###
+
+train_df = pd.read_csv('/home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/input/feedback-prize-english-language-learning/train.csv')
+test_df = pd.read_csv('/home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/input/feedback-prize-english-language-learning/test.csv')
+Executing code: %%RecordEvent
+%%time
+### cell 1 ###
+
+factor = 200
+if "IREWR_LESS_REPLICATION" in os.environ and os.environ["IREWR_LESS_REPLICATION"] == "True":
+    factor = factor//5
+train_df = pd.concat([train_df]*factor)
+test_df = pd.concat([test_df]*factor)
+train_df.info()
+Executing code: %%RecordEvent
+%%time
+### cell 2 ###
+
+train_df.head()
+Executing code: %%RecordEvent
+%%time
+### cell 3 ###
+
+test_df.head()
+Executing code: %%RecordEvent
+%%time
+### cell 4 ###
+
+len(train_df), len(test_df)
+Executing code: %%RecordEvent
+%%time
+### cell 5 ###
+
+LABEL_COLUMNS = ['cohesion', 'syntax', 'vocabulary', 'phraseology', 'grammar', 'conventions']
+Executing code: %%RecordEvent
+%%time
+### cell 6 ###
+
+texts = train_df.sample(frac=1, random_state=420).head(4)
+Executing code: %%RecordEvent
+%%time
+### cell 7 ###
+
+train_df['total_score'] = train_df[LABEL_COLUMNS].sum(axis=1)
+lowest_df = train_df.sort_values('total_score').head(4)
+Executing code: %%RecordEvent
+%%time
+### cell 8 ###
+
+train_df['total_score'] = train_df[LABEL_COLUMNS].sum(axis=1)
+highest_df = train_df.sort_values('total_score', ascending=False).head(4)
+Executing code: %Checkpoint /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated/checkpoints/pre_cell_9.pickle
+Checkpointing took 0.000782012939453125 seconds.
+========================================================
+Cell  9
+Rewritten pre-checkpoint path: /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated/checkpoints/pre_cell_9.pickle
+Pre-checkpoint path: /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated/checkpoints/pre_cell_9.pickle
+========================================================
+Getting original timing for cell 9
+HAHA original checkpoint path:  /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated/checkpoints/pre_cell_9.pickle
+HAHA setting initially best_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated/checkpoints/post_cell_9.pickle
+========================================================
+Rewriting cell 9... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 9 ###
+
+
+train_df['word_count'] = train_df.full_text.apply(lambda x: len(x.split()))
+        <Profiling data>:
+                        Function  GPU calls  CPU calls
+0    NDFrame.__getattr__          1          0
+1           Series.apply          0          1
+2  DataFrame.__setitem__          1          0
+
+        <Execution time>: 16100.000000000002
+        <Active vars>: ['train_df']
+
+        <Future vars>: []
+
+        <Iteration>: 0/3
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: There is no rewritten code and the original code's execution time is high. It can likely be optimized further by avoiding the use of apply with a lambda function.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 9 ###
+
+
+train_df['word_count'] = train_df.full_text.apply(lambda x: len(x.split()))
+        <Profiling data>:
+                        Function  GPU calls  CPU calls
+0    NDFrame.__getattr__          1          0
+1           Series.apply          0          1
+2  DataFrame.__setitem__          1          0
+
+        <Execution time>: 16100.000000000002
+        <Active vars>: ['train_df']
+
+        <Future vars>: []
+
+        <Iteration>: 0/3
+
+Code: train_df['word_count'] = train_df.full_text.str.split().list.len()
+Reason: Replaced the Python apply + lambda (CPU) with cudf’s vectorized string split and list-length methods, keeping the work on GPU and eliminating the per-row Python call.
+Parsed response: train_df['word_count'] = train_df.full_text.str.split().list.len()
+Try 0: calling rewrite agent for cell 9 took 18.703506231307983 seconds.
+Executing rewritten code... ### cell 9 ###
+
+train_df['word_count'] = train_df.full_text.str.split().list.len()
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated/checkpoints/pre_cell_9.pickle
+Running rewritten cell notebook
+An unexpected error occurred An error occurred while executing the following cell:
+------------------
+train_df_opt = train_df
+%LoadCheckpoint /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated/checkpoints/post_cell_9.pickle
+assert compare_df(train_df_opt, train_df)
+
+import numpy as np
+import cudf
+from elastic.core.common.pandas import is_type_styler
+is_orig_output_pd = isinstance(orig_output, (pd.Series, pd.DataFrame, pd.Index))
+is_opt_output_pd = isinstance(opt_output, (pd.Series, pd.DataFrame, pd.Index))
+is_orig_output_array = isinstance(orig_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
+is_opt_output_array = isinstance(opt_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
+is_orig_output_styler = is_type_styler(type(orig_output))
+is_opt_output_styler = is_type_styler(type(opt_output))
+if is_orig_output_styler and is_opt_output_styler:
+    assert orig_output.to_html() == opt_output.to_html()
+elif is_orig_output_styler:
+    assert orig_output.to_html() == opt_output.to_html()
+elif is_opt_output_styler:
+    assert opt_output.to_html() == orig_output
+
+if is_orig_output_pd and is_opt_output_pd:
+    assert orig_output.equals(opt_output)
+# TODO(jie): this is a hack.
+elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
+    assert list(orig_output) == list(opt_output)
+else:
+    assert orig_output == opt_output
+
+------------------
+
+----- stdout -----
+[[<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb4e50>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb6d10>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb5e70>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb6c50>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb7310>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb7040>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb5f60>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb4fd0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb6e60>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb5f90>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb5d20>]]
+trying: ['orig_output']
+me:  11
+trying: ['train_df']
+----- stdout -----
+me:  10
+trying: ['test_df']
+me:  2
+trying: ['LABEL_COLUMNS']
+me:  6
+trying: ['factor']
+me:  2
+trying: ['lowest_df']
+me:  8
+trying: ['pd']
+me:  0
+trying: ['np']
+me:  0
+trying: ['highest_df']
+me:  9
+trying: ['time']
+me:  0
+trying: ['texts']
+me:  7
+----- stdout -----
+Declaring variable pd
+Declaring variable np
+Declaring variable time
+Declaring variable test_df
+Declaring variable factor
+Declaring variable LABEL_COLUMNS
+Declaring variable texts
+Declaring variable lowest_df
+Declaring variable highest_df
+Declaring variable train_df
+Declaring variable orig_output
+------------------
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mValueError[0m                                Traceback (most recent call last)
+Cell [0;32mIn [9], line 3[0m
+[1;32m      1[0m train_df_opt [38;5;241m=[39m train_df
+[1;32m      2[0m get_ipython()[38;5;241m.[39mrun_line_magic([38;5;124m'[39m[38;5;124mLoadCheckpoint[39m[38;5;124m'[39m, [38;5;124m'[39m[38;5;124m/home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated/checkpoints/post_cell_9.pickle[39m[38;5;124m'[39m)
+[0;32m----> 3[0m [38;5;28;01massert[39;00m [43mcompare_df[49m[43m([49m[43mtrain_df_opt[49m[43m,[49m[43m [49m[43mtrain_df[49m[43m)[49m
+[1;32m      5[0m [38;5;28;01mimport[39;00m[38;5;250m [39m[38;5;21;01mnumpy[39;00m[38;5;250m [39m[38;5;28;01mas[39;00m[38;5;250m [39m[38;5;21;01mnp[39;00m
+[1;32m      6[0m [38;5;28;01mimport[39;00m[38;5;250m [39m[38;5;21;01mcudf[39;00m
+
+File [0;32m/home/ElasticNotebook/elastic/core/common/pandas.py:86[0m, in [0;36mcompare_df[0;34m(df1, df2)[0m
+[1;32m     84[0m     [38;5;28;01mfor[39;00m col [38;5;129;01min[39;00m df1[38;5;241m.[39mcolumns:
+[1;32m     85[0m         [38;5;28;01mif[39;00m df1[col][38;5;241m.[39mdtype [38;5;241m!=[39m df2[col][38;5;241m.[39mdtype:
+[0;32m---> 86[0m             [38;5;28;01mraise[39;00m [38;5;167;01mValueError[39;00m([38;5;124mf[39m[38;5;124m"[39m[38;5;124mData type mismatch in column [39m[38;5;124m'[39m[38;5;132;01m{[39;00mcol[38;5;132;01m}[39;00m[38;5;124m'[39m[38;5;124m: [39m[38;5;132;01m{[39;00mdf1[col][38;5;241m.[39mdtype[38;5;132;01m}[39;00m[38;5;124m vs [39m[38;5;132;01m{[39;00mdf2[col][38;5;241m.[39mdtype[38;5;132;01m}[39;00m[38;5;124m"[39m)
+[1;32m     88[0m [38;5;66;03m# For Series, check data type[39;00m
+[1;32m     89[0m [38;5;28;01melif[39;00m is_type_series([38;5;28mtype[39m(df1)) [38;5;129;01mand[39;00m is_type_series([38;5;28mtype[39m(df2)):
+
+[0;31mValueError[0m: Data type mismatch in column 'word_count': int32 vs int64
+
+Rewritten time: inf ms
+========================================================
+Rewriting cell 9... Try 1...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 9 ###
+
+
+train_df['word_count'] = train_df.full_text.apply(lambda x: len(x.split()))
+        <Profiling data>:
+                        Function  GPU calls  CPU calls
+0    NDFrame.__getattr__          1          0
+1           Series.apply          0          1
+2  DataFrame.__setitem__          1          0
+        <Execution time>: 16100.000000000002
+        <Active Vars>: ['train_df']
+        <Future Vars>: []
+        <Rewritten Code>:
+        ### cell 9 ###
+
+train_df['word_count'] = train_df.full_text.str.split().list.len()
+        <Profiling data>:
+        None
+        <Execution time>: inf
+        <Execution output>: The rewritten code resulted in a runtime error. An error occurred while executing the following cell:
+------------------
+train_df_opt = train_df
+%LoadCheckpoint /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated/checkpoints/post_cell_9.pickle
+assert compare_df(train_df_opt, train_df)
+
+import numpy as np
+import cudf
+from elastic.core.common.pandas import is_type_styler
+is_orig_output_pd = isinstance(orig_output, (pd.Series, pd.DataFrame, pd.Index))
+is_opt_output_pd = isinstance(opt_output, (pd.Series, pd.DataFrame, pd.Index))
+is_orig_output_array = isinstance(orig_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
+is_opt_output_array = isinstance(opt_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
+is_orig_output_styler = is_type_styler(type(orig_output))
+is_opt_output_styler = is_type_styler(type(opt_output))
+if is_orig_output_styler and is_opt_output_styler:
+    assert orig_output.to_html() == opt_output.to_html()
+elif is_orig_output_styler:
+    assert orig_output.to_html() == opt_output.to_html()
+elif is_opt_output_styler:
+    assert opt_output.to_html() == orig_output
+
+if is_orig_output_pd and is_opt_output_pd:
+    assert orig_output.equals(opt_output)
+# TODO(jie): this is a hack.
+elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
+    assert list(orig_output) == list(opt_output)
+else:
+    assert orig_output == opt_output
+
+------------------
+
+----- stdout -----
+[[<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb4e50>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb6d10>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb5e70>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb6c50>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb7310>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb7040>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb5f60>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb4fd0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb6e60>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb5f90>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb5d20>]]
+trying: ['orig_output']
+me:  11
+trying: ['train_df']
+----- stdout -----
+me:  10
+trying: ['test_df']
+me:  2
+trying: ['LABEL_COLUMNS']
+me:  6
+trying: ['factor']
+me:  2
+trying: ['lowest_df']
+me:  8
+trying: ['pd']
+me:  0
+trying: ['np']
+me:  0
+trying: ['highest_df']
+me:  9
+trying: ['time']
+me:  0
+trying: ['texts']
+me:  7
+----- stdout -----
+Declaring variable pd
+Declaring variable np
+Declaring variable time
+Declaring variable test_df
+Declaring variable factor
+Declaring variable LABEL_COLUMNS
+Declaring variable texts
+Declaring variable lowest_df
+Declaring variable highest_df
+Declaring variable train_df
+Declaring variable orig_output
+------------------
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mValueError[0m                                Traceback (most recent call last)
+Cell [0;32mIn [9], line 3[0m
+[1;32m      1[0m train_df_opt [38;5;241m=[39m train_df
+[1;32m      2[0m get_ipython()[38;5;241m.[39mrun_line_magic([38;5;124m'[39m[38;5;124mLoadCheckpoint[39m[38;5;124m'[39m, [38;5;124m'[39m[38;5;124m/home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated/checkpoints/post_cell_9.pickle[39m[38;5;124m'[39m)
+[0;32m----> 3[0m [38;5;28;01massert[39;00m [43mcompare_df[49m[43m([49m[43mtrain_df_opt[49m[43m,[49m[43m [49m[43mtrain_df[49m[43m)[49m
+[1;32m      5[0m [38;5;28;01mimport[39;00m[38;5;250m [39m[38;5;21;01mnumpy[39;00m[38;5;250m [39m[38;5;28;01mas[39;00m[38;5;250m [39m[38;5;21;01mnp[39;00m
+[1;32m      6[0m [38;5;28;01mimport[39;00m[38;5;250m [39m[38;5;21;01mcudf[39;00m
+
+File [0;32m/home/ElasticNotebook/elastic/core/common/pandas.py:86[0m, in [0;36mcompare_df[0;34m(df1, df2)[0m
+[1;32m     84[0m     [38;5;28;01mfor[39;00m col [38;5;129;01min[39;00m df1[38;5;241m.[39mcolumns:
+[1;32m     85[0m         [38;5;28;01mif[39;00m df1[col][38;5;241m.[39mdtype [38;5;241m!=[39m df2[col][38;5;241m.[39mdtype:
+[0;32m---> 86[0m             [38;5;28;01mraise[39;00m [38;5;167;01mValueError[39;00m([38;5;124mf[39m[38;5;124m"[39m[38;5;124mData type mismatch in column [39m[38;5;124m'[39m[38;5;132;01m{[39;00mcol[38;5;132;01m}[39;00m[38;5;124m'[39m[38;5;124m: [39m[38;5;132;01m{[39;00mdf1[col][38;5;241m.[39mdtype[38;5;132;01m}[39;00m[38;5;124m vs [39m[38;5;132;01m{[39;00mdf2[col][38;5;241m.[39mdtype[38;5;132;01m}[39;00m[38;5;124m"[39m)
+[1;32m     88[0m [38;5;66;03m# For Series, check data type[39;00m
+[1;32m     89[0m [38;5;28;01melif[39;00m is_type_series([38;5;28mtype[39m(df1)) [38;5;129;01mand[39;00m is_type_series([38;5;28mtype[39m(df2)):
+
+[0;31mValueError[0m: Data type mismatch in column 'word_count': int32 vs int64
+
+        <Iteration>: 1/1
+
+==========Running the manager agent to decide the next step==========
+Choice: repair
+Reason: The rewritten code resulted in a runtime error due to a data type mismatch. We should attempt to fix this issue in the rewritten code.
+Code fixer prompt:
+        <Original Code>:
+        ### cell 9 ###
+
+
+train_df['word_count'] = train_df.full_text.apply(lambda x: len(x.split()))
+        <Profiling data>:
+                        Function  GPU calls  CPU calls
+0    NDFrame.__getattr__          1          0
+1           Series.apply          0          1
+2  DataFrame.__setitem__          1          0
+        <Execution time>: 16100.000000000002
+        <Active Vars>: ['train_df']
+        <Future Vars>: []
+        <Rewritten Code>:
+        ### cell 9 ###
+
+train_df['word_count'] = train_df.full_text.str.split().list.len()
+        <Profiling data>:
+        None
+        <Execution time>: inf
+        <Execution output>: The rewritten code resulted in a runtime error. An error occurred while executing the following cell:
+------------------
+train_df_opt = train_df
+%LoadCheckpoint /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated/checkpoints/post_cell_9.pickle
+assert compare_df(train_df_opt, train_df)
+
+import numpy as np
+import cudf
+from elastic.core.common.pandas import is_type_styler
+is_orig_output_pd = isinstance(orig_output, (pd.Series, pd.DataFrame, pd.Index))
+is_opt_output_pd = isinstance(opt_output, (pd.Series, pd.DataFrame, pd.Index))
+is_orig_output_array = isinstance(orig_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
+is_opt_output_array = isinstance(opt_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
+is_orig_output_styler = is_type_styler(type(orig_output))
+is_opt_output_styler = is_type_styler(type(opt_output))
+if is_orig_output_styler and is_opt_output_styler:
+    assert orig_output.to_html() == opt_output.to_html()
+elif is_orig_output_styler:
+    assert orig_output.to_html() == opt_output.to_html()
+elif is_opt_output_styler:
+    assert opt_output.to_html() == orig_output
+
+if is_orig_output_pd and is_opt_output_pd:
+    assert orig_output.equals(opt_output)
+# TODO(jie): this is a hack.
+elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
+    assert list(orig_output) == list(opt_output)
+else:
+    assert orig_output == opt_output
+
+------------------
+
+----- stdout -----
+[[<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb4e50>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb6d10>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb5e70>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb6c50>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb7310>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb7040>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb5f60>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb4fd0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb6e60>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb5f90>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f9bbeeb5d20>]]
+trying: ['orig_output']
+me:  11
+trying: ['train_df']
+----- stdout -----
+me:  10
+trying: ['test_df']
+me:  2
+trying: ['LABEL_COLUMNS']
+me:  6
+trying: ['factor']
+me:  2
+trying: ['lowest_df']
+me:  8
+trying: ['pd']
+me:  0
+trying: ['np']
+me:  0
+trying: ['highest_df']
+me:  9
+trying: ['time']
+me:  0
+trying: ['texts']
+me:  7
+----- stdout -----
+Declaring variable pd
+Declaring variable np
+Declaring variable time
+Declaring variable test_df
+Declaring variable factor
+Declaring variable LABEL_COLUMNS
+Declaring variable texts
+Declaring variable lowest_df
+Declaring variable highest_df
+Declaring variable train_df
+Declaring variable orig_output
+------------------
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mValueError[0m                                Traceback (most recent call last)
+Cell [0;32mIn [9], line 3[0m
+[1;32m      1[0m train_df_opt [38;5;241m=[39m train_df
+[1;32m      2[0m get_ipython()[38;5;241m.[39mrun_line_magic([38;5;124m'[39m[38;5;124mLoadCheckpoint[39m[38;5;124m'[39m, [38;5;124m'[39m[38;5;124m/home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated/checkpoints/post_cell_9.pickle[39m[38;5;124m'[39m)
+[0;32m----> 3[0m [38;5;28;01massert[39;00m [43mcompare_df[49m[43m([49m[43mtrain_df_opt[49m[43m,[49m[43m [49m[43mtrain_df[49m[43m)[49m
+[1;32m      5[0m [38;5;28;01mimport[39;00m[38;5;250m [39m[38;5;21;01mnumpy[39;00m[38;5;250m [39m[38;5;28;01mas[39;00m[38;5;250m [39m[38;5;21;01mnp[39;00m
+[1;32m      6[0m [38;5;28;01mimport[39;00m[38;5;250m [39m[38;5;21;01mcudf[39;00m
+
+File [0;32m/home/ElasticNotebook/elastic/core/common/pandas.py:86[0m, in [0;36mcompare_df[0;34m(df1, df2)[0m
+[1;32m     84[0m     [38;5;28;01mfor[39;00m col [38;5;129;01min[39;00m df1[38;5;241m.[39mcolumns:
+[1;32m     85[0m         [38;5;28;01mif[39;00m df1[col][38;5;241m.[39mdtype [38;5;241m!=[39m df2[col][38;5;241m.[39mdtype:
+[0;32m---> 86[0m             [38;5;28;01mraise[39;00m [38;5;167;01mValueError[39;00m([38;5;124mf[39m[38;5;124m"[39m[38;5;124mData type mismatch in column [39m[38;5;124m'[39m[38;5;132;01m{[39;00mcol[38;5;132;01m}[39;00m[38;5;124m'[39m[38;5;124m: [39m[38;5;132;01m{[39;00mdf1[col][38;5;241m.[39mdtype[38;5;132;01m}[39;00m[38;5;124m vs [39m[38;5;132;01m{[39;00mdf2[col][38;5;241m.[39mdtype[38;5;132;01m}[39;00m[38;5;124m"[39m)
+[1;32m     88[0m [38;5;66;03m# For Series, check data type[39;00m
+[1;32m     89[0m [38;5;28;01melif[39;00m is_type_series([38;5;28mtype[39m(df1)) [38;5;129;01mand[39;00m is_type_series([38;5;28mtype[39m(df2)):
+
+[0;31mValueError[0m: Data type mismatch in column 'word_count': int32 vs int64
+
+        <Iteration>: 1/1
+
+Repairing the last generated code
+Code: ### cell 9 ###
+# Use a fully‐vectorized GPU implementation and cast back to int64 to match the original dtype
+train_df['word_count'] = train_df.full_text.str.split().list.len().astype('int64')
+Reason: cudf’s list.len() accessor returns an int32 column by default, so we cast to int64 to preserve the original pandas dtype and avoid CPU‐side apply loops.
+Parsed response: ### cell 9 ###
+# Use a fully‐vectorized GPU implementation and cast back to int64 to match the original dtype
+train_df['word_count'] = train_df.full_text.str.split().list.len().astype('int64')
+Try 1: calling rewrite agent for cell 9 took 12.231787919998169 seconds.
+Executing rewritten code... ### cell 9 ###
+# Use a fully‐vectorized GPU implementation and cast back to int64 to match the original dtype
+train_df['word_count'] = train_df.full_text.str.split().list.len().astype('int64')
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated/checkpoints/pre_cell_9.pickle
+Running rewritten cell notebook
+Finished executing the rewritten code.
+Try 1: executing the rewritten code for cell 9 took 139.56852316856384 seconds.
+Rewritten time: 60000.0 ms
+The rewritten code is correct. Profiling cudf...
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated/checkpoints/pre_cell_9.pickle
+Try 1: cudf profiling the rewritten code for cell 9 took 83.66023564338684 seconds.
+gpu_calls_orig_perc: 0.6666666666666666, gpu_calls_opt_perc: 0.8
+orig_time: 16100.000000000002, opt_time: 60000.0
+Ratio improves.
+Improvement in percentage does not make up for the slowdown.
+Rewritten code took 60000.0ms. The previous fastest solution took 16100.000000000002ms.
+Previous best solution num GPU and CPU calls:  2 1
+New solution num GPU and CPU calls:  4 1
+========================================================
+Rewriting cell 9... Try 2...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 9 ###
+
+
+train_df['word_count'] = train_df.full_text.apply(lambda x: len(x.split()))
+        <Profiling data>:
+                        Function  GPU calls  CPU calls
+0    NDFrame.__getattr__          1          0
+1           Series.apply          0          1
+2  DataFrame.__setitem__          1          0
+        <Execution time>: 16100.000000000002
+        <Active Vars>: ['train_df']
+        <Future Vars>: []
+        <Rewritten Code>:
+        ### cell 9 ###
+# Use a fully‐vectorized GPU implementation and cast back to int64 to match the original dtype
+train_df['word_count'] = train_df.full_text.str.split().list.len().astype('int64')
+        <Profiling data>:
+                        Function  GPU calls  CPU calls
+0    NDFrame.__getattr__          1          0
+1                 Series          2          0
+2    StringMethods.split          0          1
+3  DataFrame.__setitem__          1          0
+        <Execution time>: 60000.0
+        <Execution output>: Rewritten time: 60000.0 ms
+Original time: 16100.000000000002 ms
+        <Iteration>: 2/1
+
+==========Running the manager agent to decide the next step==========
+Choice: optimize
+Reason: The rewritten code attempts to leverage GPU acceleration, but the execution time has increased significantly. This suggests possible inefficiencies or compatibility issues. Further optimization can be considered to better utilize available resources.
+Code optimizer prompt:
+        <Original Code>:
+        ### cell 9 ###
+# Use a fully‐vectorized GPU implementation and cast back to int64 to match the original dtype
+train_df['word_count'] = train_df.full_text.str.split().list.len().astype('int64')
+        <Profiling data>:
+                        Function  GPU calls  CPU calls
+0    NDFrame.__getattr__          1          0
+1                 Series          2          0
+2    StringMethods.split          0          1
+3  DataFrame.__setitem__          1          0
+
+        <Execution time>: 60000.0
+        <Active vars>: ['train_df']
+
+        <Future vars>: []
+
+        <Iteration>: 2/3
+
+Optimizing the last generated code
+Parsed response: # Use GPU regex-based word count to avoid CPU split and list operations
+train_df['word_count'] = train_df.full_text.str.count(r'\S+').astype('int64')
+Try 2: calling rewrite agent for cell 9 took 22.82072401046753 seconds.
+Executing rewritten code... ### cell 9 ###
+
+# Use GPU regex-based word count to avoid CPU split and list operations
+train_df['word_count'] = train_df.full_text.str.count(r'\S+').astype('int64')
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated/checkpoints/pre_cell_9.pickle
+Running rewritten cell notebook
+Finished executing the rewritten code.
+Try 2: executing the rewritten code for cell 9 took 70.76272082328796 seconds.
+Rewritten time: 831.0 ms
+The rewritten code is correct. Profiling cudf...
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated/checkpoints/pre_cell_9.pickle
+Try 2: cudf profiling the rewritten code for cell 9 took 9.853411436080933 seconds.
+gpu_calls_orig_perc: 0.6666666666666666, gpu_calls_opt_perc: 1.0
+orig_time: 16100.000000000002, opt_time: 831.0
+Both the call ratio and the time are better.
+Rewritten code took 831.0ms. The previous fastest solution took 16100.000000000002ms.
+Previous best solution num GPU and CPU calls:  2 1
+New solution num GPU and CPU calls:  5 0
+Accepted the rewritten code.
+Setting best_rewritten_post_checkpoint_path to  /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/rewritten/o4_mini_high/checkpoints/post_cell_9.pickle
+========================================================
+After rewriting cell  9
+Rewritten pre-checkpoint path: /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/rewritten/o4_mini_high/checkpoints/post_cell_9.pickle
+Pre-checkpoint path: /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated/checkpoints/post_cell_9.pickle
+========================================================
+Cell 9 rewriting took 567.9871647357941 seconds.
+Getting original timing for cell 10
+HAHA original checkpoint path:  /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated/checkpoints/post_cell_9.pickle
+HAHA setting initially best_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated/checkpoints/post_cell_10.pickle
+========================================================
+Rewriting cell 10... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 10 ###
+
+train_df['word_count'].mean()
+        <Profiling data>:
+                        Function  GPU calls  CPU calls
+0  DataFrame.__getitem__          1          0
+1            Series.mean          1          0
+
+        <Execution time>: 28.8
+        <Active vars>: []
+
+        <Future vars>: ['train_df']
+
+        <Iteration>: 0/3
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: The operation seems simple and primarily for inspection, but since we have remaining iterations, we can attempt to optimize it using cuDF or other techniques to handle larger data more efficiently and potentially reduce execution time further.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 10 ###
+
+train_df['word_count'].mean()
+        <Profiling data>:
+                        Function  GPU calls  CPU calls
+0  DataFrame.__getitem__          1          0
+1            Series.mean          1          0
+
+        <Execution time>: 28.8
+        <Active vars>: []
+
+        <Future vars>: ['train_df']
+
+        <Iteration>: 0/3
+
+Code: done
+Reason: The operation is already fully vectorized using cudf and executes on the GPU. No further optimizations are possible for computing the mean of the 'word_count' column.
+No Modifications made to the original code
+Try 0: calling rewrite agent for cell 10 took 6.126758813858032 seconds.
+There is no need to rewrite the cell.
+Could not rewrite the cell. Continuing to next cell...
+========================================================
+After rewriting cell  10
+Rewritten pre-checkpoint path: /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated/checkpoints/post_cell_10.pickle
+Pre-checkpoint path: /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated/checkpoints/post_cell_10.pickle
+========================================================
+Cell 10 rewriting took 57.074095010757446 seconds.
+Getting original timing for cell 11
+HAHA original checkpoint path:  /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated/checkpoints/post_cell_10.pickle
+HAHA setting initially best_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated/checkpoints/post_cell_11.pickle
+========================================================
+Rewriting cell 11... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 11 ###
+
+train_df['word_count'].max()
+        <Profiling data>:
+                        Function  GPU calls  CPU calls
+0  DataFrame.__getitem__          1          0
+1             Series.max          1          0
+
+        <Execution time>: 25.7
+        <Active vars>: []
+
+        <Future vars>: []
+
+        <Iteration>: 0/3
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: The code does not include a rewritten version and we are at the beginning of the iterations. There's a potential to explore more efficient methods for calculating the max word count.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 11 ###
+
+train_df['word_count'].max()
+        <Profiling data>:
+                        Function  GPU calls  CPU calls
+0  DataFrame.__getitem__          1          0
+1             Series.max          1          0
+
+        <Execution time>: 25.7
+        <Active vars>: []
+
+        <Future vars>: []
+
+        <Iteration>: 0/3
+
+Code: done
+Reason: The operation is already fully GPU-accelerated (only cudf calls) with no CPU overhead; no further optimization is possible.
+No Modifications made to the original code
+Try 0: calling rewrite agent for cell 11 took 9.281418323516846 seconds.
+There is no need to rewrite the cell.
+Could not rewrite the cell. Continuing to next cell...
+========================================================
+After rewriting cell  11
+Rewritten pre-checkpoint path: /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated/checkpoints/post_cell_11.pickle
+Pre-checkpoint path: /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated/checkpoints/post_cell_11.pickle
+========================================================
+Cell 11 rewriting took 60.35732412338257 seconds.
+Rewrote notebook in 805.6701667308807 seconds

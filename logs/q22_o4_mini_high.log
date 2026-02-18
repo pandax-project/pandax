@@ -1,0 +1,1946 @@
+Annotated notebook saved to /home/dias-benchmarks/tpch/notebooks/q22/cell_exec_info.ipynb
+Executing code: import sys, os
+sys.path.insert(0, os.path.abspath('/home/ElasticNotebook'))
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df
+import pickle
+import cudf
+Executing code: %%RecordEventWithColumnInfo
+# %load_ext cudf.pandas
+import sys, os
+tpch_parent = os.path.abspath(os.path.join(os.getcwd(), ".."))
+sys.path.insert(0, tpch_parent)
+import pandas as pd
+#from tpch import load_customer, load_orders, q22
+DATA_ROOT = "/home/dias-benchmarks/tpch/data"
+STORAGE_OPTS = {}
+
+
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+def load_customer(
+    data_folder: str, **storage_options
+) -> pd.DataFrame:
+    data_path = data_folder + "/customer.tbl"
+    # df = pd.read_parquet(
+    #     data_path,  storage_options=storage_options
+    # )
+    df = pd.read_csv(data_path, sep="|")
+    return df
+customer = load_customer(DATA_ROOT, **STORAGE_OPTS)
+
+Executing code: %%RecordEventWithColumnInfo
+### cell 1 ###
+
+def load_orders(
+    data_folder: str, **storage_options
+) -> pd.DataFrame:
+    data_path = data_folder + "/orders.tbl"
+    # df = pd.read_parquet(
+    #     data_path,  storage_options=storage_options
+    # )
+    df = pd.read_csv(data_path, sep="|")
+    return df
+orders = load_orders(DATA_ROOT, **STORAGE_OPTS)
+Executing code: %%RecordEventWithColumnInfo
+### cell 2 ###
+
+
+customer_filtered = customer.loc[:, ["C_ACCTBAL", "C_CUSTKEY"]]
+customer_filtered["CNTRYCODE"] = customer["C_PHONE"].str.slice(0, 2)
+customer_filtered = customer_filtered[
+    (customer["C_ACCTBAL"] > 0.00)
+    & customer_filtered["CNTRYCODE"].isin(
+        ["13", "31", "23", "29", "30", "18", "17"]
+    )
+]
+avg_value = customer_filtered["C_ACCTBAL"].mean()
+customer_filtered = customer_filtered[customer_filtered["C_ACCTBAL"] > avg_value]
+# Select only the keys that don't match by performing a left join and only selecting columns with an na value
+orders_filtered = orders.loc[:, ["O_CUSTKEY"]].drop_duplicates()
+customer_keys = customer_filtered.loc[:, ["C_CUSTKEY"]].drop_duplicates()
+customer_selected = customer_keys.merge(
+    orders_filtered, left_on="C_CUSTKEY", right_on="O_CUSTKEY", how="left"
+)
+customer_selected = customer_selected[customer_selected["O_CUSTKEY"].isna()]
+customer_selected = customer_selected.loc[:, ["C_CUSTKEY"]]
+customer_selected = customer_selected.merge(
+    customer_filtered, on="C_CUSTKEY", how="inner"
+)
+customer_selected = customer_selected.loc[:, ["CNTRYCODE", "C_ACCTBAL"]]
+agg1 = customer_selected.groupby(["CNTRYCODE"], as_index=False, sort=False).size()
+agg1.columns = ["CNTRYCODE", "NUMCUST"]
+agg2 = customer_selected.groupby(["CNTRYCODE"], as_index=False, sort=False).agg(
+    TOTACCTBAL=pd.NamedAgg(column="C_ACCTBAL", aggfunc="sum")
+)
+total = agg1.merge(agg2, on="CNTRYCODE", how="inner")
+total = total.sort_values(by=["CNTRYCODE"], ascending=[True])
+
+Executing code: %%RecordEventWithColumnInfo
+### cell 3 ###
+
+total.info()
+Executing code:
+Executing code: %PrintCellInfo cell_exec_info
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Ran small notebook to get cell exec info in 15.488367795944214 seconds
+Getting cudf profile information...
+Annotated notebook saved to /home/dias-benchmarks/tpch/notebooks/q22/cudf_profile.ipynb
+Done getting cudf profile information.
+Ran small notebook to get cudf profile info in 22.49500346183777 seconds
+Annotated notebook saved to /home/dias-benchmarks/tpch/notebooks/q22/annotated.ipynb
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Executing code: %load_ext cudf.pandas
+Executing code: import sys, os
+sys.path.insert(0, os.path.abspath('/home/ElasticNotebook'))
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df
+import pickle
+import cudf
+Executing code: %%RecordEvent
+# %load_ext cudf.pandas
+import sys, os
+tpch_parent = os.path.abspath(os.path.join(os.getcwd(), ".."))
+sys.path.insert(0, tpch_parent)
+import pandas as pd
+#from tpch import load_customer, load_orders, q22
+DATA_ROOT = "/home/dias-benchmarks/tpch/data"
+STORAGE_OPTS = {}
+
+
+Executing code: %%RecordEvent
+%%time
+### cell 0 ###
+
+def load_customer(
+    data_folder: str, **storage_options
+) -> pd.DataFrame:
+    data_path = data_folder + "/customer.tbl"
+    # df = pd.read_parquet(
+    #     data_path,  storage_options=storage_options
+    # )
+    df = pd.read_csv(data_path, sep="|")
+    return df
+customer = load_customer(DATA_ROOT, **STORAGE_OPTS)
+
+Executing code: %%RecordEvent
+%%time
+### cell 1 ###
+
+def load_orders(
+    data_folder: str, **storage_options
+) -> pd.DataFrame:
+    data_path = data_folder + "/orders.tbl"
+    # df = pd.read_parquet(
+    #     data_path,  storage_options=storage_options
+    # )
+    df = pd.read_csv(data_path, sep="|")
+    return df
+orders = load_orders(DATA_ROOT, **STORAGE_OPTS)
+Executing code: %Checkpoint /home/dias-benchmarks/tpch/notebooks/q22/annotated/checkpoints/pre_cell_2.pickle
+Checkpointing took 0.0008771419525146484 seconds.
+========================================================
+Cell  2
+Rewritten pre-checkpoint path: /home/dias-benchmarks/tpch/notebooks/q22/annotated/checkpoints/pre_cell_2.pickle
+Pre-checkpoint path: /home/dias-benchmarks/tpch/notebooks/q22/annotated/checkpoints/pre_cell_2.pickle
+Small rewritten pre-checkpoint path: /home/dias-benchmarks/tpch/notebooks/q22/q22_rewrite/checkpoints/pre_cell_2.pickle
+========================================================
+Getting original timing for cell 2
+HAHA original checkpoint path:  /home/dias-benchmarks/tpch/notebooks/q22/annotated/checkpoints/pre_cell_2.pickle
+Setting initially best_rewritten_post_checkpoint_path:  /home/dias-benchmarks/tpch/notebooks/q22/annotated/checkpoints/post_cell_2.pickle
+Setting initially best_small_rewritten_post_checkpoint_path:  /home/dias-benchmarks/tpch/notebooks/q22/q22_rewrite/checkpoints/pre_cell_3.pickle
+========================================================
+Rewriting cell 2... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 2 ###
+
+
+customer_filtered = customer.loc[:, ["C_ACCTBAL", "C_CUSTKEY"]]
+customer_filtered["CNTRYCODE"] = customer["C_PHONE"].str.slice(0, 2)
+customer_filtered = customer_filtered[
+    (customer["C_ACCTBAL"] > 0.00)
+    & customer_filtered["CNTRYCODE"].isin(
+        ["13", "31", "23", "29", "30", "18", "17"]
+    )
+]
+avg_value = customer_filtered["C_ACCTBAL"].mean()
+customer_filtered = customer_filtered[customer_filtered["C_ACCTBAL"] > avg_value]
+# Select only the keys that don't match by performing a left join and only selecting columns with an na value
+orders_filtered = orders.loc[:, ["O_CUSTKEY"]].drop_duplicates()
+customer_keys = customer_filtered.loc[:, ["C_CUSTKEY"]].drop_duplicates()
+customer_selected = customer_keys.merge(
+    orders_filtered, left_on="C_CUSTKEY", right_on="O_CUSTKEY", how="left"
+)
+customer_selected = customer_selected[customer_selected["O_CUSTKEY"].isna()]
+customer_selected = customer_selected.loc[:, ["C_CUSTKEY"]]
+customer_selected = customer_selected.merge(
+    customer_filtered, on="C_CUSTKEY", how="inner"
+)
+customer_selected = customer_selected.loc[:, ["CNTRYCODE", "C_ACCTBAL"]]
+agg1 = customer_selected.groupby(["CNTRYCODE"], as_index=False, sort=False).size()
+agg1.columns = ["CNTRYCODE", "NUMCUST"]
+agg2 = customer_selected.groupby(["CNTRYCODE"], as_index=False, sort=False).agg(
+    TOTACCTBAL=pd.NamedAgg(column="C_ACCTBAL", aggfunc="sum")
+)
+total = agg1.merge(agg2, on="CNTRYCODE", how="inner")
+total = total.sort_values(by=["CNTRYCODE"], ascending=[True])
+
+        <Profiling data>:
+                                Function  GPU calls  CPU calls
+0   _LocationIndexer.__getitem__          5          0
+1          DataFrame.__getitem__          9          0
+2                         Series          1          0
+3            StringMethods.slice          1          0
+4          DataFrame.__setitem__          1          0
+5                OpsMixin.__gt__          2          0
+6                    Series.isin          1          0
+7               OpsMixin.__and__          1          0
+8                    Series.mean          1          0
+9      DataFrame.drop_duplicates          2          0
+10               DataFrame.merge          3          0
+11                   Series.isna          1          0
+12             DataFrame.groupby          2          0
+13                  GroupBy.size          1          0
+14           NDFrame.__setattr__          1          0
+15                      NamedAgg          0          1
+16    DataFrameGroupBy.aggregate          0          1
+17         DataFrame.sort_values          1          0
+
+        <Execution time>: 125.0
+        <Active vars>: ['total']
+
+        <Future vars>: []
+
+        <Iteration>: 1/5
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: The original code has not been rewritten yet, so the logical step is to attempt optimization on the original code in this initial iteration.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 2 ###
+
+
+customer_filtered = customer.loc[:, ["C_ACCTBAL", "C_CUSTKEY"]]
+customer_filtered["CNTRYCODE"] = customer["C_PHONE"].str.slice(0, 2)
+customer_filtered = customer_filtered[
+    (customer["C_ACCTBAL"] > 0.00)
+    & customer_filtered["CNTRYCODE"].isin(
+        ["13", "31", "23", "29", "30", "18", "17"]
+    )
+]
+avg_value = customer_filtered["C_ACCTBAL"].mean()
+customer_filtered = customer_filtered[customer_filtered["C_ACCTBAL"] > avg_value]
+# Select only the keys that don't match by performing a left join and only selecting columns with an na value
+orders_filtered = orders.loc[:, ["O_CUSTKEY"]].drop_duplicates()
+customer_keys = customer_filtered.loc[:, ["C_CUSTKEY"]].drop_duplicates()
+customer_selected = customer_keys.merge(
+    orders_filtered, left_on="C_CUSTKEY", right_on="O_CUSTKEY", how="left"
+)
+customer_selected = customer_selected[customer_selected["O_CUSTKEY"].isna()]
+customer_selected = customer_selected.loc[:, ["C_CUSTKEY"]]
+customer_selected = customer_selected.merge(
+    customer_filtered, on="C_CUSTKEY", how="inner"
+)
+customer_selected = customer_selected.loc[:, ["CNTRYCODE", "C_ACCTBAL"]]
+agg1 = customer_selected.groupby(["CNTRYCODE"], as_index=False, sort=False).size()
+agg1.columns = ["CNTRYCODE", "NUMCUST"]
+agg2 = customer_selected.groupby(["CNTRYCODE"], as_index=False, sort=False).agg(
+    TOTACCTBAL=pd.NamedAgg(column="C_ACCTBAL", aggfunc="sum")
+)
+total = agg1.merge(agg2, on="CNTRYCODE", how="inner")
+total = total.sort_values(by=["CNTRYCODE"], ascending=[True])
+
+        <Profiling data>:
+                                Function  GPU calls  CPU calls
+0   _LocationIndexer.__getitem__          5          0
+1          DataFrame.__getitem__          9          0
+2                         Series          1          0
+3            StringMethods.slice          1          0
+4          DataFrame.__setitem__          1          0
+5                OpsMixin.__gt__          2          0
+6                    Series.isin          1          0
+7               OpsMixin.__and__          1          0
+8                    Series.mean          1          0
+9      DataFrame.drop_duplicates          2          0
+10               DataFrame.merge          3          0
+11                   Series.isna          1          0
+12             DataFrame.groupby          2          0
+13                  GroupBy.size          1          0
+14           NDFrame.__setattr__          1          0
+15                      NamedAgg          0          1
+16    DataFrameGroupBy.aggregate          0          1
+17         DataFrame.sort_values          1          0
+
+        <Execution time>: 125.0
+        <Active vars>: ['total']
+
+        <Future vars>: []
+
+        <Iteration>: 1/5
+
+Code: # Cell 2 optimized for cuDF
+def_codes = ["13", "31", "23", "29", "30", "18", "17"]
+
+# 1. Select and slice CNTRYCODE in one go
+customer_filtered = (
+    customer[["C_ACCTBAL", "C_CUSTKEY"]]
+    .assign(CNTRYCODE=customer["C_PHONE"].str.slice(0, 2))
+)
+
+# 2. Filter positive balances and country codes
+mask = (
+    customer_filtered.C_ACCTBAL > 0.0
+) & (
+    customer_filtered.CNTRYCODE.isin(def_codes)
+)
+customer_filtered = customer_filtered[mask]
+
+# 3. Filter above-average balances
+avg_value = customer_filtered.C_ACCTBAL.mean()
+customer_filtered = customer_filtered[customer_filtered.C_ACCTBAL > avg_value]
+
+# 4. Identify customers with no orders
+orders_filtered = orders[["O_CUSTKEY"]].drop_duplicates()
+customer_keys = customer_filtered[["C_CUSTKEY"]].drop_duplicates()
+
+no_orders = (
+    customer_keys
+    .merge(orders_filtered, left_on="C_CUSTKEY", right_on="O_CUSTKEY", how="left")
+    .query("O_CUSTKEY.isna()")
+    [["C_CUSTKEY"]]
+)
+
+# 5. Re-join to bring back filtered customer info
+customer_selected = (
+    no_orders
+    .merge(customer_filtered, on="C_CUSTKEY", how="inner")
+    [["CNTRYCODE", "C_ACCTBAL"]]
+)
+
+# 6. GPU-friendly aggregations (avoid NamedAgg / DataFrameGroupBy.aggregate fallback)
+agg1 = (
+    customer_selected
+    .groupby("CNTRYCODE")
+    .size()
+    .reset_index(name="NUMCUST")
+)
+agg2 = (
+    customer_selected
+    .groupby("CNTRYCODE")["C_ACCTBAL"]
+    .sum()
+    .reset_index(name="TOTACCTBAL")
+)
+
+total = (
+    agg1.merge(agg2, on="CNTRYCODE", how="inner")
+    .sort_values("CNTRYCODE")
+)
+
+Reason: Replaced the NamedAgg/aggregate calls, which fall back to CPU, with GPU-native .size() and .sum() + reset_index(name=...) to compute counts and sums. Consolidated boolean filters into vectorized masks on customer_filtered only. Used .assign() to create CNTRYCODE in-line. This eliminates CPU aggregation overhead and ensures all operations stay on the GPU.
+Parsed response: # Cell 2 optimized for cuDF
+def_codes = ["13", "31", "23", "29", "30", "18", "17"]
+
+# 1. Select and slice CNTRYCODE in one go
+customer_filtered = (
+    customer[["C_ACCTBAL", "C_CUSTKEY"]]
+    .assign(CNTRYCODE=customer["C_PHONE"].str.slice(0, 2))
+)
+
+# 2. Filter positive balances and country codes
+mask = (
+    customer_filtered.C_ACCTBAL > 0.0
+) & (
+    customer_filtered.CNTRYCODE.isin(def_codes)
+)
+customer_filtered = customer_filtered[mask]
+
+# 3. Filter above-average balances
+avg_value = customer_filtered.C_ACCTBAL.mean()
+customer_filtered = customer_filtered[customer_filtered.C_ACCTBAL > avg_value]
+
+# 4. Identify customers with no orders
+orders_filtered = orders[["O_CUSTKEY"]].drop_duplicates()
+customer_keys = customer_filtered[["C_CUSTKEY"]].drop_duplicates()
+
+no_orders = (
+    customer_keys
+    .merge(orders_filtered, left_on="C_CUSTKEY", right_on="O_CUSTKEY", how="left")
+    .query("O_CUSTKEY.isna()")
+    [["C_CUSTKEY"]]
+)
+
+# 5. Re-join to bring back filtered customer info
+customer_selected = (
+    no_orders
+    .merge(customer_filtered, on="C_CUSTKEY", how="inner")
+    [["CNTRYCODE", "C_ACCTBAL"]]
+)
+
+# 6. GPU-friendly aggregations (avoid NamedAgg / DataFrameGroupBy.aggregate fallback)
+agg1 = (
+    customer_selected
+    .groupby("CNTRYCODE")
+    .size()
+    .reset_index(name="NUMCUST")
+)
+agg2 = (
+    customer_selected
+    .groupby("CNTRYCODE")["C_ACCTBAL"]
+    .sum()
+    .reset_index(name="TOTACCTBAL")
+)
+
+total = (
+    agg1.merge(agg2, on="CNTRYCODE", how="inner")
+    .sort_values("CNTRYCODE")
+)
+
+Try 0: calling rewrite agent for cell 2 took 17.67526078224182 seconds.
+Executing rewritten code... ### cell 2 ###
+
+# Cell 2 optimized for cuDF
+def_codes = ["13", "31", "23", "29", "30", "18", "17"]
+
+# 1. Select and slice CNTRYCODE in one go
+customer_filtered = (
+    customer[["C_ACCTBAL", "C_CUSTKEY"]]
+    .assign(CNTRYCODE=customer["C_PHONE"].str.slice(0, 2))
+)
+
+# 2. Filter positive balances and country codes
+mask = (
+    customer_filtered.C_ACCTBAL > 0.0
+) & (
+    customer_filtered.CNTRYCODE.isin(def_codes)
+)
+customer_filtered = customer_filtered[mask]
+
+# 3. Filter above-average balances
+avg_value = customer_filtered.C_ACCTBAL.mean()
+customer_filtered = customer_filtered[customer_filtered.C_ACCTBAL > avg_value]
+
+# 4. Identify customers with no orders
+orders_filtered = orders[["O_CUSTKEY"]].drop_duplicates()
+customer_keys = customer_filtered[["C_CUSTKEY"]].drop_duplicates()
+
+no_orders = (
+    customer_keys
+    .merge(orders_filtered, left_on="C_CUSTKEY", right_on="O_CUSTKEY", how="left")
+    .query("O_CUSTKEY.isna()")
+    [["C_CUSTKEY"]]
+)
+
+# 5. Re-join to bring back filtered customer info
+customer_selected = (
+    no_orders
+    .merge(customer_filtered, on="C_CUSTKEY", how="inner")
+    [["CNTRYCODE", "C_ACCTBAL"]]
+)
+
+# 6. GPU-friendly aggregations (avoid NamedAgg / DataFrameGroupBy.aggregate fallback)
+agg1 = (
+    customer_selected
+    .groupby("CNTRYCODE")
+    .size()
+    .reset_index(name="NUMCUST")
+)
+agg2 = (
+    customer_selected
+    .groupby("CNTRYCODE")["C_ACCTBAL"]
+    .sum()
+    .reset_index(name="TOTACCTBAL")
+)
+
+total = (
+    agg1.merge(agg2, on="CNTRYCODE", how="inner")
+    .sort_values("CNTRYCODE")
+)
+
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/tpch/notebooks/q22/annotated/checkpoints/pre_cell_2.pickle
+Running rewritten cell notebook
+Finished executing the rewritten code.
+Try 0: executing the rewritten code for cell 2 took 18.745664834976196 seconds.
+Rewritten time: 1490.0 ms
+Checkpointing the rewritten cell for small notebook...
+The rewritten code is correct. Profiling cudf...
+HAHA small rewritten pre-checkpoint path:  /home/dias-benchmarks/tpch/notebooks/q22/q22_rewrite/checkpoints/pre_cell_2.pickle
+Try 0: cudf profiling the rewritten code for cell 2 took 9.43696117401123 seconds.
+gpu_calls_orig_perc: 0.9428571428571428, gpu_calls_opt_perc: 0.9705882352941176
+orig_time: 125.0, opt_time: 1490.0
+Ratio improves.
+Improvement in percentage does not make up for the slowdown.
+Rewritten code took 1490.0ms. The previous fastest solution took 125.0ms.
+Previous best solution num GPU and CPU calls:  33 2
+New solution num GPU and CPU calls:  33 1
+========================================================
+Rewriting cell 2... Try 1...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 2 ###
+
+
+customer_filtered = customer.loc[:, ["C_ACCTBAL", "C_CUSTKEY"]]
+customer_filtered["CNTRYCODE"] = customer["C_PHONE"].str.slice(0, 2)
+customer_filtered = customer_filtered[
+    (customer["C_ACCTBAL"] > 0.00)
+    & customer_filtered["CNTRYCODE"].isin(
+        ["13", "31", "23", "29", "30", "18", "17"]
+    )
+]
+avg_value = customer_filtered["C_ACCTBAL"].mean()
+customer_filtered = customer_filtered[customer_filtered["C_ACCTBAL"] > avg_value]
+# Select only the keys that don't match by performing a left join and only selecting columns with an na value
+orders_filtered = orders.loc[:, ["O_CUSTKEY"]].drop_duplicates()
+customer_keys = customer_filtered.loc[:, ["C_CUSTKEY"]].drop_duplicates()
+customer_selected = customer_keys.merge(
+    orders_filtered, left_on="C_CUSTKEY", right_on="O_CUSTKEY", how="left"
+)
+customer_selected = customer_selected[customer_selected["O_CUSTKEY"].isna()]
+customer_selected = customer_selected.loc[:, ["C_CUSTKEY"]]
+customer_selected = customer_selected.merge(
+    customer_filtered, on="C_CUSTKEY", how="inner"
+)
+customer_selected = customer_selected.loc[:, ["CNTRYCODE", "C_ACCTBAL"]]
+agg1 = customer_selected.groupby(["CNTRYCODE"], as_index=False, sort=False).size()
+agg1.columns = ["CNTRYCODE", "NUMCUST"]
+agg2 = customer_selected.groupby(["CNTRYCODE"], as_index=False, sort=False).agg(
+    TOTACCTBAL=pd.NamedAgg(column="C_ACCTBAL", aggfunc="sum")
+)
+total = agg1.merge(agg2, on="CNTRYCODE", how="inner")
+total = total.sort_values(by=["CNTRYCODE"], ascending=[True])
+
+        <Profiling data>:
+                                Function  GPU calls  CPU calls
+0   _LocationIndexer.__getitem__          5          0
+1          DataFrame.__getitem__          9          0
+2                         Series          1          0
+3            StringMethods.slice          1          0
+4          DataFrame.__setitem__          1          0
+5                OpsMixin.__gt__          2          0
+6                    Series.isin          1          0
+7               OpsMixin.__and__          1          0
+8                    Series.mean          1          0
+9      DataFrame.drop_duplicates          2          0
+10               DataFrame.merge          3          0
+11                   Series.isna          1          0
+12             DataFrame.groupby          2          0
+13                  GroupBy.size          1          0
+14           NDFrame.__setattr__          1          0
+15                      NamedAgg          0          1
+16    DataFrameGroupBy.aggregate          0          1
+17         DataFrame.sort_values          1          0
+        <Execution time>: 125.0
+        <Active Vars>: ['total']
+        <Future Vars>: []
+        <Rewritten Code>:
+        ### cell 2 ###
+
+# Cell 2 optimized for cuDF
+def_codes = ["13", "31", "23", "29", "30", "18", "17"]
+
+# 1. Select and slice CNTRYCODE in one go
+customer_filtered = (
+    customer[["C_ACCTBAL", "C_CUSTKEY"]]
+    .assign(CNTRYCODE=customer["C_PHONE"].str.slice(0, 2))
+)
+
+# 2. Filter positive balances and country codes
+mask = (
+    customer_filtered.C_ACCTBAL > 0.0
+) & (
+    customer_filtered.CNTRYCODE.isin(def_codes)
+)
+customer_filtered = customer_filtered[mask]
+
+# 3. Filter above-average balances
+avg_value = customer_filtered.C_ACCTBAL.mean()
+customer_filtered = customer_filtered[customer_filtered.C_ACCTBAL > avg_value]
+
+# 4. Identify customers with no orders
+orders_filtered = orders[["O_CUSTKEY"]].drop_duplicates()
+customer_keys = customer_filtered[["C_CUSTKEY"]].drop_duplicates()
+
+no_orders = (
+    customer_keys
+    .merge(orders_filtered, left_on="C_CUSTKEY", right_on="O_CUSTKEY", how="left")
+    .query("O_CUSTKEY.isna()")
+    [["C_CUSTKEY"]]
+)
+
+# 5. Re-join to bring back filtered customer info
+customer_selected = (
+    no_orders
+    .merge(customer_filtered, on="C_CUSTKEY", how="inner")
+    [["CNTRYCODE", "C_ACCTBAL"]]
+)
+
+# 6. GPU-friendly aggregations (avoid NamedAgg / DataFrameGroupBy.aggregate fallback)
+agg1 = (
+    customer_selected
+    .groupby("CNTRYCODE")
+    .size()
+    .reset_index(name="NUMCUST")
+)
+agg2 = (
+    customer_selected
+    .groupby("CNTRYCODE")["C_ACCTBAL"]
+    .sum()
+    .reset_index(name="TOTACCTBAL")
+)
+
+total = (
+    agg1.merge(agg2, on="CNTRYCODE", how="inner")
+    .sort_values("CNTRYCODE")
+)
+
+        <Profiling data>:
+                                Function  GPU calls  CPU calls
+0          DataFrame.__getitem__          8          0
+1                         Series          1          0
+2            StringMethods.slice          1          0
+3               DataFrame.assign          1          0
+4            NDFrame.__getattr__          4          0
+5                OpsMixin.__gt__          2          0
+6                    Series.isin          1          0
+7               OpsMixin.__and__          1          0
+8                    Series.mean          1          0
+9      DataFrame.drop_duplicates          2          0
+10               DataFrame.merge          3          0
+11               DataFrame.query          0          1
+12             DataFrame.groupby          2          0
+13                  GroupBy.size          1          0
+14            Series.reset_index          2          0
+15  DataFrameGroupBy.__getitem__          1          0
+16                   GroupBy.sum          1          0
+17         DataFrame.sort_values          1          0
+        <Execution time>: 1490.0
+        <Execution output>: Rewritten time: 1490.0 ms
+Original time: 125.0 ms
+        <Iteration>: 2/5
+
+==========Running the manager agent to decide the next step==========
+Choice: optimize
+Reason: The rewritten code currently executes slower than the original. Additional optimization is needed to improve its performance, even though it's designed for cuDF.
+Code optimizer prompt:
+        <Original Code>:
+        ### cell 2 ###
+
+# Cell 2 optimized for cuDF
+def_codes = ["13", "31", "23", "29", "30", "18", "17"]
+
+# 1. Select and slice CNTRYCODE in one go
+customer_filtered = (
+    customer[["C_ACCTBAL", "C_CUSTKEY"]]
+    .assign(CNTRYCODE=customer["C_PHONE"].str.slice(0, 2))
+)
+
+# 2. Filter positive balances and country codes
+mask = (
+    customer_filtered.C_ACCTBAL > 0.0
+) & (
+    customer_filtered.CNTRYCODE.isin(def_codes)
+)
+customer_filtered = customer_filtered[mask]
+
+# 3. Filter above-average balances
+avg_value = customer_filtered.C_ACCTBAL.mean()
+customer_filtered = customer_filtered[customer_filtered.C_ACCTBAL > avg_value]
+
+# 4. Identify customers with no orders
+orders_filtered = orders[["O_CUSTKEY"]].drop_duplicates()
+customer_keys = customer_filtered[["C_CUSTKEY"]].drop_duplicates()
+
+no_orders = (
+    customer_keys
+    .merge(orders_filtered, left_on="C_CUSTKEY", right_on="O_CUSTKEY", how="left")
+    .query("O_CUSTKEY.isna()")
+    [["C_CUSTKEY"]]
+)
+
+# 5. Re-join to bring back filtered customer info
+customer_selected = (
+    no_orders
+    .merge(customer_filtered, on="C_CUSTKEY", how="inner")
+    [["CNTRYCODE", "C_ACCTBAL"]]
+)
+
+# 6. GPU-friendly aggregations (avoid NamedAgg / DataFrameGroupBy.aggregate fallback)
+agg1 = (
+    customer_selected
+    .groupby("CNTRYCODE")
+    .size()
+    .reset_index(name="NUMCUST")
+)
+agg2 = (
+    customer_selected
+    .groupby("CNTRYCODE")["C_ACCTBAL"]
+    .sum()
+    .reset_index(name="TOTACCTBAL")
+)
+
+total = (
+    agg1.merge(agg2, on="CNTRYCODE", how="inner")
+    .sort_values("CNTRYCODE")
+)
+
+        <Profiling data>:
+                                Function  GPU calls  CPU calls
+0          DataFrame.__getitem__          8          0
+1                         Series          1          0
+2            StringMethods.slice          1          0
+3               DataFrame.assign          1          0
+4            NDFrame.__getattr__          4          0
+5                OpsMixin.__gt__          2          0
+6                    Series.isin          1          0
+7               OpsMixin.__and__          1          0
+8                    Series.mean          1          0
+9      DataFrame.drop_duplicates          2          0
+10               DataFrame.merge          3          0
+11               DataFrame.query          0          1
+12             DataFrame.groupby          2          0
+13                  GroupBy.size          1          0
+14            Series.reset_index          2          0
+15  DataFrameGroupBy.__getitem__          1          0
+16                   GroupBy.sum          1          0
+17         DataFrame.sort_values          1          0
+
+        <Execution time>: 1490.0
+        <Active vars>: ['total']
+
+        <Future vars>: []
+
+        <Iteration>: 2/5
+
+Optimizing the last generated code
+Parsed response: ### cell 2 optimized for cuDF (iter 2) ###
+
+def_codes = ["13", "31", "23", "29", "30", "18", "17"]
+
+# 1. extract country code and select relevant cols
+customer_filtered = (
+    customer[["C_ACCTBAL", "C_CUSTKEY"]]
+    .assign(CNTRYCODE=customer["C_PHONE"].str.slice(0, 2))
+)
+
+# 2. keep only positive balances in the desired country codes
+mask = (
+    customer_filtered.C_ACCTBAL > 0.0
+) & (
+    customer_filtered.CNTRYCODE.isin(def_codes)
+)
+customer_filtered = customer_filtered[mask]
+
+# 3. filter above-average balances
+avg_value = customer_filtered.C_ACCTBAL.mean()
+customer_filtered = customer_filtered[customer_filtered.C_ACCTBAL > avg_value]
+
+# 4. find customers with no orders via an anti‐join pattern
+orders_filtered = orders[["O_CUSTKEY"]].drop_duplicates()
+customer_keys = customer_filtered[["C_CUSTKEY"]].drop_duplicates()
+
+no_orders = (
+    customer_keys
+    .merge(
+        orders_filtered,
+        left_on="C_CUSTKEY",
+        right_on="O_CUSTKEY",
+        how="left"
+    )
+)
+# replace .query() with boolean indexing to avoid CPU fallback
+no_orders = no_orders[no_orders.O_CUSTKEY.isna()][["C_CUSTKEY"]]
+
+# 5. re-join the filtered customers
+customer_selected = (
+    no_orders
+    .merge(customer_filtered, on="C_CUSTKEY", how="inner")
+    [["CNTRYCODE", "C_ACCTBAL"]]
+)
+
+# 6. GPU‐friendly groupby and aggregations
+agg1 = (
+    customer_selected
+    .groupby("CNTRYCODE")
+    .size()
+    .reset_index(name="NUMCUST")
+)
+agg2 = (
+    customer_selected
+    .groupby("CNTRYCODE")["C_ACCTBAL"]
+    .sum()
+    .reset_index(name="TOTACCTBAL")
+)
+
+total = (
+    agg1
+    .merge(agg2, on="CNTRYCODE", how="inner")
+    .sort_values("CNTRYCODE")
+)
+Try 1: calling rewrite agent for cell 2 took 18.558003902435303 seconds.
+Executing rewritten code... ### cell 2 ###
+
+### cell 2 optimized for cuDF (iter 2) ###
+
+def_codes = ["13", "31", "23", "29", "30", "18", "17"]
+
+# 1. extract country code and select relevant cols
+customer_filtered = (
+    customer[["C_ACCTBAL", "C_CUSTKEY"]]
+    .assign(CNTRYCODE=customer["C_PHONE"].str.slice(0, 2))
+)
+
+# 2. keep only positive balances in the desired country codes
+mask = (
+    customer_filtered.C_ACCTBAL > 0.0
+) & (
+    customer_filtered.CNTRYCODE.isin(def_codes)
+)
+customer_filtered = customer_filtered[mask]
+
+# 3. filter above-average balances
+avg_value = customer_filtered.C_ACCTBAL.mean()
+customer_filtered = customer_filtered[customer_filtered.C_ACCTBAL > avg_value]
+
+# 4. find customers with no orders via an anti‐join pattern
+orders_filtered = orders[["O_CUSTKEY"]].drop_duplicates()
+customer_keys = customer_filtered[["C_CUSTKEY"]].drop_duplicates()
+
+no_orders = (
+    customer_keys
+    .merge(
+        orders_filtered,
+        left_on="C_CUSTKEY",
+        right_on="O_CUSTKEY",
+        how="left"
+    )
+)
+# replace .query() with boolean indexing to avoid CPU fallback
+no_orders = no_orders[no_orders.O_CUSTKEY.isna()][["C_CUSTKEY"]]
+
+# 5. re-join the filtered customers
+customer_selected = (
+    no_orders
+    .merge(customer_filtered, on="C_CUSTKEY", how="inner")
+    [["CNTRYCODE", "C_ACCTBAL"]]
+)
+
+# 6. GPU‐friendly groupby and aggregations
+agg1 = (
+    customer_selected
+    .groupby("CNTRYCODE")
+    .size()
+    .reset_index(name="NUMCUST")
+)
+agg2 = (
+    customer_selected
+    .groupby("CNTRYCODE")["C_ACCTBAL"]
+    .sum()
+    .reset_index(name="TOTACCTBAL")
+)
+
+total = (
+    agg1
+    .merge(agg2, on="CNTRYCODE", how="inner")
+    .sort_values("CNTRYCODE")
+)
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/tpch/notebooks/q22/annotated/checkpoints/pre_cell_2.pickle
+Running rewritten cell notebook
+Finished executing the rewritten code.
+Try 1: executing the rewritten code for cell 2 took 13.659968614578247 seconds.
+Rewritten time: 119.0 ms
+Checkpointing the rewritten cell for small notebook...
+The rewritten code is correct. Profiling cudf...
+HAHA small rewritten pre-checkpoint path:  /home/dias-benchmarks/tpch/notebooks/q22/q22_rewrite/checkpoints/pre_cell_2.pickle
+Try 1: cudf profiling the rewritten code for cell 2 took 7.9816272258758545 seconds.
+gpu_calls_orig_perc: 0.9428571428571428, gpu_calls_opt_perc: 1.0
+orig_time: 125.0, opt_time: 119.0
+Both the call ratio and the time are better.
+Rewritten code took 119.0ms. The previous fastest solution took 125.0ms.
+Previous best solution num GPU and CPU calls:  33 2
+New solution num GPU and CPU calls:  36 0
+Accepted the rewritten code.
+Setting best_rewritten_post_checkpoint_path to  /home/dias-benchmarks/tpch/notebooks/q22/rewritten/o4_mini_high/checkpoints/post_cell_2_try_1.pickle
+Setting best_small_rewritten_post_checkpoint_path to  /home/dias-benchmarks/tpch/notebooks/q22/rewritten/o4_mini_high_small/checkpoints/post_cell_2_try_1.pickle
+========================================================
+Rewriting cell 2... Try 2...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 2 ###
+
+
+customer_filtered = customer.loc[:, ["C_ACCTBAL", "C_CUSTKEY"]]
+customer_filtered["CNTRYCODE"] = customer["C_PHONE"].str.slice(0, 2)
+customer_filtered = customer_filtered[
+    (customer["C_ACCTBAL"] > 0.00)
+    & customer_filtered["CNTRYCODE"].isin(
+        ["13", "31", "23", "29", "30", "18", "17"]
+    )
+]
+avg_value = customer_filtered["C_ACCTBAL"].mean()
+customer_filtered = customer_filtered[customer_filtered["C_ACCTBAL"] > avg_value]
+# Select only the keys that don't match by performing a left join and only selecting columns with an na value
+orders_filtered = orders.loc[:, ["O_CUSTKEY"]].drop_duplicates()
+customer_keys = customer_filtered.loc[:, ["C_CUSTKEY"]].drop_duplicates()
+customer_selected = customer_keys.merge(
+    orders_filtered, left_on="C_CUSTKEY", right_on="O_CUSTKEY", how="left"
+)
+customer_selected = customer_selected[customer_selected["O_CUSTKEY"].isna()]
+customer_selected = customer_selected.loc[:, ["C_CUSTKEY"]]
+customer_selected = customer_selected.merge(
+    customer_filtered, on="C_CUSTKEY", how="inner"
+)
+customer_selected = customer_selected.loc[:, ["CNTRYCODE", "C_ACCTBAL"]]
+agg1 = customer_selected.groupby(["CNTRYCODE"], as_index=False, sort=False).size()
+agg1.columns = ["CNTRYCODE", "NUMCUST"]
+agg2 = customer_selected.groupby(["CNTRYCODE"], as_index=False, sort=False).agg(
+    TOTACCTBAL=pd.NamedAgg(column="C_ACCTBAL", aggfunc="sum")
+)
+total = agg1.merge(agg2, on="CNTRYCODE", how="inner")
+total = total.sort_values(by=["CNTRYCODE"], ascending=[True])
+
+        <Profiling data>:
+                                Function  GPU calls  CPU calls
+0   _LocationIndexer.__getitem__          5          0
+1          DataFrame.__getitem__          9          0
+2                         Series          1          0
+3            StringMethods.slice          1          0
+4          DataFrame.__setitem__          1          0
+5                OpsMixin.__gt__          2          0
+6                    Series.isin          1          0
+7               OpsMixin.__and__          1          0
+8                    Series.mean          1          0
+9      DataFrame.drop_duplicates          2          0
+10               DataFrame.merge          3          0
+11                   Series.isna          1          0
+12             DataFrame.groupby          2          0
+13                  GroupBy.size          1          0
+14           NDFrame.__setattr__          1          0
+15                      NamedAgg          0          1
+16    DataFrameGroupBy.aggregate          0          1
+17         DataFrame.sort_values          1          0
+        <Execution time>: 125.0
+        <Active Vars>: ['total']
+        <Future Vars>: []
+        <Rewritten Code>:
+        ### cell 2 ###
+
+### cell 2 optimized for cuDF (iter 2) ###
+
+def_codes = ["13", "31", "23", "29", "30", "18", "17"]
+
+# 1. extract country code and select relevant cols
+customer_filtered = (
+    customer[["C_ACCTBAL", "C_CUSTKEY"]]
+    .assign(CNTRYCODE=customer["C_PHONE"].str.slice(0, 2))
+)
+
+# 2. keep only positive balances in the desired country codes
+mask = (
+    customer_filtered.C_ACCTBAL > 0.0
+) & (
+    customer_filtered.CNTRYCODE.isin(def_codes)
+)
+customer_filtered = customer_filtered[mask]
+
+# 3. filter above-average balances
+avg_value = customer_filtered.C_ACCTBAL.mean()
+customer_filtered = customer_filtered[customer_filtered.C_ACCTBAL > avg_value]
+
+# 4. find customers with no orders via an anti‐join pattern
+orders_filtered = orders[["O_CUSTKEY"]].drop_duplicates()
+customer_keys = customer_filtered[["C_CUSTKEY"]].drop_duplicates()
+
+no_orders = (
+    customer_keys
+    .merge(
+        orders_filtered,
+        left_on="C_CUSTKEY",
+        right_on="O_CUSTKEY",
+        how="left"
+    )
+)
+# replace .query() with boolean indexing to avoid CPU fallback
+no_orders = no_orders[no_orders.O_CUSTKEY.isna()][["C_CUSTKEY"]]
+
+# 5. re-join the filtered customers
+customer_selected = (
+    no_orders
+    .merge(customer_filtered, on="C_CUSTKEY", how="inner")
+    [["CNTRYCODE", "C_ACCTBAL"]]
+)
+
+# 6. GPU‐friendly groupby and aggregations
+agg1 = (
+    customer_selected
+    .groupby("CNTRYCODE")
+    .size()
+    .reset_index(name="NUMCUST")
+)
+agg2 = (
+    customer_selected
+    .groupby("CNTRYCODE")["C_ACCTBAL"]
+    .sum()
+    .reset_index(name="TOTACCTBAL")
+)
+
+total = (
+    agg1
+    .merge(agg2, on="CNTRYCODE", how="inner")
+    .sort_values("CNTRYCODE")
+)
+        <Profiling data>:
+                                Function  GPU calls  CPU calls
+0          DataFrame.__getitem__          9          0
+1                         Series          1          0
+2            StringMethods.slice          1          0
+3               DataFrame.assign          1          0
+4            NDFrame.__getattr__          5          0
+5                OpsMixin.__gt__          2          0
+6                    Series.isin          1          0
+7               OpsMixin.__and__          1          0
+8                    Series.mean          1          0
+9      DataFrame.drop_duplicates          2          0
+10               DataFrame.merge          3          0
+11                   Series.isna          1          0
+12             DataFrame.groupby          2          0
+13                  GroupBy.size          1          0
+14            Series.reset_index          2          0
+15  DataFrameGroupBy.__getitem__          1          0
+16                   GroupBy.sum          1          0
+17         DataFrame.sort_values          1          0
+        <Execution time>: 119.0
+        <Execution output>: Rewritten time: 119.0 ms
+Original time: 125.0 ms
+        <Iteration>: 3/5
+
+==========Running the manager agent to decide the next step==========
+Choice: optimize
+Reason: The rewritten code is already optimized for GPU with cuDF, but there may be alternative APIs or more efficient patterns to further reduce the execution time. With two iterations left, it's beneficial to explore further optimizations.
+Code optimizer prompt:
+        <Original Code>:
+        ### cell 2 ###
+
+### cell 2 optimized for cuDF (iter 2) ###
+
+def_codes = ["13", "31", "23", "29", "30", "18", "17"]
+
+# 1. extract country code and select relevant cols
+customer_filtered = (
+    customer[["C_ACCTBAL", "C_CUSTKEY"]]
+    .assign(CNTRYCODE=customer["C_PHONE"].str.slice(0, 2))
+)
+
+# 2. keep only positive balances in the desired country codes
+mask = (
+    customer_filtered.C_ACCTBAL > 0.0
+) & (
+    customer_filtered.CNTRYCODE.isin(def_codes)
+)
+customer_filtered = customer_filtered[mask]
+
+# 3. filter above-average balances
+avg_value = customer_filtered.C_ACCTBAL.mean()
+customer_filtered = customer_filtered[customer_filtered.C_ACCTBAL > avg_value]
+
+# 4. find customers with no orders via an anti‐join pattern
+orders_filtered = orders[["O_CUSTKEY"]].drop_duplicates()
+customer_keys = customer_filtered[["C_CUSTKEY"]].drop_duplicates()
+
+no_orders = (
+    customer_keys
+    .merge(
+        orders_filtered,
+        left_on="C_CUSTKEY",
+        right_on="O_CUSTKEY",
+        how="left"
+    )
+)
+# replace .query() with boolean indexing to avoid CPU fallback
+no_orders = no_orders[no_orders.O_CUSTKEY.isna()][["C_CUSTKEY"]]
+
+# 5. re-join the filtered customers
+customer_selected = (
+    no_orders
+    .merge(customer_filtered, on="C_CUSTKEY", how="inner")
+    [["CNTRYCODE", "C_ACCTBAL"]]
+)
+
+# 6. GPU‐friendly groupby and aggregations
+agg1 = (
+    customer_selected
+    .groupby("CNTRYCODE")
+    .size()
+    .reset_index(name="NUMCUST")
+)
+agg2 = (
+    customer_selected
+    .groupby("CNTRYCODE")["C_ACCTBAL"]
+    .sum()
+    .reset_index(name="TOTACCTBAL")
+)
+
+total = (
+    agg1
+    .merge(agg2, on="CNTRYCODE", how="inner")
+    .sort_values("CNTRYCODE")
+)
+        <Profiling data>:
+                                Function  GPU calls  CPU calls
+0          DataFrame.__getitem__          9          0
+1                         Series          1          0
+2            StringMethods.slice          1          0
+3               DataFrame.assign          1          0
+4            NDFrame.__getattr__          5          0
+5                OpsMixin.__gt__          2          0
+6                    Series.isin          1          0
+7               OpsMixin.__and__          1          0
+8                    Series.mean          1          0
+9      DataFrame.drop_duplicates          2          0
+10               DataFrame.merge          3          0
+11                   Series.isna          1          0
+12             DataFrame.groupby          2          0
+13                  GroupBy.size          1          0
+14            Series.reset_index          2          0
+15  DataFrameGroupBy.__getitem__          1          0
+16                   GroupBy.sum          1          0
+17         DataFrame.sort_values          1          0
+
+        <Execution time>: 119.0
+        <Active vars>: ['total']
+
+        <Future vars>: []
+
+        <Iteration>: 3/5
+
+Optimizing the last generated code
+Parsed response: def_codes = ["13", "31", "23", "29", "30", "18", "17"]
+
+# 1. extract country code and initial filters
+customer_filtered = (
+    customer[["C_CUSTKEY", "C_ACCTBAL", "C_PHONE"]]
+    .assign(CNTRYCODE=customer.C_PHONE.str.slice(0, 2))
+)
+customer_filtered = customer_filtered[
+    (customer_filtered.C_ACCTBAL > 0.0)
+    & (customer_filtered.CNTRYCODE.isin(def_codes))
+]
+
+# 2. filter above-average balances
+avg_balance = customer_filtered.C_ACCTBAL.mean()
+customer_filtered = customer_filtered[customer_filtered.C_ACCTBAL > avg_balance]
+
+# 3. anti-join: drop customers with any orders
+customer_filtered = customer_filtered[~customer_filtered.C_CUSTKEY.isin(orders.O_CUSTKEY)]
+
+# 4. single groupby for both aggregations
+total = (
+    customer_filtered
+    .groupby("CNTRYCODE")
+    .agg({"C_CUSTKEY": "count", "C_ACCTBAL": "sum"})
+    .reset_index()
+    .rename(columns={"C_CUSTKEY": "NUMCUST", "C_ACCTBAL": "TOTACCTBAL"})
+    .sort_values("CNTRYCODE")
+)
+
+Try 2: calling rewrite agent for cell 2 took 26.68262791633606 seconds.
+Executing rewritten code... ### cell 2 ###
+
+def_codes = ["13", "31", "23", "29", "30", "18", "17"]
+
+# 1. extract country code and initial filters
+customer_filtered = (
+    customer[["C_CUSTKEY", "C_ACCTBAL", "C_PHONE"]]
+    .assign(CNTRYCODE=customer.C_PHONE.str.slice(0, 2))
+)
+customer_filtered = customer_filtered[
+    (customer_filtered.C_ACCTBAL > 0.0)
+    & (customer_filtered.CNTRYCODE.isin(def_codes))
+]
+
+# 2. filter above-average balances
+avg_balance = customer_filtered.C_ACCTBAL.mean()
+customer_filtered = customer_filtered[customer_filtered.C_ACCTBAL > avg_balance]
+
+# 3. anti-join: drop customers with any orders
+customer_filtered = customer_filtered[~customer_filtered.C_CUSTKEY.isin(orders.O_CUSTKEY)]
+
+# 4. single groupby for both aggregations
+total = (
+    customer_filtered
+    .groupby("CNTRYCODE")
+    .agg({"C_CUSTKEY": "count", "C_ACCTBAL": "sum"})
+    .reset_index()
+    .rename(columns={"C_CUSTKEY": "NUMCUST", "C_ACCTBAL": "TOTACCTBAL"})
+    .sort_values("CNTRYCODE")
+)
+
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/tpch/notebooks/q22/annotated/checkpoints/pre_cell_2.pickle
+Running rewritten cell notebook
+Finished executing the rewritten code.
+Try 2: executing the rewritten code for cell 2 took 13.654680013656616 seconds.
+Rewritten time: 108.0 ms
+Checkpointing the rewritten cell for small notebook...
+The rewritten code is correct. Profiling cudf...
+HAHA small rewritten pre-checkpoint path:  /home/dias-benchmarks/tpch/notebooks/q22/q22_rewrite/checkpoints/pre_cell_2.pickle
+Try 2: cudf profiling the rewritten code for cell 2 took 7.931126594543457 seconds.
+gpu_calls_orig_perc: 1.0, gpu_calls_opt_perc: 1.0
+orig_time: 119.0, opt_time: 108.0
+Both the call ratio and the time are better.
+Rewritten code took 108.0ms. The previous fastest solution took 125.0ms.
+Previous best solution num GPU and CPU calls:  36 0
+New solution num GPU and CPU calls:  26 0
+Accepted the rewritten code.
+Setting best_rewritten_post_checkpoint_path to  /home/dias-benchmarks/tpch/notebooks/q22/rewritten/o4_mini_high/checkpoints/post_cell_2_try_2.pickle
+Setting best_small_rewritten_post_checkpoint_path to  /home/dias-benchmarks/tpch/notebooks/q22/rewritten/o4_mini_high_small/checkpoints/post_cell_2_try_2.pickle
+========================================================
+Rewriting cell 2... Try 3...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 2 ###
+
+
+customer_filtered = customer.loc[:, ["C_ACCTBAL", "C_CUSTKEY"]]
+customer_filtered["CNTRYCODE"] = customer["C_PHONE"].str.slice(0, 2)
+customer_filtered = customer_filtered[
+    (customer["C_ACCTBAL"] > 0.00)
+    & customer_filtered["CNTRYCODE"].isin(
+        ["13", "31", "23", "29", "30", "18", "17"]
+    )
+]
+avg_value = customer_filtered["C_ACCTBAL"].mean()
+customer_filtered = customer_filtered[customer_filtered["C_ACCTBAL"] > avg_value]
+# Select only the keys that don't match by performing a left join and only selecting columns with an na value
+orders_filtered = orders.loc[:, ["O_CUSTKEY"]].drop_duplicates()
+customer_keys = customer_filtered.loc[:, ["C_CUSTKEY"]].drop_duplicates()
+customer_selected = customer_keys.merge(
+    orders_filtered, left_on="C_CUSTKEY", right_on="O_CUSTKEY", how="left"
+)
+customer_selected = customer_selected[customer_selected["O_CUSTKEY"].isna()]
+customer_selected = customer_selected.loc[:, ["C_CUSTKEY"]]
+customer_selected = customer_selected.merge(
+    customer_filtered, on="C_CUSTKEY", how="inner"
+)
+customer_selected = customer_selected.loc[:, ["CNTRYCODE", "C_ACCTBAL"]]
+agg1 = customer_selected.groupby(["CNTRYCODE"], as_index=False, sort=False).size()
+agg1.columns = ["CNTRYCODE", "NUMCUST"]
+agg2 = customer_selected.groupby(["CNTRYCODE"], as_index=False, sort=False).agg(
+    TOTACCTBAL=pd.NamedAgg(column="C_ACCTBAL", aggfunc="sum")
+)
+total = agg1.merge(agg2, on="CNTRYCODE", how="inner")
+total = total.sort_values(by=["CNTRYCODE"], ascending=[True])
+
+        <Profiling data>:
+                                Function  GPU calls  CPU calls
+0   _LocationIndexer.__getitem__          5          0
+1          DataFrame.__getitem__          9          0
+2                         Series          1          0
+3            StringMethods.slice          1          0
+4          DataFrame.__setitem__          1          0
+5                OpsMixin.__gt__          2          0
+6                    Series.isin          1          0
+7               OpsMixin.__and__          1          0
+8                    Series.mean          1          0
+9      DataFrame.drop_duplicates          2          0
+10               DataFrame.merge          3          0
+11                   Series.isna          1          0
+12             DataFrame.groupby          2          0
+13                  GroupBy.size          1          0
+14           NDFrame.__setattr__          1          0
+15                      NamedAgg          0          1
+16    DataFrameGroupBy.aggregate          0          1
+17         DataFrame.sort_values          1          0
+        <Execution time>: 125.0
+        <Active Vars>: ['total']
+        <Future Vars>: []
+        <Rewritten Code>:
+        ### cell 2 ###
+
+def_codes = ["13", "31", "23", "29", "30", "18", "17"]
+
+# 1. extract country code and initial filters
+customer_filtered = (
+    customer[["C_CUSTKEY", "C_ACCTBAL", "C_PHONE"]]
+    .assign(CNTRYCODE=customer.C_PHONE.str.slice(0, 2))
+)
+customer_filtered = customer_filtered[
+    (customer_filtered.C_ACCTBAL > 0.0)
+    & (customer_filtered.CNTRYCODE.isin(def_codes))
+]
+
+# 2. filter above-average balances
+avg_balance = customer_filtered.C_ACCTBAL.mean()
+customer_filtered = customer_filtered[customer_filtered.C_ACCTBAL > avg_balance]
+
+# 3. anti-join: drop customers with any orders
+customer_filtered = customer_filtered[~customer_filtered.C_CUSTKEY.isin(orders.O_CUSTKEY)]
+
+# 4. single groupby for both aggregations
+total = (
+    customer_filtered
+    .groupby("CNTRYCODE")
+    .agg({"C_CUSTKEY": "count", "C_ACCTBAL": "sum"})
+    .reset_index()
+    .rename(columns={"C_CUSTKEY": "NUMCUST", "C_ACCTBAL": "TOTACCTBAL"})
+    .sort_values("CNTRYCODE")
+)
+
+        <Profiling data>:
+                              Function  GPU calls  CPU calls
+0        DataFrame.__getitem__          4          0
+1          NDFrame.__getattr__          7          0
+2                       Series          1          0
+3          StringMethods.slice          1          0
+4             DataFrame.assign          1          0
+5              OpsMixin.__gt__          2          0
+6                  Series.isin          2          0
+7             OpsMixin.__and__          1          0
+8                  Series.mean          1          0
+9           NDFrame.__invert__          1          0
+10           DataFrame.groupby          1          0
+11  DataFrameGroupBy.aggregate          1          0
+12       DataFrame.reset_index          1          0
+13            DataFrame.rename          1          0
+14       DataFrame.sort_values          1          0
+        <Execution time>: 108.0
+        <Execution output>: Rewritten time: 108.0 ms
+Original time: 125.0 ms
+        <Iteration>: 4/5
+
+==========Running the manager agent to decide the next step==========
+Choice: optimize
+Reason: Although the rewritten code is faster and combines several operations efficiently, there's one iteration left and further optimization could potentially be explored. Since the current execution time is still relatively high, looking into using alternatives or refining operations might yield better performance.
+Code optimizer prompt:
+        <Original Code>:
+        ### cell 2 ###
+
+def_codes = ["13", "31", "23", "29", "30", "18", "17"]
+
+# 1. extract country code and initial filters
+customer_filtered = (
+    customer[["C_CUSTKEY", "C_ACCTBAL", "C_PHONE"]]
+    .assign(CNTRYCODE=customer.C_PHONE.str.slice(0, 2))
+)
+customer_filtered = customer_filtered[
+    (customer_filtered.C_ACCTBAL > 0.0)
+    & (customer_filtered.CNTRYCODE.isin(def_codes))
+]
+
+# 2. filter above-average balances
+avg_balance = customer_filtered.C_ACCTBAL.mean()
+customer_filtered = customer_filtered[customer_filtered.C_ACCTBAL > avg_balance]
+
+# 3. anti-join: drop customers with any orders
+customer_filtered = customer_filtered[~customer_filtered.C_CUSTKEY.isin(orders.O_CUSTKEY)]
+
+# 4. single groupby for both aggregations
+total = (
+    customer_filtered
+    .groupby("CNTRYCODE")
+    .agg({"C_CUSTKEY": "count", "C_ACCTBAL": "sum"})
+    .reset_index()
+    .rename(columns={"C_CUSTKEY": "NUMCUST", "C_ACCTBAL": "TOTACCTBAL"})
+    .sort_values("CNTRYCODE")
+)
+
+        <Profiling data>:
+                              Function  GPU calls  CPU calls
+0        DataFrame.__getitem__          4          0
+1          NDFrame.__getattr__          7          0
+2                       Series          1          0
+3          StringMethods.slice          1          0
+4             DataFrame.assign          1          0
+5              OpsMixin.__gt__          2          0
+6                  Series.isin          2          0
+7             OpsMixin.__and__          1          0
+8                  Series.mean          1          0
+9           NDFrame.__invert__          1          0
+10           DataFrame.groupby          1          0
+11  DataFrameGroupBy.aggregate          1          0
+12       DataFrame.reset_index          1          0
+13            DataFrame.rename          1          0
+14       DataFrame.sort_values          1          0
+
+        <Execution time>: 108.0
+        <Active vars>: ['total']
+
+        <Future vars>: []
+
+        <Iteration>: 4/5
+
+Optimizing the last generated code
+Parsed response: def_codes = ["13", "31", "23", "29", "30", "18", "17"]
+
+# 1. extract country code and apply initial filters
+def_codes = ["13", "31", "23", "29", "30", "18", "17"]
+customer_filtered = (
+    customer[
+        ["C_CUSTKEY", "C_ACCTBAL", "C_PHONE"]
+    ]
+    .assign(CNTRYCODE=lambda df: df.C_PHONE.str.slice(0, 2))
+)
+customer_filtered = customer_filtered[
+    (customer_filtered.C_ACCTBAL > 0.0)
+    & customer_filtered.CNTRYCODE.isin(def_codes)
+]
+
+# 2. filter above-average balances
+avg_balance = customer_filtered.C_ACCTBAL.mean()
+customer_filtered = customer_filtered[customer_filtered.C_ACCTBAL > avg_balance]
+
+# 3. anti-join via a left-anti merge (more efficient on GPU than isin)
+customer_filtered = customer_filtered.merge(
+    orders[["O_CUSTKEY"]],
+    left_on="C_CUSTKEY", right_on="O_CUSTKEY",
+    how="left_anti"
+)
+
+# 4. group and aggregate
+total = (
+    customer_filtered
+    .groupby("CNTRYCODE")
+    .agg({
+        "C_CUSTKEY": "count",
+        "C_ACCTBAL": "sum",
+    })
+    .reset_index()
+    .rename(
+        columns={
+            "C_CUSTKEY": "NUMCUST",
+            "C_ACCTBAL": "TOTACCTBAL",
+        }
+    )
+    .sort_values("CNTRYCODE")
+)
+
+Try 3: calling rewrite agent for cell 2 took 44.166866302490234 seconds.
+Executing rewritten code... ### cell 2 ###
+
+def_codes = ["13", "31", "23", "29", "30", "18", "17"]
+
+# 1. extract country code and apply initial filters
+def_codes = ["13", "31", "23", "29", "30", "18", "17"]
+customer_filtered = (
+    customer[
+        ["C_CUSTKEY", "C_ACCTBAL", "C_PHONE"]
+    ]
+    .assign(CNTRYCODE=lambda df: df.C_PHONE.str.slice(0, 2))
+)
+customer_filtered = customer_filtered[
+    (customer_filtered.C_ACCTBAL > 0.0)
+    & customer_filtered.CNTRYCODE.isin(def_codes)
+]
+
+# 2. filter above-average balances
+avg_balance = customer_filtered.C_ACCTBAL.mean()
+customer_filtered = customer_filtered[customer_filtered.C_ACCTBAL > avg_balance]
+
+# 3. anti-join via a left-anti merge (more efficient on GPU than isin)
+customer_filtered = customer_filtered.merge(
+    orders[["O_CUSTKEY"]],
+    left_on="C_CUSTKEY", right_on="O_CUSTKEY",
+    how="left_anti"
+)
+
+# 4. group and aggregate
+total = (
+    customer_filtered
+    .groupby("CNTRYCODE")
+    .agg({
+        "C_CUSTKEY": "count",
+        "C_ACCTBAL": "sum",
+    })
+    .reset_index()
+    .rename(
+        columns={
+            "C_CUSTKEY": "NUMCUST",
+            "C_ACCTBAL": "TOTACCTBAL",
+        }
+    )
+    .sort_values("CNTRYCODE")
+)
+
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/tpch/notebooks/q22/annotated/checkpoints/pre_cell_2.pickle
+Running rewritten cell notebook
+An unexpected error occurred Execution failed in cell %%RecordEvent
+%%time
+### cell 2 ###
+
+def_codes = ["13", "31", "23", "29", "30", "18", "17"]
+
+# 1. extract country code and apply initial filters
+def_codes = ["13", "31", "23", "29", "30", "18", "17"]
+customer_filtered = (
+    customer[
+        ["C_CUSTKEY", "C_ACCTBAL", "C_PHONE"]
+    ]
+    .assign(CNTRYCODE=lambda df: df.C_PHONE.str.slice(0, 2))
+)
+customer_filtered = customer_filtered[
+    (customer_filtered.C_ACCTBAL > 0.0)
+    & customer_filtered.CNTRYCODE.isin(def_codes)
+]
+
+# 2. filter above-average balances
+avg_balance = customer_filtered.C_ACCTBAL.mean()
+customer_filtered = customer_filtered[customer_filtered.C_ACCTBAL > avg_balance]
+
+# 3. anti-join via a left-anti merge (more efficient on GPU than isin)
+customer_filtered = customer_filtered.merge(
+    orders[["O_CUSTKEY"]],
+    left_on="C_CUSTKEY", right_on="O_CUSTKEY",
+    how="left_anti"
+)
+
+# 4. group and aggregate
+total = (
+    customer_filtered
+    .groupby("CNTRYCODE")
+    .agg({
+        "C_CUSTKEY": "count",
+        "C_ACCTBAL": "sum",
+    })
+    .reset_index()
+    .rename(
+        columns={
+            "C_CUSTKEY": "NUMCUST",
+            "C_ACCTBAL": "TOTACCTBAL",
+        }
+    )
+    .sort_values("CNTRYCODE")
+)
+: local variable 'lidx' referenced before assignment
+Rewritten time: inf ms
+Checkpointing the rewritten cell for small notebook...
+========================================================
+Rewriting cell 2... Try 4...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 2 ###
+
+
+customer_filtered = customer.loc[:, ["C_ACCTBAL", "C_CUSTKEY"]]
+customer_filtered["CNTRYCODE"] = customer["C_PHONE"].str.slice(0, 2)
+customer_filtered = customer_filtered[
+    (customer["C_ACCTBAL"] > 0.00)
+    & customer_filtered["CNTRYCODE"].isin(
+        ["13", "31", "23", "29", "30", "18", "17"]
+    )
+]
+avg_value = customer_filtered["C_ACCTBAL"].mean()
+customer_filtered = customer_filtered[customer_filtered["C_ACCTBAL"] > avg_value]
+# Select only the keys that don't match by performing a left join and only selecting columns with an na value
+orders_filtered = orders.loc[:, ["O_CUSTKEY"]].drop_duplicates()
+customer_keys = customer_filtered.loc[:, ["C_CUSTKEY"]].drop_duplicates()
+customer_selected = customer_keys.merge(
+    orders_filtered, left_on="C_CUSTKEY", right_on="O_CUSTKEY", how="left"
+)
+customer_selected = customer_selected[customer_selected["O_CUSTKEY"].isna()]
+customer_selected = customer_selected.loc[:, ["C_CUSTKEY"]]
+customer_selected = customer_selected.merge(
+    customer_filtered, on="C_CUSTKEY", how="inner"
+)
+customer_selected = customer_selected.loc[:, ["CNTRYCODE", "C_ACCTBAL"]]
+agg1 = customer_selected.groupby(["CNTRYCODE"], as_index=False, sort=False).size()
+agg1.columns = ["CNTRYCODE", "NUMCUST"]
+agg2 = customer_selected.groupby(["CNTRYCODE"], as_index=False, sort=False).agg(
+    TOTACCTBAL=pd.NamedAgg(column="C_ACCTBAL", aggfunc="sum")
+)
+total = agg1.merge(agg2, on="CNTRYCODE", how="inner")
+total = total.sort_values(by=["CNTRYCODE"], ascending=[True])
+
+        <Profiling data>:
+                                Function  GPU calls  CPU calls
+0   _LocationIndexer.__getitem__          5          0
+1          DataFrame.__getitem__          9          0
+2                         Series          1          0
+3            StringMethods.slice          1          0
+4          DataFrame.__setitem__          1          0
+5                OpsMixin.__gt__          2          0
+6                    Series.isin          1          0
+7               OpsMixin.__and__          1          0
+8                    Series.mean          1          0
+9      DataFrame.drop_duplicates          2          0
+10               DataFrame.merge          3          0
+11                   Series.isna          1          0
+12             DataFrame.groupby          2          0
+13                  GroupBy.size          1          0
+14           NDFrame.__setattr__          1          0
+15                      NamedAgg          0          1
+16    DataFrameGroupBy.aggregate          0          1
+17         DataFrame.sort_values          1          0
+        <Execution time>: 125.0
+        <Active Vars>: ['total']
+        <Future Vars>: []
+        <Rewritten Code>:
+        ### cell 2 ###
+
+def_codes = ["13", "31", "23", "29", "30", "18", "17"]
+
+# 1. extract country code and apply initial filters
+def_codes = ["13", "31", "23", "29", "30", "18", "17"]
+customer_filtered = (
+    customer[
+        ["C_CUSTKEY", "C_ACCTBAL", "C_PHONE"]
+    ]
+    .assign(CNTRYCODE=lambda df: df.C_PHONE.str.slice(0, 2))
+)
+customer_filtered = customer_filtered[
+    (customer_filtered.C_ACCTBAL > 0.0)
+    & customer_filtered.CNTRYCODE.isin(def_codes)
+]
+
+# 2. filter above-average balances
+avg_balance = customer_filtered.C_ACCTBAL.mean()
+customer_filtered = customer_filtered[customer_filtered.C_ACCTBAL > avg_balance]
+
+# 3. anti-join via a left-anti merge (more efficient on GPU than isin)
+customer_filtered = customer_filtered.merge(
+    orders[["O_CUSTKEY"]],
+    left_on="C_CUSTKEY", right_on="O_CUSTKEY",
+    how="left_anti"
+)
+
+# 4. group and aggregate
+total = (
+    customer_filtered
+    .groupby("CNTRYCODE")
+    .agg({
+        "C_CUSTKEY": "count",
+        "C_ACCTBAL": "sum",
+    })
+    .reset_index()
+    .rename(
+        columns={
+            "C_CUSTKEY": "NUMCUST",
+            "C_ACCTBAL": "TOTACCTBAL",
+        }
+    )
+    .sort_values("CNTRYCODE")
+)
+
+        <Profiling data>:
+                              Function  GPU calls  CPU calls
+0        DataFrame.__getitem__          4          0
+1          NDFrame.__getattr__          7          0
+2                       Series          1          0
+3          StringMethods.slice          1          0
+4             DataFrame.assign          1          0
+5              OpsMixin.__gt__          2          0
+6                  Series.isin          2          0
+7             OpsMixin.__and__          1          0
+8                  Series.mean          1          0
+9           NDFrame.__invert__          1          0
+10           DataFrame.groupby          1          0
+11  DataFrameGroupBy.aggregate          1          0
+12       DataFrame.reset_index          1          0
+13            DataFrame.rename          1          0
+14       DataFrame.sort_values          1          0
+        <Execution time>: inf
+        <Execution output>: The rewritten code resulted in a runtime error. Execution failed in cell %%RecordEvent
+%%time
+### cell 2 ###
+
+def_codes = ["13", "31", "23", "29", "30", "18", "17"]
+
+# 1. extract country code and apply initial filters
+def_codes = ["13", "31", "23", "29", "30", "18", "17"]
+customer_filtered = (
+    customer[
+        ["C_CUSTKEY", "C_ACCTBAL", "C_PHONE"]
+    ]
+    .assign(CNTRYCODE=lambda df: df.C_PHONE.str.slice(0, 2))
+)
+customer_filtered = customer_filtered[
+    (customer_filtered.C_ACCTBAL > 0.0)
+    & customer_filtered.CNTRYCODE.isin(def_codes)
+]
+
+# 2. filter above-average balances
+avg_balance = customer_filtered.C_ACCTBAL.mean()
+customer_filtered = customer_filtered[customer_filtered.C_ACCTBAL > avg_balance]
+
+# 3. anti-join via a left-anti merge (more efficient on GPU than isin)
+customer_filtered = customer_filtered.merge(
+    orders[["O_CUSTKEY"]],
+    left_on="C_CUSTKEY", right_on="O_CUSTKEY",
+    how="left_anti"
+)
+
+# 4. group and aggregate
+total = (
+    customer_filtered
+    .groupby("CNTRYCODE")
+    .agg({
+        "C_CUSTKEY": "count",
+        "C_ACCTBAL": "sum",
+    })
+    .reset_index()
+    .rename(
+        columns={
+            "C_CUSTKEY": "NUMCUST",
+            "C_ACCTBAL": "TOTACCTBAL",
+        }
+    )
+    .sort_values("CNTRYCODE")
+)
+: local variable 'lidx' referenced before assignment
+        <Iteration>: 5/5
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: The rewritten code resulted in a runtime error, and the current iteration is the last one. We should attempt a new approach to optimize the original code instead of trying to repair the broken rewrite.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 2 ###
+
+
+customer_filtered = customer.loc[:, ["C_ACCTBAL", "C_CUSTKEY"]]
+customer_filtered["CNTRYCODE"] = customer["C_PHONE"].str.slice(0, 2)
+customer_filtered = customer_filtered[
+    (customer["C_ACCTBAL"] > 0.00)
+    & customer_filtered["CNTRYCODE"].isin(
+        ["13", "31", "23", "29", "30", "18", "17"]
+    )
+]
+avg_value = customer_filtered["C_ACCTBAL"].mean()
+customer_filtered = customer_filtered[customer_filtered["C_ACCTBAL"] > avg_value]
+# Select only the keys that don't match by performing a left join and only selecting columns with an na value
+orders_filtered = orders.loc[:, ["O_CUSTKEY"]].drop_duplicates()
+customer_keys = customer_filtered.loc[:, ["C_CUSTKEY"]].drop_duplicates()
+customer_selected = customer_keys.merge(
+    orders_filtered, left_on="C_CUSTKEY", right_on="O_CUSTKEY", how="left"
+)
+customer_selected = customer_selected[customer_selected["O_CUSTKEY"].isna()]
+customer_selected = customer_selected.loc[:, ["C_CUSTKEY"]]
+customer_selected = customer_selected.merge(
+    customer_filtered, on="C_CUSTKEY", how="inner"
+)
+customer_selected = customer_selected.loc[:, ["CNTRYCODE", "C_ACCTBAL"]]
+agg1 = customer_selected.groupby(["CNTRYCODE"], as_index=False, sort=False).size()
+agg1.columns = ["CNTRYCODE", "NUMCUST"]
+agg2 = customer_selected.groupby(["CNTRYCODE"], as_index=False, sort=False).agg(
+    TOTACCTBAL=pd.NamedAgg(column="C_ACCTBAL", aggfunc="sum")
+)
+total = agg1.merge(agg2, on="CNTRYCODE", how="inner")
+total = total.sort_values(by=["CNTRYCODE"], ascending=[True])
+
+        <Profiling data>:
+                                Function  GPU calls  CPU calls
+0   _LocationIndexer.__getitem__          5          0
+1          DataFrame.__getitem__          9          0
+2                         Series          1          0
+3            StringMethods.slice          1          0
+4          DataFrame.__setitem__          1          0
+5                OpsMixin.__gt__          2          0
+6                    Series.isin          1          0
+7               OpsMixin.__and__          1          0
+8                    Series.mean          1          0
+9      DataFrame.drop_duplicates          2          0
+10               DataFrame.merge          3          0
+11                   Series.isna          1          0
+12             DataFrame.groupby          2          0
+13                  GroupBy.size          1          0
+14           NDFrame.__setattr__          1          0
+15                      NamedAgg          0          1
+16    DataFrameGroupBy.aggregate          0          1
+17         DataFrame.sort_values          1          0
+
+        <Execution time>: 125.0
+        <Active vars>: ['total']
+
+        <Future vars>: []
+
+        <Iteration>: 5/5
+
+Code: # Select necessary columns and compute country code
+customer_filtered = customer[['C_ACCTBAL', 'C_CUSTKEY']].assign(
+    CNTRYCODE=customer['C_PHONE'].str.slice(0, 2)
+)
+
+# Filter by positive balance and desired country codes
+valid_codes = ['13', '31', '23', '29', '30', '18', '17']
+mask = (
+    (customer_filtered['C_ACCTBAL'] > 0) &
+    customer_filtered['CNTRYCODE'].isin(valid_codes)
+)
+customer_filtered = customer_filtered[mask]
+
+# Compute average balance and filter above average
+avg_value = customer_filtered['C_ACCTBAL'].mean()
+customer_filtered = customer_filtered[customer_filtered['C_ACCTBAL'] > avg_value]
+
+# Exclude customers who have placed orders using a GPU-friendly isin filter
+customer_selected = customer_filtered[~customer_filtered['C_CUSTKEY'].isin(orders['O_CUSTKEY'])]
+
+# Keep only the columns needed for aggregation
+customer_selected = customer_selected[['CNTRYCODE', 'C_ACCTBAL']]
+
+# Compute number of customers per country (GPU groupby.size)
+agg1 = (
+    customer_selected
+    .groupby('CNTRYCODE', as_index=False)
+    .size()
+    .rename(columns={'size': 'NUMCUST'})
+)
+
+# Compute total account balance per country (GPU groupby.sum)
+agg2 = (
+    customer_selected
+    .groupby('CNTRYCODE', as_index=False)['C_ACCTBAL']
+    .sum()
+    .rename(columns={'C_ACCTBAL': 'TOTACCTBAL'})
+)
+
+# Join the two aggregations and sort by country code
+total = agg1.merge(agg2, on='CNTRYCODE').sort_values('CNTRYCODE')
+Reason: Replaced the two-step left-join approach for excluding customers with a single GPU-accelerated isin filter; eliminated drop_duplicates and extra merges. Avoided CPU-bound NamedAgg by using groupby.size() and groupby.sum() which execute on the GPU. This retains semantic equivalence while minimizing CPU calls and data movement.
+Parsed response: # Select necessary columns and compute country code
+customer_filtered = customer[['C_ACCTBAL', 'C_CUSTKEY']].assign(
+    CNTRYCODE=customer['C_PHONE'].str.slice(0, 2)
+)
+
+# Filter by positive balance and desired country codes
+valid_codes = ['13', '31', '23', '29', '30', '18', '17']
+mask = (
+    (customer_filtered['C_ACCTBAL'] > 0) &
+    customer_filtered['CNTRYCODE'].isin(valid_codes)
+)
+customer_filtered = customer_filtered[mask]
+
+# Compute average balance and filter above average
+avg_value = customer_filtered['C_ACCTBAL'].mean()
+customer_filtered = customer_filtered[customer_filtered['C_ACCTBAL'] > avg_value]
+
+# Exclude customers who have placed orders using a GPU-friendly isin filter
+customer_selected = customer_filtered[~customer_filtered['C_CUSTKEY'].isin(orders['O_CUSTKEY'])]
+
+# Keep only the columns needed for aggregation
+customer_selected = customer_selected[['CNTRYCODE', 'C_ACCTBAL']]
+
+# Compute number of customers per country (GPU groupby.size)
+agg1 = (
+    customer_selected
+    .groupby('CNTRYCODE', as_index=False)
+    .size()
+    .rename(columns={'size': 'NUMCUST'})
+)
+
+# Compute total account balance per country (GPU groupby.sum)
+agg2 = (
+    customer_selected
+    .groupby('CNTRYCODE', as_index=False)['C_ACCTBAL']
+    .sum()
+    .rename(columns={'C_ACCTBAL': 'TOTACCTBAL'})
+)
+
+# Join the two aggregations and sort by country code
+total = agg1.merge(agg2, on='CNTRYCODE').sort_values('CNTRYCODE')
+Try 4: calling rewrite agent for cell 2 took 38.701061725616455 seconds.
+Executing rewritten code... ### cell 2 ###
+
+# Select necessary columns and compute country code
+customer_filtered = customer[['C_ACCTBAL', 'C_CUSTKEY']].assign(
+    CNTRYCODE=customer['C_PHONE'].str.slice(0, 2)
+)
+
+# Filter by positive balance and desired country codes
+valid_codes = ['13', '31', '23', '29', '30', '18', '17']
+mask = (
+    (customer_filtered['C_ACCTBAL'] > 0) &
+    customer_filtered['CNTRYCODE'].isin(valid_codes)
+)
+customer_filtered = customer_filtered[mask]
+
+# Compute average balance and filter above average
+avg_value = customer_filtered['C_ACCTBAL'].mean()
+customer_filtered = customer_filtered[customer_filtered['C_ACCTBAL'] > avg_value]
+
+# Exclude customers who have placed orders using a GPU-friendly isin filter
+customer_selected = customer_filtered[~customer_filtered['C_CUSTKEY'].isin(orders['O_CUSTKEY'])]
+
+# Keep only the columns needed for aggregation
+customer_selected = customer_selected[['CNTRYCODE', 'C_ACCTBAL']]
+
+# Compute number of customers per country (GPU groupby.size)
+agg1 = (
+    customer_selected
+    .groupby('CNTRYCODE', as_index=False)
+    .size()
+    .rename(columns={'size': 'NUMCUST'})
+)
+
+# Compute total account balance per country (GPU groupby.sum)
+agg2 = (
+    customer_selected
+    .groupby('CNTRYCODE', as_index=False)['C_ACCTBAL']
+    .sum()
+    .rename(columns={'C_ACCTBAL': 'TOTACCTBAL'})
+)
+
+# Join the two aggregations and sort by country code
+total = agg1.merge(agg2, on='CNTRYCODE').sort_values('CNTRYCODE')
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/tpch/notebooks/q22/annotated/checkpoints/pre_cell_2.pickle
+Running rewritten cell notebook
+Finished executing the rewritten code.
+Try 4: executing the rewritten code for cell 2 took 13.52323865890503 seconds.
+Rewritten time: 117.0 ms
+Checkpointing the rewritten cell for small notebook...
+The rewritten code is correct. Profiling cudf...
+HAHA small rewritten pre-checkpoint path:  /home/dias-benchmarks/tpch/notebooks/q22/q22_rewrite/checkpoints/pre_cell_2.pickle
+Try 4: cudf profiling the rewritten code for cell 2 took 8.068553924560547 seconds.
+gpu_calls_orig_perc: 1.0, gpu_calls_opt_perc: 1.0
+orig_time: 108.0, opt_time: 117.0
+Ratio improves.
+Improvement in percentage does not make up for the slowdown.
+Rewritten code took 117.0ms. The previous fastest solution took 125.0ms.
+Previous best solution num GPU and CPU calls:  26 0
+New solution num GPU and CPU calls:  31 0
+========================================================
+After rewriting cell  2
+Rewritten pre-checkpoint path: /home/dias-benchmarks/tpch/notebooks/q22/rewritten/o4_mini_high/checkpoints/post_cell_2_try_2.pickle
+Pre-checkpoint path: /home/dias-benchmarks/tpch/notebooks/q22/annotated/checkpoints/post_cell_2.pickle
+========================================================
+Cell 2 rewriting took 324.29249119758606 seconds.
+Getting original timing for cell 3
+HAHA original checkpoint path:  /home/dias-benchmarks/tpch/notebooks/q22/annotated/checkpoints/post_cell_2.pickle
+Setting initially best_rewritten_post_checkpoint_path:  /home/dias-benchmarks/tpch/notebooks/q22/annotated/checkpoints/post_cell_3.pickle
+Setting initially best_small_rewritten_post_checkpoint_path:  /home/dias-benchmarks/tpch/notebooks/q22/q22_rewrite/checkpoints/pre_cell_4.pickle
+========================================================
+Rewriting cell 3... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 3 ###
+
+total.info()
+        <Profiling data>:
+                 Function  GPU calls  CPU calls
+0  DataFrame.info          1          0
+
+        <Execution time>: 18.5
+        <Active vars>: []
+
+        <Future vars>: []
+
+        <Iteration>: 1/5
+
+==========Running the manager agent to decide the next step==========
+Choice: done
+Reason: The code is using `.info()`, which is primarily for debugging and can't be meaningfully optimized.
+Code is already optimized
+Try 0: calling rewrite agent for cell 3 took 1.333446741104126 seconds.
+There is no need to rewrite the cell.
+Could not rewrite the cell. Continuing to next cell...
+========================================================
+After rewriting cell  3
+Rewritten pre-checkpoint path: /home/dias-benchmarks/tpch/notebooks/q22/annotated/checkpoints/post_cell_3.pickle
+Pre-checkpoint path: /home/dias-benchmarks/tpch/notebooks/q22/annotated/checkpoints/post_cell_3.pickle
+========================================================
+Cell 3 rewriting took 15.697360038757324 seconds.
+Rewrote notebook in 344.9868938922882 seconds

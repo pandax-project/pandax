@@ -1,0 +1,329 @@
+---------------------------------------
+processing notebooks/aieducation/what-course-are-you-going-to-take/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 300` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_90.ipynb
+Running with `factor = 90`...
+Time taken: 9.333712577819824 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_120.ipynb
+Running with `factor = 120`...
+Time taken: 10.922533750534058 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_150.ipynb
+Running with `factor = 150`...
+Time taken: 13.44765019416809 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_180.ipynb
+Running with `factor = 180`...
+Time taken: 14.679547309875488 seconds
+Predictions at factor = 1000:
+Cell 0: 350.0
+Cell 1: 0.15925
+Cell 2: 0.13812500000000003
+Cell 3: 535.1999999999999
+Cell 4: 92.5475
+Cell 5: 1444.2999999999997
+Cell 6: 8130.999999999998
+Cell 7: 0.00608
+Cell 8: 12.096999999999998
+Cell 9: 27.182999999999996
+Cell 10: 391.8999999999999
+Cell 11: 0.0063175
+Cell 12: 3108.9999999999995
+Cell 13: 1.0667499999999999
+Cell 14: 0.0057225
+Cell 15: 237.49999999999991
+Cell 16: 0.0061400000000000005
+Cell 17: 95.9025
+Cell 18: 438.7
+Cell 19: 0.16001999999999994
+Cell 20: 236.33999999999997
+Cell 21: 0.006200000000000001
+Cell 22: 83.22999999999999
+Cell 23: 0.007239000000000001
+Cell 24: 291.4799999999999
+Cell 25: 0.007510000000000001
+Cell 26: 900.9999999999997
+Cell 27: 0.00644
+Cell 28: 629.7999999999997
+Cell 29: 5.156
+Cell 30: 0.9577500000000001
+Cell 31: 372.7999999999999
+Cell 32: 137.77999999999997
+Cell 33: 143.42999999999995
+Cell 34: 139.42999999999995
+Cell 35: 140.73999999999998
+Cell 36: 144.07
+Cell 37: 207.62999999999994
+Cell 38: 188.51999999999998
+Cell 39: 62.329999999999984
+Cell 40: 144.39999999999998
+Cell 41: 141.29999999999998
+Cell 42: 2.8875
+Cell 43: 2.1725
+Cell 44: 150.91
+Cell 45: 150.85999999999999
+Cell 46: 8.588
+Annotated notebook saved to notebooks/aieducation/what-course-are-you-going-to-take/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 350.0, Actual 479.0
+Error: 0.26931106471816285
+Cell 1: Predicted 0.15925, Actual 0.155
+Error: 0.027419354838709702
+Cell 2: Predicted 0.13812500000000003, Actual 0.0863
+Error: 0.6005214368482042
+Cell 3: Predicted 535.1999999999999, Actual 555.0
+Error: 0.0356756756756758
+Cell 4: Predicted 92.5475, Actual 3.15
+Error: 28.38015873015873
+Cell 5: Predicted 1444.2999999999997, Actual 1470.0
+Error: 0.017482993197279098
+Cell 6: Predicted 8130.999999999998, Actual 8520.0
+Error: 0.045657276995305376
+Cell 7: Predicted 0.00608, Actual 0.00644
+Error: 0.05590062111801243
+Cell 8: Predicted 12.096999999999998, Actual 10.0
+Error: 0.20969999999999978
+Cell 9: Predicted 27.182999999999996, Actual 25.7
+Error: 0.057704280155641906
+Cell 10: Predicted 391.8999999999999, Actual 398.0
+Error: 0.015326633165829346
+Cell 11: Predicted 0.0063175, Actual 0.006200000000000001
+Error: 0.018951612903225733
+Cell 12: Predicted 3108.9999999999995, Actual 3060.0
+Error: 0.01601307189542469
+Cell 13: Predicted 1.0667499999999999, Actual 1.98
+Error: 0.4612373737373738
+Cell 14: Predicted 0.0057225, Actual 0.00596
+Error: 0.03984899328859058
+Cell 15: Predicted 237.49999999999991, Actual 231.0
+Error: 0.02813852813852777
+Cell 16: Predicted 0.0061400000000000005, Actual 0.006200000000000001
+Error: 0.009677419354838734
+Cell 17: Predicted 95.9025, Actual 3.27
+Error: 28.32798165137615
+Cell 18: Predicted 438.7, Actual 440.0
+Error: 0.0029545454545454805
+Cell 19: Predicted 0.16001999999999994, Actual 0.138
+Error: 0.1595652173913038
+Cell 20: Predicted 236.33999999999997, Actual 274.0
+Error: 0.13744525547445263
+Cell 21: Predicted 0.006200000000000001, Actual 0.00668
+Error: 0.07185628742514963
+Cell 22: Predicted 83.22999999999999, Actual 84.3
+Error: 0.012692763938315628
+Cell 23: Predicted 0.007239000000000001, Actual 0.00596
+Error: 0.21459731543624172
+Cell 24: Predicted 291.4799999999999, Actual 309.0
+Error: 0.0566990291262139
+Cell 25: Predicted 0.007510000000000001, Actual 0.00858
+Error: 0.12470862470862468
+Cell 26: Predicted 900.9999999999997, Actual 882.0
+Error: 0.021541950113378297
+Cell 27: Predicted 0.00644, Actual 0.00691
+Error: 0.06801736613603472
+Cell 28: Predicted 629.7999999999997, Actual 664.0
+Error: 0.05150602409638595
+Cell 29: Predicted 5.156, Actual 5.34
+Error: 0.034456928838951344
+Cell 30: Predicted 0.9577500000000001, Actual 1.54
+Error: 0.3780844155844155
+Cell 31: Predicted 372.7999999999999, Actual 375.0
+Error: 0.005866666666666939
+Cell 32: Predicted 137.77999999999997, Actual 141.0
+Error: 0.022836879432624305
+Cell 33: Predicted 143.42999999999995, Actual 143.0
+Error: 0.0030069930069926572
+Cell 34: Predicted 139.42999999999995, Actual 135.0
+Error: 0.03281481481481444
+Cell 35: Predicted 140.73999999999998, Actual 136.0
+Error: 0.03485294117647045
+Cell 36: Predicted 144.07, Actual 145.0
+Error: 0.006413793103448323
+Cell 37: Predicted 207.62999999999994, Actual 201.0
+Error: 0.03298507462686537
+Cell 38: Predicted 188.51999999999998, Actual 188.0
+Error: 0.002765957446808414
+Cell 39: Predicted 62.329999999999984, Actual 54.3
+Error: 0.1478821362799261
+Cell 40: Predicted 144.39999999999998, Actual 144.0
+Error: 0.00277777777777762
+Cell 41: Predicted 141.29999999999998, Actual 138.0
+Error: 0.023913043478260745
+Cell 42: Predicted 2.8875, Actual 3.5
+Error: 0.17499999999999996
+Cell 43: Predicted 2.1725, Actual 2.94
+Error: 0.2610544217687075
+Cell 44: Predicted 150.91, Actual 148.0
+Error: 0.01966216216216214
+Cell 45: Predicted 150.85999999999999, Actual 147.0
+Error: 0.026258503401360444
+Cell 46: Predicted 8.588, Actual 9.29
+Error: 0.07556512378902046
+Writing data to CSV file... notebooks/aieducation/what-course-are-you-going-to-take/src/rewritten_cpu/prediction_times.csv
+Average error percentage: 1.2941380580898212
+Average absolute error: 20.572418489361738
+total original cpu time: 19528.74223
+total predicted cpu time: 19152.717544000003
+total absolute error: 376.024685999997
+---------------------------------------
+processing notebooks/ampiiere/animal-crossing-villager-popularity-analysis/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 400` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_120.ipynb
+Running with `factor = 120`...
+Time taken: 14.392488956451416 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_160.ipynb
+Running with `factor = 160`...
+Time taken: 23.891940593719482 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_200.ipynb
+Running with `factor = 200`...
+Time taken: 34.50125312805176 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_240.ipynb
+Running with `factor = 240`...
+Time taken: 49.12515187263489 seconds
+Predictions at factor = 1000:
+Cell 0: 141.29999999999998
+Cell 1: 0.19135999999999997
+Cell 2: 0.33638
+Cell 3: 95.29999999999998
+Cell 4: 7.154999999999999
+Cell 5: 8.969
+Cell 6: 5.5575
+Cell 7: 26.563999999999993
+Cell 8: 9.454999999999998
+Cell 9: 14.177999999999997
+Cell 10: 0.8382499999999999
+Cell 11: 32556.0
+Cell 12: 4140.9
+Cell 13: 6783.599999999998
+Cell 14: 49.401999999999994
+Cell 15: 0.011975
+Cell 16: 1962.4000000000003
+Cell 17: 7292.799999999998
+Cell 18: 6283.2
+Cell 19: 2894.9
+Cell 20: 1990.3999999999999
+Cell 21: 2724.5999999999995
+Cell 22: 5474.4
+Cell 23: 7024.799999999999
+Cell 24: 0.39175000000000004
+Cell 25: 0.00566
+Cell 26: 5398.799999999999
+Cell 27: 5512.4
+Annotated notebook saved to notebooks/ampiiere/animal-crossing-villager-popularity-analysis/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 141.29999999999998, Actual 261.0
+Error: 0.4586206896551725
+Cell 1: Predicted 0.19135999999999997, Actual 0.09390000000000001
+Error: 1.0379126730564425
+Cell 2: Predicted 0.33638, Actual 0.199
+Error: 0.6903517587939698
+Cell 3: Predicted 95.29999999999998, Actual 101.0
+Error: 0.056435643564356604
+Cell 4: Predicted 7.154999999999999, Actual 9.95
+Error: 0.28090452261306537
+Cell 5: Predicted 8.969, Actual 8.9
+Error: 0.00775280898876394
+Cell 6: Predicted 5.5575, Actual 9.85
+Error: 0.43578680203045683
+Cell 7: Predicted 26.563999999999993, Actual 27.2
+Error: 0.023382352941176705
+Cell 8: Predicted 9.454999999999998, Actual 9.0
+Error: 0.05055555555555537
+Cell 9: Predicted 14.177999999999997, Actual 13.9
+Error: 0.01999999999999978
+Cell 10: Predicted 0.8382499999999999, Actual 1.35
+Error: 0.3790740740740742
+Cell 11: Predicted 32556.0, Actual 49900.0
+Error: 0.3475751503006012
+Cell 12: Predicted 4140.9, Actual 6020.0
+Error: 0.3121428571428572
+Cell 13: Predicted 6783.599999999998, Actual 9690.0
+Error: 0.2999380804953563
+Cell 14: Predicted 49.401999999999994, Actual 73.8
+Error: 0.3305962059620597
+Cell 15: Predicted 0.011975, Actual 0.0117
+Error: 0.023504273504273435
+Cell 16: Predicted 1962.4000000000003, Actual 2910.0
+Error: 0.325635738831615
+Cell 17: Predicted 7292.799999999998, Actual 10500.0
+Error: 0.3054476190476192
+Cell 18: Predicted 6283.2, Actual 9100.0
+Error: 0.30953846153846154
+Cell 19: Predicted 2894.9, Actual 4230.0
+Error: 0.31562647754137113
+Cell 20: Predicted 1990.3999999999999, Actual 2880.0
+Error: 0.30888888888888894
+Cell 21: Predicted 2724.5999999999995, Actual 4110.0
+Error: 0.337080291970803
+Cell 22: Predicted 5474.4, Actual 8080.0
+Error: 0.32247524752475254
+Cell 23: Predicted 7024.799999999999, Actual 10000.0
+Error: 0.29752000000000006
+Cell 24: Predicted 0.39175000000000004, Actual 0.422
+Error: 0.07168246445497617
+Cell 25: Predicted 0.00566, Actual 0.00596
+Error: 0.05033557046979864
+Cell 26: Predicted 5398.799999999999, Actual 7890.0
+Error: 0.31574144486692024
+Cell 27: Predicted 5512.4, Actual 7970.0
+Error: 0.3083563362609787
+Writing data to CSV file... notebooks/ampiiere/animal-crossing-villager-popularity-analysis/src/rewritten_cpu/prediction_times.csv
+Average error percentage: 0.2865307853597988
+Average absolute error: 1549.9964612500005
+total original cpu time: 133796.68256
+total predicted cpu time: 90398.855875
+total absolute error: 43397.82668499999
+---------------------------------------
+processing notebooks/dataranch/supermarket-sales-prediction-xgboost-fastai/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 10` in cell 3
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_3.ipynb
+Running with `factor = 3`...
+Time taken: 1.9332807064056396 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_4.ipynb
+Running with `factor = 4`...
+Time taken: 2.0453970432281494 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_5.ipynb
+Running with `factor = 5`...
+Time taken: 2.147423267364502 seconds
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_6.ipynb
+Running with `factor = 6`...
+Time taken: 2.3463082313537598 seconds
+Predictions at factor = 1000:
+Cell 0: 69.14999999999999
+Cell 1: 570.5999999999999
+Cell 2: 0.0054824999999999995
+Cell 3: 34.58
+Cell 4: 21.440999999999995
+Cell 5: 0.176
+Cell 6: 37.129999999999995
+Cell 7: 0.008882500000000002
+Cell 8: 196.5
+Cell 9: 3.77
+Annotated notebook saved to notebooks/dataranch/supermarket-sales-prediction-xgboost-fastai/src/rewritten_cpu/original_with_timing.ipynb
+Cell 0: Predicted 69.14999999999999, Actual 70.8
+Error: 0.023305084745762792
+Cell 1: Predicted 570.5999999999999, Actual 580.0
+Error: 0.016206896551724293
+Cell 2: Predicted 0.0054824999999999995, Actual 0.006200000000000001
+Error: 0.11572580645161307
+Cell 3: Predicted 34.58, Actual 30.8
+Error: 0.12272727272727264
+Cell 4: Predicted 21.440999999999995, Actual 17.5
+Error: 0.22519999999999973
+Cell 5: Predicted 0.176, Actual 0.176
+Error: 0.0
+Cell 6: Predicted 37.129999999999995, Actual 29.7
+Error: 0.25016835016835004
+Cell 7: Predicted 0.008882500000000002, Actual 0.00787
+Error: 0.12865311308767488
+Cell 8: Predicted 196.5, Actual 222.0
+Error: 0.11486486486486487
+Cell 9: Predicted 3.77, Actual 3.5
+Error: 0.07714285714285715
+Writing data to CSV file... notebooks/dataranch/supermarket-sales-prediction-xgboost-fastai/src/rewritten_cpu/prediction_times.csv
+Average error percentage: 0.10739942457401194
+Average absolute error: 5.197273000000009
+total original cpu time: 954.4900700000001
+total predicted cpu time: 933.361365
+total absolute error: 21.128705000000082
+---------------------------------------
+processing notebooks/erikbruin/nlp-on-student-writing-eda/src/rewritten_cpu/o4_mini_high.ipynb
+Found `factor = 144293` in cell 1
+Annotated notebook saved to notebook_outputs/o4_mini_high_factor_43288.ipynb
+Running with `factor = 43288`...

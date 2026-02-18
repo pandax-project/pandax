@@ -1,0 +1,1201 @@
+Annotated notebook saved to /home/dias-benchmarks/new_notebooks/nyc-taxi/cell_exec_info.ipynb
+Executing code: import sys, os
+sys.path.insert(0, os.path.abspath('/home/ElasticNotebook'))
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df
+import pickle
+import cudf
+Executing code: %%RecordEventWithColumnInfo
+# %load_ext cudf.pandas
+# import important libraries - matplotlib, seaborn and pandas
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+import time
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+file_loc = '/home/dias-benchmarks/new_notebooks/nyc-taxi/yellow_tripdata.csv'
+
+# read file
+trip_data = pd.read_csv(file_loc)
+trip_data = trip_data[:100000]
+trip_data.shape, trip_data.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 1 ###
+
+# print data tail
+trip_data.tail()
+Executing code: %%RecordEventWithColumnInfo
+### cell 2 ###
+
+# print data info
+trip_data.info()
+Executing code: %%RecordEventWithColumnInfo
+### cell 3 ###
+
+# remove following columns - 'VendorID','RatecodeID','store_and_fwd_flag'
+trip_data.drop(['VendorID','RatecodeID','store_and_fwd_flag'],axis=1,inplace=True)
+# print data head
+trip_data.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 4 ###
+
+# convert 'tpep_pickup_datetime' and 'tpep_dropoff_datetime' to datetime format
+trip_data['tpep_pickup_datetime'] = pd.to_datetime(trip_data['tpep_pickup_datetime'],errors='coerce' )
+trip_data['tpep_dropoff_datetime'] = pd.to_datetime(trip_data['tpep_dropoff_datetime'], errors='coerce' )
+# print data info
+print(trip_data.info())
+# print data head
+trip_data.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 5 ###
+
+# create 'duration' column using pd.Timedelta(minutes=1)
+trip_data['duration'] = (trip_data['tpep_dropoff_datetime'] - trip_data['tpep_pickup_datetime'])/ pd.Timedelta(minutes=1)
+# create 'trip_pickup_hour' column using 'tpep_pickup_datetime' column
+trip_data['trip_pickup_hour'] = trip_data['tpep_pickup_datetime'].dt.hour
+# create 'trip_dropoff_hour' column using 'tpep_dropoff_datetime' column
+trip_data['trip_dropoff_hour'] = trip_data['tpep_dropoff_datetime'].dt.hour
+# create 'trip_day' column using 'tpep_pickup_datetime' column - use day_name()
+trip_data['trip_day'] = trip_data['tpep_pickup_datetime'].dt.day_name()
+# print data info
+print(trip_data.info())
+# print data head
+trip_data.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 6 ###
+
+# print missing values for each column - use .isnull().sum
+trip_data.isnull().sum(axis=0).reset_index()
+Executing code: %%RecordEventWithColumnInfo
+### cell 7 ###
+
+# value_counts for 'payment_type' column
+trip_data['payment_type'].value_counts()
+Executing code: %%RecordEventWithColumnInfo
+### cell 8 ###
+
+# function for mapping numerical payment_type to actual payment
+def map_payment_type(x):
+    if x==1:
+        return 'Credit_card'
+    elif x==2:
+        return 'Cash'
+    elif x==3:
+        return 'No_charge'
+    elif x==4:
+        return 'Dispute'
+    elif x==5:
+        return 'Unknown'
+    else:
+        return 'Voided_trip'
+
+# use .apply and lambda on payment_type column to change 'payment_type' column
+trip_data['payment_type'] = trip_data.payment_type.apply(lambda x:map_payment_type(x))
+# print data head
+trip_data.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 9 ###
+
+# print data info to show that payment_type data type has changed
+trip_data.info()
+Executing code: %%RecordEventWithColumnInfo
+### cell 10 ###
+
+# create 'total_taxes' column from summing 'extra','mta_tax', 'improvement_surcharge'
+trip_data['total_taxes'] = trip_data['extra']+trip_data['mta_tax']+trip_data['improvement_surcharge']
+# drop 'extra','mta_tax','improvement_surcharge' columns
+trip_data.drop(['extra','mta_tax','improvement_surcharge'],axis=1,inplace=True)
+# print data head
+trip_data.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 11 ###
+
+# continuous_columns list
+continuous_columns = ['fare_amount','tip_amount','total_taxes','total_amount','duration','trip_distance','tolls_amount']
+Executing code: %%RecordEventWithColumnInfo
+### cell 12 ###
+
+# use .describe() for showing the statistics for continuous columns
+trip_data[continuous_columns].describe()
+Executing code: # # import gridspec function from matplotlib
+# from matplotlib import gridspec
+Executing code: # # for loop for continuous_columns variable
+# for feature in continuous_columns:
+#     # create a figure object using plt.figure
+#     fig = plt.figure(figsize=(14,7))
+#     # use gridspec.GridSpect with arguments nrows, ncols and figure to create areas for 2 plots in figure object
+#     gs = gridspec.GridSpec(nrows=1, ncols=2, figure=fig)
+#     # ax1 is first axes object created using fig.add_subplot(gs[0,0]) - controls the first area of figure object
+#     ax1 = fig.add_subplot(gs[0, 0])
+#     # histogram plot in first area using sns.distplot - attributes are kde and ax
+#     sns.distplot(trip_data[feature],kde=True,ax=ax1)
+#     # using ax1.set_title to create title for histograms
+#     ax1.set_title('histogram of column values in '+feature)
+#     # ax2 is second axes object created using fig.add_subplot(gs[0,1]) - controls the second area of figure object
+#     ax2 = fig.add_subplot(gs[0,1])
+#     # box plot  in second area using sns.boxplot - attributes are ax
+#     sns.boxplot(trip_data[feature],ax=ax2)
+#     # using ax2.set_title for box plot
+#     ax2.set_title('box plot of column values in '+feature)
+#     # seaborn style setting
+#     sns.set()
+#     # matplotlib command for displaying plots
+#     plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 13 ###
+
+# using .loc to show negative values in fare_amount
+trip_data.loc[trip_data['fare_amount']<0]
+Executing code: %%RecordEventWithColumnInfo
+### cell 14 ###
+
+# using .loc to show negative values in tip_amount
+trip_data.loc[trip_data['tip_amount']<0]
+Executing code: %%RecordEventWithColumnInfo
+### cell 15 ###
+
+# using .loc to show negative values in tolls_amount
+trip_data.loc[trip_data['tolls_amount']<0]
+Executing code: %%RecordEventWithColumnInfo
+### cell 16 ###
+
+# using .loc to show negative values in total_taxes
+trip_data.loc[trip_data['total_taxes']<0]
+Executing code: %%RecordEventWithColumnInfo
+### cell 17 ###
+
+# using .loc to show negative values in total_amount
+trip_data.loc[trip_data['total_amount']<0]
+Executing code: %%RecordEventWithColumnInfo
+### cell 18 ###
+
+# data shape before filtering negative fare_amount rows
+print(trip_data.shape)
+# using .loc to filter only those rows where fare_amount is positive
+trip_data = trip_data.loc[trip_data['fare_amount']>=0]
+trip_data.shape, trip_data.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 19 ###
+
+# using .loc to show negative values in duration
+trip_data.loc[trip_data['duration']<0]
+Executing code: %%RecordEventWithColumnInfo
+### cell 20 ###
+
+# using .loc to filter only those rows where duration is positive
+trip_data = trip_data.loc[trip_data['duration']>=0]
+trip_data.shape
+Executing code: # # plot box plot and histograms for continuous_columns variables
+# for feature in continuous_columns:
+#     fig = plt.figure(figsize=(14,7))
+#     gs = gridspec.GridSpec(nrows=1, ncols=2, figure=fig)
+#     ax1 = fig.add_subplot(gs[0, 0])
+#     sns.distplot(trip_data[feature],kde=True,ax=ax1)
+#     ax1.set_title('histogram of column values in '+feature)
+#     ax2 = fig.add_subplot(gs[0,1])
+#     sns.boxplot(trip_data[feature],ax=ax2)
+#     ax2.set_title('box plot of column values in '+feature)
+#     sns.set()
+#     plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 21 ###
+
+# use .describe() again to show the statistics for these continuous variables
+trip_data[continuous_columns].describe()
+Executing code: %%RecordEventWithColumnInfo
+### cell 22 ###
+
+# list of categorical_variables
+categorical_variables = ['payment_type','trip_pickup_hour','trip_dropoff_hour','trip_day','PULocationID','DOLocationID']
+Executing code: %%RecordEventWithColumnInfo
+### cell 23 ###
+
+# start exploration with payment_type using .value_counts()
+trip_data['payment_type'].value_counts()
+Executing code: %%RecordEventWithColumnInfo
+### cell 24 ###
+
+# but this is a series for ease of plotting we need to use dataframe using .reset_index() on value_counts()
+payment_type_category_count = trip_data['payment_type'].value_counts().reset_index()
+payment_type_category_count.columns = ["payment_type", "count"]
+# print the above dataframe
+payment_type_category_count
+Executing code: %%RecordEventWithColumnInfo
+### cell 25 ###
+
+# we are shown the count under each category but it is better to have count% for comparison - create count_percent col
+payment_type_category_count['count_percent'] = (payment_type_category_count['count']/trip_data.shape[0])*100
+# print the data frame
+payment_type_category_count
+Executing code: # # now let's plot it as bar chart
+# # first step - create fig, ax object using plt.subplots
+# fig,ax = plt.subplots(figsize=(7,7))
+# # second step - use sns.barplot(x, y , data, ax) for plotting bar plot
+# sns.barplot(x = 'index', y = 'count_percent', data=payment_type_category_count,ax=ax)
+# # third step - use ax object to change plot properties - here we set a title with ax.set_title()
+# ax.set_title('box plot for payment_type column')
+# # third step - seaborn style setting
+# sns.set()
+# # fourth step - use plt.show() for showing the plots
+# plt.show()
+Executing code: # # now let's plot all the time based categorical variables in this way using a for loop
+# for feature in ['trip_pickup_hour','trip_dropoff_hour','trip_day']:
+#     # Create a dataframe for the feature using value_counts().reset_index()
+#     feature_value_counts = trip_data[feature].value_counts().reset_index()
+#     # create count_percent column
+#     feature_value_counts['count_percent'] = (feature_value_counts[feature]/trip_data.shape[0])*100
+#     # print the number of categories in the feature
+#     print('Number of categories in feature '+ feature + ' is ' + str(feature_value_counts.shape[0]))
+#     # Create fig,ax object using plt.subplots
+#     if feature_value_counts.shape[0]<10:
+#         fig,ax = plt.subplots(figsize=(7,7))
+#     else:
+#         fig,ax = plt.subplots(figsize=(20,7))
+#     # plot barplot x='index' and y='count_percent' using sns.barplot
+#     sns.barplot(x='index',y='count_percent',data=feature_value_counts,ax=ax)
+#     # set_title
+#     ax.set_title('Bar plot for '+ feature)
+#     # set_xlabel
+#     ax.set_xlabel(feature)
+#     sns.set()
+#     plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 26 ###
+
+# let's see the number of categories available in both pickup and dropoff location - PULocationID and DOLocationID
+trip_data['PULocationID'].value_counts().shape, trip_data['DOLocationID'].value_counts().shape
+Executing code: # for feature in ['PULocationID','DOLocationID']:
+#     # Create a dataframe for the feature using value_counts().reset_index()
+#     feature_value_counts = trip_data[feature].value_counts().reset_index()
+#     # create count_percent column
+#     feature_value_counts['count_percent'] = (feature_value_counts[feature]/trip_data.shape[0])*100
+#     # print the number of categories in the feature
+#     print('Number of categories in feature '+ feature + ' is ' + str(feature_value_counts.shape[0]))
+#     # Create fig,ax object using plt.subplots
+#     fig,ax = plt.subplots(figsize=(25,7))
+#     # plot barplot x='index' and y='count_percent' using sns.barplot
+#     sns.barplot(x='index',y='count_percent',data=feature_value_counts,ax=ax)
+#     # set_title
+#     ax.set_title('Bar plot for '+ feature)
+#     # set_xlabel
+#     ax.set_xlabel(feature)
+#     sns.set()
+#     plt.show()
+Executing code: # for feature in ['PULocationID','DOLocationID']:
+#     feature_value_counts = trip_data[feature].value_counts().reset_index()
+#     feature_value_counts['count_percent'] = (feature_value_counts[feature]/trip_data.shape[0])*100
+#     # filter only those location which has more than 0.5 % of traffic
+#     feature_value_counts = feature_value_counts.loc[feature_value_counts['count_percent']>=0.5]
+#     print('Number of categories in feature '+ feature + ' above 0.5 % count is ' + str(feature_value_counts.shape[0]))
+#     fig,ax = plt.subplots(figsize=(25,7))
+#     sns.barplot(x='index',y='count_percent',data=feature_value_counts,ax=ax)
+#     ax.set_title('Bar plot for '+ feature)
+#     ax.set_xlabel(feature)
+#     sns.set()
+#     plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 27 ###
+
+# create routes column using PULocationID and DOLocationID with lambda function
+trip_data['routes'] = trip_data.apply(lambda x: str(x['PULocationID'])+'-'+str(x['DOLocationID']),axis=1)
+Executing code: # # save routes data to csv to load it later for analysis
+# trip_data['routes'].to_csv('/home/dias-benchmarks/new_notebooks/nyc-taxi/routes_yellow_tripdata_2018-01.csv',index=False)
+Executing code: # # loading routes_data
+# file_loc_routes_data = 'routes_yellow_tripdata_2018-01.csv'
+# routes_data = pd.read_csv(file_loc_routes_data)
+# # assigning new column 'routes' in trip_data to routes_data
+# trip_data['routes'] = routes_data
+Executing code: %%RecordEventWithColumnInfo
+### cell 28 ###
+
+trip_data.head()
+Executing code: # # plot bar plot for routes which have trip count above 0.25%
+# feature = 'routes'
+# feature_value_counts = trip_data[feature].value_counts().reset_index()
+# feature_value_counts['count_percent'] = (feature_value_counts[feature]/trip_data.shape[0])*100
+# # choosing routes where the trip percent is above 0.25% of total trips
+# feature_value_counts = feature_value_counts.loc[feature_value_counts['count_percent']>=0.25]
+# print('Number of categories in feature '+ feature + ' above 0.25 % count is ' + str(feature_value_counts.shape[0]))
+# fig,ax = plt.subplots(figsize=(25,7))
+# sns.barplot(x='index',y='count_percent',data=feature_value_counts,ax=ax)
+# ax.set_title('Bar plot for '+ feature)
+# ax.set_xlabel(feature)
+# sns.set()
+# plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 29 ###
+
+# look into value_counts of 'passenger_count'
+trip_data['passenger_count'].value_counts()
+Executing code: # # fig,ax object using plt.subplots()
+# fig,ax = plt.subplots(figsize=(25,7))
+# # box plot using - sns.boxplot(x, y , data, ax)
+# sns.boxplot(x = 'trip_pickup_hour',y='fare_amount',data=trip_data,ax=ax)
+# # ax.set_title
+# ax.set_title('box plot of fare_amount wrt hour of the day')
+# # seaborn style setting
+# sns.set()
+# # matplotlib plt.show()
+# plt.show()
+Executing code: # # fig,ax object using plt.subplots()
+# fig,ax = plt.subplots(figsize=(25,7))
+# # box plot using - sns.boxplot(x, y , data, ax)
+# sns.boxplot(x = 'trip_dropoff_hour',y='fare_amount',data=trip_data,ax=ax)
+# # ax.set_title
+# ax.set_title('box plot of fare_amount wrt hour of the day')
+# # seaborn style setting
+# sns.set()
+# # matplotlib plt.show()
+# plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 30 ###
+
+# restricted_fare_amount_data dataframe formation by filtering fare_amount less than 50 dollars
+restricted_fare_amount_data = trip_data.loc[trip_data['fare_amount']<=50]
+restricted_fare_amount_data.shape
+Executing code: # fig,ax = plt.subplots(figsize=(25,7))
+# sns.boxplot(x = 'trip_pickup_hour',y='fare_amount',data=restricted_fare_amount_data,ax=ax)
+# ax.set_title('box plot of fare_amount wrt hour of the day')
+# sns.set()
+# plt.show()
+Executing code: # fig,ax = plt.subplots(figsize=(25,7))
+# sns.boxplot(x = 'trip_dropoff_hour',y='fare_amount',data=restricted_fare_amount_data,ax=ax)
+# ax.set_title('box plot of fare_amount wrt hour of the day')
+# sns.set()
+# plt.show()
+Executing code: # fig,ax = plt.subplots(figsize=(25,7))
+# # sns.boxplot changes
+# sns.boxplot(x = 'trip_pickup_hour',y='total_amount',data=trip_data,ax=ax)
+# ax.set_title('box plot of total_amount wrt hour of the day')
+# sns.set()
+# plt.show()
+Executing code: # fig,ax = plt.subplots(figsize=(25,7))
+# # sns.boxplot changes
+# sns.boxplot(x = 'trip_dropoff_hour',y='total_amount',data=trip_data,ax=ax)
+# ax.set_title('box plot of total_amount wrt hour of the day')
+# sns.set()
+# plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 31 ###
+
+# restricted_total_amount_data for filtering total_amount data to less than 50 dollars
+restricted_total_amount_data = trip_data.loc[trip_data['total_amount']<=50]
+restricted_total_amount_data.shape
+Executing code: # fig,ax = plt.subplots(figsize=(25,7))
+# sns.boxplot(x = 'trip_pickup_hour',y='total_amount',data=restricted_total_amount_data,ax=ax)
+# ax.set_title('box plot of total_amount wrt hour of the day')
+# sns.set()
+# plt.show()
+Executing code: # fig,ax = plt.subplots(figsize=(25,7))
+# sns.boxplot(x = 'trip_dropoff_hour',y='total_amount',data=restricted_total_amount_data,ax=ax)
+# ax.set_title('box plot of total_amount wrt hour of the day')
+# sns.set()
+# plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 32 ###
+
+restricted_tip_amount_data = trip_data.loc[trip_data['tip_amount']<10]
+restricted_total_taxes_data = trip_data.loc[trip_data['total_taxes']<10]
+restricted_tip_amount_data.shape, restricted_total_taxes_data.shape
+Executing code: # fig,ax = plt.subplots(figsize=(25,7))
+# sns.boxplot(x = 'trip_pickup_hour',y='tip_amount',data=restricted_tip_amount_data,ax=ax)
+# ax.set_title('box plot of tip_amount wrt hour of the day')
+# sns.set()
+# plt.show()
+Executing code: # fig,ax = plt.subplots(figsize=(25,7))
+# sns.boxplot(x = 'trip_dropoff_hour',y='tip_amount',data=restricted_tip_amount_data,ax=ax)
+# ax.set_title('box plot of tip_amount wrt hour of the day')
+# sns.set()
+# plt.show()
+Executing code: # fig,ax = plt.subplots(figsize=(25,7))
+# sns.boxplot(x = 'trip_pickup_hour',y='total_taxes',data=restricted_total_taxes_data,ax=ax)
+# ax.set_title('box plot of total_taxes wrt hour of the day')
+# sns.set()
+# plt.show()
+Executing code: # fig,ax = plt.subplots(figsize=(25,7))
+# sns.boxplot(x = 'trip_dropoff_hour',y='total_taxes',data=restricted_total_taxes_data,ax=ax)
+# ax.set_title('box plot of total_taxes wrt hour of the day')
+# sns.set()
+# plt.show()
+Executing code: # # plot of trip_day with fare_amount
+# fig,ax = plt.subplots(figsize=(7,7))
+# # changes in sns.boxplot x and y
+# sns.boxplot(x = 'trip_day',y='fare_amount',data=restricted_fare_amount_data,ax=ax)
+# ax.set_title('box plot of fare_amount wrt the day of the week')
+# sns.set()
+# plt.show()
+Executing code: # fig,ax = plt.subplots(figsize=(7,7))
+# sns.boxplot(x = 'trip_day',y='total_amount',data=restricted_total_amount_data,ax=ax)
+# ax.set_title('box plot of total_amount wrt the day of the week')
+# sns.set()
+# plt.show()
+Executing code: # fig,ax = plt.subplots(figsize=(7,7))
+# sns.boxplot(x = 'trip_day',y='tip_amount',data=restricted_tip_amount_data,ax=ax)
+# ax.set_title('box plot of tip_amount wrt the day of the week')
+# sns.set()
+# plt.show()
+Executing code: # fig,ax = plt.subplots(figsize=(7,7))
+# sns.boxplot(x = 'trip_day',y='total_taxes',data=restricted_total_taxes_data,ax=ax)
+# ax.set_title('box plot of total_taxes wrt the day of the week')
+# sns.set()
+# plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 33 ###
+
+# create a new series using value_counts() on 'PULocationID'
+pickup_location_value_counts = trip_data['PULocationID'].value_counts()
+# show the series
+pickup_location_value_counts.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 34 ###
+
+# top 10 frequent pickup locations using .nlargest(10).index
+top_10_frequent_pickup_locations = pickup_location_value_counts.nlargest(10).index
+top_10_frequent_pickup_locations
+Executing code: # # for loop for plotting box plot of each of the top 10 frequent pickup locations
+# for top_pickup_locID in top_10_frequent_pickup_locations:
+#     # create the new dataframe for each location using .loc on 'PULocationID' - pickup_locID_dataframe
+#     pickup_locID_dataframe = trip_data.loc[trip_data['PULocationID'] == top_pickup_locID]
+#     # print the median fare_amount for the top_pickup_locID
+#     print('The median fare_amount of trips taken from '+str(top_pickup_locID)+' is '+str(pickup_locID_dataframe['fare_amount'].median()))
+#     # fig,ax object
+#     fig,ax = plt.subplots(figsize=(6,6))
+#     # sns.boxplot of fare_amount from the dataframe pickup_locID_dataframe
+#     sns.boxplot(pickup_locID_dataframe['fare_amount'],ax=ax)
+#     # set_title
+#     ax.set_title('box plot of fare_amount for pickup location '+ str(top_pickup_locID))
+#     sns.set()
+#     plt.show()
+Executing code: # # plot box plot for duration for different hours of day
+# fig,ax = plt.subplots(figsize=(20,7))
+# # box plot using sns.boxplot x is 'trip_pickup_hour' and y is 'duration'
+# sns.boxplot(x = 'trip_pickup_hour', y='duration',data = trip_data,ax=ax)
+# ax.set_title('Box plot of trip_pickup hour with respect to trip duration')
+# sns.set()
+# plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 35 ###
+
+# create restricted_duration dataframe with .loc on 'duration' column
+restricted_duration= trip_data.loc[trip_data['duration']<50]
+restricted_duration.shape
+Executing code: # fig,ax = plt.subplots(figsize=(20,7))
+# sns.boxplot(x = 'trip_pickup_hour', y='duration',data = restricted_duration,ax=ax)
+# ax.set_title('Box plot of trip_pickup hour with respect to trip duration')
+# sns.set()
+# plt.show()
+Executing code: # # plot box plots of duration for top 10 frequent pickup locations
+# for top_pickup_locID in top_10_frequent_pickup_locations:
+#     # create the new dataframe for each location using .loc on 'PULocationID' - pickup_locID_dataframe
+#     pickup_locID_dataframe = trip_data.loc[trip_data['PULocationID'] == top_pickup_locID]
+#     # print the median duration for the top_pickup_locID
+#     print('The median trip duration of trips taken from '+str(top_pickup_locID)+' is '+str(pickup_locID_dataframe['duration'].median()))
+#     fig,ax = plt.subplots(figsize=(6,6))
+#     # sns.boxplot of duration from the dataframe pickup_locID_dataframe
+#     sns.boxplot(pickup_locID_dataframe['duration'],ax=ax)
+#     # set_title
+#     ax.set_title('box plot of duration for pickup location '+ str(top_pickup_locID))
+#     sns.set()
+#     plt.show()
+Executing code: %PrintCellInfo cell_exec_info
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Ran small notebook to get cell exec info in 32.639979124069214 seconds
+Getting cudf profile information...
+Annotated notebook saved to /home/dias-benchmarks/new_notebooks/nyc-taxi/cudf_profile.ipynb
+Done getting cudf profile information.
+Ran small notebook to get cudf profile info in 122.15661525726318 seconds
+Annotated notebook saved to /home/dias-benchmarks/new_notebooks/nyc-taxi/annotated.ipynb
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Executing code: %load_ext cudf.pandas
+Executing code: import sys, os
+sys.path.insert(0, os.path.abspath('/home/ElasticNotebook'))
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df
+import pickle
+import cudf
+Executing code: %%RecordEvent
+# %load_ext cudf.pandas
+# import important libraries - matplotlib, seaborn and pandas
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+import time
+Executing code: %%RecordEvent
+%%time
+### cell 0 ###
+
+file_loc = '/home/dias-benchmarks/new_notebooks/nyc-taxi/yellow_tripdata.csv'
+
+# read file
+trip_data = pd.read_csv(file_loc)
+trip_data.shape, trip_data.head()
+Executing code: %%RecordEvent
+%%time
+### cell 1 ###
+
+# print data tail
+trip_data.tail()
+Executing code: %%RecordEvent
+%%time
+### cell 2 ###
+
+# print data info
+trip_data.info()
+Executing code: %%RecordEvent
+%%time
+### cell 3 ###
+
+# remove following columns - 'VendorID','RatecodeID','store_and_fwd_flag'
+trip_data.drop(['VendorID','RatecodeID','store_and_fwd_flag'],axis=1,inplace=True)
+# print data head
+trip_data.head()
+Executing code: %%RecordEvent
+%%time
+### cell 4 ###
+
+# convert 'tpep_pickup_datetime' and 'tpep_dropoff_datetime' to datetime format
+trip_data['tpep_pickup_datetime'] = pd.to_datetime(trip_data['tpep_pickup_datetime'],errors='coerce' )
+trip_data['tpep_dropoff_datetime'] = pd.to_datetime(trip_data['tpep_dropoff_datetime'], errors='coerce' )
+# print data info
+print(trip_data.info())
+# print data head
+trip_data.head()
+Executing code: %%RecordEvent
+%%time
+### cell 5 ###
+
+# create 'duration' column using pd.Timedelta(minutes=1)
+trip_data['duration'] = (trip_data['tpep_dropoff_datetime'] - trip_data['tpep_pickup_datetime'])/ pd.Timedelta(minutes=1)
+# create 'trip_pickup_hour' column using 'tpep_pickup_datetime' column
+trip_data['trip_pickup_hour'] = trip_data['tpep_pickup_datetime'].dt.hour
+# create 'trip_dropoff_hour' column using 'tpep_dropoff_datetime' column
+trip_data['trip_dropoff_hour'] = trip_data['tpep_dropoff_datetime'].dt.hour
+# create 'trip_day' column using 'tpep_pickup_datetime' column - use day_name()
+trip_data['trip_day'] = trip_data['tpep_pickup_datetime'].dt.day_name()
+# print data info
+print(trip_data.info())
+# print data head
+trip_data.head()
+Executing code: %%RecordEvent
+%%time
+### cell 6 ###
+
+# print missing values for each column - use .isnull().sum
+trip_data.isnull().sum(axis=0).reset_index()
+Executing code: %%RecordEvent
+%%time
+### cell 7 ###
+
+# value_counts for 'payment_type' column
+trip_data['payment_type'].value_counts()
+Executing code: %%RecordEvent
+%%time
+### cell 8 ###
+
+# function for mapping numerical payment_type to actual payment
+def map_payment_type(x):
+    if x==1:
+        return 'Credit_card'
+    elif x==2:
+        return 'Cash'
+    elif x==3:
+        return 'No_charge'
+    elif x==4:
+        return 'Dispute'
+    elif x==5:
+        return 'Unknown'
+    else:
+        return 'Voided_trip'
+
+# use .apply and lambda on payment_type column to change 'payment_type' column
+trip_data['payment_type'] = trip_data.payment_type.apply(lambda x:map_payment_type(x))
+# print data head
+trip_data.head()
+Executing code: %%RecordEvent
+%%time
+### cell 9 ###
+
+# print data info to show that payment_type data type has changed
+trip_data.info()
+Executing code: %%RecordEvent
+%%time
+### cell 10 ###
+
+# create 'total_taxes' column from summing 'extra','mta_tax', 'improvement_surcharge'
+trip_data['total_taxes'] = trip_data['extra']+trip_data['mta_tax']+trip_data['improvement_surcharge']
+# drop 'extra','mta_tax','improvement_surcharge' columns
+trip_data.drop(['extra','mta_tax','improvement_surcharge'],axis=1,inplace=True)
+# print data head
+trip_data.head()
+Executing code: %%RecordEvent
+%%time
+### cell 11 ###
+
+# continuous_columns list
+continuous_columns = ['fare_amount','tip_amount','total_taxes','total_amount','duration','trip_distance','tolls_amount']
+Executing code: %%RecordEvent
+%%time
+### cell 12 ###
+
+# use .describe() for showing the statistics for continuous columns
+trip_data[continuous_columns].describe()
+Executing code: # # import gridspec function from matplotlib
+# from matplotlib import gridspec
+Executing code: # # for loop for continuous_columns variable
+# for feature in continuous_columns:
+#     # create a figure object using plt.figure
+#     fig = plt.figure(figsize=(14,7))
+#     # use gridspec.GridSpect with arguments nrows, ncols and figure to create areas for 2 plots in figure object
+#     gs = gridspec.GridSpec(nrows=1, ncols=2, figure=fig)
+#     # ax1 is first axes object created using fig.add_subplot(gs[0,0]) - controls the first area of figure object
+#     ax1 = fig.add_subplot(gs[0, 0])
+#     # histogram plot in first area using sns.distplot - attributes are kde and ax
+#     sns.distplot(trip_data[feature],kde=True,ax=ax1)
+#     # using ax1.set_title to create title for histograms
+#     ax1.set_title('histogram of column values in '+feature)
+#     # ax2 is second axes object created using fig.add_subplot(gs[0,1]) - controls the second area of figure object
+#     ax2 = fig.add_subplot(gs[0,1])
+#     # box plot  in second area using sns.boxplot - attributes are ax
+#     sns.boxplot(trip_data[feature],ax=ax2)
+#     # using ax2.set_title for box plot
+#     ax2.set_title('box plot of column values in '+feature)
+#     # seaborn style setting
+#     sns.set()
+#     # matplotlib command for displaying plots
+#     plt.show()
+Executing code: %%RecordEvent
+%%time
+### cell 13 ###
+
+# using .loc to show negative values in fare_amount
+trip_data.loc[trip_data['fare_amount']<0]
+Executing code: %%RecordEvent
+%%time
+### cell 14 ###
+
+# using .loc to show negative values in tip_amount
+trip_data.loc[trip_data['tip_amount']<0]
+Executing code: %%RecordEvent
+%%time
+### cell 15 ###
+
+# using .loc to show negative values in tolls_amount
+trip_data.loc[trip_data['tolls_amount']<0]
+Executing code: %%RecordEvent
+%%time
+### cell 16 ###
+
+# using .loc to show negative values in total_taxes
+trip_data.loc[trip_data['total_taxes']<0]
+Executing code: %%RecordEvent
+%%time
+### cell 17 ###
+
+# using .loc to show negative values in total_amount
+trip_data.loc[trip_data['total_amount']<0]
+Executing code: %%RecordEvent
+%%time
+### cell 18 ###
+
+# data shape before filtering negative fare_amount rows
+print(trip_data.shape)
+# using .loc to filter only those rows where fare_amount is positive
+trip_data = trip_data.loc[trip_data['fare_amount']>=0]
+trip_data.shape, trip_data.head()
+Executing code: %%RecordEvent
+%%time
+### cell 19 ###
+
+# using .loc to show negative values in duration
+trip_data.loc[trip_data['duration']<0]
+Executing code: %%RecordEvent
+%%time
+### cell 20 ###
+
+# using .loc to filter only those rows where duration is positive
+trip_data = trip_data.loc[trip_data['duration']>=0]
+trip_data.shape
+Executing code: # # plot box plot and histograms for continuous_columns variables
+# for feature in continuous_columns:
+#     fig = plt.figure(figsize=(14,7))
+#     gs = gridspec.GridSpec(nrows=1, ncols=2, figure=fig)
+#     ax1 = fig.add_subplot(gs[0, 0])
+#     sns.distplot(trip_data[feature],kde=True,ax=ax1)
+#     ax1.set_title('histogram of column values in '+feature)
+#     ax2 = fig.add_subplot(gs[0,1])
+#     sns.boxplot(trip_data[feature],ax=ax2)
+#     ax2.set_title('box plot of column values in '+feature)
+#     sns.set()
+#     plt.show()
+Executing code: %%RecordEvent
+%%time
+### cell 21 ###
+
+# use .describe() again to show the statistics for these continuous variables
+trip_data[continuous_columns].describe()
+Executing code: %%RecordEvent
+%%time
+### cell 22 ###
+
+# list of categorical_variables
+categorical_variables = ['payment_type','trip_pickup_hour','trip_dropoff_hour','trip_day','PULocationID','DOLocationID']
+Executing code: %%RecordEvent
+%%time
+### cell 23 ###
+
+# start exploration with payment_type using .value_counts()
+trip_data['payment_type'].value_counts()
+Executing code: %%RecordEvent
+%%time
+### cell 24 ###
+
+# but this is a series for ease of plotting we need to use dataframe using .reset_index() on value_counts()
+payment_type_category_count = trip_data['payment_type'].value_counts().reset_index()
+payment_type_category_count.columns = ["payment_type", "count"]
+# print the above dataframe
+payment_type_category_count
+Executing code: %%RecordEvent
+%%time
+### cell 25 ###
+
+# we are shown the count under each category but it is better to have count% for comparison - create count_percent col
+payment_type_category_count['count_percent'] = (payment_type_category_count['count']/trip_data.shape[0])*100
+# print the data frame
+payment_type_category_count
+Executing code: # # now let's plot it as bar chart
+# # first step - create fig, ax object using plt.subplots
+# fig,ax = plt.subplots(figsize=(7,7))
+# # second step - use sns.barplot(x, y , data, ax) for plotting bar plot
+# sns.barplot(x = 'index', y = 'count_percent', data=payment_type_category_count,ax=ax)
+# # third step - use ax object to change plot properties - here we set a title with ax.set_title()
+# ax.set_title('box plot for payment_type column')
+# # third step - seaborn style setting
+# sns.set()
+# # fourth step - use plt.show() for showing the plots
+# plt.show()
+Executing code: # # now let's plot all the time based categorical variables in this way using a for loop
+# for feature in ['trip_pickup_hour','trip_dropoff_hour','trip_day']:
+#     # Create a dataframe for the feature using value_counts().reset_index()
+#     feature_value_counts = trip_data[feature].value_counts().reset_index()
+#     # create count_percent column
+#     feature_value_counts['count_percent'] = (feature_value_counts[feature]/trip_data.shape[0])*100
+#     # print the number of categories in the feature
+#     print('Number of categories in feature '+ feature + ' is ' + str(feature_value_counts.shape[0]))
+#     # Create fig,ax object using plt.subplots
+#     if feature_value_counts.shape[0]<10:
+#         fig,ax = plt.subplots(figsize=(7,7))
+#     else:
+#         fig,ax = plt.subplots(figsize=(20,7))
+#     # plot barplot x='index' and y='count_percent' using sns.barplot
+#     sns.barplot(x='index',y='count_percent',data=feature_value_counts,ax=ax)
+#     # set_title
+#     ax.set_title('Bar plot for '+ feature)
+#     # set_xlabel
+#     ax.set_xlabel(feature)
+#     sns.set()
+#     plt.show()
+Executing code: %%RecordEvent
+%%time
+### cell 26 ###
+
+# let's see the number of categories available in both pickup and dropoff location - PULocationID and DOLocationID
+trip_data['PULocationID'].value_counts().shape, trip_data['DOLocationID'].value_counts().shape
+Executing code: # for feature in ['PULocationID','DOLocationID']:
+#     # Create a dataframe for the feature using value_counts().reset_index()
+#     feature_value_counts = trip_data[feature].value_counts().reset_index()
+#     # create count_percent column
+#     feature_value_counts['count_percent'] = (feature_value_counts[feature]/trip_data.shape[0])*100
+#     # print the number of categories in the feature
+#     print('Number of categories in feature '+ feature + ' is ' + str(feature_value_counts.shape[0]))
+#     # Create fig,ax object using plt.subplots
+#     fig,ax = plt.subplots(figsize=(25,7))
+#     # plot barplot x='index' and y='count_percent' using sns.barplot
+#     sns.barplot(x='index',y='count_percent',data=feature_value_counts,ax=ax)
+#     # set_title
+#     ax.set_title('Bar plot for '+ feature)
+#     # set_xlabel
+#     ax.set_xlabel(feature)
+#     sns.set()
+#     plt.show()
+Executing code: # for feature in ['PULocationID','DOLocationID']:
+#     feature_value_counts = trip_data[feature].value_counts().reset_index()
+#     feature_value_counts['count_percent'] = (feature_value_counts[feature]/trip_data.shape[0])*100
+#     # filter only those location which has more than 0.5 % of traffic
+#     feature_value_counts = feature_value_counts.loc[feature_value_counts['count_percent']>=0.5]
+#     print('Number of categories in feature '+ feature + ' above 0.5 % count is ' + str(feature_value_counts.shape[0]))
+#     fig,ax = plt.subplots(figsize=(25,7))
+#     sns.barplot(x='index',y='count_percent',data=feature_value_counts,ax=ax)
+#     ax.set_title('Bar plot for '+ feature)
+#     ax.set_xlabel(feature)
+#     sns.set()
+#     plt.show()
+Executing code: %%RecordEvent
+%%time
+### cell 27 ###
+
+# create routes column using PULocationID and DOLocationID with lambda function
+trip_data['routes'] = trip_data.apply(lambda x: str(x['PULocationID'])+'-'+str(x['DOLocationID']),axis=1)
+Executing code: # # save routes data to csv to load it later for analysis
+# trip_data['routes'].to_csv('/home/dias-benchmarks/new_notebooks/nyc-taxi/routes_yellow_tripdata_2018-01.csv',index=False)
+Executing code: # # loading routes_data
+# file_loc_routes_data = 'routes_yellow_tripdata_2018-01.csv'
+# routes_data = pd.read_csv(file_loc_routes_data)
+# # assigning new column 'routes' in trip_data to routes_data
+# trip_data['routes'] = routes_data
+Executing code: %%RecordEvent
+%%time
+### cell 28 ###
+
+trip_data.head()
+Executing code: # # plot bar plot for routes which have trip count above 0.25%
+# feature = 'routes'
+# feature_value_counts = trip_data[feature].value_counts().reset_index()
+# feature_value_counts['count_percent'] = (feature_value_counts[feature]/trip_data.shape[0])*100
+# # choosing routes where the trip percent is above 0.25% of total trips
+# feature_value_counts = feature_value_counts.loc[feature_value_counts['count_percent']>=0.25]
+# print('Number of categories in feature '+ feature + ' above 0.25 % count is ' + str(feature_value_counts.shape[0]))
+# fig,ax = plt.subplots(figsize=(25,7))
+# sns.barplot(x='index',y='count_percent',data=feature_value_counts,ax=ax)
+# ax.set_title('Bar plot for '+ feature)
+# ax.set_xlabel(feature)
+# sns.set()
+# plt.show()
+Executing code: %%RecordEvent
+%%time
+### cell 29 ###
+
+# look into value_counts of 'passenger_count'
+trip_data['passenger_count'].value_counts()
+Executing code: # # fig,ax object using plt.subplots()
+# fig,ax = plt.subplots(figsize=(25,7))
+# # box plot using - sns.boxplot(x, y , data, ax)
+# sns.boxplot(x = 'trip_pickup_hour',y='fare_amount',data=trip_data,ax=ax)
+# # ax.set_title
+# ax.set_title('box plot of fare_amount wrt hour of the day')
+# # seaborn style setting
+# sns.set()
+# # matplotlib plt.show()
+# plt.show()
+Executing code: # # fig,ax object using plt.subplots()
+# fig,ax = plt.subplots(figsize=(25,7))
+# # box plot using - sns.boxplot(x, y , data, ax)
+# sns.boxplot(x = 'trip_dropoff_hour',y='fare_amount',data=trip_data,ax=ax)
+# # ax.set_title
+# ax.set_title('box plot of fare_amount wrt hour of the day')
+# # seaborn style setting
+# sns.set()
+# # matplotlib plt.show()
+# plt.show()
+Executing code: %%RecordEvent
+%%time
+### cell 30 ###
+
+# restricted_fare_amount_data dataframe formation by filtering fare_amount less than 50 dollars
+restricted_fare_amount_data = trip_data.loc[trip_data['fare_amount']<=50]
+restricted_fare_amount_data.shape
+Executing code: # fig,ax = plt.subplots(figsize=(25,7))
+# sns.boxplot(x = 'trip_pickup_hour',y='fare_amount',data=restricted_fare_amount_data,ax=ax)
+# ax.set_title('box plot of fare_amount wrt hour of the day')
+# sns.set()
+# plt.show()
+Executing code: # fig,ax = plt.subplots(figsize=(25,7))
+# sns.boxplot(x = 'trip_dropoff_hour',y='fare_amount',data=restricted_fare_amount_data,ax=ax)
+# ax.set_title('box plot of fare_amount wrt hour of the day')
+# sns.set()
+# plt.show()
+Executing code: # fig,ax = plt.subplots(figsize=(25,7))
+# # sns.boxplot changes
+# sns.boxplot(x = 'trip_pickup_hour',y='total_amount',data=trip_data,ax=ax)
+# ax.set_title('box plot of total_amount wrt hour of the day')
+# sns.set()
+# plt.show()
+Executing code: # fig,ax = plt.subplots(figsize=(25,7))
+# # sns.boxplot changes
+# sns.boxplot(x = 'trip_dropoff_hour',y='total_amount',data=trip_data,ax=ax)
+# ax.set_title('box plot of total_amount wrt hour of the day')
+# sns.set()
+# plt.show()
+Executing code: %%RecordEvent
+%%time
+### cell 31 ###
+
+# restricted_total_amount_data for filtering total_amount data to less than 50 dollars
+restricted_total_amount_data = trip_data.loc[trip_data['total_amount']<=50]
+restricted_total_amount_data.shape
+Executing code: # fig,ax = plt.subplots(figsize=(25,7))
+# sns.boxplot(x = 'trip_pickup_hour',y='total_amount',data=restricted_total_amount_data,ax=ax)
+# ax.set_title('box plot of total_amount wrt hour of the day')
+# sns.set()
+# plt.show()
+Executing code: # fig,ax = plt.subplots(figsize=(25,7))
+# sns.boxplot(x = 'trip_dropoff_hour',y='total_amount',data=restricted_total_amount_data,ax=ax)
+# ax.set_title('box plot of total_amount wrt hour of the day')
+# sns.set()
+# plt.show()
+Executing code: %Checkpoint /home/dias-benchmarks/new_notebooks/nyc-taxi/annotated/checkpoints/pre_cell_32.pickle
+Checkpointing took 0.0008766651153564453 seconds.
+========================================================
+Cell  32
+Rewritten pre-checkpoint path: /home/dias-benchmarks/new_notebooks/nyc-taxi/annotated/checkpoints/pre_cell_32.pickle
+Pre-checkpoint path: /home/dias-benchmarks/new_notebooks/nyc-taxi/annotated/checkpoints/pre_cell_32.pickle
+Small rewritten pre-checkpoint path: /home/dias-benchmarks/new_notebooks/nyc-taxi/small_bench/checkpoints/pre_cell_32.pickle
+========================================================
+Getting original timing for cell 32
+HAHA original checkpoint path:  /home/dias-benchmarks/new_notebooks/nyc-taxi/annotated/checkpoints/pre_cell_32.pickle
+Setting initially best_rewritten_post_checkpoint_path:  /home/dias-benchmarks/new_notebooks/nyc-taxi/annotated/checkpoints/post_cell_32.pickle
+Setting initially best_small_rewritten_post_checkpoint_path:  /home/dias-benchmarks/new_notebooks/nyc-taxi/small_bench/checkpoints/pre_cell_33.pickle
+========================================================
+Rewriting cell 32... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 32 ###
+
+restricted_tip_amount_data = trip_data.loc[trip_data['tip_amount']<10]
+restricted_total_taxes_data = trip_data.loc[trip_data['total_taxes']<10]
+restricted_tip_amount_data.shape, restricted_total_taxes_data.shape
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0         DataFrame.__getitem__          2          0
+1               OpsMixin.__lt__          2          0
+2  _LocationIndexer.__getitem__          2          0
+
+        <Execution time>: 59.6
+        <Active vars>: []
+
+        <Future vars>: ['trip_data']
+
+        <Iteration>: 1/5
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: The original code can be optimized to potentially reduce execution time. Given there is no rewritten code, we should focus on improving the original operations using more efficient methods to filter the data.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 32 ###
+
+restricted_tip_amount_data = trip_data.loc[trip_data['tip_amount']<10]
+restricted_total_taxes_data = trip_data.loc[trip_data['total_taxes']<10]
+restricted_tip_amount_data.shape, restricted_total_taxes_data.shape
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0         DataFrame.__getitem__          2          0
+1               OpsMixin.__lt__          2          0
+2  _LocationIndexer.__getitem__          2          0
+
+        <Execution time>: 59.6
+        <Active vars>: []
+
+        <Future vars>: ['trip_data']
+
+        <Iteration>: 1/5
+
+Code: done
+Reason: The code already uses fully vectorized GPU operations with no CPU-bound steps. No further optimization is possible for this simple boolean filtering.
+No Modifications made to the original code
+Try 0: calling rewrite agent for cell 32 took 37.00069046020508 seconds.
+There is no need to rewrite the cell.
+Could not rewrite the cell. Continuing to next cell...
+========================================================
+After rewriting cell  32
+Rewritten pre-checkpoint path: /home/dias-benchmarks/new_notebooks/nyc-taxi/annotated/checkpoints/post_cell_32.pickle
+Pre-checkpoint path: /home/dias-benchmarks/new_notebooks/nyc-taxi/annotated/checkpoints/post_cell_32.pickle
+========================================================
+Cell 32 rewriting took 220.87052392959595 seconds.
+Getting original timing for cell 33
+HAHA original checkpoint path:  /home/dias-benchmarks/new_notebooks/nyc-taxi/annotated/checkpoints/post_cell_32.pickle
+Setting initially best_rewritten_post_checkpoint_path:  /home/dias-benchmarks/new_notebooks/nyc-taxi/annotated/checkpoints/post_cell_33.pickle
+Setting initially best_small_rewritten_post_checkpoint_path:  /home/dias-benchmarks/new_notebooks/nyc-taxi/small_bench/checkpoints/pre_cell_34.pickle
+========================================================
+Rewriting cell 33... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 33 ###
+
+# create a new series using value_counts() on 'PULocationID'
+pickup_location_value_counts = trip_data['PULocationID'].value_counts()
+# show the series
+pickup_location_value_counts.head()
+        <Profiling data>:
+                             Function  GPU calls  CPU calls
+0       DataFrame.__getitem__          1          0
+1  IndexOpsMixin.value_counts          1          0
+2                NDFrame.head          1          0
+3             Series.__repr__          1          0
+4        NDFrame._repr_latex_          0          1
+
+        <Execution time>: 78.7
+        <Active vars>: ['pickup_location_value_counts']
+
+        <Future vars>: ['trip_data']
+
+        <Iteration>: 1/5
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: The primary purpose of the code is to display a quick overview using .head(), which inherently doesn't benefit from optimization for performance. However, given that there is no rewritten code to base further optimization on, creating a new optimized version of the original code aligns with the goal of leveraging alternatives or more efficient methods. This is especially important because we are only in the first iteration of five, giving us room to explore different approaches.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 33 ###
+
+# create a new series using value_counts() on 'PULocationID'
+pickup_location_value_counts = trip_data['PULocationID'].value_counts()
+# show the series
+pickup_location_value_counts.head()
+        <Profiling data>:
+                             Function  GPU calls  CPU calls
+0       DataFrame.__getitem__          1          0
+1  IndexOpsMixin.value_counts          1          0
+2                NDFrame.head          1          0
+3             Series.__repr__          1          0
+4        NDFrame._repr_latex_          0          1
+
+        <Execution time>: 78.7
+        <Active vars>: ['pickup_location_value_counts']
+
+        <Future vars>: ['trip_data']
+
+        <Iteration>: 1/5
+
+Code: done
+Reason: The use of `value_counts()` and `head()` is already vectorized and executed on the GPU via the cudf.pandas extension. No further optimization is needed for this cell.
+No Modifications made to the original code
+Try 0: calling rewrite agent for cell 33 took 6.664873838424683 seconds.
+There is no need to rewrite the cell.
+Could not rewrite the cell. Continuing to next cell...
+========================================================
+After rewriting cell  33
+Rewritten pre-checkpoint path: /home/dias-benchmarks/new_notebooks/nyc-taxi/annotated/checkpoints/post_cell_33.pickle
+Pre-checkpoint path: /home/dias-benchmarks/new_notebooks/nyc-taxi/annotated/checkpoints/post_cell_33.pickle
+========================================================
+Cell 33 rewriting took 231.7836048603058 seconds.
+Getting original timing for cell 34
+HAHA original checkpoint path:  /home/dias-benchmarks/new_notebooks/nyc-taxi/annotated/checkpoints/post_cell_33.pickle
+Setting initially best_rewritten_post_checkpoint_path:  /home/dias-benchmarks/new_notebooks/nyc-taxi/annotated/checkpoints/post_cell_34.pickle
+Setting initially best_small_rewritten_post_checkpoint_path:  /home/dias-benchmarks/new_notebooks/nyc-taxi/small_bench/checkpoints/pre_cell_35.pickle
+========================================================
+Rewriting cell 34... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 34 ###
+
+# top 10 frequent pickup locations using .nlargest(10).index
+top_10_frequent_pickup_locations = pickup_location_value_counts.nlargest(10).index
+top_10_frequent_pickup_locations
+        <Profiling data>:
+                  Function  GPU calls  CPU calls
+0  Series.nlargest          1          0
+1           Series          1          0
+2   Index.__repr__          1          0
+
+        <Execution time>: 39.8
+        <Active vars>: []
+
+        <Future vars>: ['trip_data']
+
+        <Iteration>: 1/5
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: There is no rewritten code to optimize or repair. We should attempt to optimize the original code in the next iteration.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 34 ###
+
+# top 10 frequent pickup locations using .nlargest(10).index
+top_10_frequent_pickup_locations = pickup_location_value_counts.nlargest(10).index
+top_10_frequent_pickup_locations
+        <Profiling data>:
+                  Function  GPU calls  CPU calls
+0  Series.nlargest          1          0
+1           Series          1          0
+2   Index.__repr__          1          0
+
+        <Execution time>: 39.8
+        <Active vars>: []
+
+        <Future vars>: ['trip_data']
+
+        <Iteration>: 1/5
+
+Code: done
+Reason: The .nlargest call is already executed on the GPU with no CPU operations. There is no further improvement needed for this snippet.
+No Modifications made to the original code
+Try 0: calling rewrite agent for cell 34 took 10.682181358337402 seconds.
+There is no need to rewrite the cell.
+Could not rewrite the cell. Continuing to next cell...
+========================================================
+After rewriting cell  34
+Rewritten pre-checkpoint path: /home/dias-benchmarks/new_notebooks/nyc-taxi/annotated/checkpoints/post_cell_34.pickle
+Pre-checkpoint path: /home/dias-benchmarks/new_notebooks/nyc-taxi/annotated/checkpoints/post_cell_34.pickle
+========================================================
+Cell 34 rewriting took 237.00705218315125 seconds.
+Getting original timing for cell 35
+HAHA original checkpoint path:  /home/dias-benchmarks/new_notebooks/nyc-taxi/annotated/checkpoints/post_cell_34.pickle
+Setting initially best_rewritten_post_checkpoint_path:  /home/dias-benchmarks/new_notebooks/nyc-taxi/annotated/checkpoints/post_cell_35.pickle
+Setting initially best_small_rewritten_post_checkpoint_path:  /home/dias-benchmarks/new_notebooks/nyc-taxi/small_bench/checkpoints/pre_cell_36.pickle
+========================================================
+Rewriting cell 35... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 35 ###
+
+# create restricted_duration dataframe with .loc on 'duration' column
+restricted_duration= trip_data.loc[trip_data['duration']<50]
+restricted_duration.shape
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0         DataFrame.__getitem__          1          0
+1               OpsMixin.__lt__          1          0
+2  _LocationIndexer.__getitem__          1          0
+
+        <Execution time>: 55.6
+        <Active vars>: []
+
+        <Future vars>: []
+
+        <Iteration>: 1/5
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: The code can benefit from further optimization, possibly by using an alternative API or method for filtering, given the relatively high execution time.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 35 ###
+
+# create restricted_duration dataframe with .loc on 'duration' column
+restricted_duration= trip_data.loc[trip_data['duration']<50]
+restricted_duration.shape
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0         DataFrame.__getitem__          1          0
+1               OpsMixin.__lt__          1          0
+2  _LocationIndexer.__getitem__          1          0
+
+        <Execution time>: 55.6
+        <Active vars>: []
+
+        <Future vars>: []
+
+        <Iteration>: 1/5
+
+Code: done
+Reason: The boolean indexing operation is already fully vectorized and executed on the GPU with no CPU overhead. No further optimization needed.
+No Modifications made to the original code
+Try 0: calling rewrite agent for cell 35 took 11.22433853149414 seconds.
+There is no need to rewrite the cell.
+Could not rewrite the cell. Continuing to next cell...
+========================================================
+After rewriting cell  35
+Rewritten pre-checkpoint path: /home/dias-benchmarks/new_notebooks/nyc-taxi/annotated/checkpoints/post_cell_35.pickle
+Pre-checkpoint path: /home/dias-benchmarks/new_notebooks/nyc-taxi/annotated/checkpoints/post_cell_35.pickle
+========================================================
+Cell 35 rewriting took 261.7190947532654 seconds.
+Rewrote notebook in 1414.8262820243835 seconds

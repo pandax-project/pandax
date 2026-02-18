@@ -1,0 +1,30 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "jupyter-server-example"
+version = "0.0.1"
+description = "Jupyter Server Example"
+readme = "README.md"
+license = "BSD-3-Clause"
+requires-python = ">=3.9"
+dependencies = [
+    "jinja2",
+    "jupyter_server",
+]
+dynamic = []
+
+[project.scripts]
+jupyter-simple-ext1 = "pandax_ext.application:main"
+
+[tool.hatch.build.targets.wheel.shared-data]
+"etc/jupyter/jupyter_server_config.d" = "etc/jupyter/jupyter_server_config.d"
+
+[tool.hatch.build.targets.wheel]
+packages = ["pandax_ext"]
+
+[tool.hatch.build.hooks.jupyter-builder]
+dependencies = [
+    "hatch-jupyter-builder>=0.8.2",
+]

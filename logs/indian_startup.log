@@ -1,0 +1,1455 @@
+Annotated notebook saved to /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/cell_exec_info.ipynb
+Executing code: import sys, os
+sys.path.insert(0, os.path.abspath('/home/ElasticNotebook'))
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df
+import pickle
+import cudf
+Executing code: %%RecordEventWithColumnInfo
+
+import numpy as np
+import os
+# STEFANOS: Conditionally import Modin Pandas
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    # STEFANOS: Import Modin Pandas
+    import os
+    os.environ["MODIN_ENGINE"] = "ray"
+    import ray
+    ray.init(num_cpus=int(os.environ['MODIN_CPUS']), runtime_env={'env_vars': {'__MODIN_AUTOIMPORT_PANDAS__': '1'}})
+    import modin.pandas as pd
+else:
+    # STEFANOS: Import regular Pandas
+    import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+import plotly.express as px
+
+# from wordcloud import WordCloud
+import string
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+df = pd.read_csv('/home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/input/indian-startup-recognized-by-dpiit/Startup_Counts_Across_India.csv')
+# df.head().style.background_gradient(cmap='coolwarm')
+Executing code: %%RecordEventWithColumnInfo
+### cell 1 ###
+
+factor = 250
+df = pd.concat([df]*factor, ignore_index=True)
+df.info()
+Executing code: # STEFANOS: Disable plotting
+# fig = px.scatter(df,x="Industry", y="Year", size="Count", color="Count",template='plotly_dark', title="Industry Vs Year")
+# fig.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 2 ###
+
+# fig, ax = plt.subplots(1,1, figsize=(15, 6))
+df_year = df['Year'].value_counts().sort_index()
+# STEFANOS: Disable plotting
+# ax.bar(df_year.index, df_year, width=0.55,linewidth=0.7, color = 'purple')
+# for i in df_year.index:
+#     ax.annotate(f"{df_year[i]}",xy=(i, df_year[i] + 100),
+#                    va = 'center', ha='center')
+# ax.set_ylim(0, 1300)
+# fig.text(0.1, 0.95, "Growth of Startup's from 2016-2022", fontsize=15, fontweight='bold')
+
+# ax.grid(axis='y', linestyle='-', alpha=0.4)
+Executing code: %%RecordEventWithColumnInfo
+### cell 3 ###
+
+df.groupby('Industry').size().sort_values(ascending=False).to_frame().style.background_gradient(cmap='coolwarm').set_uuid("uuid")
+Executing code: %%RecordEventWithColumnInfo
+### cell 4 ###
+
+# fig, ax = plt.subplots(1,1, figsize=(20, 6))
+df_ind = df['Industry'].value_counts().iloc[:20]
+
+# STEFANOS: Disable plotting
+# ax.bar(df_ind.index, df_ind, width=0.55,linewidth=0.7, color = 'pink')
+# for i in df_ind.index:
+#     ax.annotate(f"{df_ind[i]}",xy=(i, df_ind[i] + 20),va = 'center', ha='center')
+# ax.set_ylim(0, 220)
+# fig.text(0.1, 0.95, "Top 20 Startup Industries from 2016", fontsize=15, fontweight='bold')
+# plt.xticks(rotation=90)
+# ax.grid(axis='y', linestyle='-', alpha=0.4)
+Executing code: %%RecordEventWithColumnInfo
+### cell 5 ###
+
+# fig, ax = plt.subplots(1,1, figsize=(20, 6))
+X = df['State'].value_counts().iloc[:20]
+
+# STEFANOS: Disable plotting
+# ax.bar(X.index, X, width=0.55,linewidth=0.7, color = 'lightblue')
+# for i in X.index:
+#     ax.annotate(f"{X[i]}",xy=(i, X[i] + 50),
+#                    va = 'center', ha='center')
+# ax.set_ylim(0, 400)
+# fig.text(0.1, 0.95, "Top 20 States Having maximum Start'ups from 2016", fontsize=15, fontweight='bold')
+# plt.xticks(rotation=90)
+# ax.grid(axis='y', linestyle='-', alpha=0.4)
+Executing code: %%RecordEventWithColumnInfo
+### cell 6 ###
+
+ds_list=['Internet of Things','AI','Robotics','Analytics','Computer Vision']
+ds_df = df[df['Industry'].isin(ds_list)]
+Executing code: # STEFANOS: Disable plotting
+# sns.set_style('whitegrid')
+# sns.catplot(x='Year', hue = 'Industry', kind='count', data=ds_df,palette="Set3", height=8.27, aspect=11.7/8.27);
+# plt.show()
+Executing code: %PrintCellInfo cell_exec_info
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Ran small notebook to get cell exec info in 7.19737696647644 seconds
+Getting cudf profile information...
+Annotated notebook saved to /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/cudf_profile.ipynb
+Done getting cudf profile information.
+Ran small notebook to get cudf profile info in 29.756077527999878 seconds
+Annotated notebook saved to /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated.ipynb
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Executing code: %load_ext cudf.pandas
+Executing code: import sys, os
+sys.path.insert(0, os.path.abspath('/home/ElasticNotebook'))
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df
+import pickle
+import cudf
+Executing code: %%RecordEvent
+
+import numpy as np
+import os
+# STEFANOS: Conditionally import Modin Pandas
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    # STEFANOS: Import Modin Pandas
+    import os
+    os.environ["MODIN_ENGINE"] = "ray"
+    import ray
+    ray.init(num_cpus=int(os.environ['MODIN_CPUS']), runtime_env={'env_vars': {'__MODIN_AUTOIMPORT_PANDAS__': '1'}})
+    import modin.pandas as pd
+else:
+    # STEFANOS: Import regular Pandas
+    import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+import plotly.express as px
+
+# from wordcloud import WordCloud
+import string
+Executing code: %Checkpoint /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/pre_cell_0.pickle
+Checkpointing took 0.0007255077362060547 seconds.
+========================================================
+Cell  0
+Rewritten pre-checkpoint path: /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/pre_cell_0.pickle
+Pre-checkpoint path: /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/pre_cell_0.pickle
+Small rewritten pre-checkpoint path: /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/small_bench/checkpoints/pre_cell_0.pickle
+========================================================
+Getting original timing for cell 0
+HAHA original checkpoint path:  /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/pre_cell_0.pickle
+Setting initially best_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_0.pickle
+Setting initially best_small_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/small_bench/checkpoints/pre_cell_1.pickle
+========================================================
+Rewriting cell 0... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 0 ###
+
+df = pd.read_csv('/home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/input/indian-startup-recognized-by-dpiit/Startup_Counts_Across_India.csv')
+# df.head().style.background_gradient(cmap='coolwarm')
+        <Profiling data>:
+           Function  GPU calls  CPU calls
+0  read_csv          1          0
+
+        <Execution time>: 73.1
+        <Active vars>: ['df']
+
+        <Future vars>: []
+
+        <Iteration>: 0/3
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: There is no rewritten code, and we should optimize the original code for performance, especially by considering GPU-accelerated libraries like cuDF for data loading, which might reduce execution time.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 0 ###
+
+df = pd.read_csv('/home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/input/indian-startup-recognized-by-dpiit/Startup_Counts_Across_India.csv')
+# df.head().style.background_gradient(cmap='coolwarm')
+        <Profiling data>:
+           Function  GPU calls  CPU calls
+0  read_csv          1          0
+
+        <Execution time>: 73.1
+        <Active vars>: ['df']
+
+        <Future vars>: []
+
+        <Iteration>: 0/3
+
+Code: done
+Reason: The CSV is already being read on the GPU via the cudf.pandas extension and no CPU operations are involved. No further optimizations are necessary for this cell.
+No Modifications made to the original code
+Try 0: calling rewrite agent for cell 0 took 12.143292903900146 seconds.
+There is no need to rewrite the cell.
+Could not rewrite the cell. Continuing to next cell...
+========================================================
+After rewriting cell  0
+Rewritten pre-checkpoint path: /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_0.pickle
+Pre-checkpoint path: /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_0.pickle
+========================================================
+Cell 0 rewriting took 21.133922338485718 seconds.
+Getting original timing for cell 1
+HAHA original checkpoint path:  /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_0.pickle
+Setting initially best_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_1.pickle
+Setting initially best_small_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/small_bench/checkpoints/pre_cell_2.pickle
+========================================================
+Rewriting cell 1... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 1 ###
+
+factor = 2500
+df = pd.concat([df]*factor, ignore_index=True)
+df.info()
+        <Profiling data>:
+                 Function  GPU calls  CPU calls
+0          concat          1          0
+1  DataFrame.info          1          0
+
+        <Execution time>: 581.0
+        <Active vars>: ['df']
+
+        <Future vars>: []
+
+        <Iteration>: 0/3
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: There is only the original code available, and further optimization can be attempted by considering GPU-based alternatives or more efficient concatenation methods with parallel processing capabilities.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 1 ###
+
+factor = 2500
+df = pd.concat([df]*factor, ignore_index=True)
+df.info()
+        <Profiling data>:
+                 Function  GPU calls  CPU calls
+0          concat          1          0
+1  DataFrame.info          1          0
+
+        <Execution time>: 581.0
+        <Active vars>: ['df']
+
+        <Future vars>: []
+
+        <Iteration>: 0/3
+
+Code: factor = 2500
+# Use GPU‐native index repetition and take to replicate rows in one pass
+df = df.take(df.index.repeat(factor)).reset_index(drop=True)
+df.info()
+Reason: Avoid building a huge Python list of DataFrames and a multi‐step concat. Using GPU‐accelerated index.repeat + DataFrame.take keeps everything on the GPU and eliminates Python loops, yielding much faster row replication.
+Parsed response: factor = 2500
+# Use GPU‐native index repetition and take to replicate rows in one pass
+df = df.take(df.index.repeat(factor)).reset_index(drop=True)
+df.info()
+Try 0: calling rewrite agent for cell 1 took 20.177470207214355 seconds.
+Executing rewritten code... ### cell 1 ###
+
+factor = 2500
+# Use GPU‐native index repetition and take to replicate rows in one pass
+df = df.take(df.index.repeat(factor)).reset_index(drop=True)
+df.info()
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_0.pickle
+Running rewritten cell notebook
+An unexpected error occurred An error occurred while executing the following cell:
+------------------
+df_opt = df
+%LoadCheckpoint /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_1.pickle
+assert compare_df(df_opt, df)
+
+import numpy as np
+import cudf
+from elastic.core.common.pandas import is_type_styler
+is_orig_output_pd = isinstance(orig_output, (pd.Series, pd.DataFrame, pd.Index))
+is_opt_output_pd = isinstance(opt_output, (pd.Series, pd.DataFrame, pd.Index))
+is_orig_output_array = isinstance(orig_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
+is_opt_output_array = isinstance(opt_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
+is_orig_output_styler = is_type_styler(type(orig_output))
+is_opt_output_styler = is_type_styler(type(opt_output))
+if is_orig_output_styler and is_opt_output_styler:
+    assert orig_output.to_html() == opt_output.to_html()
+elif is_orig_output_styler:
+    assert orig_output.to_html() == opt_output.to_html()
+elif is_opt_output_styler:
+    assert opt_output.to_html() == orig_output
+
+if is_orig_output_pd and is_opt_output_pd:
+    assert orig_output.equals(opt_output)
+# TODO(jie): this is a hack.
+elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
+    assert list(orig_output) == list(opt_output)
+else:
+    assert orig_output == opt_output
+
+------------------
+
+----- stdout -----
+[[<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f86e0667310>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f86e06672e0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f86e06672b0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f86e0666590>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f86e0667280>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f86e0667130>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f86e0667250>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f86e0667160>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f86e0667220>]]
+trying: ['plt']
+me:  0
+trying: ['np']
+me:  0
+trying: ['px']
+me:  0
+trying: ['orig_output']
+me:  2
+trying: ['sns']
+me:  0
+trying: ['factor']
+me:  3
+trying: ['string']
+me:  0
+trying: ['df']
+----- stdout -----
+me:  3
+trying: ['pd']
+me:  0
+----- stdout -----
+Declaring variable plt
+Declaring variable np
+Declaring variable px
+Declaring variable sns
+Declaring variable string
+Declaring variable pd
+Declaring variable orig_output
+Declaring variable factor
+Declaring variable df
+------------------
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mValueError[0m                                Traceback (most recent call last)
+Cell [0;32mIn [9], line 3[0m
+[1;32m      1[0m df_opt [38;5;241m=[39m df
+[1;32m      2[0m get_ipython()[38;5;241m.[39mrun_line_magic([38;5;124m'[39m[38;5;124mLoadCheckpoint[39m[38;5;124m'[39m, [38;5;124m'[39m[38;5;124m/home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_1.pickle[39m[38;5;124m'[39m)
+[0;32m----> 3[0m [38;5;28;01massert[39;00m [43mcompare_df[49m[43m([49m[43mdf_opt[49m[43m,[49m[43m [49m[43mdf[49m[43m)[49m
+[1;32m      5[0m [38;5;28;01mimport[39;00m[38;5;250m [39m[38;5;21;01mnumpy[39;00m[38;5;250m [39m[38;5;28;01mas[39;00m[38;5;250m [39m[38;5;21;01mnp[39;00m
+[1;32m      6[0m [38;5;28;01mimport[39;00m[38;5;250m [39m[38;5;21;01mcudf[39;00m
+
+File [0;32m/home/ElasticNotebook/elastic/core/common/pandas.py:94[0m, in [0;36mcompare_df[0;34m(df1, df2)[0m
+[1;32m     91[0m         [38;5;28;01mraise[39;00m [38;5;167;01mValueError[39;00m([38;5;124mf[39m[38;5;124m"[39m[38;5;124mData type mismatch: [39m[38;5;132;01m{[39;00mdf1[38;5;241m.[39mdtype[38;5;132;01m}[39;00m[38;5;124m vs [39m[38;5;132;01m{[39;00mdf2[38;5;241m.[39mdtype[38;5;132;01m}[39;00m[38;5;124m"[39m)
+[1;32m     93[0m [38;5;28;01mif[39;00m hash_df(df1) [38;5;241m!=[39m hash_df(df2):
+[0;32m---> 94[0m     [38;5;28;01mraise[39;00m [38;5;167;01mValueError[39;00m([38;5;124mf[39m[38;5;124m"[39m[38;5;124mContent of df1 and df2 do not match[39m[38;5;124m"[39m)
+[1;32m     96[0m [38;5;28;01mreturn[39;00m [38;5;28;01mTrue[39;00m
+
+[0;31mValueError[0m: Content of df1 and df2 do not match
+
+Rewritten time: inf ms
+Checkpointing the rewritten cell for small notebook...
+========================================================
+Rewriting cell 1... Try 1...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 1 ###
+
+factor = 2500
+df = pd.concat([df]*factor, ignore_index=True)
+df.info()
+        <Profiling data>:
+                 Function  GPU calls  CPU calls
+0          concat          1          0
+1  DataFrame.info          1          0
+        <Execution time>: 581.0
+        <Active Vars>: ['df']
+        <Future Vars>: []
+        <Rewritten Code>:
+        ### cell 1 ###
+
+factor = 2500
+# Use GPU‐native index repetition and take to replicate rows in one pass
+df = df.take(df.index.repeat(factor)).reset_index(drop=True)
+df.info()
+        <Profiling data>:
+        None
+        <Execution time>: inf
+        <Execution output>: The rewritten code resulted in a runtime error. An error occurred while executing the following cell:
+------------------
+df_opt = df
+%LoadCheckpoint /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_1.pickle
+assert compare_df(df_opt, df)
+
+import numpy as np
+import cudf
+from elastic.core.common.pandas import is_type_styler
+is_orig_output_pd = isinstance(orig_output, (pd.Series, pd.DataFrame, pd.Index))
+is_opt_output_pd = isinstance(opt_output, (pd.Series, pd.DataFrame, pd.Index))
+is_orig_output_array = isinstance(orig_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
+is_opt_output_array = isinstance(opt_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
+is_orig_output_styler = is_type_styler(type(orig_output))
+is_opt_output_styler = is_type_styler(type(opt_output))
+if is_orig_output_styler and is_opt_output_styler:
+    assert orig_output.to_html() == opt_output.to_html()
+elif is_orig_output_styler:
+    assert orig_output.to_html() == opt_output.to_html()
+elif is_opt_output_styler:
+    assert opt_output.to_html() == orig_output
+
+if is_orig_output_pd and is_opt_output_pd:
+    assert orig_output.equals(opt_output)
+# TODO(jie): this is a hack.
+elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
+    assert list(orig_output) == list(opt_output)
+else:
+    assert orig_output == opt_output
+
+------------------
+
+----- stdout -----
+[[<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f86e0667310>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f86e06672e0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f86e06672b0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f86e0666590>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f86e0667280>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f86e0667130>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f86e0667250>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f86e0667160>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f86e0667220>]]
+trying: ['plt']
+me:  0
+trying: ['np']
+me:  0
+trying: ['px']
+me:  0
+trying: ['orig_output']
+me:  2
+trying: ['sns']
+me:  0
+trying: ['factor']
+me:  3
+trying: ['string']
+me:  0
+trying: ['df']
+----- stdout -----
+me:  3
+trying: ['pd']
+me:  0
+----- stdout -----
+Declaring variable plt
+Declaring variable np
+Declaring variable px
+Declaring variable sns
+Declaring variable string
+Declaring variable pd
+Declaring variable orig_output
+Declaring variable factor
+Declaring variable df
+------------------
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mValueError[0m                                Traceback (most recent call last)
+Cell [0;32mIn [9], line 3[0m
+[1;32m      1[0m df_opt [38;5;241m=[39m df
+[1;32m      2[0m get_ipython()[38;5;241m.[39mrun_line_magic([38;5;124m'[39m[38;5;124mLoadCheckpoint[39m[38;5;124m'[39m, [38;5;124m'[39m[38;5;124m/home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_1.pickle[39m[38;5;124m'[39m)
+[0;32m----> 3[0m [38;5;28;01massert[39;00m [43mcompare_df[49m[43m([49m[43mdf_opt[49m[43m,[49m[43m [49m[43mdf[49m[43m)[49m
+[1;32m      5[0m [38;5;28;01mimport[39;00m[38;5;250m [39m[38;5;21;01mnumpy[39;00m[38;5;250m [39m[38;5;28;01mas[39;00m[38;5;250m [39m[38;5;21;01mnp[39;00m
+[1;32m      6[0m [38;5;28;01mimport[39;00m[38;5;250m [39m[38;5;21;01mcudf[39;00m
+
+File [0;32m/home/ElasticNotebook/elastic/core/common/pandas.py:94[0m, in [0;36mcompare_df[0;34m(df1, df2)[0m
+[1;32m     91[0m         [38;5;28;01mraise[39;00m [38;5;167;01mValueError[39;00m([38;5;124mf[39m[38;5;124m"[39m[38;5;124mData type mismatch: [39m[38;5;132;01m{[39;00mdf1[38;5;241m.[39mdtype[38;5;132;01m}[39;00m[38;5;124m vs [39m[38;5;132;01m{[39;00mdf2[38;5;241m.[39mdtype[38;5;132;01m}[39;00m[38;5;124m"[39m)
+[1;32m     93[0m [38;5;28;01mif[39;00m hash_df(df1) [38;5;241m!=[39m hash_df(df2):
+[0;32m---> 94[0m     [38;5;28;01mraise[39;00m [38;5;167;01mValueError[39;00m([38;5;124mf[39m[38;5;124m"[39m[38;5;124mContent of df1 and df2 do not match[39m[38;5;124m"[39m)
+[1;32m     96[0m [38;5;28;01mreturn[39;00m [38;5;28;01mTrue[39;00m
+
+[0;31mValueError[0m: Content of df1 and df2 do not match
+
+        <Iteration>: 1/1
+
+==========Running the manager agent to decide the next step==========
+Choice: repair
+Reason: The rewritten code resulted in a runtime error, indicating the need for repairs or modifications to resolve the issue.
+Code fixer prompt:
+        <Original Code>:
+        ### cell 1 ###
+
+factor = 2500
+df = pd.concat([df]*factor, ignore_index=True)
+df.info()
+        <Profiling data>:
+                 Function  GPU calls  CPU calls
+0          concat          1          0
+1  DataFrame.info          1          0
+        <Execution time>: 581.0
+        <Active Vars>: ['df']
+        <Future Vars>: []
+        <Rewritten Code>:
+        ### cell 1 ###
+
+factor = 2500
+# Use GPU‐native index repetition and take to replicate rows in one pass
+df = df.take(df.index.repeat(factor)).reset_index(drop=True)
+df.info()
+        <Profiling data>:
+        None
+        <Execution time>: inf
+        <Execution output>: The rewritten code resulted in a runtime error. An error occurred while executing the following cell:
+------------------
+df_opt = df
+%LoadCheckpoint /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_1.pickle
+assert compare_df(df_opt, df)
+
+import numpy as np
+import cudf
+from elastic.core.common.pandas import is_type_styler
+is_orig_output_pd = isinstance(orig_output, (pd.Series, pd.DataFrame, pd.Index))
+is_opt_output_pd = isinstance(opt_output, (pd.Series, pd.DataFrame, pd.Index))
+is_orig_output_array = isinstance(orig_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
+is_opt_output_array = isinstance(opt_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
+is_orig_output_styler = is_type_styler(type(orig_output))
+is_opt_output_styler = is_type_styler(type(opt_output))
+if is_orig_output_styler and is_opt_output_styler:
+    assert orig_output.to_html() == opt_output.to_html()
+elif is_orig_output_styler:
+    assert orig_output.to_html() == opt_output.to_html()
+elif is_opt_output_styler:
+    assert opt_output.to_html() == orig_output
+
+if is_orig_output_pd and is_opt_output_pd:
+    assert orig_output.equals(opt_output)
+# TODO(jie): this is a hack.
+elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
+    assert list(orig_output) == list(opt_output)
+else:
+    assert orig_output == opt_output
+
+------------------
+
+----- stdout -----
+[[<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f86e0667310>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f86e06672e0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f86e06672b0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f86e0666590>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f86e0667280>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f86e0667130>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f86e0667250>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f86e0667160>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f86e0667220>]]
+trying: ['plt']
+me:  0
+trying: ['np']
+me:  0
+trying: ['px']
+me:  0
+trying: ['orig_output']
+me:  2
+trying: ['sns']
+me:  0
+trying: ['factor']
+me:  3
+trying: ['string']
+me:  0
+trying: ['df']
+----- stdout -----
+me:  3
+trying: ['pd']
+me:  0
+----- stdout -----
+Declaring variable plt
+Declaring variable np
+Declaring variable px
+Declaring variable sns
+Declaring variable string
+Declaring variable pd
+Declaring variable orig_output
+Declaring variable factor
+Declaring variable df
+------------------
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mValueError[0m                                Traceback (most recent call last)
+Cell [0;32mIn [9], line 3[0m
+[1;32m      1[0m df_opt [38;5;241m=[39m df
+[1;32m      2[0m get_ipython()[38;5;241m.[39mrun_line_magic([38;5;124m'[39m[38;5;124mLoadCheckpoint[39m[38;5;124m'[39m, [38;5;124m'[39m[38;5;124m/home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_1.pickle[39m[38;5;124m'[39m)
+[0;32m----> 3[0m [38;5;28;01massert[39;00m [43mcompare_df[49m[43m([49m[43mdf_opt[49m[43m,[49m[43m [49m[43mdf[49m[43m)[49m
+[1;32m      5[0m [38;5;28;01mimport[39;00m[38;5;250m [39m[38;5;21;01mnumpy[39;00m[38;5;250m [39m[38;5;28;01mas[39;00m[38;5;250m [39m[38;5;21;01mnp[39;00m
+[1;32m      6[0m [38;5;28;01mimport[39;00m[38;5;250m [39m[38;5;21;01mcudf[39;00m
+
+File [0;32m/home/ElasticNotebook/elastic/core/common/pandas.py:94[0m, in [0;36mcompare_df[0;34m(df1, df2)[0m
+[1;32m     91[0m         [38;5;28;01mraise[39;00m [38;5;167;01mValueError[39;00m([38;5;124mf[39m[38;5;124m"[39m[38;5;124mData type mismatch: [39m[38;5;132;01m{[39;00mdf1[38;5;241m.[39mdtype[38;5;132;01m}[39;00m[38;5;124m vs [39m[38;5;132;01m{[39;00mdf2[38;5;241m.[39mdtype[38;5;132;01m}[39;00m[38;5;124m"[39m)
+[1;32m     93[0m [38;5;28;01mif[39;00m hash_df(df1) [38;5;241m!=[39m hash_df(df2):
+[0;32m---> 94[0m     [38;5;28;01mraise[39;00m [38;5;167;01mValueError[39;00m([38;5;124mf[39m[38;5;124m"[39m[38;5;124mContent of df1 and df2 do not match[39m[38;5;124m"[39m)
+[1;32m     96[0m [38;5;28;01mreturn[39;00m [38;5;28;01mTrue[39;00m
+
+[0;31mValueError[0m: Content of df1 and df2 do not match
+
+        <Iteration>: 1/1
+
+Repairing the last generated code
+Code: ### cell 1 ###
+
+factor = 2500
+# make sure we have a zero-based RangeIndex on the GPU
+# (reset_index on a cudf.DataFrame keeps everything on the GPU)
+df = df.reset_index(drop=True)
+
+# build a cudf.Series of row‐positions repeated 'factor' times
+# this lives entirely on the GPU
+idx_gpu = df.index.to_series().repeat(factor)
+
+# use cudf.DataFrame.take with a cudf.Series to replicate rows in one pass
+df = df.take(idx_gpu).reset_index(drop=True)
+
+df.info()
+Reason: In cudf, RangeIndex.repeat returns a CPU object and can introduce dtype mismatches when passed into .take. By converting the index into a cudf.Series (via .index.to_series()) and then calling .repeat, we generate a GPU‐resident Series of integers. Passing that directly into .take avoids any CPU↔GPU round-trips, preserves column dtypes, and replicates the entire DataFrame in one vectorized operation.
+Parsed response: ### cell 1 ###
+
+factor = 2500
+# make sure we have a zero-based RangeIndex on the GPU
+# (reset_index on a cudf.DataFrame keeps everything on the GPU)
+df = df.reset_index(drop=True)
+
+# build a cudf.Series of row‐positions repeated 'factor' times
+# this lives entirely on the GPU
+idx_gpu = df.index.to_series().repeat(factor)
+
+# use cudf.DataFrame.take with a cudf.Series to replicate rows in one pass
+df = df.take(idx_gpu).reset_index(drop=True)
+
+df.info()
+Try 1: calling rewrite agent for cell 1 took 84.0887439250946 seconds.
+Executing rewritten code... ### cell 1 ###
+
+factor = 2500
+# make sure we have a zero-based RangeIndex on the GPU
+# (reset_index on a cudf.DataFrame keeps everything on the GPU)
+df = df.reset_index(drop=True)
+
+# build a cudf.Series of row‐positions repeated 'factor' times
+# this lives entirely on the GPU
+idx_gpu = df.index.to_series().repeat(factor)
+
+# use cudf.DataFrame.take with a cudf.Series to replicate rows in one pass
+df = df.take(idx_gpu).reset_index(drop=True)
+
+df.info()
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_0.pickle
+Running rewritten cell notebook
+An unexpected error occurred An error occurred while executing the following cell:
+------------------
+df_opt = df
+%LoadCheckpoint /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_1.pickle
+assert compare_df(df_opt, df)
+
+import numpy as np
+import cudf
+from elastic.core.common.pandas import is_type_styler
+is_orig_output_pd = isinstance(orig_output, (pd.Series, pd.DataFrame, pd.Index))
+is_opt_output_pd = isinstance(opt_output, (pd.Series, pd.DataFrame, pd.Index))
+is_orig_output_array = isinstance(orig_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
+is_opt_output_array = isinstance(opt_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
+is_orig_output_styler = is_type_styler(type(orig_output))
+is_opt_output_styler = is_type_styler(type(opt_output))
+if is_orig_output_styler and is_opt_output_styler:
+    assert orig_output.to_html() == opt_output.to_html()
+elif is_orig_output_styler:
+    assert orig_output.to_html() == opt_output.to_html()
+elif is_opt_output_styler:
+    assert opt_output.to_html() == orig_output
+
+if is_orig_output_pd and is_opt_output_pd:
+    assert orig_output.equals(opt_output)
+# TODO(jie): this is a hack.
+elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
+    assert list(orig_output) == list(opt_output)
+else:
+    assert orig_output == opt_output
+
+------------------
+
+----- stdout -----
+[[<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fe13cf942e0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fe13cf94310>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fe13cf94340>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fe13cf96b90>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fe13cf94370>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fe13cf944c0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fe13cf943a0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fe13cf94490>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fe13cf943d0>]]
+trying: ['plt']
+me:  0
+trying: ['np']
+me:  0
+trying: ['px']
+me:  0
+trying: ['orig_output']
+me:  2
+trying: ['sns']
+me:  0
+trying: ['factor']
+me:  3
+trying: ['string']
+me:  0
+trying: ['df']
+----- stdout -----
+me:  3
+trying: ['pd']
+me:  0
+----- stdout -----
+Declaring variable plt
+Declaring variable np
+Declaring variable px
+Declaring variable sns
+Declaring variable string
+Declaring variable pd
+Declaring variable orig_output
+Declaring variable factor
+Declaring variable df
+------------------
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mValueError[0m                                Traceback (most recent call last)
+Cell [0;32mIn [9], line 3[0m
+[1;32m      1[0m df_opt [38;5;241m=[39m df
+[1;32m      2[0m get_ipython()[38;5;241m.[39mrun_line_magic([38;5;124m'[39m[38;5;124mLoadCheckpoint[39m[38;5;124m'[39m, [38;5;124m'[39m[38;5;124m/home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_1.pickle[39m[38;5;124m'[39m)
+[0;32m----> 3[0m [38;5;28;01massert[39;00m [43mcompare_df[49m[43m([49m[43mdf_opt[49m[43m,[49m[43m [49m[43mdf[49m[43m)[49m
+[1;32m      5[0m [38;5;28;01mimport[39;00m[38;5;250m [39m[38;5;21;01mnumpy[39;00m[38;5;250m [39m[38;5;28;01mas[39;00m[38;5;250m [39m[38;5;21;01mnp[39;00m
+[1;32m      6[0m [38;5;28;01mimport[39;00m[38;5;250m [39m[38;5;21;01mcudf[39;00m
+
+File [0;32m/home/ElasticNotebook/elastic/core/common/pandas.py:94[0m, in [0;36mcompare_df[0;34m(df1, df2)[0m
+[1;32m     91[0m         [38;5;28;01mraise[39;00m [38;5;167;01mValueError[39;00m([38;5;124mf[39m[38;5;124m"[39m[38;5;124mData type mismatch: [39m[38;5;132;01m{[39;00mdf1[38;5;241m.[39mdtype[38;5;132;01m}[39;00m[38;5;124m vs [39m[38;5;132;01m{[39;00mdf2[38;5;241m.[39mdtype[38;5;132;01m}[39;00m[38;5;124m"[39m)
+[1;32m     93[0m [38;5;28;01mif[39;00m hash_df(df1) [38;5;241m!=[39m hash_df(df2):
+[0;32m---> 94[0m     [38;5;28;01mraise[39;00m [38;5;167;01mValueError[39;00m([38;5;124mf[39m[38;5;124m"[39m[38;5;124mContent of df1 and df2 do not match[39m[38;5;124m"[39m)
+[1;32m     96[0m [38;5;28;01mreturn[39;00m [38;5;28;01mTrue[39;00m
+
+[0;31mValueError[0m: Content of df1 and df2 do not match
+
+Rewritten time: inf ms
+Checkpointing the rewritten cell for small notebook...
+Could not rewrite the cell. Continuing to next cell...
+========================================================
+After rewriting cell  1
+Rewritten pre-checkpoint path: /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_1.pickle
+Pre-checkpoint path: /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_1.pickle
+========================================================
+Cell 1 rewriting took 186.27487874031067 seconds.
+Getting original timing for cell 2
+HAHA original checkpoint path:  /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_1.pickle
+Setting initially best_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_2.pickle
+Setting initially best_small_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/small_bench/checkpoints/pre_cell_3.pickle
+========================================================
+Rewriting cell 2... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 2 ###
+
+# fig, ax = plt.subplots(1,1, figsize=(15, 6))
+df_year = df['Year'].value_counts().sort_index()
+# STEFANOS: Disable plotting
+# ax.bar(df_year.index, df_year, width=0.55,linewidth=0.7, color = 'purple')
+# for i in df_year.index:
+#     ax.annotate(f"{df_year[i]}",xy=(i, df_year[i] + 100),
+#                    va = 'center', ha='center')
+# ax.set_ylim(0, 1300)
+# fig.text(0.1, 0.95, "Growth of Startup's from 2016-2022", fontsize=15, fontweight='bold')
+
+# ax.grid(axis='y', linestyle='-', alpha=0.4)
+        <Profiling data>:
+                             Function  GPU calls  CPU calls
+0       DataFrame.__getitem__          1          0
+1  IndexOpsMixin.value_counts          1          0
+2           Series.sort_index          1          0
+
+        <Execution time>: 69.6
+        <Active vars>: []
+
+        <Future vars>: ['df']
+
+        <Iteration>: 0/3
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: There is no rewritten code provided and the goal is to optimize the given code. The current iteration is 0, suggesting that we should attempt to generate a new, more efficient version of the original code.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 2 ###
+
+# fig, ax = plt.subplots(1,1, figsize=(15, 6))
+df_year = df['Year'].value_counts().sort_index()
+# STEFANOS: Disable plotting
+# ax.bar(df_year.index, df_year, width=0.55,linewidth=0.7, color = 'purple')
+# for i in df_year.index:
+#     ax.annotate(f"{df_year[i]}",xy=(i, df_year[i] + 100),
+#                    va = 'center', ha='center')
+# ax.set_ylim(0, 1300)
+# fig.text(0.1, 0.95, "Growth of Startup's from 2016-2022", fontsize=15, fontweight='bold')
+
+# ax.grid(axis='y', linestyle='-', alpha=0.4)
+        <Profiling data>:
+                             Function  GPU calls  CPU calls
+0       DataFrame.__getitem__          1          0
+1  IndexOpsMixin.value_counts          1          0
+2           Series.sort_index          1          0
+
+        <Execution time>: 69.6
+        <Active vars>: []
+
+        <Future vars>: ['df']
+
+        <Iteration>: 0/3
+
+Code: done
+Reason: The existing code is already fully executed on the GPU with vectorized operations; no further optimization is needed.
+No Modifications made to the original code
+Try 0: calling rewrite agent for cell 2 took 8.316922664642334 seconds.
+There is no need to rewrite the cell.
+Could not rewrite the cell. Continuing to next cell...
+========================================================
+After rewriting cell  2
+Rewritten pre-checkpoint path: /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_2.pickle
+Pre-checkpoint path: /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_2.pickle
+========================================================
+Cell 2 rewriting took 85.22908139228821 seconds.
+Getting original timing for cell 3
+HAHA original checkpoint path:  /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_2.pickle
+Setting initially best_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_3.pickle
+Setting initially best_small_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/small_bench/checkpoints/pre_cell_4.pickle
+========================================================
+Rewriting cell 3... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 3 ###
+
+df.groupby('Industry').size().sort_values(ascending=False).to_frame().style.background_gradient(cmap='coolwarm').set_uuid("uuid")
+        <Profiling data>:
+                             Function  GPU calls  CPU calls
+0           DataFrame.groupby          1          0
+1                GroupBy.size          1          0
+2          Series.sort_values          1          0
+3             Series.to_frame          1          0
+4                   DataFrame          0          1
+5  Styler.background_gradient          0          1
+6             Styler.set_uuid          0          1
+7             object.__repr__          0          1
+8          Styler._repr_html_          0          1
+9         Styler._repr_latex_          0          1
+
+        <Execution time>: 66.9
+        <Active vars>: []
+
+        <Future vars>: ['df']
+
+        <Iteration>: 0/3
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: The original code uses a GPU-compatible library, but it relies heavily on CPU calls for styling. It's a good starting point to explore further optimization by either enhancing GPU utilization or simplifying operations.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 3 ###
+
+df.groupby('Industry').size().sort_values(ascending=False).to_frame().style.background_gradient(cmap='coolwarm').set_uuid("uuid")
+        <Profiling data>:
+                             Function  GPU calls  CPU calls
+0           DataFrame.groupby          1          0
+1                GroupBy.size          1          0
+2          Series.sort_values          1          0
+3             Series.to_frame          1          0
+4                   DataFrame          0          1
+5  Styler.background_gradient          0          1
+6             Styler.set_uuid          0          1
+7             object.__repr__          0          1
+8          Styler._repr_html_          0          1
+9         Styler._repr_latex_          0          1
+
+        <Execution time>: 66.9
+        <Active vars>: []
+
+        <Future vars>: ['df']
+
+        <Iteration>: 0/3
+
+Code: df['Industry']
+  .value_counts()
+  .rename('size')
+  .to_frame()
+  .style
+  .background_gradient(cmap='coolwarm')
+  .set_uuid("uuid")
+Reason: Use cudf’s Series.value_counts (GPU) to combine grouping and sorting in one step, eliminating a separate sort_values call and reducing GPU workload while preserving the original output and styling.
+Parsed response: df['Industry']
+  .value_counts()
+  .rename('size')
+  .to_frame()
+  .style
+  .background_gradient(cmap='coolwarm')
+  .set_uuid("uuid")
+Try 0: calling rewrite agent for cell 3 took 42.410902976989746 seconds.
+Executing rewritten code... ### cell 3 ###
+
+df['Industry']
+  .value_counts()
+  .rename('size')
+  .to_frame()
+  .style
+  .background_gradient(cmap='coolwarm')
+  .set_uuid("uuid")
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_2.pickle
+Running rewritten cell notebook
+An unexpected error occurred An error occurred while executing the following cell:
+------------------
+%%RecordEvent
+%%time
+### cell 3 ###
+
+df['Industry']
+  .value_counts()
+  .rename('size')
+  .to_frame()
+  .style
+  .background_gradient(cmap='coolwarm')
+  .set_uuid("uuid")
+------------------
+
+
+Traceback [0;36m(most recent call last)[0m:
+
+[0m  File [1;32m~/.local/lib/python3.10/site-packages/IPython/core/interactiveshell.py:3378[0m in [1;35mrun_code[0m
+    exec(code_obj, self.user_global_ns, self.user_ns)[0m
+
+[0m  Cell [1;32mIn [4], line 1[0m
+    get_ipython().run_cell_magic('RecordEvent', '', '%%time\n### cell 3 ###\n\ndf[\'Industry\']\n  .value_counts()\n  .rename(\'size\')\n  .to_frame()\n  .style\n  .background_gradient(cmap=\'coolwarm\')\n  .set_uuid("uuid")\n')[0m
+
+[0m  File [1;32m~/.local/lib/python3.10/site-packages/IPython/core/interactiveshell.py:2362[0m in [1;35mrun_cell_magic[0m
+    result = fn(*args, **kwargs)[0m
+
+[0m  File [1;32m/home/ElasticNotebook/ElasticNotebook.py:269[0m in [1;35mRecordEvent[0m
+    self.record_event(line, cell, track_column_info=False)[0m
+
+[0m  File [1;32m/home/ElasticNotebook/ElasticNotebook.py:152[0m in [1;35mrecord_event[0m
+    input_variables, function_defs = find_input_vars(cell, set(self.dependency_graph.variable_snapshots.keys()),[0m
+
+[0m  File [1;32m/home/ElasticNotebook/elastic/core/notebook/find_input_vars.py:80[0m in [1;35mfind_input_vars[0m
+    v1.visit(ast.parse(cell))[0m
+
+[0;36m  File [0;32m/opt/conda/envs/rapids-25.02/lib/python3.10/ast.py:50[0;36m in [0;35mparse[0;36m
+[0;31m    return compile(source, filename, mode, flags,[0;36m
+
+[0;36m  File [0;32m<unknown>:4[0;36m[0m
+[0;31m    .value_counts()[0m
+[0m    ^[0m
+[0;31mIndentationError[0m[0;31m:[0m unexpected indent
+
+
+Rewritten time: inf ms
+Checkpointing the rewritten cell for small notebook...
+========================================================
+Rewriting cell 3... Try 1...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 3 ###
+
+df.groupby('Industry').size().sort_values(ascending=False).to_frame().style.background_gradient(cmap='coolwarm').set_uuid("uuid")
+        <Profiling data>:
+                             Function  GPU calls  CPU calls
+0           DataFrame.groupby          1          0
+1                GroupBy.size          1          0
+2          Series.sort_values          1          0
+3             Series.to_frame          1          0
+4                   DataFrame          0          1
+5  Styler.background_gradient          0          1
+6             Styler.set_uuid          0          1
+7             object.__repr__          0          1
+8          Styler._repr_html_          0          1
+9         Styler._repr_latex_          0          1
+        <Execution time>: 66.9
+        <Active Vars>: []
+        <Future Vars>: ['df']
+        <Rewritten Code>:
+        ### cell 3 ###
+
+df['Industry']
+  .value_counts()
+  .rename('size')
+  .to_frame()
+  .style
+  .background_gradient(cmap='coolwarm')
+  .set_uuid("uuid")
+        <Profiling data>:
+        None
+        <Execution time>: inf
+        <Execution output>: The rewritten code resulted in a runtime error. An error occurred while executing the following cell:
+------------------
+%%RecordEvent
+%%time
+### cell 3 ###
+
+df['Industry']
+  .value_counts()
+  .rename('size')
+  .to_frame()
+  .style
+  .background_gradient(cmap='coolwarm')
+  .set_uuid("uuid")
+------------------
+
+
+Traceback [0;36m(most recent call last)[0m:
+
+[0m  File [1;32m~/.local/lib/python3.10/site-packages/IPython/core/interactiveshell.py:3378[0m in [1;35mrun_code[0m
+    exec(code_obj, self.user_global_ns, self.user_ns)[0m
+
+[0m  Cell [1;32mIn [4], line 1[0m
+    get_ipython().run_cell_magic('RecordEvent', '', '%%time\n### cell 3 ###\n\ndf[\'Industry\']\n  .value_counts()\n  .rename(\'size\')\n  .to_frame()\n  .style\n  .background_gradient(cmap=\'coolwarm\')\n  .set_uuid("uuid")\n')[0m
+
+[0m  File [1;32m~/.local/lib/python3.10/site-packages/IPython/core/interactiveshell.py:2362[0m in [1;35mrun_cell_magic[0m
+    result = fn(*args, **kwargs)[0m
+
+[0m  File [1;32m/home/ElasticNotebook/ElasticNotebook.py:269[0m in [1;35mRecordEvent[0m
+    self.record_event(line, cell, track_column_info=False)[0m
+
+[0m  File [1;32m/home/ElasticNotebook/ElasticNotebook.py:152[0m in [1;35mrecord_event[0m
+    input_variables, function_defs = find_input_vars(cell, set(self.dependency_graph.variable_snapshots.keys()),[0m
+
+[0m  File [1;32m/home/ElasticNotebook/elastic/core/notebook/find_input_vars.py:80[0m in [1;35mfind_input_vars[0m
+    v1.visit(ast.parse(cell))[0m
+
+[0;36m  File [0;32m/opt/conda/envs/rapids-25.02/lib/python3.10/ast.py:50[0;36m in [0;35mparse[0;36m
+[0;31m    return compile(source, filename, mode, flags,[0;36m
+
+[0;36m  File [0;32m<unknown>:4[0;36m[0m
+[0;31m    .value_counts()[0m
+[0m    ^[0m
+[0;31mIndentationError[0m[0;31m:[0m unexpected indent
+
+
+        <Iteration>: 1/1
+
+==========Running the manager agent to decide the next step==========
+Choice: repair
+Reason: The rewritten code resulted in a runtime error due to an indentation issue, which prevents it from running correctly. Since this is the final iteration, repairing the code by correcting the indentation error and any other possible issues is the best course of action.
+Code fixer prompt:
+        <Original Code>:
+        ### cell 3 ###
+
+df.groupby('Industry').size().sort_values(ascending=False).to_frame().style.background_gradient(cmap='coolwarm').set_uuid("uuid")
+        <Profiling data>:
+                             Function  GPU calls  CPU calls
+0           DataFrame.groupby          1          0
+1                GroupBy.size          1          0
+2          Series.sort_values          1          0
+3             Series.to_frame          1          0
+4                   DataFrame          0          1
+5  Styler.background_gradient          0          1
+6             Styler.set_uuid          0          1
+7             object.__repr__          0          1
+8          Styler._repr_html_          0          1
+9         Styler._repr_latex_          0          1
+        <Execution time>: 66.9
+        <Active Vars>: []
+        <Future Vars>: ['df']
+        <Rewritten Code>:
+        ### cell 3 ###
+
+df['Industry']
+  .value_counts()
+  .rename('size')
+  .to_frame()
+  .style
+  .background_gradient(cmap='coolwarm')
+  .set_uuid("uuid")
+        <Profiling data>:
+        None
+        <Execution time>: inf
+        <Execution output>: The rewritten code resulted in a runtime error. An error occurred while executing the following cell:
+------------------
+%%RecordEvent
+%%time
+### cell 3 ###
+
+df['Industry']
+  .value_counts()
+  .rename('size')
+  .to_frame()
+  .style
+  .background_gradient(cmap='coolwarm')
+  .set_uuid("uuid")
+------------------
+
+
+Traceback [0;36m(most recent call last)[0m:
+
+[0m  File [1;32m~/.local/lib/python3.10/site-packages/IPython/core/interactiveshell.py:3378[0m in [1;35mrun_code[0m
+    exec(code_obj, self.user_global_ns, self.user_ns)[0m
+
+[0m  Cell [1;32mIn [4], line 1[0m
+    get_ipython().run_cell_magic('RecordEvent', '', '%%time\n### cell 3 ###\n\ndf[\'Industry\']\n  .value_counts()\n  .rename(\'size\')\n  .to_frame()\n  .style\n  .background_gradient(cmap=\'coolwarm\')\n  .set_uuid("uuid")\n')[0m
+
+[0m  File [1;32m~/.local/lib/python3.10/site-packages/IPython/core/interactiveshell.py:2362[0m in [1;35mrun_cell_magic[0m
+    result = fn(*args, **kwargs)[0m
+
+[0m  File [1;32m/home/ElasticNotebook/ElasticNotebook.py:269[0m in [1;35mRecordEvent[0m
+    self.record_event(line, cell, track_column_info=False)[0m
+
+[0m  File [1;32m/home/ElasticNotebook/ElasticNotebook.py:152[0m in [1;35mrecord_event[0m
+    input_variables, function_defs = find_input_vars(cell, set(self.dependency_graph.variable_snapshots.keys()),[0m
+
+[0m  File [1;32m/home/ElasticNotebook/elastic/core/notebook/find_input_vars.py:80[0m in [1;35mfind_input_vars[0m
+    v1.visit(ast.parse(cell))[0m
+
+[0;36m  File [0;32m/opt/conda/envs/rapids-25.02/lib/python3.10/ast.py:50[0;36m in [0;35mparse[0;36m
+[0;31m    return compile(source, filename, mode, flags,[0;36m
+
+[0;36m  File [0;32m<unknown>:4[0;36m[0m
+[0;31m    .value_counts()[0m
+[0m    ^[0m
+[0;31mIndentationError[0m[0;31m:[0m unexpected indent
+
+
+        <Iteration>: 1/1
+
+Repairing the last generated code
+Code: ### cell 3 ###
+(
+    df['Industry']
+    .value_counts()        # gpu‐accelerated count + sorted by default
+    .to_frame('size')      # set column name in one step
+).style
+ .background_gradient(cmap='coolwarm')
+ .set_uuid("uuid")
+Reason: Using df['Industry'].value_counts() replaces groupby().size().sort_values() with a single GPU‐native call that returns a descendingly sorted Series.  Passing 'size' into to_frame() removes the need for a separate rename.  Wrapping the chain in parentheses lets you break lines without causing an IndentationError.
+Parsed response: ### cell 3 ###
+(
+    df['Industry']
+    .value_counts()        # gpu‐accelerated count + sorted by default
+    .to_frame('size')      # set column name in one step
+).style
+ .background_gradient(cmap='coolwarm')
+ .set_uuid("uuid")
+Try 1: calling rewrite agent for cell 3 took 26.70421576499939 seconds.
+Executing rewritten code... ### cell 3 ###
+(
+    df['Industry']
+    .value_counts()        # gpu‐accelerated count + sorted by default
+    .to_frame('size')      # set column name in one step
+).style
+ .background_gradient(cmap='coolwarm')
+ .set_uuid("uuid")
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_2.pickle
+Running rewritten cell notebook
+An unexpected error occurred An error occurred while executing the following cell:
+------------------
+%%RecordEvent
+%%time
+### cell 3 ###
+(
+    df['Industry']
+    .value_counts()        # gpu‐accelerated count + sorted by default
+    .to_frame('size')      # set column name in one step
+).style
+ .background_gradient(cmap='coolwarm')
+ .set_uuid("uuid")
+------------------
+
+
+Traceback [0;36m(most recent call last)[0m:
+
+[0m  File [1;32m~/.local/lib/python3.10/site-packages/IPython/core/interactiveshell.py:3378[0m in [1;35mrun_code[0m
+    exec(code_obj, self.user_global_ns, self.user_ns)[0m
+
+[0m  Cell [1;32mIn [4], line 1[0m
+    get_ipython().run_cell_magic('RecordEvent', '', '%%time\n### cell 3 ###\n(\n    df[\'Industry\']\n    .value_counts()        # gpu‐accelerated count + sorted by default\n    .to_frame(\'size\')      # set column name in one step\n).style\n .background_gradient(cmap=\'coolwarm\')\n .set_uuid("uuid")\n')[0m
+
+[0m  File [1;32m~/.local/lib/python3.10/site-packages/IPython/core/interactiveshell.py:2362[0m in [1;35mrun_cell_magic[0m
+    result = fn(*args, **kwargs)[0m
+
+[0m  File [1;32m/home/ElasticNotebook/ElasticNotebook.py:269[0m in [1;35mRecordEvent[0m
+    self.record_event(line, cell, track_column_info=False)[0m
+
+[0m  File [1;32m/home/ElasticNotebook/ElasticNotebook.py:152[0m in [1;35mrecord_event[0m
+    input_variables, function_defs = find_input_vars(cell, set(self.dependency_graph.variable_snapshots.keys()),[0m
+
+[0m  File [1;32m/home/ElasticNotebook/elastic/core/notebook/find_input_vars.py:80[0m in [1;35mfind_input_vars[0m
+    v1.visit(ast.parse(cell))[0m
+
+[0;36m  File [0;32m/opt/conda/envs/rapids-25.02/lib/python3.10/ast.py:50[0;36m in [0;35mparse[0;36m
+[0;31m    return compile(source, filename, mode, flags,[0;36m
+
+[0;36m  File [0;32m<unknown>:7[0;36m[0m
+[0;31m    .background_gradient(cmap='coolwarm')[0m
+[0m    ^[0m
+[0;31mIndentationError[0m[0;31m:[0m unexpected indent
+
+
+Rewritten time: inf ms
+Checkpointing the rewritten cell for small notebook...
+Could not rewrite the cell. Continuing to next cell...
+========================================================
+After rewriting cell  3
+Rewritten pre-checkpoint path: /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_3.pickle
+Pre-checkpoint path: /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_3.pickle
+========================================================
+Cell 3 rewriting took 137.21207332611084 seconds.
+Getting original timing for cell 4
+HAHA original checkpoint path:  /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_3.pickle
+Setting initially best_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_4.pickle
+Setting initially best_small_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/small_bench/checkpoints/pre_cell_5.pickle
+========================================================
+Rewriting cell 4... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 4 ###
+
+# fig, ax = plt.subplots(1,1, figsize=(20, 6))
+df_ind = df['Industry'].value_counts().iloc[:20]
+
+# STEFANOS: Disable plotting
+# ax.bar(df_ind.index, df_ind, width=0.55,linewidth=0.7, color = 'pink')
+# for i in df_ind.index:
+#     ax.annotate(f"{df_ind[i]}",xy=(i, df_ind[i] + 20),va = 'center', ha='center')
+# ax.set_ylim(0, 220)
+# fig.text(0.1, 0.95, "Top 20 Startup Industries from 2016", fontsize=15, fontweight='bold')
+# plt.xticks(rotation=90)
+# ax.grid(axis='y', linestyle='-', alpha=0.4)
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0         DataFrame.__getitem__          1          0
+1    IndexOpsMixin.value_counts          1          0
+2                        Series          1          0
+3  _LocationIndexer.__getitem__          1          0
+
+        <Execution time>: 64.2
+        <Active vars>: []
+
+        <Future vars>: ['df']
+
+        <Iteration>: 0/3
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: The original code mainly focuses on data manipulation and not plotting, but it hasn't been optimized yet. Since it's the first iteration, we should attempt to optimize the original code.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 4 ###
+
+# fig, ax = plt.subplots(1,1, figsize=(20, 6))
+df_ind = df['Industry'].value_counts().iloc[:20]
+
+# STEFANOS: Disable plotting
+# ax.bar(df_ind.index, df_ind, width=0.55,linewidth=0.7, color = 'pink')
+# for i in df_ind.index:
+#     ax.annotate(f"{df_ind[i]}",xy=(i, df_ind[i] + 20),va = 'center', ha='center')
+# ax.set_ylim(0, 220)
+# fig.text(0.1, 0.95, "Top 20 Startup Industries from 2016", fontsize=15, fontweight='bold')
+# plt.xticks(rotation=90)
+# ax.grid(axis='y', linestyle='-', alpha=0.4)
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0         DataFrame.__getitem__          1          0
+1    IndexOpsMixin.value_counts          1          0
+2                        Series          1          0
+3  _LocationIndexer.__getitem__          1          0
+
+        <Execution time>: 64.2
+        <Active vars>: []
+
+        <Future vars>: ['df']
+
+        <Iteration>: 0/3
+
+Code: done
+Reason: The computation uses only GPU operations (value_counts and slicing) and no CPU-bound code remains. No further optimizations are needed.
+No Modifications made to the original code
+Try 0: calling rewrite agent for cell 4 took 11.68796968460083 seconds.
+There is no need to rewrite the cell.
+Could not rewrite the cell. Continuing to next cell...
+========================================================
+After rewriting cell  4
+Rewritten pre-checkpoint path: /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_4.pickle
+Pre-checkpoint path: /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_4.pickle
+========================================================
+Cell 4 rewriting took 43.18552327156067 seconds.
+Getting original timing for cell 5
+HAHA original checkpoint path:  /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_4.pickle
+Setting initially best_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_5.pickle
+Setting initially best_small_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/small_bench/checkpoints/pre_cell_6.pickle
+========================================================
+Rewriting cell 5... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 5 ###
+
+# fig, ax = plt.subplots(1,1, figsize=(20, 6))
+X = df['State'].value_counts().iloc[:20]
+
+# STEFANOS: Disable plotting
+# ax.bar(X.index, X, width=0.55,linewidth=0.7, color = 'lightblue')
+# for i in X.index:
+#     ax.annotate(f"{X[i]}",xy=(i, X[i] + 50),
+#                    va = 'center', ha='center')
+# ax.set_ylim(0, 400)
+# fig.text(0.1, 0.95, "Top 20 States Having maximum Start'ups from 2016", fontsize=15, fontweight='bold')
+# plt.xticks(rotation=90)
+# ax.grid(axis='y', linestyle='-', alpha=0.4)
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0         DataFrame.__getitem__          1          0
+1    IndexOpsMixin.value_counts          1          0
+2  _LocationIndexer.__getitem__          1          0
+
+        <Execution time>: 61.6
+        <Active vars>: []
+
+        <Future vars>: ['df']
+
+        <Iteration>: 0/3
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: Since this is the first iteration, we should try to optimize the original code from scratch, even though the profiling indicates that operations like value counting are involved. There might be opportunities for improvement using GPU or alternative strategies.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 5 ###
+
+# fig, ax = plt.subplots(1,1, figsize=(20, 6))
+X = df['State'].value_counts().iloc[:20]
+
+# STEFANOS: Disable plotting
+# ax.bar(X.index, X, width=0.55,linewidth=0.7, color = 'lightblue')
+# for i in X.index:
+#     ax.annotate(f"{X[i]}",xy=(i, X[i] + 50),
+#                    va = 'center', ha='center')
+# ax.set_ylim(0, 400)
+# fig.text(0.1, 0.95, "Top 20 States Having maximum Start'ups from 2016", fontsize=15, fontweight='bold')
+# plt.xticks(rotation=90)
+# ax.grid(axis='y', linestyle='-', alpha=0.4)
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0         DataFrame.__getitem__          1          0
+1    IndexOpsMixin.value_counts          1          0
+2  _LocationIndexer.__getitem__          1          0
+
+        <Execution time>: 61.6
+        <Active vars>: []
+
+        <Future vars>: ['df']
+
+        <Iteration>: 0/3
+
+Code: X = df['State'].value_counts().head(20)
+Reason: Replace the .iloc slice with .head(20) to leverage cudf’s built-in GPU-accelerated slicing, reducing overhead while producing the same top-20 counts.
+Parsed response: X = df['State'].value_counts().head(20)
+Try 0: calling rewrite agent for cell 5 took 35.57814145088196 seconds.
+Executing rewritten code... ### cell 5 ###
+
+X = df['State'].value_counts().head(20)
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_4.pickle
+Running rewritten cell notebook
+Finished executing the rewritten code.
+Try 0: executing the rewritten code for cell 5 took 23.568498134613037 seconds.
+Rewritten time: 58.3 ms
+Checkpointing the rewritten cell for small notebook...
+The rewritten code is correct. Profiling cudf...
+HAHA small rewritten pre-checkpoint path:  /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/small_bench/checkpoints/pre_cell_5.pickle
+Try 0: cudf profiling the rewritten code for cell 5 took 9.022387981414795 seconds.
+gpu_calls_orig_perc: 1.0, gpu_calls_opt_perc: 1.0
+orig_time: 61.6, opt_time: 58.3
+Both the call ratio and the time are better.
+Rewritten code took 58.3ms. The previous fastest solution took 61.6ms.
+Previous best solution num GPU and CPU calls:  3 0
+New solution num GPU and CPU calls:  3 0
+Accepted the rewritten code.
+Setting best_rewritten_post_checkpoint_path to  /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/rewritten/o4_mini_high/checkpoints/post_cell_5_try_0.pickle
+Setting best_small_rewritten_post_checkpoint_path to  /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/rewritten/o4_mini_high_small/checkpoints/post_cell_5_try_0.pickle
+========================================================
+Rewriting cell 5... Try 1...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 5 ###
+
+# fig, ax = plt.subplots(1,1, figsize=(20, 6))
+X = df['State'].value_counts().iloc[:20]
+
+# STEFANOS: Disable plotting
+# ax.bar(X.index, X, width=0.55,linewidth=0.7, color = 'lightblue')
+# for i in X.index:
+#     ax.annotate(f"{X[i]}",xy=(i, X[i] + 50),
+#                    va = 'center', ha='center')
+# ax.set_ylim(0, 400)
+# fig.text(0.1, 0.95, "Top 20 States Having maximum Start'ups from 2016", fontsize=15, fontweight='bold')
+# plt.xticks(rotation=90)
+# ax.grid(axis='y', linestyle='-', alpha=0.4)
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0         DataFrame.__getitem__          1          0
+1    IndexOpsMixin.value_counts          1          0
+2  _LocationIndexer.__getitem__          1          0
+        <Execution time>: 61.6
+        <Active Vars>: []
+        <Future Vars>: ['df']
+        <Rewritten Code>:
+        ### cell 5 ###
+
+X = df['State'].value_counts().head(20)
+        <Profiling data>:
+                             Function  GPU calls  CPU calls
+0       DataFrame.__getitem__          1          0
+1  IndexOpsMixin.value_counts          1          0
+2                NDFrame.head          1          0
+        <Execution time>: 58.3
+        <Execution output>: Rewritten time: 58.3 ms
+Original time: 61.6 ms
+        <Iteration>: 1/1
+
+==========Running the manager agent to decide the next step==========
+Choice: done
+Reason: The code has already been rewritten for efficiency, and the primary operation is retrieving the top 20 states, which cannot be further optimized significantly. The rewritten code is already slightly faster.
+Code is already optimized
+Try 1: calling rewrite agent for cell 5 took 1.4754586219787598 seconds.
+========================================================
+After rewriting cell  5
+Rewritten pre-checkpoint path: /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/rewritten/o4_mini_high/checkpoints/post_cell_5_try_0.pickle
+Pre-checkpoint path: /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_5.pickle
+========================================================
+Cell 5 rewriting took 124.74205946922302 seconds.
+Getting original timing for cell 6
+HAHA original checkpoint path:  /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_5.pickle
+Setting initially best_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_6.pickle
+Setting initially best_small_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/small_bench/checkpoints/pre_cell_7.pickle
+========================================================
+Rewriting cell 6... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 6 ###
+
+ds_list=['Internet of Things','AI','Robotics','Analytics','Computer Vision']
+ds_df = df[df['Industry'].isin(ds_list)]
+        <Profiling data>:
+                        Function  GPU calls  CPU calls
+0  DataFrame.__getitem__          2          0
+1            Series.isin          1          0
+
+        <Execution time>: 35.5
+        <Active vars>: []
+
+        <Future vars>: []
+
+        <Iteration>: 0/3
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: There is no rewritten code; we should attempt to optimize the original code to reduce execution time.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 6 ###
+
+ds_list=['Internet of Things','AI','Robotics','Analytics','Computer Vision']
+ds_df = df[df['Industry'].isin(ds_list)]
+        <Profiling data>:
+                        Function  GPU calls  CPU calls
+0  DataFrame.__getitem__          2          0
+1            Series.isin          1          0
+
+        <Execution time>: 35.5
+        <Active vars>: []
+
+        <Future vars>: []
+
+        <Iteration>: 0/3
+
+Code: done
+Reason: The filtering is already fully vectorized on the GPU with no CPU operations; no further optimizations are possible for this snippet.
+No Modifications made to the original code
+Try 0: calling rewrite agent for cell 6 took 15.2198007106781 seconds.
+There is no need to rewrite the cell.
+Could not rewrite the cell. Continuing to next cell...
+========================================================
+After rewriting cell  6
+Rewritten pre-checkpoint path: /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_6.pickle
+Pre-checkpoint path: /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_6.pickle
+========================================================
+Cell 6 rewriting took 55.62740921974182 seconds.
+Rewrote notebook in 657.079222202301 seconds

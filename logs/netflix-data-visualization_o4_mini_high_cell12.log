@@ -1,0 +1,4439 @@
+Annotated notebook saved to /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/cell_exec_info.ipynb
+Executing code: import sys, os
+sys.path.insert(0, os.path.abspath('/home/ElasticNotebook'))
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df
+import pickle
+import cudf
+Executing code: %%RecordEventWithColumnInfo
+# This Python 3 environment comes with many helpful analytics libraries installed
+# It is defined by the kaggle/python Docker image: https://github.com/kaggle/docker-python
+# For example, here's several helpful packages to load
+# %load_ext cudf.pandas
+import numpy as np # linear algebra
+import os
+# STEFANOS: Conditionally import Modin Pandas
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    # STEFANOS: Import Modin Pandas
+    import os
+    os.environ["MODIN_ENGINE"] = "ray"
+    import ray
+    ray.init(num_cpus=int(os.environ['MODIN_CPUS']), runtime_env={'env_vars': {'__MODIN_AUTOIMPORT_PANDAS__': '1'}})
+    import modin.pandas as pd
+    import pandas
+else:
+    # STEFANOS: Import regular Pandas
+    import pandas as pd
+import time
+
+# Input data files are available in the read-only "../input/" directory
+# For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory
+
+import os
+for dirname, _, filenames in os.walk('../input'):
+    for filename in filenames:
+        print(os.path.join(dirname, filename))
+
+# You can write up to 20GB to the current directory (/kaggle/working/) that gets preserved as output when you create a version using "Save & Run All"
+# You can also write temporary files to /kaggle/temp/, but they won't be saved outside of the current session
+Executing code: %%RecordEventWithColumnInfo
+# Importing libs
+import numpy as np
+# STEFANOS: Disable unneeded modules
+# from sklearn.preprocessing import StandardScaler
+# from sklearn.cluster import KMeans, AffinityPropagation
+# import matplotlib.pyplot as plt
+# import seaborn as sns
+# %matplotlib inline
+import warnings
+warnings.filterwarnings("ignore")
+# import plotly as py
+# import plotly.graph_objs as go
+import os
+# py.offline.init_notebook_mode(connected = True)
+#print(os.listdir("../input"))
+import datetime as dt
+# STEFANOS: Disable unneeded modules
+# import missingno as msno
+# plt.rcParams['figure.dpi'] = 140
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+df = pd.read_csv('/home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/input/netflix-shows/netflix_titles.csv')
+
+df.head(3)
+Executing code: %%RecordEventWithColumnInfo
+### cell 1 ###
+
+factor = 5
+df = pd.concat([df]*factor, ignore_index=True)
+Executing code: %%RecordEventWithColumnInfo
+### cell 2 ###
+
+# Missing data
+
+for i in df.columns:
+    null_rate = df[i].isna().sum() / len(df) * 100
+    if null_rate > 0 :
+        print("{} null rate: {}%".format(i,round(null_rate,2)))
+Executing code: %%RecordEventWithColumnInfo
+### cell 3 ###
+
+# Replacments
+
+df['country'] = df['country'].fillna(df['country'].mode()[0])
+
+
+df['cast'].replace(np.nan, 'No Data',inplace  = True)
+df['director'].replace(np.nan, 'No Data',inplace  = True)
+
+# Drops
+
+df.dropna(inplace=True)
+
+# Drop Duplicates
+
+# STEFANOS: Remove this because it makes the dataset same as the original.
+# df.drop_duplicates(inplace= True)
+Executing code: %%RecordEventWithColumnInfo
+### cell 4 ###
+
+df.isnull().sum()
+Executing code: %%RecordEventWithColumnInfo
+### cell 5 ###
+
+df.info()
+Executing code: %%RecordEventWithColumnInfo
+### cell 6 ###
+
+df["date_added"] = pd.to_datetime(df['date_added'], errors='coerce')
+
+
+df['month_added']=df['date_added'].dt.month
+df['index']=df['date_added'].dt.month_name()
+df['year_added'] = df['date_added'].dt.year
+
+df.head(3)
+Executing code: # Palette
+# STEFANOS: Disable plotting
+# sns.palplot(['#221f1f', '#b20710', '#e50914','#f5f5f1'])
+
+# plt.title("Netflix brand palette ",loc='left',fontfamily='serif',fontsize=15,y=1.2)
+# plt.show()
+Executing code: # STEFANOS: Disable plotting
+
+# # Timeline code from Subin An's awesome notebook
+# # https://www.kaggle.com/subinium/awesome-visualization-with-titanic-dataset
+
+
+# from datetime import datetime
+
+# ## these go on the numbers below
+# tl_dates = [
+#     "1997\nFounded",
+#     "1998\nMail Service",
+#     "2003\nGoes Public",
+#     "2007\nStreaming service",
+#     "2016\nGoes Global",
+#     "2021\nNetflix & Chill"
+# ]
+
+# tl_x = [1, 2, 4, 5.3, 8,9]
+
+# ## these go on the numbers
+# tl_sub_x = [1.5,3,5,6.5,7]
+
+
+# tl_sub_times = [
+#     "1998","2000","2006","2010","2012"
+# ]
+
+# tl_text = [
+#     "Netflix.com launched",
+#     "Starts\nPersonal\nRecommendations","Billionth DVD Delivery","Canadian\nLaunch","UK Launch\n(my birthplace)"]
+
+
+
+# # Set figure & Axes
+# fig, ax = plt.subplots(figsize=(15, 4), constrained_layout=True)
+# ax.set_ylim(-2, 1.75)
+# ax.set_xlim(0, 10)
+
+
+# # Timeline : line
+# ax.axhline(0, xmin=0.1, xmax=0.9, c='#4a4a4a', zorder=1)
+
+
+# # Timeline : Date Points
+# ax.scatter(tl_x, np.zeros(len(tl_x)), s=120, c='#4a4a4a', zorder=2)
+# ax.scatter(tl_x, np.zeros(len(tl_x)), s=30, c='#fafafa', zorder=3)
+# # Timeline : Time Points
+# ax.scatter(tl_sub_x, np.zeros(len(tl_sub_x)), s=50, c='#4a4a4a',zorder=4)
+
+# # Date Text
+# for x, date in zip(tl_x, tl_dates):
+#     ax.text(x, -0.55, date, ha='center',
+#             fontfamily='serif', fontweight='bold',
+#             color='#4a4a4a',fontsize=12)
+
+
+# # Stemplot : vertical line
+# levels = np.zeros(len(tl_sub_x))
+# levels[::2] = 0.3
+# levels[1::2] = -0.3
+# markerline, stemline, baseline = ax.stem(tl_sub_x, levels, use_line_collection=True)
+# plt.setp(baseline, zorder=0)
+# plt.setp(markerline, marker=',', color='#4a4a4a')
+# plt.setp(stemline, color='#4a4a4a')
+
+# # Text
+# for idx, x, time, txt in zip(range(1, len(tl_sub_x)+1), tl_sub_x, tl_sub_times, tl_text):
+#     ax.text(x, 1.3*(idx%2)-0.5, time, ha='center',
+#             fontfamily='serif', fontweight='bold',
+#             color='#4a4a4a' if idx!=len(tl_sub_x) else '#b20710', fontsize=11)
+
+#     ax.text(x, 1.3*(idx%2)-0.6, txt, va='top', ha='center',
+#         fontfamily='serif',color='#4a4a4a' if idx!=len(tl_sub_x) else '#b20710')
+
+
+
+# # Spine
+# for spine in ["left", "top", "right", "bottom"]:
+#     ax.spines[spine].set_visible(False)
+
+# # Ticks
+# ax.set_xticks([])
+# ax.set_yticks([])
+
+# # Title
+# ax.set_title("Netflix through the years", fontweight="bold", fontfamily='serif', fontsize=16, color='#4a4a4a')
+# ax.text(2.4,1.57,"From DVD rentals to a global audience of over 150m people - is it time for Netflix to Chill?", fontfamily='serif', fontsize=12, color='#4a4a4a')
+
+# plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 7 ###
+
+# For viz: Ratio of Movies & TV shows
+
+x=df.groupby(['type'])['type'].count()
+y=len(df)
+r=((x/y)).round(2)
+
+mf_ratio = pd.DataFrame(r).T
+
+Executing code: %%RecordEventWithColumnInfo
+### cell 8 ###
+
+# STEFANOS: Disable plotting
+
+
+# fig, ax = plt.subplots(1,1,figsize=(6.5, 2.5))
+
+# ax.barh(mf_ratio.index, mf_ratio['Movie'],
+#         color='#b20710', alpha=0.9, label='Male')
+# ax.barh(mf_ratio.index, mf_ratio['TV Show'], left=mf_ratio['Movie'],
+#         color='#221f1f', alpha=0.9, label='Female')
+
+# ax.set_xlim(0, 1)
+# ax.set_xticks([])
+# ax.set_yticks([])
+# #ax.set_yticklabels(mf_ratio.index, fontfamily='serif', fontsize=11)
+
+
+# # movie percentage
+# for i in mf_ratio.index:
+#     ax.annotate(f"{int(mf_ratio['Movie'][i]*100)}%",
+#                    xy=(mf_ratio['Movie'][i]/2, i),
+#                    va = 'center', ha='center',fontsize=40, fontweight='light', fontfamily='serif',
+#                    color='white')
+
+#     ax.annotate("Movie",
+#                    xy=(mf_ratio['Movie'][i]/2, -0.25),
+#                    va = 'center', ha='center',fontsize=15, fontweight='light', fontfamily='serif',
+#                    color='white')
+
+
+# for i in mf_ratio.index:
+#     ax.annotate(f"{int(mf_ratio['TV Show'][i]*100)}%",
+#                    xy=(mf_ratio['Movie'][i]+mf_ratio['TV Show'][i]/2, i),
+#                    va = 'center', ha='center',fontsize=40, fontweight='light', fontfamily='serif',
+#                    color='white')
+#     ax.annotate("TV Show",
+#                    xy=(mf_ratio['Movie'][i]+mf_ratio['TV Show'][i]/2, -0.25),
+#                    va = 'center', ha='center',fontsize=15, fontweight='light', fontfamily='serif',
+#                    color='white')
+
+
+
+
+
+
+# # Title & Subtitle
+# fig.text(0.125,1.03,'Movie & TV Show distribution', fontfamily='serif',fontsize=15, fontweight='bold')
+# fig.text(0.125,0.92,'We see vastly more movies than TV shows on Netflix.',fontfamily='serif',fontsize=12)
+
+# for s in ['top', 'left', 'right', 'bottom']:
+#     ax.spines[s].set_visible(False)
+
+
+
+# #ax.legend(loc='lower center', ncol=3, bbox_to_anchor=(0.5, -0.06))
+
+# # Removing legend due to labelled plot
+# ax.legend().set_visible(False)
+# plt.show()
+
+
+
+
+
+
+
+
+
+for i_1 in mf_ratio.index:
+    _ = int(mf_ratio['Movie'][i_1]*100)
+    _ = mf_ratio['Movie'][i_1]/2
+    _ = mf_ratio['Movie'][i_1]/2
+
+for i_2 in mf_ratio.index:
+    _ = int(mf_ratio['TV Show'][i_2]*100)
+    _ = mf_ratio['Movie'][i_2]+mf_ratio['TV Show'][i_2]/2
+    _ = mf_ratio['Movie'][i_2]+mf_ratio['TV Show'][i_2]/2
+Executing code: %%RecordEventWithColumnInfo
+### cell 9 ###
+
+# Quick feature engineering
+
+# Helper column for various plots
+df['count'] = 1
+
+# Many productions have several countries listed - this will skew our results , we'll grab the first one mentioned
+
+# Lets retrieve just the first country
+df['first_country'] = df['country'].apply(lambda x: x.split(",")[0])
+df['first_country'].head()
+
+# Rating ages from this notebook: https://www.kaggle.com/andreshg/eda-beginner-to-expert-plotly (thank you!)
+
+ratings_ages = {
+    'TV-PG': 'Older Kids',
+    'TV-MA': 'Adults',
+    'TV-Y7-FV': 'Older Kids',
+    'TV-Y7': 'Older Kids',
+    'TV-14': 'Teens',
+    'R': 'Adults',
+    'TV-Y': 'Kids',
+    'NR': 'Adults',
+    'PG-13': 'Teens',
+    'TV-G': 'Kids',
+    'PG': 'Older Kids',
+    'G': 'Kids',
+    'UR': 'Adults',
+    'NC-17': 'Adults'
+}
+
+df['target_ages'] = df['rating'].replace(ratings_ages)
+df['target_ages'].unique()
+
+# Genre
+
+df['genre'] = df['listed_in'].apply(lambda x :  x.replace(' ,',',').replace(', ',',').split(','))
+
+# Reducing name length
+
+df['first_country'].replace('United States', 'USA', inplace=True)
+df['first_country'].replace('United Kingdom', 'UK',inplace=True)
+df['first_country'].replace('South Korea', 'S. Korea',inplace=True)
+Executing code: %%RecordEventWithColumnInfo
+### cell 10 ###
+
+data = df.groupby('first_country')['count'].sum().sort_values(ascending=False)[:10]
+
+# STEFANOS: Disable plotting
+
+# # Plot
+
+# color_map = ['#f5f5f1' for _ in range(10)]
+# color_map[0] = color_map[1] = color_map[2] =  '#b20710' # color highlight
+
+# fig, ax = plt.subplots(1,1, figsize=(12, 6))
+# ax.bar(data.index, data, width=0.5,
+#        edgecolor='darkgray',
+#        linewidth=0.6,color=color_map)
+
+# #annotations
+# for i in data.index:
+#     ax.annotate(f"{data[i]}",
+#                    xy=(i, data[i] + 150), #i like to change this to roughly 5% of the highest cat
+#                    va = 'center', ha='center',fontweight='light', fontfamily='serif')
+
+
+
+# # Remove border from plot
+
+# for s in ['top', 'left', 'right']:
+#     ax.spines[s].set_visible(False)
+
+# # Tick labels
+
+# ax.set_xticklabels(data.index, fontfamily='serif', rotation=0)
+
+# # Title and sub-title
+
+# fig.text(0.09, 1, 'Top 10 countries on Netflix', fontsize=15, fontweight='bold', fontfamily='serif')
+# fig.text(0.09, 0.95, 'The three most frequent countries have been highlighted.', fontsize=12, fontweight='light', fontfamily='serif')
+
+# fig.text(1.1, 1.01, 'Insight', fontsize=15, fontweight='bold', fontfamily='serif')
+
+# fig.text(1.1, 0.67, '''
+# The most prolific producers of
+# content for Netflix are, primarily,
+# the USA, with India and the UK
+# a significant distance behind.
+
+# It makes sense that the USA produces
+# the most content as, afterall,
+# Netflix is a US company.
+# '''
+#          , fontsize=12, fontweight='light', fontfamily='serif')
+
+# ax.grid(axis='y', linestyle='-', alpha=0.4)
+
+# grid_y_ticks = np.arange(0, 4000, 500) # y ticks, min, max, then step
+# ax.set_yticks(grid_y_ticks)
+# ax.set_axisbelow(True)
+
+# #Axis labels
+
+# #plt.xlabel("Country", fontsize=12, fontweight='light', fontfamily='serif',loc='left',y=-1.5)
+# #plt.ylabel("Count", fontsize=12, fontweight='light', fontfamily='serif')
+#  #plt.legend(loc='upper right')
+
+# # thicken the bottom line if you want to
+# plt.axhline(y = 0, color = 'black', linewidth = 1.3, alpha = .7)
+
+# ax.tick_params(axis='both', which='major', labelsize=12)
+
+
+# import matplotlib.lines as lines
+# l1 = lines.Line2D([1, 1], [0, 1], transform=fig.transFigure, figure=fig,color='black',lw=0.2)
+# fig.lines.extend([l1])
+
+# ax.tick_params(axis=u'both', which=u'both',length=0)
+
+# plt.show()
+
+Executing code: %%RecordEventWithColumnInfo
+### cell 11 ###
+
+country_order = df['first_country'].value_counts()[:11].index
+### STEFANOS: I didn't find a way to run the original with Modin. We're converting to Pandas and then
+### back to Modin.
+### ORIGINAL:
+# data_q2q3 = df[['type', 'first_country']].groupby('first_country')['type'].value_counts().unstack().loc[country_order]
+### MODIFIED:
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = df._to_pandas()
+
+data_q2q3 = df[['type', 'first_country']].groupby('first_country')['type'].value_counts().unstack().loc[country_order]
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = pd.DataFrame(df)
+  data_q2q3 = pd.DataFrame(data_q2q3)
+
+data_q2q3['sum'] = data_q2q3.sum(axis=1)
+data_q2q3_ratio = (data_q2q3.T / data_q2q3['sum']).T[['Movie', 'TV Show']].sort_values(by='Movie',ascending=False)[::-1]
+
+
+# STEFANOS: Disable plotting
+
+# ###
+# fig, ax = plt.subplots(1,1,figsize=(15, 8),)
+
+# ax.barh(data_q2q3_ratio.index, data_q2q3_ratio['Movie'],
+#         color='#b20710', alpha=0.8, label='Movie')
+# ax.barh(data_q2q3_ratio.index, data_q2q3_ratio['TV Show'], left=data_q2q3_ratio['Movie'],
+#         color='#221f1f', alpha=0.8, label='TV Show')
+
+
+# ax.set_xlim(0, 1)
+# ax.set_xticks([])
+# ax.set_yticklabels(data_q2q3_ratio.index, fontfamily='serif', fontsize=11)
+
+# # male percentage
+# for i in data_q2q3_ratio.index:
+#     ax.annotate(f"{data_q2q3_ratio['Movie'][i]*100:.3}%",
+#                    xy=(data_q2q3_ratio['Movie'][i]/2, i),
+#                    va = 'center', ha='center',fontsize=12, fontweight='light', fontfamily='serif',
+#                    color='white')
+
+# for i in data_q2q3_ratio.index:
+#     ax.annotate(f"{data_q2q3_ratio['TV Show'][i]*100:.3}%",
+#                    xy=(data_q2q3_ratio['Movie'][i]+data_q2q3_ratio['TV Show'][i]/2, i),
+#                    va = 'center', ha='center',fontsize=12, fontweight='light', fontfamily='serif',
+#                    color='white')
+
+
+# fig.text(0.13, 0.93, 'Top 10 countries Movie & TV Show split', fontsize=15, fontweight='bold', fontfamily='serif')
+# fig.text(0.131, 0.89, 'Percent Stacked Bar Chart', fontsize=12,fontfamily='serif')
+
+# for s in ['top', 'left', 'right', 'bottom']:
+#     ax.spines[s].set_visible(False)
+
+# #ax.legend(loc='lower center', ncol=3, bbox_to_anchor=(0.5, -0.06))
+
+# fig.text(0.75,0.9,"Movie", fontweight="bold", fontfamily='serif', fontsize=15, color='#b20710')
+# fig.text(0.81,0.9,"|", fontweight="bold", fontfamily='serif', fontsize=15, color='black')
+# fig.text(0.82,0.9,"TV Show", fontweight="bold", fontfamily='serif', fontsize=15, color='#221f1f')
+
+
+# fig.text(1.1, 0.93, 'Insight', fontsize=15, fontweight='bold', fontfamily='serif')
+
+# fig.text(1.1, 0.44, '''
+# Interestingly, Netflix in India
+# is made up nearly entirely of Movies.
+
+# Bollywood is big business, and perhaps
+# the main focus of this industry is Movies
+# and not TV Shows.
+
+# South Korean Netflix on the other hand is
+# almost entirely TV Shows.
+
+# The underlying resons for the difference
+# in content must be due to market research
+# conducted by Netflix.
+# '''
+#          , fontsize=12, fontweight='light', fontfamily='serif')
+
+
+
+# import matplotlib.lines as lines
+# l1 = lines.Line2D([1, 1], [0, 1], transform=fig.transFigure, figure=fig,color='black',lw=0.2)
+# fig.lines.extend([l1])
+
+
+
+
+# ax.tick_params(axis='both', which='major', labelsize=12)
+# ax.tick_params(axis=u'both', which=u'both',length=0)
+
+# plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 12 ###
+
+order = pd.DataFrame(df.groupby('rating')['count'].sum().sort_values(ascending=False).reset_index())
+rating_order = list(order['rating'])
+Executing code: %%RecordEventWithColumnInfo
+### cell 13 ###
+
+### STEFANOS: I didn't find a way to run the original with Modin. We're converting to Pandas and then
+### back to Modin.
+### ORIGINAL:
+# mf = df.groupby('type')['rating'].value_counts().unstack().sort_index().fillna(0).astype(int)[rating_order]
+### MODIFIED:
+
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = df._to_pandas()
+
+mf = df.groupby('type')['rating'].value_counts().unstack().sort_index().fillna(0).astype(int)[rating_order]
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = pd.DataFrame(df)
+  mf = pd.DataFrame(mf)
+
+movie = mf.loc['Movie']
+tv = - mf.loc['TV Show']
+
+# STEFANOS: Disable plotting
+
+# fig, ax = plt.subplots(1,1, figsize=(12, 6))
+# ax.bar(movie.index, movie, width=0.5, color='#b20710', alpha=0.8, label='Movie')
+# ax.bar(tv.index, tv, width=0.5, color='#221f1f', alpha=0.8, label='TV Show')
+# #ax.set_ylim(-35, 50)
+
+# # Annotations
+# for i in tv.index:
+#     ax.annotate(f"{-tv[i]}",
+#                    xy=(i, tv[i] - 60),
+#                    va = 'center', ha='center',fontweight='light', fontfamily='serif',
+#                    color='#4a4a4a')
+
+# for i in movie.index:
+#     ax.annotate(f"{movie[i]}",
+#                    xy=(i, movie[i] + 60),
+#                    va = 'center', ha='center',fontweight='light', fontfamily='serif',
+#                    color='#4a4a4a')
+
+
+
+# for s in ['top', 'left', 'right', 'bottom']:
+#     ax.spines[s].set_visible(False)
+
+# ax.set_xticklabels(mf.columns, fontfamily='serif')
+# ax.set_yticks([])
+
+# ax.legend().set_visible(False)
+# fig.text(0.16, 1, 'Rating distribution by Film & TV Show', fontsize=15, fontweight='bold', fontfamily='serif')
+# fig.text(0.16, 0.89,
+# '''We observe that some ratings are only applicable to Movies.
+# The most common for both Movies & TV Shows are TV-MA and TV-14.
+# '''
+
+# , fontsize=12, fontweight='light', fontfamily='serif')
+
+
+# fig.text(0.755,0.924,"Movie", fontweight="bold", fontfamily='serif', fontsize=15, color='#b20710')
+# fig.text(0.815,0.924,"|", fontweight="bold", fontfamily='serif', fontsize=15, color='black')
+# fig.text(0.825,0.924,"TV Show", fontweight="bold", fontfamily='serif', fontsize=15, color='#221f1f')
+
+# plt.show()
+Executing code: # STEFANOS: Disable plotting
+
+# fig, ax = plt.subplots(1, 1, figsize=(12, 6))
+# color = ["#b20710", "#221f1f"]
+
+# for i, mtv in enumerate(df['type'].value_counts().index):
+#     mtv_rel = df[df['type']==mtv]['year_added'].value_counts().sort_index()
+#     ax.plot(mtv_rel.index, mtv_rel, color=color[i], label=mtv)
+#     ax.fill_between(mtv_rel.index, 0, mtv_rel, color=color[i], alpha=0.9)
+
+# ax.yaxis.tick_right()
+
+# ax.axhline(y = 0, color = 'black', linewidth = 1.3, alpha = .7)
+
+# #ax.set_ylim(0, 50)
+# #ax.legend(loc='upper left')
+# for s in ['top', 'right','bottom','left']:
+#     ax.spines[s].set_visible(False)
+
+# ax.grid(False)
+
+# ax.set_xlim(2008,2020)
+# plt.xticks(np.arange(2008, 2021, 1))
+
+# fig.text(0.13, 0.85, 'Movies & TV Shows added over time', fontsize=15, fontweight='bold', fontfamily='serif')
+# fig.text(0.13, 0.59,
+# '''We see a slow start for Netflix over several years.
+# Things begin to pick up in 2015 and then there is a
+# rapid increase from 2016.
+
+# It looks like content additions have slowed down in 2020,
+# likely due to the COVID-19 pandemic.
+# '''
+
+# , fontsize=12, fontweight='light', fontfamily='serif')
+
+
+# fig.text(0.13,0.2,"Movie", fontweight="bold", fontfamily='serif', fontsize=15, color='#b20710')
+# fig.text(0.19,0.2,"|", fontweight="bold", fontfamily='serif', fontsize=15, color='black')
+# fig.text(0.2,0.2,"TV Show", fontweight="bold", fontfamily='serif', fontsize=15, color='#221f1f')
+
+# ax.tick_params(axis=u'both', which=u'both',length=0)
+
+# plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 14 ###
+
+### STEFANOS: I didn't find a way to run the original with Modin. We're converting to Pandas and then
+### back to Modin.
+### ORIGINAL:
+# data_sub = df.groupby('type')['year_added'].value_counts().unstack().fillna(0).loc[['TV Show','Movie']].cumsum(axis=0).T
+### MODIFIED:
+
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = df._to_pandas()
+
+data_sub = df.groupby('type')['year_added'].value_counts().unstack().fillna(0).loc[['TV Show','Movie']].cumsum(axis=0).T
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = pd.DataFrame(df)
+  data_sub = pd.DataFrame(data_sub)
+
+# STEFANOS: Disable plotting
+
+# fig, ax = plt.subplots(1, 1, figsize=(12, 6))
+# color = ["#b20710", "#221f1f"]
+
+# for i, mtv in enumerate(df['type'].value_counts().index):
+#     mtv_rel = data_sub[mtv]
+#     ax.fill_between(mtv_rel.index, 0, mtv_rel, color=color[i], label=mtv,alpha=0.9)
+
+
+
+# ax.yaxis.tick_right()
+
+# ax.axhline(y = 0, color = 'black', linewidth = 1.3, alpha = .7)
+
+# #ax.set_ylim(0, 50)
+# #ax.legend(loc='upper left')
+# for s in ['top', 'right','bottom','left']:
+#     ax.spines[s].set_visible(False)
+
+# ax.grid(False)
+
+# ax.set_xlim(2008,2020)
+# plt.xticks(np.arange(2008, 2021, 1))
+
+# fig.text(0.13, 0.85, 'Movies & TV Shows added over time [Cumulative Total]', fontsize=15, fontweight='bold', fontfamily='serif')
+# fig.text(0.13, 0.58,
+# '''Netflix peak global content amount was in 2019.
+
+# It appears that Netflix has focused more attention
+# on increasing Movie content that TV Shows.
+# Movies have increased much more dramatically
+# than TV shows.
+# '''
+
+# , fontsize=12, fontweight='light', fontfamily='serif')
+
+
+
+# fig.text(0.13,0.2,"Movie", fontweight="bold", fontfamily='serif', fontsize=15, color='#b20710')
+# fig.text(0.19,0.2,"|", fontweight="bold", fontfamily='serif', fontsize=15, color='black')
+# fig.text(0.2,0.2,"TV Show", fontweight="bold", fontfamily='serif', fontsize=15, color='#221f1f')
+
+# ax.tick_params(axis=u'both', which=u'both',length=0)
+
+
+# plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 15 ###
+
+month_order = ['January',
+ 'February',
+ 'March',
+ 'April',
+ 'May',
+ 'June',
+ 'July',
+ 'August',
+ 'September',
+ 'October',
+ 'November',
+ 'December']
+
+df['index'] = pd.Categorical(df['index'], categories=month_order, ordered=True)
+Executing code: %%RecordEventWithColumnInfo
+### cell 16 ###
+
+
+
+### STEFANOS: I didn't find a way to run the original with Modin. We're converting to Pandas and then
+### back to Modin.
+### ORIGINAL:
+# data_sub = df.groupby('type')['index'].value_counts().unstack().fillna(0).loc[['TV Show','Movie']].cumsum(axis=0).T
+### MODIFIED:
+
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = df._to_pandas()
+
+data_sub = df.groupby('type')['index'].value_counts().unstack().fillna(0).loc[['TV Show','Movie']].cumsum(axis=0).T
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = pd.DataFrame(df)
+  data_sub = pd.DataFrame(data_sub)
+
+# STEFANOS: Disable plotting
+
+# fig, ax = plt.subplots(1, 1, figsize=(12, 6))
+# color = ["#b20710", "#221f1f"]
+
+# for i, mtv in enumerate(df['type'].value_counts().index):
+#     mtv_rel = data_sub[mtv]
+#     ax.fill_between(mtv_rel.index, 0, mtv_rel, color=color[i], label=mtv,alpha=0.9)
+
+
+
+# ax.yaxis.tick_right()
+
+# ax.axhline(y = 0, color = 'black', linewidth = 1.3, alpha = .4)
+
+# #ax.set_ylim(0, 50)
+# #ax.legend(loc='upper left')
+# for s in ['top', 'right','bottom','left']:
+#     ax.spines[s].set_visible(False)
+
+# ax.grid(False)
+# ax.set_xticklabels(data_sub.index, fontfamily='serif', rotation=0)
+# ax.margins(x=0) # remove white spaces next to margins
+
+# #ax.set_xlim(2008,2020)
+# #plt.xticks(np.arange(2008, 2021, 1))
+
+# fig.text(0.13, 0.95, 'Content added by month [Cumulative Total]', fontsize=15, fontweight='bold', fontfamily='serif')
+# fig.text(0.13, 0.905,
+# "The end & beginnings of each year seem to be Netflix's preference for adding content."
+
+# , fontsize=12, fontweight='light', fontfamily='serif')
+
+
+
+# fig.text(0.13,0.855,"Movie", fontweight="bold", fontfamily='serif', fontsize=15, color='#b20710')
+# fig.text(0.19,0.855,"|", fontweight="bold", fontfamily='serif', fontsize=15, color='black')
+# fig.text(0.2,0.855,"TV Show", fontweight="bold", fontfamily='serif', fontsize=15, color='#221f1f')
+
+
+# ax.tick_params(axis=u'both', which=u'both',length=0)
+
+# plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 17 ###
+
+data_sub2 = data_sub
+
+data_sub2['Value'] = data_sub2['Movie'] + data_sub2['TV Show']
+data_sub2 = data_sub2.reset_index()
+
+df_polar = data_sub2.sort_values(by='index',ascending=False)
+
+
+color_map = ['#221f1f' for _ in range(12)]
+color_map[0] = color_map[11] =  '#b20710' # color highlight
+
+
+# initialize the figure
+# STEFANOS: Disable plotting
+# plt.figure(figsize=(8,8))
+# ax = plt.subplot(111, polar=True)
+# plt.axis('off')
+
+# Constants = parameters controling the plot layout:
+upperLimit = 30
+lowerLimit = 1
+labelPadding = 30
+
+# Compute max and min in the dataset
+max = df_polar['Value'].max()
+
+# Let's compute heights: they are a conversion of each item value in those new coordinates
+# In our example, 0 in the dataset will be converted to the lowerLimit (10)
+# The maximum will be converted to the upperLimit (100)
+slope = (max - lowerLimit) / max
+heights = slope * df_polar.Value + lowerLimit
+
+# Compute the width of each bar. In total we have 2*Pi = 360°
+width = 2*np.pi / len(df_polar.index)
+
+# Compute the angle each bar is centered on:
+indexes = list(range(1, len(df_polar.index)+1))
+angles = [element * width for element in indexes]
+angles
+
+# STEFANOS: Disable plotting
+
+# # Draw bars
+# bars = ax.bar(
+#     x=angles,
+#     height=heights,
+#     width=width,
+#     bottom=lowerLimit,
+#     linewidth=2,
+#     edgecolor="white",
+#     color=color_map,alpha=0.8
+# )
+
+# # Add labels
+# for bar, angle, height, label in zip(bars,angles, heights, df_polar["index"]):
+
+#     # Labels are rotated. Rotation must be specified in degrees :(
+#     rotation = np.rad2deg(angle)
+
+#     # Flip some labels upside down
+#     alignment = ""
+#     if angle >= np.pi/2 and angle < 3*np.pi/2:
+#         alignment = "right"
+#         rotation = rotation + 180
+#     else:
+#         alignment = "left"
+
+#     # Finally add the labels
+#     ax.text(
+#         x=angle,
+#         y=lowerLimit + bar.get_height() + labelPadding,
+#         s=label,
+#         ha=alignment, fontsize=10,fontfamily='serif',
+#         va='center',
+#         rotation=rotation,
+#         rotation_mode="anchor")
+Executing code: %%RecordEventWithColumnInfo
+### cell 18 ###
+
+# Genres
+from sklearn.preprocessing import MultiLabelBinarizer
+
+import matplotlib.colors
+
+
+# Custom colour map based on Netflix palette
+cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ['#221f1f', '#b20710','#f5f5f1'])
+
+
+
+def genre_heatmap(df, title):
+    df['genre'] = df['listed_in'].apply(lambda x :  x.replace(' ,',',').replace(', ',',').split(','))
+    Types = []
+    for i_3 in df['genre']: Types += i_3
+    Types = set(Types)
+    print("There are {} types in the Netflix {} Dataset".format(len(Types),title))
+    test_1 = df['genre']
+# STEFANOS: Disable ML and plotting
+#     mlb = MultiLabelBinarizer()
+#     res = pd.DataFrame(mlb.fit_transform(test), columns=mlb.classes_, index=test.index)
+#     corr = res.corr()
+#     mask = np.zeros_like(corr, dtype=np.bool)
+#     mask[np.triu_indices_from(mask)] = True
+#     fig, ax = plt.subplots(figsize=(10, 7))
+#     fig.text(.54,.88,'Genre correlation', fontfamily='serif',fontweight='bold',fontsize=15)
+#     fig.text(.75,.665,
+#             '''
+#              It is interesting that Independant Movies
+#              tend to be Dramas.
+
+#              Another observation is that
+#              Internatinal Movies are rarely
+#              in the Children's genre.
+#              ''', fontfamily='serif',fontsize=12,ha='right')
+#     pl = sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, vmin=-.3, center=0, square=True, linewidths=2.5)
+
+#     plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 19 ###
+
+df_tv = df[df["type"] == "TV Show"]
+df_movies = df[df["type"] == "Movie"]
+
+
+genre_heatmap(df_movies, 'Movie')
+# STEFANOS: Disable plotting
+# plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 20 ###
+
+
+
+data = df.groupby('first_country')[['count']].sum().sort_values(by='count', ascending=False).reset_index()[:10]
+data = data['first_country']
+
+
+df_heatmap = df.loc[df['first_country'].isin(data)]
+Executing code: %%RecordEventWithColumnInfo
+### cell 21 ###
+
+df_heatmap = pd.crosstab(df_heatmap['first_country'],df_heatmap['target_ages'],normalize = "index").T
+Executing code: # STEFANOS: Disable plotting
+
+# fig, ax = plt.subplots(1, 1, figsize=(12, 12))
+
+# country_order2 = ['USA', 'India', 'UK', 'Canada', 'Japan', 'France', 'S. Korea', 'Spain',
+#        'Mexico', 'Turkey']
+
+# age_order = ['Kids','Older Kids','Teens','Adults']
+
+# sns.heatmap(df_heatmap.loc[age_order,country_order2],cmap=cmap,square=True, linewidth=2.5,cbar=False,
+#             annot=True,fmt='1.0%',vmax=.6,vmin=0.05,ax=ax,annot_kws={"fontsize":12})
+
+# ax.spines['top'].set_visible(True)
+
+
+# fig.text(.99, .725, 'Target ages proportion of total content by country', fontweight='bold', fontfamily='serif', fontsize=15,ha='right')
+# fig.text(0.99, 0.7, 'Here we see interesting differences between countries. Most shows in India are targeted to teens, for instance.',ha='right', fontsize=12,fontfamily='serif')
+
+# ax.set_yticklabels(ax.get_yticklabels(), fontfamily='serif', rotation = 0, fontsize=11)
+# ax.set_xticklabels(ax.get_xticklabels(), fontfamily='serif', rotation=90, fontsize=11)
+
+# ax.set_ylabel('')
+# ax.set_xlabel('')
+# ax.tick_params(axis=u'both', which=u'both',length=0)
+# plt.tight_layout()
+# plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 22 ###
+
+# Data
+
+df_movies
+df_tv
+
+### Relevant groupings
+
+data = df_movies.groupby('first_country')[['count']].sum().sort_values(by='count', ascending=False).reset_index()[:10]
+data = data['first_country']
+df_loli = df_movies.loc[df_movies['first_country'].isin(data)]
+
+loli = df_loli.groupby('first_country')[['release_year', 'year_added']].mean().round()
+
+
+# Reorder it following the values of the first value
+ordered_df = loli.sort_values(by='release_year')
+
+ordered_df_rev = loli.sort_values(by='release_year',ascending=False)
+
+# STEFANOS: Disable plotting
+# my_range=range(1,len(loli.index)+1)
+
+
+# fig, ax = plt.subplots(1, 1, figsize=(7, 5))
+
+# fig.text(0.13, 0.9, 'How old are the movies? [Average]', fontsize=15, fontweight='bold', fontfamily='serif')
+# plt.hlines(y=my_range, xmin=ordered_df['release_year'], xmax=ordered_df['year_added'], color='grey', alpha=0.4)
+# plt.scatter(ordered_df['release_year'], my_range, color='#221f1f',s=100, alpha=0.9, label='Average release date')
+# plt.scatter(ordered_df['year_added'], my_range, color='#b20710',s=100, alpha=0.9 , label='Average added date')
+# #plt.legend()
+
+# for s in ['top', 'left', 'right', 'bottom']:
+#     ax.spines[s].set_visible(False)
+
+
+# # Removes the tick marks but keeps the labels
+# ax.tick_params(axis=u'both', which=u'both',length=0)
+# # Move Y axis to the right side
+# ax.yaxis.tick_right()
+
+# plt.yticks(my_range, ordered_df.index)
+# plt.yticks(fontname = "serif",fontsize=12)
+
+# # Custome legend
+# fig.text(0.19,0.175,"Released", fontweight="bold", fontfamily='serif', fontsize=12, color='#221f1f')
+# fig.text(0.76,0.175,"Added", fontweight="bold", fontfamily='serif', fontsize=12, color='#b20710')
+
+
+# fig.text(0.13, 0.46,
+# '''The average gap between when
+# content is released, and when it
+# is then added on Netflix varies
+# by country.
+
+# In Spain, Netflix appears to be
+# dominated by newer movies
+# whereas Egypt & India have
+# an older average movie.
+# '''
+
+# , fontsize=12, fontweight='light', fontfamily='serif')
+
+
+# #plt.xlabel('Year')
+# #plt.ylabel('Country')
+# plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 23 ###
+
+data = df_tv.groupby('first_country')[['count']].sum().sort_values(by='count', ascending=False).reset_index()[:10]
+data = data['first_country']
+df_loli = df_tv.loc[df_tv['first_country'].isin(data)]
+
+loli = df_loli.groupby('first_country')[['release_year', 'year_added']].mean().round()
+
+
+
+# Reorder it following the values of the first value:
+ordered_df = loli.sort_values(by='release_year')
+
+ordered_df_rev = loli.sort_values(by='release_year',ascending=False)
+
+# STEFANOS: Disable plotting
+
+
+# my_range=range(1,len(loli.index)+1)
+
+
+# fig, ax = plt.subplots(1, 1, figsize=(7, 5))
+
+# fig.text(0.13, 0.9, 'How old are the TV shows? [Average]', fontsize=15, fontweight='bold', fontfamily='serif')
+# plt.hlines(y=my_range, xmin=ordered_df['release_year'], xmax=ordered_df['year_added'], color='grey', alpha=0.4)
+# plt.scatter(ordered_df['release_year'], my_range, color='#221f1f',s=100, alpha=0.9, label='Average release date')
+# plt.scatter(ordered_df['year_added'], my_range, color='#b20710',s=100, alpha=0.9 , label='Average added date')
+# #plt.legend()
+
+# for s in ['top', 'left', 'right', 'bottom']:
+#     ax.spines[s].set_visible(False)
+
+# ax.yaxis.tick_right()
+# plt.yticks(my_range, ordered_df.index)
+# plt.yticks(fontname = "serif",fontsize=12)
+
+
+# fig.text(0.19,0.175,"Released", fontweight="bold", fontfamily='serif', fontsize=12, color='#221f1f')
+
+# fig.text(0.47,0.175,"Added", fontweight="bold", fontfamily='serif', fontsize=12, color='#b20710')
+
+
+# fig.text(0.13, 0.42,
+# '''The gap for TV shows seems
+# more regular than for movies.
+
+# This is likely due to subsequent
+# series being released
+# year-on-year.
+
+# Spain seems to have
+# the newest content
+# overall.
+# '''
+
+# , fontsize=12, fontweight='light', fontfamily='serif')
+
+
+# ax.tick_params(axis=u'both', which=u'both',length=0)
+# #plt.xlabel('Value of the variables')
+# #plt.ylabel('Group')
+# plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 24 ###
+
+
+us_ind = df[(df['first_country'] == 'USA') | (df['first_country'] == 'India' )]
+
+
+### STEFANOS: I didn't find a way to run the original with Modin. We're converting to Pandas and then
+### back to Modin.
+### ORIGINAL:
+# data_sub = df.groupby('first_country')['year_added'].value_counts().unstack().fillna(0).loc[['USA','India']].cumsum(axis=0).T
+### MODIFIED:
+
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = df._to_pandas()
+
+data_sub = df.groupby('first_country')['year_added'].value_counts().unstack().fillna(0).loc[['USA','India']].cumsum(axis=0).T
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = pd.DataFrame(df)
+  data_sub = pd.DataFrame(data_sub)
+Executing code: # STEFANOS: Disable plotting
+
+# fig, ax = plt.subplots(1, 1, figsize=(12, 6))
+# color = ['#221f1f', '#b20710','#f5f5f1']
+
+# for i, hs in enumerate(us_ind['first_country'].value_counts().index):
+#     hs_built = us_ind[us_ind['first_country']==hs]['year_added'].value_counts().sort_index()
+#     ax.plot(hs_built.index, hs_built, color=color[i], label=hs)
+#     #ax.fill_between(hs_built.index, 0, hs_built, color=color[i], alpha=0.4)
+#     ax.fill_between(hs_built.index, 0, hs_built, color=color[i], label=hs)
+
+
+# ax.set_ylim(0, 1000)
+# #ax.legend(loc='upper left')
+# for s in ['top', 'right']:
+#     ax.spines[s].set_visible(False)
+
+# ax.yaxis.tick_right()
+
+# ax.axhline(y = 0, color = 'black', linewidth = 1.3, alpha = .4)
+
+# #ax.set_ylim(0, 50)
+# #ax.legend(loc='upper left')
+# for s in ['top', 'right','bottom','left']:
+#     ax.spines[s].set_visible(False)
+
+# ax.grid(False)
+# ax.set_xticklabels(data_sub.index, fontfamily='serif', rotation=0)
+# ax.margins(x=0) # remove white spaces next to margins
+
+# ax.set_xlim(2008,2020)
+# plt.xticks(np.arange(2008, 2021, 1))
+
+# fig.text(0.13, 0.85, 'USA vs. India: When was content added?', fontsize=15, fontweight='bold', fontfamily='serif')
+# fig.text(0.13, 0.58,
+# '''
+# We know from our work above that Netflix is dominated by the USA & India.
+# It would also be reasonable to assume that, since Netflix is an American
+# compnany, Netflix increased content first in the USA, before
+# other nations.
+
+# That is exactly what we see here; a slow and then rapid
+# increase in content for the USA, followed by Netflix
+# being launched to the Indian market in 2016.'''
+
+# , fontsize=12, fontweight='light', fontfamily='serif')
+
+
+
+# fig.text(0.13,0.15,"India", fontweight="bold", fontfamily='serif', fontsize=15, color='#b20710')
+# fig.text(0.188,0.15,"|", fontweight="bold", fontfamily='serif', fontsize=15, color='black')
+# fig.text(0.198,0.15,"USA", fontweight="bold", fontfamily='serif', fontsize=15, color='#221f1f')
+
+
+# ax.tick_params(axis=u'both', which=u'both',length=0)
+
+
+# plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 25 ###
+
+us_ind = df[(df['first_country'] == 'USA') | (df['first_country'] == 'India' )]
+
+### STEFANOS: I didn't find a way to run the original with Modin. We're converting to Pandas and then
+### back to Modin.
+### ORIGINAL:
+# data_sub = df.groupby('first_country')['year_added'].value_counts().unstack().fillna(0).loc[['USA','India']].cumsum(axis=0).T
+### MODIFIED:
+
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = df._to_pandas()
+
+data_sub = df.groupby('first_country')['year_added'].value_counts().unstack().fillna(0).loc[['USA','India']].cumsum(axis=0).T
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = pd.DataFrame(df)
+  data_sub = pd.DataFrame(data_sub)
+
+
+data_sub.insert(0, "base", np.zeros(len(data_sub)))
+
+data_sub = data_sub.add(-us_ind['year_added'].value_counts()/2, axis=0)
+
+Executing code: # STEFANOS: Disable plotting
+
+# fig, ax = plt.subplots(1, 1, figsize=(14, 6))
+# color = ['#b20710','#221f1f'][::-1]
+# hs_list = data_sub.columns
+# hs_built = data_sub[hs]
+
+# for i, hs in enumerate(hs_list):
+#     if i == 0 : continue
+#     ax.fill_between(hs_built.index, data_sub.iloc[:,i-1], data_sub.iloc[:,i], color=color[i-1])
+
+# for s in ['top', 'right', 'bottom', 'left']:
+#     ax.spines[s].set_visible(False)
+# ax.set_axisbelow(True)
+# ax.set_yticks([])
+# #ax.legend(loc='upper left')
+# ax.grid(False)
+
+# fig.text(0.16, 0.76, 'USA vs. India: Stream graph of new content added', fontsize=15, fontweight='bold', fontfamily='serif')
+# fig.text(0.16, 0.575,
+# '''
+# Seeing the data displayed like this helps
+# us to realise just how much content is added in the USA.
+# Remember, India has the second largest amount of
+# content yet is dwarfed by the USA.'''
+
+# , fontsize=12, fontweight='light', fontfamily='serif')
+
+# fig.text(0.16,0.41,"India", fontweight="bold", fontfamily='serif', fontsize=15, color='#b20710')
+# fig.text(0.208,0.41,"|", fontweight="bold", fontfamily='serif', fontsize=15, color='black')
+# fig.text(0.218,0.41,"USA", fontweight="bold", fontfamily='serif', fontsize=15, color='#221f1f')
+
+
+# ax.tick_params(axis=u'y', which=u'both',length=0)
+
+# plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 26 ###
+
+# STEFANOS: Uneeded
+# from wordcloud import WordCloud
+import random
+from PIL import Image
+import matplotlib
+
+# Custom colour map based on Netflix palette
+# STEFANOS: Disable plotting
+# cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ['#221f1f', '#b20710'])
+
+text = str(list(df['title'])).replace(',', '').replace('[', '').replace("'", '').replace(']', '').replace('.', '')
+
+# STEFANOS: Can't find the icon
+# mask = np.array(Image.open('../input/netflix-icon-new/f6974e017d3f6196c4cbe284ee3eaf4e.png'))
+
+
+# STEFANOS: Disable ML and plotting
+# wordcloud = WordCloud(background_color = 'white', width = 500,  height = 200,colormap=cmap, max_words = 150, mask = mask).generate(text)
+
+# plt.figure( figsize=(5,5))
+# plt.imshow(wordcloud, interpolation = 'bilinear')
+# plt.axis('off')
+# plt.tight_layout(pad=0)
+# plt.show()
+Executing code: %PrintCellInfo cell_exec_info
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Ran small notebook to get cell exec info in 11.826417446136475 seconds
+Getting cudf profile information...
+Annotated notebook saved to /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/cudf_profile.ipynb
+column_view::get_data: Unsupported type: 24
+column_view::get_data: Unsupported type: 24
+column_view::get_data: Unsupported type: 24
+column_view::get_data: Unsupported type: 24
+column_view::get_data: Unsupported type: 24
+column_view::get_data: Unsupported type: 24
+Done getting cudf profile information.
+Ran small notebook to get cudf profile info in 88.71840596199036 seconds
+Annotated notebook saved to /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated.ipynb
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Executing code: %load_ext cudf.pandas
+Executing code: import sys, os
+sys.path.insert(0, os.path.abspath('/home/ElasticNotebook'))
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df
+import pickle
+import cudf
+Executing code: %%RecordEvent
+# This Python 3 environment comes with many helpful analytics libraries installed
+# It is defined by the kaggle/python Docker image: https://github.com/kaggle/docker-python
+# For example, here's several helpful packages to load
+# %load_ext cudf.pandas
+import numpy as np # linear algebra
+import os
+# STEFANOS: Conditionally import Modin Pandas
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    # STEFANOS: Import Modin Pandas
+    import os
+    os.environ["MODIN_ENGINE"] = "ray"
+    import ray
+    ray.init(num_cpus=int(os.environ['MODIN_CPUS']), runtime_env={'env_vars': {'__MODIN_AUTOIMPORT_PANDAS__': '1'}})
+    import modin.pandas as pd
+    import pandas
+else:
+    # STEFANOS: Import regular Pandas
+    import pandas as pd
+import time
+
+# Input data files are available in the read-only "../input/" directory
+# For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory
+
+import os
+for dirname, _, filenames in os.walk('../input'):
+    for filename in filenames:
+        print(os.path.join(dirname, filename))
+
+# You can write up to 20GB to the current directory (/kaggle/working/) that gets preserved as output when you create a version using "Save & Run All"
+# You can also write temporary files to /kaggle/temp/, but they won't be saved outside of the current session
+Executing code: %%RecordEvent
+# Importing libs
+import numpy as np
+# STEFANOS: Disable unneeded modules
+# from sklearn.preprocessing import StandardScaler
+# from sklearn.cluster import KMeans, AffinityPropagation
+# import matplotlib.pyplot as plt
+# import seaborn as sns
+# %matplotlib inline
+import warnings
+warnings.filterwarnings("ignore")
+# import plotly as py
+# import plotly.graph_objs as go
+import os
+# py.offline.init_notebook_mode(connected = True)
+#print(os.listdir("../input"))
+import datetime as dt
+# STEFANOS: Disable unneeded modules
+# import missingno as msno
+# plt.rcParams['figure.dpi'] = 140
+Executing code: %%RecordEvent
+%%time
+### cell 0 ###
+
+df = pd.read_csv('/home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/input/netflix-shows/netflix_titles.csv')
+
+df.head(3)
+Executing code: %%RecordEvent
+%%time
+### cell 1 ###
+
+factor = 500
+df = pd.concat([df]*factor, ignore_index=True)
+Executing code: %%RecordEvent
+%%time
+### cell 2 ###
+
+# Missing data
+
+for i in df.columns:
+    null_rate = df[i].isna().sum() / len(df) * 100
+    if null_rate > 0 :
+        print("{} null rate: {}%".format(i,round(null_rate,2)))
+Executing code: %%RecordEvent
+%%time
+### cell 3 ###
+
+# Replacments
+
+df['country'] = df['country'].fillna(df['country'].mode()[0])
+
+
+df['cast'].replace(np.nan, 'No Data',inplace  = True)
+df['director'].replace(np.nan, 'No Data',inplace  = True)
+
+# Drops
+
+df.dropna(inplace=True)
+
+# Drop Duplicates
+
+# STEFANOS: Remove this because it makes the dataset same as the original.
+# df.drop_duplicates(inplace= True)
+Executing code: %%RecordEvent
+%%time
+### cell 4 ###
+
+df.isnull().sum()
+Executing code: %%RecordEvent
+%%time
+### cell 5 ###
+
+df.info()
+Executing code: %%RecordEvent
+%%time
+### cell 6 ###
+
+df["date_added"] = pd.to_datetime(df['date_added'], errors='coerce')
+
+
+df['month_added']=df['date_added'].dt.month
+df['index']=df['date_added'].dt.month_name()
+df['year_added'] = df['date_added'].dt.year
+
+df.head(3)
+Executing code: # Palette
+# STEFANOS: Disable plotting
+# sns.palplot(['#221f1f', '#b20710', '#e50914','#f5f5f1'])
+
+# plt.title("Netflix brand palette ",loc='left',fontfamily='serif',fontsize=15,y=1.2)
+# plt.show()
+Executing code: # STEFANOS: Disable plotting
+
+# # Timeline code from Subin An's awesome notebook
+# # https://www.kaggle.com/subinium/awesome-visualization-with-titanic-dataset
+
+
+# from datetime import datetime
+
+# ## these go on the numbers below
+# tl_dates = [
+#     "1997\nFounded",
+#     "1998\nMail Service",
+#     "2003\nGoes Public",
+#     "2007\nStreaming service",
+#     "2016\nGoes Global",
+#     "2021\nNetflix & Chill"
+# ]
+
+# tl_x = [1, 2, 4, 5.3, 8,9]
+
+# ## these go on the numbers
+# tl_sub_x = [1.5,3,5,6.5,7]
+
+
+# tl_sub_times = [
+#     "1998","2000","2006","2010","2012"
+# ]
+
+# tl_text = [
+#     "Netflix.com launched",
+#     "Starts\nPersonal\nRecommendations","Billionth DVD Delivery","Canadian\nLaunch","UK Launch\n(my birthplace)"]
+
+
+
+# # Set figure & Axes
+# fig, ax = plt.subplots(figsize=(15, 4), constrained_layout=True)
+# ax.set_ylim(-2, 1.75)
+# ax.set_xlim(0, 10)
+
+
+# # Timeline : line
+# ax.axhline(0, xmin=0.1, xmax=0.9, c='#4a4a4a', zorder=1)
+
+
+# # Timeline : Date Points
+# ax.scatter(tl_x, np.zeros(len(tl_x)), s=120, c='#4a4a4a', zorder=2)
+# ax.scatter(tl_x, np.zeros(len(tl_x)), s=30, c='#fafafa', zorder=3)
+# # Timeline : Time Points
+# ax.scatter(tl_sub_x, np.zeros(len(tl_sub_x)), s=50, c='#4a4a4a',zorder=4)
+
+# # Date Text
+# for x, date in zip(tl_x, tl_dates):
+#     ax.text(x, -0.55, date, ha='center',
+#             fontfamily='serif', fontweight='bold',
+#             color='#4a4a4a',fontsize=12)
+
+
+# # Stemplot : vertical line
+# levels = np.zeros(len(tl_sub_x))
+# levels[::2] = 0.3
+# levels[1::2] = -0.3
+# markerline, stemline, baseline = ax.stem(tl_sub_x, levels, use_line_collection=True)
+# plt.setp(baseline, zorder=0)
+# plt.setp(markerline, marker=',', color='#4a4a4a')
+# plt.setp(stemline, color='#4a4a4a')
+
+# # Text
+# for idx, x, time, txt in zip(range(1, len(tl_sub_x)+1), tl_sub_x, tl_sub_times, tl_text):
+#     ax.text(x, 1.3*(idx%2)-0.5, time, ha='center',
+#             fontfamily='serif', fontweight='bold',
+#             color='#4a4a4a' if idx!=len(tl_sub_x) else '#b20710', fontsize=11)
+
+#     ax.text(x, 1.3*(idx%2)-0.6, txt, va='top', ha='center',
+#         fontfamily='serif',color='#4a4a4a' if idx!=len(tl_sub_x) else '#b20710')
+
+
+
+# # Spine
+# for spine in ["left", "top", "right", "bottom"]:
+#     ax.spines[spine].set_visible(False)
+
+# # Ticks
+# ax.set_xticks([])
+# ax.set_yticks([])
+
+# # Title
+# ax.set_title("Netflix through the years", fontweight="bold", fontfamily='serif', fontsize=16, color='#4a4a4a')
+# ax.text(2.4,1.57,"From DVD rentals to a global audience of over 150m people - is it time for Netflix to Chill?", fontfamily='serif', fontsize=12, color='#4a4a4a')
+
+# plt.show()
+Executing code: %%RecordEvent
+%%time
+### cell 7 ###
+
+# For viz: Ratio of Movies & TV shows
+
+x=df.groupby(['type'])['type'].count()
+y=len(df)
+r=((x/y)).round(2)
+
+mf_ratio = pd.DataFrame(r).T
+
+Executing code: %%RecordEvent
+%%time
+### cell 8 ###
+
+# STEFANOS: Disable plotting
+
+
+# fig, ax = plt.subplots(1,1,figsize=(6.5, 2.5))
+
+# ax.barh(mf_ratio.index, mf_ratio['Movie'],
+#         color='#b20710', alpha=0.9, label='Male')
+# ax.barh(mf_ratio.index, mf_ratio['TV Show'], left=mf_ratio['Movie'],
+#         color='#221f1f', alpha=0.9, label='Female')
+
+# ax.set_xlim(0, 1)
+# ax.set_xticks([])
+# ax.set_yticks([])
+# #ax.set_yticklabels(mf_ratio.index, fontfamily='serif', fontsize=11)
+
+
+# # movie percentage
+# for i in mf_ratio.index:
+#     ax.annotate(f"{int(mf_ratio['Movie'][i]*100)}%",
+#                    xy=(mf_ratio['Movie'][i]/2, i),
+#                    va = 'center', ha='center',fontsize=40, fontweight='light', fontfamily='serif',
+#                    color='white')
+
+#     ax.annotate("Movie",
+#                    xy=(mf_ratio['Movie'][i]/2, -0.25),
+#                    va = 'center', ha='center',fontsize=15, fontweight='light', fontfamily='serif',
+#                    color='white')
+
+
+# for i in mf_ratio.index:
+#     ax.annotate(f"{int(mf_ratio['TV Show'][i]*100)}%",
+#                    xy=(mf_ratio['Movie'][i]+mf_ratio['TV Show'][i]/2, i),
+#                    va = 'center', ha='center',fontsize=40, fontweight='light', fontfamily='serif',
+#                    color='white')
+#     ax.annotate("TV Show",
+#                    xy=(mf_ratio['Movie'][i]+mf_ratio['TV Show'][i]/2, -0.25),
+#                    va = 'center', ha='center',fontsize=15, fontweight='light', fontfamily='serif',
+#                    color='white')
+
+
+
+
+
+
+# # Title & Subtitle
+# fig.text(0.125,1.03,'Movie & TV Show distribution', fontfamily='serif',fontsize=15, fontweight='bold')
+# fig.text(0.125,0.92,'We see vastly more movies than TV shows on Netflix.',fontfamily='serif',fontsize=12)
+
+# for s in ['top', 'left', 'right', 'bottom']:
+#     ax.spines[s].set_visible(False)
+
+
+
+# #ax.legend(loc='lower center', ncol=3, bbox_to_anchor=(0.5, -0.06))
+
+# # Removing legend due to labelled plot
+# ax.legend().set_visible(False)
+# plt.show()
+
+
+
+
+
+
+
+
+
+for i_1 in mf_ratio.index:
+    _ = int(mf_ratio['Movie'][i_1]*100)
+    _ = mf_ratio['Movie'][i_1]/2
+    _ = mf_ratio['Movie'][i_1]/2
+
+for i_2 in mf_ratio.index:
+    _ = int(mf_ratio['TV Show'][i_2]*100)
+    _ = mf_ratio['Movie'][i_2]+mf_ratio['TV Show'][i_2]/2
+    _ = mf_ratio['Movie'][i_2]+mf_ratio['TV Show'][i_2]/2
+Executing code: %%RecordEvent
+%%time
+### cell 9 ###
+
+# Quick feature engineering
+
+# Helper column for various plots
+df['count'] = 1
+
+# Many productions have several countries listed - this will skew our results , we'll grab the first one mentioned
+
+# Lets retrieve just the first country
+df['first_country'] = df['country'].apply(lambda x: x.split(",")[0])
+df['first_country'].head()
+
+# Rating ages from this notebook: https://www.kaggle.com/andreshg/eda-beginner-to-expert-plotly (thank you!)
+
+ratings_ages = {
+    'TV-PG': 'Older Kids',
+    'TV-MA': 'Adults',
+    'TV-Y7-FV': 'Older Kids',
+    'TV-Y7': 'Older Kids',
+    'TV-14': 'Teens',
+    'R': 'Adults',
+    'TV-Y': 'Kids',
+    'NR': 'Adults',
+    'PG-13': 'Teens',
+    'TV-G': 'Kids',
+    'PG': 'Older Kids',
+    'G': 'Kids',
+    'UR': 'Adults',
+    'NC-17': 'Adults'
+}
+
+df['target_ages'] = df['rating'].replace(ratings_ages)
+df['target_ages'].unique()
+
+# Genre
+
+df['genre'] = df['listed_in'].apply(lambda x :  x.replace(' ,',',').replace(', ',',').split(','))
+
+# Reducing name length
+
+df['first_country'].replace('United States', 'USA', inplace=True)
+df['first_country'].replace('United Kingdom', 'UK',inplace=True)
+df['first_country'].replace('South Korea', 'S. Korea',inplace=True)
+Executing code: %%RecordEvent
+%%time
+### cell 10 ###
+
+data = df.groupby('first_country')['count'].sum().sort_values(ascending=False)[:10]
+
+# STEFANOS: Disable plotting
+
+# # Plot
+
+# color_map = ['#f5f5f1' for _ in range(10)]
+# color_map[0] = color_map[1] = color_map[2] =  '#b20710' # color highlight
+
+# fig, ax = plt.subplots(1,1, figsize=(12, 6))
+# ax.bar(data.index, data, width=0.5,
+#        edgecolor='darkgray',
+#        linewidth=0.6,color=color_map)
+
+# #annotations
+# for i in data.index:
+#     ax.annotate(f"{data[i]}",
+#                    xy=(i, data[i] + 150), #i like to change this to roughly 5% of the highest cat
+#                    va = 'center', ha='center',fontweight='light', fontfamily='serif')
+
+
+
+# # Remove border from plot
+
+# for s in ['top', 'left', 'right']:
+#     ax.spines[s].set_visible(False)
+
+# # Tick labels
+
+# ax.set_xticklabels(data.index, fontfamily='serif', rotation=0)
+
+# # Title and sub-title
+
+# fig.text(0.09, 1, 'Top 10 countries on Netflix', fontsize=15, fontweight='bold', fontfamily='serif')
+# fig.text(0.09, 0.95, 'The three most frequent countries have been highlighted.', fontsize=12, fontweight='light', fontfamily='serif')
+
+# fig.text(1.1, 1.01, 'Insight', fontsize=15, fontweight='bold', fontfamily='serif')
+
+# fig.text(1.1, 0.67, '''
+# The most prolific producers of
+# content for Netflix are, primarily,
+# the USA, with India and the UK
+# a significant distance behind.
+
+# It makes sense that the USA produces
+# the most content as, afterall,
+# Netflix is a US company.
+# '''
+#          , fontsize=12, fontweight='light', fontfamily='serif')
+
+# ax.grid(axis='y', linestyle='-', alpha=0.4)
+
+# grid_y_ticks = np.arange(0, 4000, 500) # y ticks, min, max, then step
+# ax.set_yticks(grid_y_ticks)
+# ax.set_axisbelow(True)
+
+# #Axis labels
+
+# #plt.xlabel("Country", fontsize=12, fontweight='light', fontfamily='serif',loc='left',y=-1.5)
+# #plt.ylabel("Count", fontsize=12, fontweight='light', fontfamily='serif')
+#  #plt.legend(loc='upper right')
+
+# # thicken the bottom line if you want to
+# plt.axhline(y = 0, color = 'black', linewidth = 1.3, alpha = .7)
+
+# ax.tick_params(axis='both', which='major', labelsize=12)
+
+
+# import matplotlib.lines as lines
+# l1 = lines.Line2D([1, 1], [0, 1], transform=fig.transFigure, figure=fig,color='black',lw=0.2)
+# fig.lines.extend([l1])
+
+# ax.tick_params(axis=u'both', which=u'both',length=0)
+
+# plt.show()
+
+Executing code: %%RecordEvent
+%%time
+### cell 11 ###
+
+country_order = df['first_country'].value_counts()[:11].index
+### STEFANOS: I didn't find a way to run the original with Modin. We're converting to Pandas and then
+### back to Modin.
+### ORIGINAL:
+# data_q2q3 = df[['type', 'first_country']].groupby('first_country')['type'].value_counts().unstack().loc[country_order]
+### MODIFIED:
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = df._to_pandas()
+
+data_q2q3 = df[['type', 'first_country']].groupby('first_country')['type'].value_counts().unstack().loc[country_order]
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = pd.DataFrame(df)
+  data_q2q3 = pd.DataFrame(data_q2q3)
+
+data_q2q3['sum'] = data_q2q3.sum(axis=1)
+data_q2q3_ratio = (data_q2q3.T / data_q2q3['sum']).T[['Movie', 'TV Show']].sort_values(by='Movie',ascending=False)[::-1]
+
+
+# STEFANOS: Disable plotting
+
+# ###
+# fig, ax = plt.subplots(1,1,figsize=(15, 8),)
+
+# ax.barh(data_q2q3_ratio.index, data_q2q3_ratio['Movie'],
+#         color='#b20710', alpha=0.8, label='Movie')
+# ax.barh(data_q2q3_ratio.index, data_q2q3_ratio['TV Show'], left=data_q2q3_ratio['Movie'],
+#         color='#221f1f', alpha=0.8, label='TV Show')
+
+
+# ax.set_xlim(0, 1)
+# ax.set_xticks([])
+# ax.set_yticklabels(data_q2q3_ratio.index, fontfamily='serif', fontsize=11)
+
+# # male percentage
+# for i in data_q2q3_ratio.index:
+#     ax.annotate(f"{data_q2q3_ratio['Movie'][i]*100:.3}%",
+#                    xy=(data_q2q3_ratio['Movie'][i]/2, i),
+#                    va = 'center', ha='center',fontsize=12, fontweight='light', fontfamily='serif',
+#                    color='white')
+
+# for i in data_q2q3_ratio.index:
+#     ax.annotate(f"{data_q2q3_ratio['TV Show'][i]*100:.3}%",
+#                    xy=(data_q2q3_ratio['Movie'][i]+data_q2q3_ratio['TV Show'][i]/2, i),
+#                    va = 'center', ha='center',fontsize=12, fontweight='light', fontfamily='serif',
+#                    color='white')
+
+
+# fig.text(0.13, 0.93, 'Top 10 countries Movie & TV Show split', fontsize=15, fontweight='bold', fontfamily='serif')
+# fig.text(0.131, 0.89, 'Percent Stacked Bar Chart', fontsize=12,fontfamily='serif')
+
+# for s in ['top', 'left', 'right', 'bottom']:
+#     ax.spines[s].set_visible(False)
+
+# #ax.legend(loc='lower center', ncol=3, bbox_to_anchor=(0.5, -0.06))
+
+# fig.text(0.75,0.9,"Movie", fontweight="bold", fontfamily='serif', fontsize=15, color='#b20710')
+# fig.text(0.81,0.9,"|", fontweight="bold", fontfamily='serif', fontsize=15, color='black')
+# fig.text(0.82,0.9,"TV Show", fontweight="bold", fontfamily='serif', fontsize=15, color='#221f1f')
+
+
+# fig.text(1.1, 0.93, 'Insight', fontsize=15, fontweight='bold', fontfamily='serif')
+
+# fig.text(1.1, 0.44, '''
+# Interestingly, Netflix in India
+# is made up nearly entirely of Movies.
+
+# Bollywood is big business, and perhaps
+# the main focus of this industry is Movies
+# and not TV Shows.
+
+# South Korean Netflix on the other hand is
+# almost entirely TV Shows.
+
+# The underlying resons for the difference
+# in content must be due to market research
+# conducted by Netflix.
+# '''
+#          , fontsize=12, fontweight='light', fontfamily='serif')
+
+
+
+# import matplotlib.lines as lines
+# l1 = lines.Line2D([1, 1], [0, 1], transform=fig.transFigure, figure=fig,color='black',lw=0.2)
+# fig.lines.extend([l1])
+
+
+
+
+# ax.tick_params(axis='both', which='major', labelsize=12)
+# ax.tick_params(axis=u'both', which=u'both',length=0)
+
+# plt.show()
+Executing code: %Checkpoint /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/pre_cell_12.pickle
+Checkpointing took 0.0007419586181640625 seconds.
+========================================================
+Cell  12
+Rewritten pre-checkpoint path: /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/pre_cell_12.pickle
+Pre-checkpoint path: /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/pre_cell_12.pickle
+Small rewritten pre-checkpoint path: /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/small_bench/checkpoints/pre_cell_12.pickle
+========================================================
+Getting original timing for cell 12
+HAHA original checkpoint path:  /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/pre_cell_12.pickle
+Setting initially best_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/post_cell_12.pickle
+Setting initially best_small_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/small_bench/checkpoints/pre_cell_13.pickle
+========================================================
+Rewriting cell 12... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 12 ###
+
+order = pd.DataFrame(df.groupby('rating')['count'].sum().sort_values(ascending=False).reset_index())
+rating_order = list(order['rating'])
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0             DataFrame.groupby          1          0
+1  DataFrameGroupBy.__getitem__          1          0
+2                   GroupBy.sum          1          0
+3            Series.sort_values          1          0
+4            Series.reset_index          1          0
+5                     DataFrame          1          0
+6         DataFrame.__getitem__          1          0
+7                Series.__len__          1          0
+
+        <Execution time>: 70.3
+        <Active vars>: ['rating_order']
+
+        <Future vars>: ['data', 'df', 'x']
+
+        <Iteration>: 0/3
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: There is no rewritten code provided. The original code can potentially be optimized further for better performance.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 12 ###
+
+order = pd.DataFrame(df.groupby('rating')['count'].sum().sort_values(ascending=False).reset_index())
+rating_order = list(order['rating'])
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0             DataFrame.groupby          1          0
+1  DataFrameGroupBy.__getitem__          1          0
+2                   GroupBy.sum          1          0
+3            Series.sort_values          1          0
+4            Series.reset_index          1          0
+5                     DataFrame          1          0
+6         DataFrame.__getitem__          1          0
+7                Series.__len__          1          0
+
+        <Execution time>: 70.3
+        <Active vars>: ['rating_order']
+
+        <Future vars>: ['data', 'df', 'x']
+
+        <Iteration>: 0/3
+
+Code: rating_order = df.groupby('rating')['count'] \
+    .sum() \
+    .sort_values(ascending=False) \
+    .index \
+    .to_list()
+Reason: Removed the unnecessary DataFrame wrapper and reset_index call. Directly using the sorted Series’ index and converting it to a Python list eliminates intermediate copies and should run entirely on the GPU until the final .to_list(), reducing overhead.
+Parsed response: rating_order = df.groupby('rating')['count'] \
+    .sum() \
+    .sort_values(ascending=False) \
+    .index \
+    .to_list()
+Try 0: calling rewrite agent for cell 12 took 16.376816034317017 seconds.
+Executing rewritten code... ### cell 12 ###
+
+rating_order = df.groupby('rating')['count'] \
+    .sum() \
+    .sort_values(ascending=False) \
+    .index \
+    .to_list()
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/pre_cell_12.pickle
+Running rewritten cell notebook
+Finished executing the rewritten code.
+Try 0: executing the rewritten code for cell 12 took 50.61141037940979 seconds.
+Rewritten time: 60.8 ms
+Checkpointing the rewritten cell for small notebook...
+The rewritten code is correct. Profiling cudf...
+HAHA small rewritten pre-checkpoint path:  /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/small_bench/checkpoints/pre_cell_12.pickle
+Try 0: cudf profiling the rewritten code for cell 12 took 6.580735445022583 seconds.
+gpu_calls_orig_perc: 1.0, gpu_calls_opt_perc: 0.8333333333333334
+orig_time: 70.3, opt_time: 60.8
+Ratio drops.
+Speedup does not make up for the drop in call ratio.
+Rewritten code took 60.8ms. The previous fastest solution took 70.3ms.
+Previous best solution num GPU and CPU calls:  8 0
+New solution num GPU and CPU calls:  5 1
+========================================================
+Rewriting cell 12... Try 1...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 12 ###
+
+order = pd.DataFrame(df.groupby('rating')['count'].sum().sort_values(ascending=False).reset_index())
+rating_order = list(order['rating'])
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0             DataFrame.groupby          1          0
+1  DataFrameGroupBy.__getitem__          1          0
+2                   GroupBy.sum          1          0
+3            Series.sort_values          1          0
+4            Series.reset_index          1          0
+5                     DataFrame          1          0
+6         DataFrame.__getitem__          1          0
+7                Series.__len__          1          0
+        <Execution time>: 70.3
+        <Active Vars>: ['rating_order']
+        <Future Vars>: ['data', 'df', 'x']
+        <Rewritten Code>:
+        ### cell 12 ###
+
+rating_order = df.groupby('rating')['count'] \
+    .sum() \
+    .sort_values(ascending=False) \
+    .index \
+    .to_list()
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0             DataFrame.groupby          1          0
+1  DataFrameGroupBy.__getitem__          1          0
+2                   GroupBy.sum          1          0
+3            Series.sort_values          1          0
+4                        Series          1          0
+5          IndexOpsMixin.tolist          0          1
+        <Execution time>: 60.8
+        <Execution output>: Rewritten time: 60.8 ms
+Original time: 70.3 ms
+        <Iteration>: 1/3
+
+==========Running the manager agent to decide the next step==========
+Choice: optimize
+Reason: There is a rewritten code, and although it's faster, we should attempt further optimizations as there are potentially more efficient methods or alternative APIs that can be explored.
+Code optimizer prompt:
+        <Original Code>:
+        ### cell 12 ###
+
+rating_order = df.groupby('rating')['count'] \
+    .sum() \
+    .sort_values(ascending=False) \
+    .index \
+    .to_list()
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0             DataFrame.groupby          1          0
+1  DataFrameGroupBy.__getitem__          1          0
+2                   GroupBy.sum          1          0
+3            Series.sort_values          1          0
+4                        Series          1          0
+5          IndexOpsMixin.tolist          0          1
+
+        <Execution time>: 60.8
+        <Active vars>: ['rating_order']
+
+        <Future vars>: ['data', 'df', 'x']
+
+        <Iteration>: 1/3
+
+Optimizing the last generated code
+Parsed response: rating_order = df.groupby('rating')['count'] \
+    .sum() \
+    .sort_values(ascending=False) \
+    .index
+Try 1: calling rewrite agent for cell 12 took 19.183143377304077 seconds.
+Executing rewritten code... ### cell 12 ###
+
+rating_order = df.groupby('rating')['count'] \
+    .sum() \
+    .sort_values(ascending=False) \
+    .index
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/pre_cell_12.pickle
+Running rewritten cell notebook
+Test failed. An error occurred while executing the following cell:
+------------------
+assert False, 'rating_order should be rewritten in the optimized code.'
+------------------
+
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mAssertionError[0m                            Traceback (most recent call last)
+Cell [0;32mIn [9], line 1[0m
+[0;32m----> 1[0m [38;5;28;01massert[39;00m [38;5;28;01mFalse[39;00m, [38;5;124m'[39m[38;5;124mrating_order should be rewritten in the optimized code.[39m[38;5;124m'[39m
+
+[0;31mAssertionError[0m: rating_order should be rewritten in the optimized code.
+
+Rewritten time: inf ms
+Checkpointing the rewritten cell for small notebook...
+========================================================
+Rewriting cell 12... Try 2...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 12 ###
+
+order = pd.DataFrame(df.groupby('rating')['count'].sum().sort_values(ascending=False).reset_index())
+rating_order = list(order['rating'])
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0             DataFrame.groupby          1          0
+1  DataFrameGroupBy.__getitem__          1          0
+2                   GroupBy.sum          1          0
+3            Series.sort_values          1          0
+4            Series.reset_index          1          0
+5                     DataFrame          1          0
+6         DataFrame.__getitem__          1          0
+7                Series.__len__          1          0
+        <Execution time>: 70.3
+        <Active Vars>: ['rating_order']
+        <Future Vars>: ['data', 'df', 'x']
+        <Rewritten Code>:
+        ### cell 12 ###
+
+rating_order = df.groupby('rating')['count'] \
+    .sum() \
+    .sort_values(ascending=False) \
+    .index
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0             DataFrame.groupby          1          0
+1  DataFrameGroupBy.__getitem__          1          0
+2                   GroupBy.sum          1          0
+3            Series.sort_values          1          0
+4                        Series          1          0
+5          IndexOpsMixin.tolist          0          1
+        <Execution time>: inf
+        <Execution output>: The rewritten code was not equivalent to the original code. An error occurred while executing the following cell:
+------------------
+assert False, 'rating_order should be rewritten in the optimized code.'
+------------------
+
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mAssertionError[0m                            Traceback (most recent call last)
+Cell [0;32mIn [9], line 1[0m
+[0;32m----> 1[0m [38;5;28;01massert[39;00m [38;5;28;01mFalse[39;00m, [38;5;124m'[39m[38;5;124mrating_order should be rewritten in the optimized code.[39m[38;5;124m'[39m
+
+[0;31mAssertionError[0m: rating_order should be rewritten in the optimized code.
+
+        <Iteration>: 2/3
+
+==========Running the manager agent to decide the next step==========
+Choice: repair
+Reason: The rewritten code has errors and is not equivalent to the original, and there is one iteration left to attempt a fix.
+Code fixer prompt:
+        <Original Code>:
+        ### cell 12 ###
+
+order = pd.DataFrame(df.groupby('rating')['count'].sum().sort_values(ascending=False).reset_index())
+rating_order = list(order['rating'])
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0             DataFrame.groupby          1          0
+1  DataFrameGroupBy.__getitem__          1          0
+2                   GroupBy.sum          1          0
+3            Series.sort_values          1          0
+4            Series.reset_index          1          0
+5                     DataFrame          1          0
+6         DataFrame.__getitem__          1          0
+7                Series.__len__          1          0
+        <Execution time>: 70.3
+        <Active Vars>: ['rating_order']
+        <Future Vars>: ['data', 'df', 'x']
+        <Rewritten Code>:
+        ### cell 12 ###
+
+rating_order = df.groupby('rating')['count'] \
+    .sum() \
+    .sort_values(ascending=False) \
+    .index
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0             DataFrame.groupby          1          0
+1  DataFrameGroupBy.__getitem__          1          0
+2                   GroupBy.sum          1          0
+3            Series.sort_values          1          0
+4                        Series          1          0
+5          IndexOpsMixin.tolist          0          1
+        <Execution time>: inf
+        <Execution output>: The rewritten code was not equivalent to the original code. An error occurred while executing the following cell:
+------------------
+assert False, 'rating_order should be rewritten in the optimized code.'
+------------------
+
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mAssertionError[0m                            Traceback (most recent call last)
+Cell [0;32mIn [9], line 1[0m
+[0;32m----> 1[0m [38;5;28;01massert[39;00m [38;5;28;01mFalse[39;00m, [38;5;124m'[39m[38;5;124mrating_order should be rewritten in the optimized code.[39m[38;5;124m'[39m
+
+[0;31mAssertionError[0m: rating_order should be rewritten in the optimized code.
+
+        <Iteration>: 2/3
+
+Repairing the last generated code
+Code: ### cell 12 ###
+# Compute the ratings sorted by total count (descending) entirely on the GPU
+rating_order = (
+    df.groupby('rating')['count']
+      .sum()
+      .sort_values(ascending=False)
+      .index
+)
+Reason: By chaining groupby→sum→sort_values and pulling off the Index, we avoid constructing an intermediate DataFrame and eliminate any Python-side list conversion. All steps remain GPU operations under cudf.
+Parsed response: ### cell 12 ###
+# Compute the ratings sorted by total count (descending) entirely on the GPU
+rating_order = (
+    df.groupby('rating')['count']
+      .sum()
+      .sort_values(ascending=False)
+      .index
+)
+Try 2: calling rewrite agent for cell 12 took 38.48962593078613 seconds.
+Executing rewritten code... ### cell 12 ###
+# Compute the ratings sorted by total count (descending) entirely on the GPU
+rating_order = (
+    df.groupby('rating')['count']
+      .sum()
+      .sort_values(ascending=False)
+      .index
+)
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/pre_cell_12.pickle
+Running rewritten cell notebook
+Test failed. An error occurred while executing the following cell:
+------------------
+assert False, 'rating_order should be rewritten in the optimized code.'
+------------------
+
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mAssertionError[0m                            Traceback (most recent call last)
+Cell [0;32mIn [9], line 1[0m
+[0;32m----> 1[0m [38;5;28;01massert[39;00m [38;5;28;01mFalse[39;00m, [38;5;124m'[39m[38;5;124mrating_order should be rewritten in the optimized code.[39m[38;5;124m'[39m
+
+[0;31mAssertionError[0m: rating_order should be rewritten in the optimized code.
+
+Rewritten time: inf ms
+Checkpointing the rewritten cell for small notebook...
+Could not rewrite the cell. Continuing to next cell...
+========================================================
+After rewriting cell  12
+Rewritten pre-checkpoint path: /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/post_cell_12.pickle
+Pre-checkpoint path: /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/post_cell_12.pickle
+========================================================
+Cell 12 rewriting took 306.37507820129395 seconds.
+Getting original timing for cell 13
+HAHA original checkpoint path:  /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/post_cell_12.pickle
+Setting initially best_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/post_cell_13.pickle
+Setting initially best_small_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/small_bench/checkpoints/pre_cell_14.pickle
+========================================================
+Rewriting cell 13... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 13 ###
+
+### STEFANOS: I didn't find a way to run the original with Modin. We're converting to Pandas and then
+### back to Modin.
+### ORIGINAL:
+# mf = df.groupby('type')['rating'].value_counts().unstack().sort_index().fillna(0).astype(int)[rating_order]
+### MODIFIED:
+
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = df._to_pandas()
+
+mf = df.groupby('type')['rating'].value_counts().unstack().sort_index().fillna(0).astype(int)[rating_order]
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = pd.DataFrame(df)
+  mf = pd.DataFrame(mf)
+
+movie = mf.loc['Movie']
+tv = - mf.loc['TV Show']
+
+# STEFANOS: Disable plotting
+
+# fig, ax = plt.subplots(1,1, figsize=(12, 6))
+# ax.bar(movie.index, movie, width=0.5, color='#b20710', alpha=0.8, label='Movie')
+# ax.bar(tv.index, tv, width=0.5, color='#221f1f', alpha=0.8, label='TV Show')
+# #ax.set_ylim(-35, 50)
+
+# # Annotations
+# for i in tv.index:
+#     ax.annotate(f"{-tv[i]}",
+#                    xy=(i, tv[i] - 60),
+#                    va = 'center', ha='center',fontweight='light', fontfamily='serif',
+#                    color='#4a4a4a')
+
+# for i in movie.index:
+#     ax.annotate(f"{movie[i]}",
+#                    xy=(i, movie[i] + 60),
+#                    va = 'center', ha='center',fontweight='light', fontfamily='serif',
+#                    color='#4a4a4a')
+
+
+
+# for s in ['top', 'left', 'right', 'bottom']:
+#     ax.spines[s].set_visible(False)
+
+# ax.set_xticklabels(mf.columns, fontfamily='serif')
+# ax.set_yticks([])
+
+# ax.legend().set_visible(False)
+# fig.text(0.16, 1, 'Rating distribution by Film & TV Show', fontsize=15, fontweight='bold', fontfamily='serif')
+# fig.text(0.16, 0.89,
+# '''We observe that some ratings are only applicable to Movies.
+# The most common for both Movies & TV Shows are TV-MA and TV-14.
+# '''
+
+# , fontsize=12, fontweight='light', fontfamily='serif')
+
+
+# fig.text(0.755,0.924,"Movie", fontweight="bold", fontfamily='serif', fontsize=15, color='#b20710')
+# fig.text(0.815,0.924,"|", fontweight="bold", fontfamily='serif', fontsize=15, color='black')
+# fig.text(0.825,0.924,"TV Show", fontweight="bold", fontfamily='serif', fontsize=15, color='#221f1f')
+
+# plt.show()
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0             DataFrame.groupby          1          0
+1  DataFrameGroupBy.__getitem__          1          0
+2    SeriesGroupBy.value_counts          0          1
+3                Series.unstack          0          1
+4          DataFrame.sort_index          1          0
+5                NDFrame.fillna          1          0
+6                NDFrame.astype          1          0
+7         DataFrame.__getitem__          1          0
+8  _LocationIndexer.__getitem__          2          0
+9               NDFrame.__neg__          1          0
+
+        <Execution time>: 32500.0
+        <Active vars>: []
+
+        <Future vars>: ['data', 'df', 'x']
+
+        <Iteration>: 0/3
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: There is no rewritten code provided, and the original code can be further optimized. The goal is to attempt optimization with Modin or other libraries to reduce execution time and improve performance.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 13 ###
+
+### STEFANOS: I didn't find a way to run the original with Modin. We're converting to Pandas and then
+### back to Modin.
+### ORIGINAL:
+# mf = df.groupby('type')['rating'].value_counts().unstack().sort_index().fillna(0).astype(int)[rating_order]
+### MODIFIED:
+
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = df._to_pandas()
+
+mf = df.groupby('type')['rating'].value_counts().unstack().sort_index().fillna(0).astype(int)[rating_order]
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = pd.DataFrame(df)
+  mf = pd.DataFrame(mf)
+
+movie = mf.loc['Movie']
+tv = - mf.loc['TV Show']
+
+# STEFANOS: Disable plotting
+
+# fig, ax = plt.subplots(1,1, figsize=(12, 6))
+# ax.bar(movie.index, movie, width=0.5, color='#b20710', alpha=0.8, label='Movie')
+# ax.bar(tv.index, tv, width=0.5, color='#221f1f', alpha=0.8, label='TV Show')
+# #ax.set_ylim(-35, 50)
+
+# # Annotations
+# for i in tv.index:
+#     ax.annotate(f"{-tv[i]}",
+#                    xy=(i, tv[i] - 60),
+#                    va = 'center', ha='center',fontweight='light', fontfamily='serif',
+#                    color='#4a4a4a')
+
+# for i in movie.index:
+#     ax.annotate(f"{movie[i]}",
+#                    xy=(i, movie[i] + 60),
+#                    va = 'center', ha='center',fontweight='light', fontfamily='serif',
+#                    color='#4a4a4a')
+
+
+
+# for s in ['top', 'left', 'right', 'bottom']:
+#     ax.spines[s].set_visible(False)
+
+# ax.set_xticklabels(mf.columns, fontfamily='serif')
+# ax.set_yticks([])
+
+# ax.legend().set_visible(False)
+# fig.text(0.16, 1, 'Rating distribution by Film & TV Show', fontsize=15, fontweight='bold', fontfamily='serif')
+# fig.text(0.16, 0.89,
+# '''We observe that some ratings are only applicable to Movies.
+# The most common for both Movies & TV Shows are TV-MA and TV-14.
+# '''
+
+# , fontsize=12, fontweight='light', fontfamily='serif')
+
+
+# fig.text(0.755,0.924,"Movie", fontweight="bold", fontfamily='serif', fontsize=15, color='#b20710')
+# fig.text(0.815,0.924,"|", fontweight="bold", fontfamily='serif', fontsize=15, color='black')
+# fig.text(0.825,0.924,"TV Show", fontweight="bold", fontfamily='serif', fontsize=15, color='#221f1f')
+
+# plt.show()
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0             DataFrame.groupby          1          0
+1  DataFrameGroupBy.__getitem__          1          0
+2    SeriesGroupBy.value_counts          0          1
+3                Series.unstack          0          1
+4          DataFrame.sort_index          1          0
+5                NDFrame.fillna          1          0
+6                NDFrame.astype          1          0
+7         DataFrame.__getitem__          1          0
+8  _LocationIndexer.__getitem__          2          0
+9               NDFrame.__neg__          1          0
+
+        <Execution time>: 32500.0
+        <Active vars>: []
+
+        <Future vars>: ['data', 'df', 'x']
+
+        <Iteration>: 0/3
+
+Code: # Optimized cell 13 for cuDF
+tmp = df.groupby(['type','rating']).size()
+mf = tmp.unstack().fillna(0).sort_index().astype(int)[rating_order]
+movie = mf.loc['Movie']
+tv    = -mf.loc['TV Show']
+Reason: Replaced the CPU-bound value_counts + unstack steps with a single GPU groupby.size() followed by unstack/fillna, eliminating the Python-level loop and all CPU calls. Removed the Modin/Pandas conversions so all operations remain on the GPU.
+Parsed response: # Optimized cell 13 for cuDF
+tmp = df.groupby(['type','rating']).size()
+mf = tmp.unstack().fillna(0).sort_index().astype(int)[rating_order]
+movie = mf.loc['Movie']
+tv    = -mf.loc['TV Show']
+Try 0: calling rewrite agent for cell 13 took 28.496716737747192 seconds.
+Executing rewritten code... ### cell 13 ###
+
+# Optimized cell 13 for cuDF
+tmp = df.groupby(['type','rating']).size()
+mf = tmp.unstack().fillna(0).sort_index().astype(int)[rating_order]
+movie = mf.loc['Movie']
+tv    = -mf.loc['TV Show']
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/post_cell_12.pickle
+Running rewritten cell notebook
+Finished executing the rewritten code.
+Try 0: executing the rewritten code for cell 13 took 51.59743118286133 seconds.
+Rewritten time: 283.0 ms
+Checkpointing the rewritten cell for small notebook...
+The rewritten code is correct. Profiling cudf...
+HAHA small rewritten pre-checkpoint path:  /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/small_bench/checkpoints/pre_cell_13.pickle
+Try 0: cudf profiling the rewritten code for cell 13 took 7.2067506313323975 seconds.
+gpu_calls_orig_perc: 0.8181818181818182, gpu_calls_opt_perc: 0.9090909090909091
+orig_time: 32500.0, opt_time: 283.0
+Both the call ratio and the time are better.
+Rewritten code took 283.0ms. The previous fastest solution took 32500.0ms.
+Previous best solution num GPU and CPU calls:  9 2
+New solution num GPU and CPU calls:  10 1
+Accepted the rewritten code.
+Setting best_rewritten_post_checkpoint_path to  /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/rewritten/o4_mini_high/checkpoints/post_cell_13_try_0.pickle
+Setting best_small_rewritten_post_checkpoint_path to  /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/rewritten/o4_mini_high_small/checkpoints/post_cell_13_try_0.pickle
+========================================================
+Rewriting cell 13... Try 1...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 13 ###
+
+### STEFANOS: I didn't find a way to run the original with Modin. We're converting to Pandas and then
+### back to Modin.
+### ORIGINAL:
+# mf = df.groupby('type')['rating'].value_counts().unstack().sort_index().fillna(0).astype(int)[rating_order]
+### MODIFIED:
+
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = df._to_pandas()
+
+mf = df.groupby('type')['rating'].value_counts().unstack().sort_index().fillna(0).astype(int)[rating_order]
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = pd.DataFrame(df)
+  mf = pd.DataFrame(mf)
+
+movie = mf.loc['Movie']
+tv = - mf.loc['TV Show']
+
+# STEFANOS: Disable plotting
+
+# fig, ax = plt.subplots(1,1, figsize=(12, 6))
+# ax.bar(movie.index, movie, width=0.5, color='#b20710', alpha=0.8, label='Movie')
+# ax.bar(tv.index, tv, width=0.5, color='#221f1f', alpha=0.8, label='TV Show')
+# #ax.set_ylim(-35, 50)
+
+# # Annotations
+# for i in tv.index:
+#     ax.annotate(f"{-tv[i]}",
+#                    xy=(i, tv[i] - 60),
+#                    va = 'center', ha='center',fontweight='light', fontfamily='serif',
+#                    color='#4a4a4a')
+
+# for i in movie.index:
+#     ax.annotate(f"{movie[i]}",
+#                    xy=(i, movie[i] + 60),
+#                    va = 'center', ha='center',fontweight='light', fontfamily='serif',
+#                    color='#4a4a4a')
+
+
+
+# for s in ['top', 'left', 'right', 'bottom']:
+#     ax.spines[s].set_visible(False)
+
+# ax.set_xticklabels(mf.columns, fontfamily='serif')
+# ax.set_yticks([])
+
+# ax.legend().set_visible(False)
+# fig.text(0.16, 1, 'Rating distribution by Film & TV Show', fontsize=15, fontweight='bold', fontfamily='serif')
+# fig.text(0.16, 0.89,
+# '''We observe that some ratings are only applicable to Movies.
+# The most common for both Movies & TV Shows are TV-MA and TV-14.
+# '''
+
+# , fontsize=12, fontweight='light', fontfamily='serif')
+
+
+# fig.text(0.755,0.924,"Movie", fontweight="bold", fontfamily='serif', fontsize=15, color='#b20710')
+# fig.text(0.815,0.924,"|", fontweight="bold", fontfamily='serif', fontsize=15, color='black')
+# fig.text(0.825,0.924,"TV Show", fontweight="bold", fontfamily='serif', fontsize=15, color='#221f1f')
+
+# plt.show()
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0             DataFrame.groupby          1          0
+1  DataFrameGroupBy.__getitem__          1          0
+2    SeriesGroupBy.value_counts          0          1
+3                Series.unstack          0          1
+4          DataFrame.sort_index          1          0
+5                NDFrame.fillna          1          0
+6                NDFrame.astype          1          0
+7         DataFrame.__getitem__          1          0
+8  _LocationIndexer.__getitem__          2          0
+9               NDFrame.__neg__          1          0
+        <Execution time>: 32500.0
+        <Active Vars>: []
+        <Future Vars>: ['data', 'df', 'x']
+        <Rewritten Code>:
+        ### cell 13 ###
+
+# Optimized cell 13 for cuDF
+tmp = df.groupby(['type','rating']).size()
+mf = tmp.unstack().fillna(0).sort_index().astype(int)[rating_order]
+movie = mf.loc['Movie']
+tv    = -mf.loc['TV Show']
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0             DataFrame.groupby          1          0
+1                  GroupBy.size          1          0
+2                Series.unstack          0          1
+3                NDFrame.fillna          1          0
+4          DataFrame.sort_index          1          0
+5                NDFrame.astype          1          0
+6         DataFrame.__getitem__          1          0
+7                     DataFrame          1          0
+8  _LocationIndexer.__getitem__          2          0
+9               NDFrame.__neg__          1          0
+        <Execution time>: 283.0
+        <Execution output>: Rewritten time: 283.0 ms
+Original time: 32500.0 ms
+        <Iteration>: 1/3
+
+==========Running the manager agent to decide the next step==========
+Choice: optimize
+Reason: The rewritten code shows significant improvement in execution time. However, there might be additional opportunities for optimization, such as examining data types or further leveraging cuDF capabilities.
+Code optimizer prompt:
+        <Original Code>:
+        ### cell 13 ###
+
+# Optimized cell 13 for cuDF
+tmp = df.groupby(['type','rating']).size()
+mf = tmp.unstack().fillna(0).sort_index().astype(int)[rating_order]
+movie = mf.loc['Movie']
+tv    = -mf.loc['TV Show']
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0             DataFrame.groupby          1          0
+1                  GroupBy.size          1          0
+2                Series.unstack          0          1
+3                NDFrame.fillna          1          0
+4          DataFrame.sort_index          1          0
+5                NDFrame.astype          1          0
+6         DataFrame.__getitem__          1          0
+7                     DataFrame          1          0
+8  _LocationIndexer.__getitem__          2          0
+9               NDFrame.__neg__          1          0
+
+        <Execution time>: 283.0
+        <Active vars>: []
+
+        <Future vars>: ['data', 'df', 'x']
+
+        <Iteration>: 1/3
+
+Optimizing the last generated code
+Parsed response: # Optimized cell 13 for cuDF
+# replace unstack (CPU) with one-hot + GPU groupby
+rating_dummies = pd.get_dummies(df['rating'])[rating_order]
+mf = rating_dummies.groupby(df['type']).sum().sort_index().astype(int)
+movie = mf.loc['Movie']
+tv    = -mf.loc['TV Show']
+Try 1: calling rewrite agent for cell 13 took 29.91779327392578 seconds.
+Executing rewritten code... ### cell 13 ###
+
+# Optimized cell 13 for cuDF
+# replace unstack (CPU) with one-hot + GPU groupby
+rating_dummies = pd.get_dummies(df['rating'])[rating_order]
+mf = rating_dummies.groupby(df['type']).sum().sort_index().astype(int)
+movie = mf.loc['Movie']
+tv    = -mf.loc['TV Show']
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/post_cell_12.pickle
+Running rewritten cell notebook
+Finished executing the rewritten code.
+Try 1: executing the rewritten code for cell 13 took 54.11246061325073 seconds.
+Rewritten time: 151.0 ms
+Checkpointing the rewritten cell for small notebook...
+The rewritten code is correct. Profiling cudf...
+HAHA small rewritten pre-checkpoint path:  /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/small_bench/checkpoints/pre_cell_13.pickle
+Try 1: cudf profiling the rewritten code for cell 13 took 7.268231391906738 seconds.
+gpu_calls_orig_perc: 0.9090909090909091, gpu_calls_opt_perc: 1.0
+orig_time: 283.0, opt_time: 151.0
+Both the call ratio and the time are better.
+Rewritten code took 151.0ms. The previous fastest solution took 32500.0ms.
+Previous best solution num GPU and CPU calls:  10 1
+New solution num GPU and CPU calls:  12 0
+Accepted the rewritten code.
+Setting best_rewritten_post_checkpoint_path to  /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/rewritten/o4_mini_high/checkpoints/post_cell_13_try_1.pickle
+Setting best_small_rewritten_post_checkpoint_path to  /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/rewritten/o4_mini_high_small/checkpoints/post_cell_13_try_1.pickle
+========================================================
+Rewriting cell 13... Try 2...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 13 ###
+
+### STEFANOS: I didn't find a way to run the original with Modin. We're converting to Pandas and then
+### back to Modin.
+### ORIGINAL:
+# mf = df.groupby('type')['rating'].value_counts().unstack().sort_index().fillna(0).astype(int)[rating_order]
+### MODIFIED:
+
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = df._to_pandas()
+
+mf = df.groupby('type')['rating'].value_counts().unstack().sort_index().fillna(0).astype(int)[rating_order]
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = pd.DataFrame(df)
+  mf = pd.DataFrame(mf)
+
+movie = mf.loc['Movie']
+tv = - mf.loc['TV Show']
+
+# STEFANOS: Disable plotting
+
+# fig, ax = plt.subplots(1,1, figsize=(12, 6))
+# ax.bar(movie.index, movie, width=0.5, color='#b20710', alpha=0.8, label='Movie')
+# ax.bar(tv.index, tv, width=0.5, color='#221f1f', alpha=0.8, label='TV Show')
+# #ax.set_ylim(-35, 50)
+
+# # Annotations
+# for i in tv.index:
+#     ax.annotate(f"{-tv[i]}",
+#                    xy=(i, tv[i] - 60),
+#                    va = 'center', ha='center',fontweight='light', fontfamily='serif',
+#                    color='#4a4a4a')
+
+# for i in movie.index:
+#     ax.annotate(f"{movie[i]}",
+#                    xy=(i, movie[i] + 60),
+#                    va = 'center', ha='center',fontweight='light', fontfamily='serif',
+#                    color='#4a4a4a')
+
+
+
+# for s in ['top', 'left', 'right', 'bottom']:
+#     ax.spines[s].set_visible(False)
+
+# ax.set_xticklabels(mf.columns, fontfamily='serif')
+# ax.set_yticks([])
+
+# ax.legend().set_visible(False)
+# fig.text(0.16, 1, 'Rating distribution by Film & TV Show', fontsize=15, fontweight='bold', fontfamily='serif')
+# fig.text(0.16, 0.89,
+# '''We observe that some ratings are only applicable to Movies.
+# The most common for both Movies & TV Shows are TV-MA and TV-14.
+# '''
+
+# , fontsize=12, fontweight='light', fontfamily='serif')
+
+
+# fig.text(0.755,0.924,"Movie", fontweight="bold", fontfamily='serif', fontsize=15, color='#b20710')
+# fig.text(0.815,0.924,"|", fontweight="bold", fontfamily='serif', fontsize=15, color='black')
+# fig.text(0.825,0.924,"TV Show", fontweight="bold", fontfamily='serif', fontsize=15, color='#221f1f')
+
+# plt.show()
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0             DataFrame.groupby          1          0
+1  DataFrameGroupBy.__getitem__          1          0
+2    SeriesGroupBy.value_counts          0          1
+3                Series.unstack          0          1
+4          DataFrame.sort_index          1          0
+5                NDFrame.fillna          1          0
+6                NDFrame.astype          1          0
+7         DataFrame.__getitem__          1          0
+8  _LocationIndexer.__getitem__          2          0
+9               NDFrame.__neg__          1          0
+        <Execution time>: 32500.0
+        <Active Vars>: []
+        <Future Vars>: ['data', 'df', 'x']
+        <Rewritten Code>:
+        ### cell 13 ###
+
+# Optimized cell 13 for cuDF
+# replace unstack (CPU) with one-hot + GPU groupby
+rating_dummies = pd.get_dummies(df['rating'])[rating_order]
+mf = rating_dummies.groupby(df['type']).sum().sort_index().astype(int)
+movie = mf.loc['Movie']
+tv    = -mf.loc['TV Show']
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0         DataFrame.__getitem__          3          0
+1                   get_dummies          1          0
+2             DataFrame.groupby          1          0
+3                   GroupBy.sum          1          0
+4          DataFrame.sort_index          1          0
+5                NDFrame.astype          1          0
+6                     DataFrame          1          0
+7  _LocationIndexer.__getitem__          2          0
+8               NDFrame.__neg__          1          0
+        <Execution time>: 151.0
+        <Execution output>: Rewritten time: 151.0 ms
+Original time: 32500.0 ms
+        <Iteration>: 2/3
+
+==========Running the manager agent to decide the next step==========
+Choice: done
+Reason: The rewritten code has significantly improved performance by leveraging GPU resources effectively. The execution time has decreased from 32,500 ms to 151 ms, indicating successful optimization. No further actions are needed as the code is already optimized.
+Code is already optimized
+Try 2: calling rewrite agent for cell 13 took 3.0331010818481445 seconds.
+========================================================
+After rewriting cell  13
+Rewritten pre-checkpoint path: /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/rewritten/o4_mini_high/checkpoints/post_cell_13_try_1.pickle
+Pre-checkpoint path: /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/post_cell_13.pickle
+========================================================
+Cell 13 rewriting took 338.2275376319885 seconds.
+Getting original timing for cell 14
+HAHA original checkpoint path:  /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/post_cell_13.pickle
+Setting initially best_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/post_cell_14.pickle
+Setting initially best_small_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/small_bench/checkpoints/pre_cell_15.pickle
+========================================================
+Rewriting cell 14... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 14 ###
+
+### STEFANOS: I didn't find a way to run the original with Modin. We're converting to Pandas and then
+### back to Modin.
+### ORIGINAL:
+# data_sub = df.groupby('type')['year_added'].value_counts().unstack().fillna(0).loc[['TV Show','Movie']].cumsum(axis=0).T
+### MODIFIED:
+
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = df._to_pandas()
+
+data_sub = df.groupby('type')['year_added'].value_counts().unstack().fillna(0).loc[['TV Show','Movie']].cumsum(axis=0).T
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = pd.DataFrame(df)
+  data_sub = pd.DataFrame(data_sub)
+
+# STEFANOS: Disable plotting
+
+# fig, ax = plt.subplots(1, 1, figsize=(12, 6))
+# color = ["#b20710", "#221f1f"]
+
+# for i, mtv in enumerate(df['type'].value_counts().index):
+#     mtv_rel = data_sub[mtv]
+#     ax.fill_between(mtv_rel.index, 0, mtv_rel, color=color[i], label=mtv,alpha=0.9)
+
+
+
+# ax.yaxis.tick_right()
+
+# ax.axhline(y = 0, color = 'black', linewidth = 1.3, alpha = .7)
+
+# #ax.set_ylim(0, 50)
+# #ax.legend(loc='upper left')
+# for s in ['top', 'right','bottom','left']:
+#     ax.spines[s].set_visible(False)
+
+# ax.grid(False)
+
+# ax.set_xlim(2008,2020)
+# plt.xticks(np.arange(2008, 2021, 1))
+
+# fig.text(0.13, 0.85, 'Movies & TV Shows added over time [Cumulative Total]', fontsize=15, fontweight='bold', fontfamily='serif')
+# fig.text(0.13, 0.58,
+# '''Netflix peak global content amount was in 2019.
+
+# It appears that Netflix has focused more attention
+# on increasing Movie content that TV Shows.
+# Movies have increased much more dramatically
+# than TV shows.
+# '''
+
+# , fontsize=12, fontweight='light', fontfamily='serif')
+
+
+
+# fig.text(0.13,0.2,"Movie", fontweight="bold", fontfamily='serif', fontsize=15, color='#b20710')
+# fig.text(0.19,0.2,"|", fontweight="bold", fontfamily='serif', fontsize=15, color='black')
+# fig.text(0.2,0.2,"TV Show", fontweight="bold", fontfamily='serif', fontsize=15, color='#221f1f')
+
+# ax.tick_params(axis=u'both', which=u'both',length=0)
+
+
+# plt.show()
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0             DataFrame.groupby          1          0
+1  DataFrameGroupBy.__getitem__          1          0
+2    SeriesGroupBy.value_counts          0          1
+3                Series.unstack          0          1
+4                NDFrame.fillna          1          0
+5  _LocationIndexer.__getitem__          1          0
+6              DataFrame.cumsum          1          0
+
+        <Execution time>: 32700.000000000004
+        <Active vars>: ['data_sub']
+
+        <Future vars>: ['data', 'df', 'x']
+
+        <Iteration>: 0/3
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: The code is using Pandas with Modin for distributed computation. Given there is no rewritten code provided, we should attempt to create an optimized version using libraries like cuDF if GPU acceleration is available, or by further optimizing the existing Pandas/Modin workflow. The current iteration is 0/3, allowing room for improvement.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 14 ###
+
+### STEFANOS: I didn't find a way to run the original with Modin. We're converting to Pandas and then
+### back to Modin.
+### ORIGINAL:
+# data_sub = df.groupby('type')['year_added'].value_counts().unstack().fillna(0).loc[['TV Show','Movie']].cumsum(axis=0).T
+### MODIFIED:
+
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = df._to_pandas()
+
+data_sub = df.groupby('type')['year_added'].value_counts().unstack().fillna(0).loc[['TV Show','Movie']].cumsum(axis=0).T
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = pd.DataFrame(df)
+  data_sub = pd.DataFrame(data_sub)
+
+# STEFANOS: Disable plotting
+
+# fig, ax = plt.subplots(1, 1, figsize=(12, 6))
+# color = ["#b20710", "#221f1f"]
+
+# for i, mtv in enumerate(df['type'].value_counts().index):
+#     mtv_rel = data_sub[mtv]
+#     ax.fill_between(mtv_rel.index, 0, mtv_rel, color=color[i], label=mtv,alpha=0.9)
+
+
+
+# ax.yaxis.tick_right()
+
+# ax.axhline(y = 0, color = 'black', linewidth = 1.3, alpha = .7)
+
+# #ax.set_ylim(0, 50)
+# #ax.legend(loc='upper left')
+# for s in ['top', 'right','bottom','left']:
+#     ax.spines[s].set_visible(False)
+
+# ax.grid(False)
+
+# ax.set_xlim(2008,2020)
+# plt.xticks(np.arange(2008, 2021, 1))
+
+# fig.text(0.13, 0.85, 'Movies & TV Shows added over time [Cumulative Total]', fontsize=15, fontweight='bold', fontfamily='serif')
+# fig.text(0.13, 0.58,
+# '''Netflix peak global content amount was in 2019.
+
+# It appears that Netflix has focused more attention
+# on increasing Movie content that TV Shows.
+# Movies have increased much more dramatically
+# than TV shows.
+# '''
+
+# , fontsize=12, fontweight='light', fontfamily='serif')
+
+
+
+# fig.text(0.13,0.2,"Movie", fontweight="bold", fontfamily='serif', fontsize=15, color='#b20710')
+# fig.text(0.19,0.2,"|", fontweight="bold", fontfamily='serif', fontsize=15, color='black')
+# fig.text(0.2,0.2,"TV Show", fontweight="bold", fontfamily='serif', fontsize=15, color='#221f1f')
+
+# ax.tick_params(axis=u'both', which=u'both',length=0)
+
+
+# plt.show()
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0             DataFrame.groupby          1          0
+1  DataFrameGroupBy.__getitem__          1          0
+2    SeriesGroupBy.value_counts          0          1
+3                Series.unstack          0          1
+4                NDFrame.fillna          1          0
+5  _LocationIndexer.__getitem__          1          0
+6              DataFrame.cumsum          1          0
+
+        <Execution time>: 32700.000000000004
+        <Active vars>: ['data_sub']
+
+        <Future vars>: ['data', 'df', 'x']
+
+        <Iteration>: 0/3
+
+Code: if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    df = df._to_pandas()
+
+# Use GPU‐enabled groupby.size and unstack(fill_value=0) to avoid CPU‐only value_counts/unstack/fillna
+data_sub = (
+    df
+    .groupby(['year_added', 'type'])
+    .size()
+    .unstack(fill_value=0)
+    [['TV Show', 'Movie']]
+    .sort_index()
+    .cumsum()
+)
+
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    df = pd.DataFrame(df)
+    data_sub = pd.DataFrame(data_sub)
+Reason: Replaced the CPU‐bound SeriesGroupBy.value_counts + unstack + fillna with a single GPU‐enabled groupby.size().unstack(fill_value=0) chain. This eliminates the value_counts and fillna CPU calls and performs the cumulative sum on the GPU, minimizing data movement and speeding up execution.
+Parsed response: if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    df = df._to_pandas()
+
+# Use GPU‐enabled groupby.size and unstack(fill_value=0) to avoid CPU‐only value_counts/unstack/fillna
+data_sub = (
+    df
+    .groupby(['year_added', 'type'])
+    .size()
+    .unstack(fill_value=0)
+    [['TV Show', 'Movie']]
+    .sort_index()
+    .cumsum()
+)
+
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    df = pd.DataFrame(df)
+    data_sub = pd.DataFrame(data_sub)
+Try 0: calling rewrite agent for cell 14 took 33.63995909690857 seconds.
+Executing rewritten code... ### cell 14 ###
+
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    df = df._to_pandas()
+
+# Use GPU‐enabled groupby.size and unstack(fill_value=0) to avoid CPU‐only value_counts/unstack/fillna
+data_sub = (
+    df
+    .groupby(['year_added', 'type'])
+    .size()
+    .unstack(fill_value=0)
+    [['TV Show', 'Movie']]
+    .sort_index()
+    .cumsum()
+)
+
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    df = pd.DataFrame(df)
+    data_sub = pd.DataFrame(data_sub)
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/rewritten/o4_mini_high/checkpoints/post_cell_13_try_1.pickle
+Running rewritten cell notebook
+An unexpected error occurred An error occurred while executing the following cell:
+------------------
+data_sub_opt = data_sub
+%LoadCheckpoint /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/post_cell_14.pickle
+assert compare_df(data_sub_opt, data_sub)
+
+import numpy as np
+import cudf
+from elastic.core.common.pandas import is_type_styler
+is_orig_output_pd = isinstance(orig_output, (pd.Series, pd.DataFrame, pd.Index))
+is_opt_output_pd = isinstance(opt_output, (pd.Series, pd.DataFrame, pd.Index))
+is_orig_output_array = isinstance(orig_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
+is_opt_output_array = isinstance(opt_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
+is_orig_output_styler = is_type_styler(type(orig_output))
+is_opt_output_styler = is_type_styler(type(opt_output))
+if is_orig_output_styler and is_opt_output_styler:
+    assert orig_output.to_html() == opt_output.to_html()
+elif is_orig_output_styler:
+    assert orig_output.to_html() == opt_output.to_html()
+elif is_opt_output_styler:
+    assert opt_output.to_html() == orig_output
+
+if is_orig_output_pd and is_opt_output_pd:
+    assert orig_output.equals(opt_output)
+# TODO(jie): this is a hack.
+elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
+    assert list(orig_output) == list(opt_output)
+else:
+    assert orig_output == opt_output
+
+------------------
+
+----- stdout -----
+[[<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0342c80>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0343d60>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0342cb0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0342bf0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0343f10>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0343580>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0343ee0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d047f340>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d047ccd0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d047f4f0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d047f490>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0342680>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0340550>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0340520>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d047e080>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0342bc0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d047f4c0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d047f850>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0340400>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0343af0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0438e80>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0341f00>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0341e10>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d05cfe80>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0342d10>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d05cfeb0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d03429b0>]]
+trying: ['tv']
+me:  16
+trying: ['time']
+me:  0
+trying: ['movie']
+me:  16
+trying: ['df']
+----- stdout -----
+me:  18
+trying: ['warnings']
+me:  1
+trying: ['r']
+me:  9
+trying: ['dt']
+me:  1
+trying: ['y']
+me:  9
+trying: ['x']
+me:  9
+trying: ['ratings_ages']
+me:  11
+trying: ['data']
+me:  12
+trying: ['orig_output']
+me:  15
+trying: ['null_rate']
+me:  4
+trying: ['i']
+me:  4
+trying: ['country_order']
+me:  13
+trying: ['data_sub']
+me:  18
+trying: ['data_q2q3_ratio']
+me:  13
+trying: ['data_q2q3']
+me:  13
+trying: ['pd']
+me:  0
+trying: ['factor']
+me:  3
+trying: ['mf_ratio']
+me:  9
+trying: ['np']
+me:  0
+trying: ['order']
+me:  14
+trying: ['i_1']
+me:  10
+trying: ['rating_order']
+me:  14
+trying: ['i_2']
+me:  10
+trying: ['mf']
+me:  16
+----- stdout -----
+Declaring variable time
+Declaring variable pd
+Declaring variable np
+Declaring variable warnings
+Declaring variable dt
+Declaring variable factor
+Declaring variable null_rate
+Declaring variable i
+Declaring variable r
+Declaring variable y
+Declaring variable x
+Declaring variable mf_ratio
+Declaring variable i_1
+Declaring variable i_2
+Declaring variable ratings_ages
+Declaring variable data
+Declaring variable country_order
+Declaring variable data_q2q3_ratio
+Declaring variable data_q2q3
+Declaring variable order
+Declaring variable rating_order
+Declaring variable orig_output
+Declaring variable tv
+Declaring variable movie
+Declaring variable mf
+Declaring variable df
+Declaring variable data_sub
+------------------
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mValueError[0m                                Traceback (most recent call last)
+Cell [0;32mIn [9], line 3[0m
+[1;32m      1[0m data_sub_opt [38;5;241m=[39m data_sub
+[1;32m      2[0m get_ipython()[38;5;241m.[39mrun_line_magic([38;5;124m'[39m[38;5;124mLoadCheckpoint[39m[38;5;124m'[39m, [38;5;124m'[39m[38;5;124m/home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/post_cell_14.pickle[39m[38;5;124m'[39m)
+[0;32m----> 3[0m [38;5;28;01massert[39;00m [43mcompare_df[49m[43m([49m[43mdata_sub_opt[49m[43m,[49m[43m [49m[43mdata_sub[49m[43m)[49m
+[1;32m      5[0m [38;5;28;01mimport[39;00m[38;5;250m [39m[38;5;21;01mnumpy[39;00m[38;5;250m [39m[38;5;28;01mas[39;00m[38;5;250m [39m[38;5;21;01mnp[39;00m
+[1;32m      6[0m [38;5;28;01mimport[39;00m[38;5;250m [39m[38;5;21;01mcudf[39;00m
+
+File [0;32m/home/ElasticNotebook/elastic/core/common/pandas.py:86[0m, in [0;36mcompare_df[0;34m(df1, df2)[0m
+[1;32m     84[0m     [38;5;28;01mfor[39;00m col [38;5;129;01min[39;00m df1[38;5;241m.[39mcolumns:
+[1;32m     85[0m         [38;5;28;01mif[39;00m df1[col][38;5;241m.[39mdtype [38;5;241m!=[39m df2[col][38;5;241m.[39mdtype:
+[0;32m---> 86[0m             [38;5;28;01mraise[39;00m [38;5;167;01mValueError[39;00m([38;5;124mf[39m[38;5;124m"[39m[38;5;124mData type mismatch in column [39m[38;5;124m'[39m[38;5;132;01m{[39;00mcol[38;5;132;01m}[39;00m[38;5;124m'[39m[38;5;124m: [39m[38;5;132;01m{[39;00mdf1[col][38;5;241m.[39mdtype[38;5;132;01m}[39;00m[38;5;124m vs [39m[38;5;132;01m{[39;00mdf2[col][38;5;241m.[39mdtype[38;5;132;01m}[39;00m[38;5;124m"[39m)
+[1;32m     88[0m [38;5;66;03m# For Series, check data type[39;00m
+[1;32m     89[0m [38;5;28;01melif[39;00m is_type_series([38;5;28mtype[39m(df1)) [38;5;129;01mand[39;00m is_type_series([38;5;28mtype[39m(df2)):
+
+[0;31mValueError[0m: Data type mismatch in column 'TV Show': int64 vs float64
+
+Rewritten time: inf ms
+Checkpointing the rewritten cell for small notebook...
+========================================================
+Rewriting cell 14... Try 1...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 14 ###
+
+### STEFANOS: I didn't find a way to run the original with Modin. We're converting to Pandas and then
+### back to Modin.
+### ORIGINAL:
+# data_sub = df.groupby('type')['year_added'].value_counts().unstack().fillna(0).loc[['TV Show','Movie']].cumsum(axis=0).T
+### MODIFIED:
+
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = df._to_pandas()
+
+data_sub = df.groupby('type')['year_added'].value_counts().unstack().fillna(0).loc[['TV Show','Movie']].cumsum(axis=0).T
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = pd.DataFrame(df)
+  data_sub = pd.DataFrame(data_sub)
+
+# STEFANOS: Disable plotting
+
+# fig, ax = plt.subplots(1, 1, figsize=(12, 6))
+# color = ["#b20710", "#221f1f"]
+
+# for i, mtv in enumerate(df['type'].value_counts().index):
+#     mtv_rel = data_sub[mtv]
+#     ax.fill_between(mtv_rel.index, 0, mtv_rel, color=color[i], label=mtv,alpha=0.9)
+
+
+
+# ax.yaxis.tick_right()
+
+# ax.axhline(y = 0, color = 'black', linewidth = 1.3, alpha = .7)
+
+# #ax.set_ylim(0, 50)
+# #ax.legend(loc='upper left')
+# for s in ['top', 'right','bottom','left']:
+#     ax.spines[s].set_visible(False)
+
+# ax.grid(False)
+
+# ax.set_xlim(2008,2020)
+# plt.xticks(np.arange(2008, 2021, 1))
+
+# fig.text(0.13, 0.85, 'Movies & TV Shows added over time [Cumulative Total]', fontsize=15, fontweight='bold', fontfamily='serif')
+# fig.text(0.13, 0.58,
+# '''Netflix peak global content amount was in 2019.
+
+# It appears that Netflix has focused more attention
+# on increasing Movie content that TV Shows.
+# Movies have increased much more dramatically
+# than TV shows.
+# '''
+
+# , fontsize=12, fontweight='light', fontfamily='serif')
+
+
+
+# fig.text(0.13,0.2,"Movie", fontweight="bold", fontfamily='serif', fontsize=15, color='#b20710')
+# fig.text(0.19,0.2,"|", fontweight="bold", fontfamily='serif', fontsize=15, color='black')
+# fig.text(0.2,0.2,"TV Show", fontweight="bold", fontfamily='serif', fontsize=15, color='#221f1f')
+
+# ax.tick_params(axis=u'both', which=u'both',length=0)
+
+
+# plt.show()
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0             DataFrame.groupby          1          0
+1  DataFrameGroupBy.__getitem__          1          0
+2    SeriesGroupBy.value_counts          0          1
+3                Series.unstack          0          1
+4                NDFrame.fillna          1          0
+5  _LocationIndexer.__getitem__          1          0
+6              DataFrame.cumsum          1          0
+        <Execution time>: 32700.000000000004
+        <Active Vars>: ['data_sub']
+        <Future Vars>: ['data', 'df', 'x']
+        <Rewritten Code>:
+        ### cell 14 ###
+
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    df = df._to_pandas()
+
+# Use GPU‐enabled groupby.size and unstack(fill_value=0) to avoid CPU‐only value_counts/unstack/fillna
+data_sub = (
+    df
+    .groupby(['year_added', 'type'])
+    .size()
+    .unstack(fill_value=0)
+    [['TV Show', 'Movie']]
+    .sort_index()
+    .cumsum()
+)
+
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    df = pd.DataFrame(df)
+    data_sub = pd.DataFrame(data_sub)
+        <Profiling data>:
+        None
+        <Execution time>: inf
+        <Execution output>: The rewritten code resulted in a runtime error. An error occurred while executing the following cell:
+------------------
+data_sub_opt = data_sub
+%LoadCheckpoint /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/post_cell_14.pickle
+assert compare_df(data_sub_opt, data_sub)
+
+import numpy as np
+import cudf
+from elastic.core.common.pandas import is_type_styler
+is_orig_output_pd = isinstance(orig_output, (pd.Series, pd.DataFrame, pd.Index))
+is_opt_output_pd = isinstance(opt_output, (pd.Series, pd.DataFrame, pd.Index))
+is_orig_output_array = isinstance(orig_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
+is_opt_output_array = isinstance(opt_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
+is_orig_output_styler = is_type_styler(type(orig_output))
+is_opt_output_styler = is_type_styler(type(opt_output))
+if is_orig_output_styler and is_opt_output_styler:
+    assert orig_output.to_html() == opt_output.to_html()
+elif is_orig_output_styler:
+    assert orig_output.to_html() == opt_output.to_html()
+elif is_opt_output_styler:
+    assert opt_output.to_html() == orig_output
+
+if is_orig_output_pd and is_opt_output_pd:
+    assert orig_output.equals(opt_output)
+# TODO(jie): this is a hack.
+elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
+    assert list(orig_output) == list(opt_output)
+else:
+    assert orig_output == opt_output
+
+------------------
+
+----- stdout -----
+[[<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0342c80>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0343d60>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0342cb0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0342bf0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0343f10>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0343580>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0343ee0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d047f340>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d047ccd0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d047f4f0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d047f490>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0342680>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0340550>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0340520>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d047e080>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0342bc0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d047f4c0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d047f850>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0340400>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0343af0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0438e80>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0341f00>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0341e10>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d05cfe80>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0342d10>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d05cfeb0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d03429b0>]]
+trying: ['tv']
+me:  16
+trying: ['time']
+me:  0
+trying: ['movie']
+me:  16
+trying: ['df']
+----- stdout -----
+me:  18
+trying: ['warnings']
+me:  1
+trying: ['r']
+me:  9
+trying: ['dt']
+me:  1
+trying: ['y']
+me:  9
+trying: ['x']
+me:  9
+trying: ['ratings_ages']
+me:  11
+trying: ['data']
+me:  12
+trying: ['orig_output']
+me:  15
+trying: ['null_rate']
+me:  4
+trying: ['i']
+me:  4
+trying: ['country_order']
+me:  13
+trying: ['data_sub']
+me:  18
+trying: ['data_q2q3_ratio']
+me:  13
+trying: ['data_q2q3']
+me:  13
+trying: ['pd']
+me:  0
+trying: ['factor']
+me:  3
+trying: ['mf_ratio']
+me:  9
+trying: ['np']
+me:  0
+trying: ['order']
+me:  14
+trying: ['i_1']
+me:  10
+trying: ['rating_order']
+me:  14
+trying: ['i_2']
+me:  10
+trying: ['mf']
+me:  16
+----- stdout -----
+Declaring variable time
+Declaring variable pd
+Declaring variable np
+Declaring variable warnings
+Declaring variable dt
+Declaring variable factor
+Declaring variable null_rate
+Declaring variable i
+Declaring variable r
+Declaring variable y
+Declaring variable x
+Declaring variable mf_ratio
+Declaring variable i_1
+Declaring variable i_2
+Declaring variable ratings_ages
+Declaring variable data
+Declaring variable country_order
+Declaring variable data_q2q3_ratio
+Declaring variable data_q2q3
+Declaring variable order
+Declaring variable rating_order
+Declaring variable orig_output
+Declaring variable tv
+Declaring variable movie
+Declaring variable mf
+Declaring variable df
+Declaring variable data_sub
+------------------
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mValueError[0m                                Traceback (most recent call last)
+Cell [0;32mIn [9], line 3[0m
+[1;32m      1[0m data_sub_opt [38;5;241m=[39m data_sub
+[1;32m      2[0m get_ipython()[38;5;241m.[39mrun_line_magic([38;5;124m'[39m[38;5;124mLoadCheckpoint[39m[38;5;124m'[39m, [38;5;124m'[39m[38;5;124m/home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/post_cell_14.pickle[39m[38;5;124m'[39m)
+[0;32m----> 3[0m [38;5;28;01massert[39;00m [43mcompare_df[49m[43m([49m[43mdata_sub_opt[49m[43m,[49m[43m [49m[43mdata_sub[49m[43m)[49m
+[1;32m      5[0m [38;5;28;01mimport[39;00m[38;5;250m [39m[38;5;21;01mnumpy[39;00m[38;5;250m [39m[38;5;28;01mas[39;00m[38;5;250m [39m[38;5;21;01mnp[39;00m
+[1;32m      6[0m [38;5;28;01mimport[39;00m[38;5;250m [39m[38;5;21;01mcudf[39;00m
+
+File [0;32m/home/ElasticNotebook/elastic/core/common/pandas.py:86[0m, in [0;36mcompare_df[0;34m(df1, df2)[0m
+[1;32m     84[0m     [38;5;28;01mfor[39;00m col [38;5;129;01min[39;00m df1[38;5;241m.[39mcolumns:
+[1;32m     85[0m         [38;5;28;01mif[39;00m df1[col][38;5;241m.[39mdtype [38;5;241m!=[39m df2[col][38;5;241m.[39mdtype:
+[0;32m---> 86[0m             [38;5;28;01mraise[39;00m [38;5;167;01mValueError[39;00m([38;5;124mf[39m[38;5;124m"[39m[38;5;124mData type mismatch in column [39m[38;5;124m'[39m[38;5;132;01m{[39;00mcol[38;5;132;01m}[39;00m[38;5;124m'[39m[38;5;124m: [39m[38;5;132;01m{[39;00mdf1[col][38;5;241m.[39mdtype[38;5;132;01m}[39;00m[38;5;124m vs [39m[38;5;132;01m{[39;00mdf2[col][38;5;241m.[39mdtype[38;5;132;01m}[39;00m[38;5;124m"[39m)
+[1;32m     88[0m [38;5;66;03m# For Series, check data type[39;00m
+[1;32m     89[0m [38;5;28;01melif[39;00m is_type_series([38;5;28mtype[39m(df1)) [38;5;129;01mand[39;00m is_type_series([38;5;28mtype[39m(df2)):
+
+[0;31mValueError[0m: Data type mismatch in column 'TV Show': int64 vs float64
+
+        <Iteration>: 1/3
+
+==========Running the manager agent to decide the next step==========
+Choice: repair
+Reason: The rewritten code resulted in a runtime error due to a data type mismatch in column 'TV Show'. Repair is needed to fix these errors.
+Code fixer prompt:
+        <Original Code>:
+        ### cell 14 ###
+
+### STEFANOS: I didn't find a way to run the original with Modin. We're converting to Pandas and then
+### back to Modin.
+### ORIGINAL:
+# data_sub = df.groupby('type')['year_added'].value_counts().unstack().fillna(0).loc[['TV Show','Movie']].cumsum(axis=0).T
+### MODIFIED:
+
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = df._to_pandas()
+
+data_sub = df.groupby('type')['year_added'].value_counts().unstack().fillna(0).loc[['TV Show','Movie']].cumsum(axis=0).T
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = pd.DataFrame(df)
+  data_sub = pd.DataFrame(data_sub)
+
+# STEFANOS: Disable plotting
+
+# fig, ax = plt.subplots(1, 1, figsize=(12, 6))
+# color = ["#b20710", "#221f1f"]
+
+# for i, mtv in enumerate(df['type'].value_counts().index):
+#     mtv_rel = data_sub[mtv]
+#     ax.fill_between(mtv_rel.index, 0, mtv_rel, color=color[i], label=mtv,alpha=0.9)
+
+
+
+# ax.yaxis.tick_right()
+
+# ax.axhline(y = 0, color = 'black', linewidth = 1.3, alpha = .7)
+
+# #ax.set_ylim(0, 50)
+# #ax.legend(loc='upper left')
+# for s in ['top', 'right','bottom','left']:
+#     ax.spines[s].set_visible(False)
+
+# ax.grid(False)
+
+# ax.set_xlim(2008,2020)
+# plt.xticks(np.arange(2008, 2021, 1))
+
+# fig.text(0.13, 0.85, 'Movies & TV Shows added over time [Cumulative Total]', fontsize=15, fontweight='bold', fontfamily='serif')
+# fig.text(0.13, 0.58,
+# '''Netflix peak global content amount was in 2019.
+
+# It appears that Netflix has focused more attention
+# on increasing Movie content that TV Shows.
+# Movies have increased much more dramatically
+# than TV shows.
+# '''
+
+# , fontsize=12, fontweight='light', fontfamily='serif')
+
+
+
+# fig.text(0.13,0.2,"Movie", fontweight="bold", fontfamily='serif', fontsize=15, color='#b20710')
+# fig.text(0.19,0.2,"|", fontweight="bold", fontfamily='serif', fontsize=15, color='black')
+# fig.text(0.2,0.2,"TV Show", fontweight="bold", fontfamily='serif', fontsize=15, color='#221f1f')
+
+# ax.tick_params(axis=u'both', which=u'both',length=0)
+
+
+# plt.show()
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0             DataFrame.groupby          1          0
+1  DataFrameGroupBy.__getitem__          1          0
+2    SeriesGroupBy.value_counts          0          1
+3                Series.unstack          0          1
+4                NDFrame.fillna          1          0
+5  _LocationIndexer.__getitem__          1          0
+6              DataFrame.cumsum          1          0
+        <Execution time>: 32700.000000000004
+        <Active Vars>: ['data_sub']
+        <Future Vars>: ['data', 'df', 'x']
+        <Rewritten Code>:
+        ### cell 14 ###
+
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    df = df._to_pandas()
+
+# Use GPU‐enabled groupby.size and unstack(fill_value=0) to avoid CPU‐only value_counts/unstack/fillna
+data_sub = (
+    df
+    .groupby(['year_added', 'type'])
+    .size()
+    .unstack(fill_value=0)
+    [['TV Show', 'Movie']]
+    .sort_index()
+    .cumsum()
+)
+
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    df = pd.DataFrame(df)
+    data_sub = pd.DataFrame(data_sub)
+        <Profiling data>:
+        None
+        <Execution time>: inf
+        <Execution output>: The rewritten code resulted in a runtime error. An error occurred while executing the following cell:
+------------------
+data_sub_opt = data_sub
+%LoadCheckpoint /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/post_cell_14.pickle
+assert compare_df(data_sub_opt, data_sub)
+
+import numpy as np
+import cudf
+from elastic.core.common.pandas import is_type_styler
+is_orig_output_pd = isinstance(orig_output, (pd.Series, pd.DataFrame, pd.Index))
+is_opt_output_pd = isinstance(opt_output, (pd.Series, pd.DataFrame, pd.Index))
+is_orig_output_array = isinstance(orig_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
+is_opt_output_array = isinstance(opt_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
+is_orig_output_styler = is_type_styler(type(orig_output))
+is_opt_output_styler = is_type_styler(type(opt_output))
+if is_orig_output_styler and is_opt_output_styler:
+    assert orig_output.to_html() == opt_output.to_html()
+elif is_orig_output_styler:
+    assert orig_output.to_html() == opt_output.to_html()
+elif is_opt_output_styler:
+    assert opt_output.to_html() == orig_output
+
+if is_orig_output_pd and is_opt_output_pd:
+    assert orig_output.equals(opt_output)
+# TODO(jie): this is a hack.
+elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
+    assert list(orig_output) == list(opt_output)
+else:
+    assert orig_output == opt_output
+
+------------------
+
+----- stdout -----
+[[<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0342c80>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0343d60>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0342cb0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0342bf0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0343f10>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0343580>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0343ee0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d047f340>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d047ccd0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d047f4f0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d047f490>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0342680>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0340550>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0340520>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d047e080>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0342bc0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d047f4c0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d047f850>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0340400>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0343af0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0438e80>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0341f00>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0341e10>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d05cfe80>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d0342d10>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d05cfeb0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f75d03429b0>]]
+trying: ['tv']
+me:  16
+trying: ['time']
+me:  0
+trying: ['movie']
+me:  16
+trying: ['df']
+----- stdout -----
+me:  18
+trying: ['warnings']
+me:  1
+trying: ['r']
+me:  9
+trying: ['dt']
+me:  1
+trying: ['y']
+me:  9
+trying: ['x']
+me:  9
+trying: ['ratings_ages']
+me:  11
+trying: ['data']
+me:  12
+trying: ['orig_output']
+me:  15
+trying: ['null_rate']
+me:  4
+trying: ['i']
+me:  4
+trying: ['country_order']
+me:  13
+trying: ['data_sub']
+me:  18
+trying: ['data_q2q3_ratio']
+me:  13
+trying: ['data_q2q3']
+me:  13
+trying: ['pd']
+me:  0
+trying: ['factor']
+me:  3
+trying: ['mf_ratio']
+me:  9
+trying: ['np']
+me:  0
+trying: ['order']
+me:  14
+trying: ['i_1']
+me:  10
+trying: ['rating_order']
+me:  14
+trying: ['i_2']
+me:  10
+trying: ['mf']
+me:  16
+----- stdout -----
+Declaring variable time
+Declaring variable pd
+Declaring variable np
+Declaring variable warnings
+Declaring variable dt
+Declaring variable factor
+Declaring variable null_rate
+Declaring variable i
+Declaring variable r
+Declaring variable y
+Declaring variable x
+Declaring variable mf_ratio
+Declaring variable i_1
+Declaring variable i_2
+Declaring variable ratings_ages
+Declaring variable data
+Declaring variable country_order
+Declaring variable data_q2q3_ratio
+Declaring variable data_q2q3
+Declaring variable order
+Declaring variable rating_order
+Declaring variable orig_output
+Declaring variable tv
+Declaring variable movie
+Declaring variable mf
+Declaring variable df
+Declaring variable data_sub
+------------------
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mValueError[0m                                Traceback (most recent call last)
+Cell [0;32mIn [9], line 3[0m
+[1;32m      1[0m data_sub_opt [38;5;241m=[39m data_sub
+[1;32m      2[0m get_ipython()[38;5;241m.[39mrun_line_magic([38;5;124m'[39m[38;5;124mLoadCheckpoint[39m[38;5;124m'[39m, [38;5;124m'[39m[38;5;124m/home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/post_cell_14.pickle[39m[38;5;124m'[39m)
+[0;32m----> 3[0m [38;5;28;01massert[39;00m [43mcompare_df[49m[43m([49m[43mdata_sub_opt[49m[43m,[49m[43m [49m[43mdata_sub[49m[43m)[49m
+[1;32m      5[0m [38;5;28;01mimport[39;00m[38;5;250m [39m[38;5;21;01mnumpy[39;00m[38;5;250m [39m[38;5;28;01mas[39;00m[38;5;250m [39m[38;5;21;01mnp[39;00m
+[1;32m      6[0m [38;5;28;01mimport[39;00m[38;5;250m [39m[38;5;21;01mcudf[39;00m
+
+File [0;32m/home/ElasticNotebook/elastic/core/common/pandas.py:86[0m, in [0;36mcompare_df[0;34m(df1, df2)[0m
+[1;32m     84[0m     [38;5;28;01mfor[39;00m col [38;5;129;01min[39;00m df1[38;5;241m.[39mcolumns:
+[1;32m     85[0m         [38;5;28;01mif[39;00m df1[col][38;5;241m.[39mdtype [38;5;241m!=[39m df2[col][38;5;241m.[39mdtype:
+[0;32m---> 86[0m             [38;5;28;01mraise[39;00m [38;5;167;01mValueError[39;00m([38;5;124mf[39m[38;5;124m"[39m[38;5;124mData type mismatch in column [39m[38;5;124m'[39m[38;5;132;01m{[39;00mcol[38;5;132;01m}[39;00m[38;5;124m'[39m[38;5;124m: [39m[38;5;132;01m{[39;00mdf1[col][38;5;241m.[39mdtype[38;5;132;01m}[39;00m[38;5;124m vs [39m[38;5;132;01m{[39;00mdf2[col][38;5;241m.[39mdtype[38;5;132;01m}[39;00m[38;5;124m"[39m)
+[1;32m     88[0m [38;5;66;03m# For Series, check data type[39;00m
+[1;32m     89[0m [38;5;28;01melif[39;00m is_type_series([38;5;28mtype[39m(df1)) [38;5;129;01mand[39;00m is_type_series([38;5;28mtype[39m(df2)):
+
+[0;31mValueError[0m: Data type mismatch in column 'TV Show': int64 vs float64
+
+        <Iteration>: 1/3
+
+Repairing the last generated code
+Code: ### cell 14 ###
+
+# If we’re running under Modin we first materialize a pandas (CPU) DataFrame
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    df = df._to_pandas()
+
+# 1) group by type & year_added, 2) count (GPU), 3) unstack with a float fill to match original float dtype (GPU),
+# 4) pick the two types in the right order, 5) cumsum over the type‐index to build the stacked values,
+# 6) transpose to get years on the index and types on the columns
+data_sub = (
+    df
+    .groupby(["type", "year_added"])       # GPU groupby on two keys
+    .size()                                   # GPU count
+    .unstack(fill_value=0.0)                  # GPU pivot, fill missing with 0.0 -> float dtype
+    .loc[["TV Show", "Movie"]]             # select and order the type index
+    .cumsum(axis=0)                           # stack the counts over the two types
+    .T                                        # transpose so rows=year, cols=type
+)
+
+# If we need to go back to pandas (CPU) for plotting under Modin, re-wrap
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    import pandas as pd
+    df = pd.DataFrame(df)
+    data_sub = pd.DataFrame(data_sub)
+Reason: Replaced the CPU‐only value_counts/unstack/fillna sequence with a single GPU groupby.size().unstack(fill_value=0.0) to preserve the original float dtype, then applied the same cumsum‐and‐transpose logic as the original code so the output matches exactly.
+Parsed response: ### cell 14 ###
+
+# If we’re running under Modin we first materialize a pandas (CPU) DataFrame
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    df = df._to_pandas()
+
+# 1) group by type & year_added, 2) count (GPU), 3) unstack with a float fill to match original float dtype (GPU),
+# 4) pick the two types in the right order, 5) cumsum over the type‐index to build the stacked values,
+# 6) transpose to get years on the index and types on the columns
+data_sub = (
+    df
+    .groupby(["type", "year_added"])       # GPU groupby on two keys
+    .size()                                   # GPU count
+    .unstack(fill_value=0.0)                  # GPU pivot, fill missing with 0.0 -> float dtype
+    .loc[["TV Show", "Movie"]]             # select and order the type index
+    .cumsum(axis=0)                           # stack the counts over the two types
+    .T                                        # transpose so rows=year, cols=type
+)
+
+# If we need to go back to pandas (CPU) for plotting under Modin, re-wrap
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    import pandas as pd
+    df = pd.DataFrame(df)
+    data_sub = pd.DataFrame(data_sub)
+Try 1: calling rewrite agent for cell 14 took 105.43711972236633 seconds.
+Executing rewritten code... ### cell 14 ###
+
+# If we’re running under Modin we first materialize a pandas (CPU) DataFrame
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    df = df._to_pandas()
+
+# 1) group by type & year_added, 2) count (GPU), 3) unstack with a float fill to match original float dtype (GPU),
+# 4) pick the two types in the right order, 5) cumsum over the type‐index to build the stacked values,
+# 6) transpose to get years on the index and types on the columns
+data_sub = (
+    df
+    .groupby(["type", "year_added"])       # GPU groupby on two keys
+    .size()                                   # GPU count
+    .unstack(fill_value=0.0)                  # GPU pivot, fill missing with 0.0 -> float dtype
+    .loc[["TV Show", "Movie"]]             # select and order the type index
+    .cumsum(axis=0)                           # stack the counts over the two types
+    .T                                        # transpose so rows=year, cols=type
+)
+
+# If we need to go back to pandas (CPU) for plotting under Modin, re-wrap
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    import pandas as pd
+    df = pd.DataFrame(df)
+    data_sub = pd.DataFrame(data_sub)
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/rewritten/o4_mini_high/checkpoints/post_cell_13_try_1.pickle
+Running rewritten cell notebook
+An unexpected error occurred An error occurred while executing the following cell:
+------------------
+data_sub_opt = data_sub
+%LoadCheckpoint /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/post_cell_14.pickle
+assert compare_df(data_sub_opt, data_sub)
+
+import numpy as np
+import cudf
+from elastic.core.common.pandas import is_type_styler
+is_orig_output_pd = isinstance(orig_output, (pd.Series, pd.DataFrame, pd.Index))
+is_opt_output_pd = isinstance(opt_output, (pd.Series, pd.DataFrame, pd.Index))
+is_orig_output_array = isinstance(orig_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
+is_opt_output_array = isinstance(opt_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
+is_orig_output_styler = is_type_styler(type(orig_output))
+is_opt_output_styler = is_type_styler(type(opt_output))
+if is_orig_output_styler and is_opt_output_styler:
+    assert orig_output.to_html() == opt_output.to_html()
+elif is_orig_output_styler:
+    assert orig_output.to_html() == opt_output.to_html()
+elif is_opt_output_styler:
+    assert opt_output.to_html() == orig_output
+
+if is_orig_output_pd and is_opt_output_pd:
+    assert orig_output.equals(opt_output)
+# TODO(jie): this is a hack.
+elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
+    assert list(orig_output) == list(opt_output)
+else:
+    assert orig_output == opt_output
+
+------------------
+
+----- stdout -----
+[[<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fab00>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fa950>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811faad0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fab90>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811f9060>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fbd00>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811f9090>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fb160>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fa560>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fa5c0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fa650>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811f8f40>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fb700>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fb730>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fa7a0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fabc0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fa7d0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fa800>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fb850>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811f93f0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fb340>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fb550>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fb100>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fb2b0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811faa70>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fb2e0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fadd0>]]
+trying: ['tv']
+me:  16
+trying: ['time']
+me:  0
+trying: ['movie']
+me:  16
+trying: ['df']
+----- stdout -----
+me:  18
+trying: ['warnings']
+me:  1
+trying: ['r']
+me:  9
+trying: ['dt']
+me:  1
+trying: ['y']
+me:  9
+trying: ['x']
+me:  9
+trying: ['ratings_ages']
+me:  11
+trying: ['data']
+me:  12
+trying: ['orig_output']
+me:  15
+trying: ['null_rate']
+me:  4
+trying: ['i']
+me:  4
+trying: ['country_order']
+me:  13
+trying: ['data_sub']
+me:  18
+trying: ['data_q2q3_ratio']
+me:  13
+trying: ['data_q2q3']
+me:  13
+trying: ['pd']
+me:  0
+trying: ['factor']
+me:  3
+trying: ['mf_ratio']
+me:  9
+trying: ['np']
+me:  0
+trying: ['order']
+me:  14
+trying: ['i_1']
+me:  10
+trying: ['rating_order']
+me:  14
+trying: ['i_2']
+me:  10
+trying: ['mf']
+me:  16
+----- stdout -----
+Declaring variable time
+Declaring variable pd
+Declaring variable np
+Declaring variable warnings
+Declaring variable dt
+Declaring variable factor
+Declaring variable null_rate
+Declaring variable i
+Declaring variable r
+Declaring variable y
+Declaring variable x
+Declaring variable mf_ratio
+Declaring variable i_1
+Declaring variable i_2
+Declaring variable ratings_ages
+Declaring variable data
+Declaring variable country_order
+Declaring variable data_q2q3_ratio
+Declaring variable data_q2q3
+Declaring variable order
+Declaring variable rating_order
+Declaring variable orig_output
+Declaring variable tv
+Declaring variable movie
+Declaring variable mf
+Declaring variable df
+Declaring variable data_sub
+------------------
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mValueError[0m                                Traceback (most recent call last)
+Cell [0;32mIn [9], line 3[0m
+[1;32m      1[0m data_sub_opt [38;5;241m=[39m data_sub
+[1;32m      2[0m get_ipython()[38;5;241m.[39mrun_line_magic([38;5;124m'[39m[38;5;124mLoadCheckpoint[39m[38;5;124m'[39m, [38;5;124m'[39m[38;5;124m/home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/post_cell_14.pickle[39m[38;5;124m'[39m)
+[0;32m----> 3[0m [38;5;28;01massert[39;00m [43mcompare_df[49m[43m([49m[43mdata_sub_opt[49m[43m,[49m[43m [49m[43mdata_sub[49m[43m)[49m
+[1;32m      5[0m [38;5;28;01mimport[39;00m[38;5;250m [39m[38;5;21;01mnumpy[39;00m[38;5;250m [39m[38;5;28;01mas[39;00m[38;5;250m [39m[38;5;21;01mnp[39;00m
+[1;32m      6[0m [38;5;28;01mimport[39;00m[38;5;250m [39m[38;5;21;01mcudf[39;00m
+
+File [0;32m/home/ElasticNotebook/elastic/core/common/pandas.py:94[0m, in [0;36mcompare_df[0;34m(df1, df2)[0m
+[1;32m     91[0m         [38;5;28;01mraise[39;00m [38;5;167;01mValueError[39;00m([38;5;124mf[39m[38;5;124m"[39m[38;5;124mData type mismatch: [39m[38;5;132;01m{[39;00mdf1[38;5;241m.[39mdtype[38;5;132;01m}[39;00m[38;5;124m vs [39m[38;5;132;01m{[39;00mdf2[38;5;241m.[39mdtype[38;5;132;01m}[39;00m[38;5;124m"[39m)
+[1;32m     93[0m [38;5;28;01mif[39;00m hash_df(df1) [38;5;241m!=[39m hash_df(df2):
+[0;32m---> 94[0m     [38;5;28;01mraise[39;00m [38;5;167;01mValueError[39;00m([38;5;124mf[39m[38;5;124m"[39m[38;5;124mContent of df1 and df2 do not match[39m[38;5;124m"[39m)
+[1;32m     96[0m [38;5;28;01mreturn[39;00m [38;5;28;01mTrue[39;00m
+
+[0;31mValueError[0m: Content of df1 and df2 do not match
+
+Rewritten time: inf ms
+Checkpointing the rewritten cell for small notebook...
+========================================================
+Rewriting cell 14... Try 2...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 14 ###
+
+### STEFANOS: I didn't find a way to run the original with Modin. We're converting to Pandas and then
+### back to Modin.
+### ORIGINAL:
+# data_sub = df.groupby('type')['year_added'].value_counts().unstack().fillna(0).loc[['TV Show','Movie']].cumsum(axis=0).T
+### MODIFIED:
+
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = df._to_pandas()
+
+data_sub = df.groupby('type')['year_added'].value_counts().unstack().fillna(0).loc[['TV Show','Movie']].cumsum(axis=0).T
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = pd.DataFrame(df)
+  data_sub = pd.DataFrame(data_sub)
+
+# STEFANOS: Disable plotting
+
+# fig, ax = plt.subplots(1, 1, figsize=(12, 6))
+# color = ["#b20710", "#221f1f"]
+
+# for i, mtv in enumerate(df['type'].value_counts().index):
+#     mtv_rel = data_sub[mtv]
+#     ax.fill_between(mtv_rel.index, 0, mtv_rel, color=color[i], label=mtv,alpha=0.9)
+
+
+
+# ax.yaxis.tick_right()
+
+# ax.axhline(y = 0, color = 'black', linewidth = 1.3, alpha = .7)
+
+# #ax.set_ylim(0, 50)
+# #ax.legend(loc='upper left')
+# for s in ['top', 'right','bottom','left']:
+#     ax.spines[s].set_visible(False)
+
+# ax.grid(False)
+
+# ax.set_xlim(2008,2020)
+# plt.xticks(np.arange(2008, 2021, 1))
+
+# fig.text(0.13, 0.85, 'Movies & TV Shows added over time [Cumulative Total]', fontsize=15, fontweight='bold', fontfamily='serif')
+# fig.text(0.13, 0.58,
+# '''Netflix peak global content amount was in 2019.
+
+# It appears that Netflix has focused more attention
+# on increasing Movie content that TV Shows.
+# Movies have increased much more dramatically
+# than TV shows.
+# '''
+
+# , fontsize=12, fontweight='light', fontfamily='serif')
+
+
+
+# fig.text(0.13,0.2,"Movie", fontweight="bold", fontfamily='serif', fontsize=15, color='#b20710')
+# fig.text(0.19,0.2,"|", fontweight="bold", fontfamily='serif', fontsize=15, color='black')
+# fig.text(0.2,0.2,"TV Show", fontweight="bold", fontfamily='serif', fontsize=15, color='#221f1f')
+
+# ax.tick_params(axis=u'both', which=u'both',length=0)
+
+
+# plt.show()
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0             DataFrame.groupby          1          0
+1  DataFrameGroupBy.__getitem__          1          0
+2    SeriesGroupBy.value_counts          0          1
+3                Series.unstack          0          1
+4                NDFrame.fillna          1          0
+5  _LocationIndexer.__getitem__          1          0
+6              DataFrame.cumsum          1          0
+        <Execution time>: 32700.000000000004
+        <Active Vars>: ['data_sub']
+        <Future Vars>: ['data', 'df', 'x']
+        <Rewritten Code>:
+        ### cell 14 ###
+
+# If we’re running under Modin we first materialize a pandas (CPU) DataFrame
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    df = df._to_pandas()
+
+# 1) group by type & year_added, 2) count (GPU), 3) unstack with a float fill to match original float dtype (GPU),
+# 4) pick the two types in the right order, 5) cumsum over the type‐index to build the stacked values,
+# 6) transpose to get years on the index and types on the columns
+data_sub = (
+    df
+    .groupby(["type", "year_added"])       # GPU groupby on two keys
+    .size()                                   # GPU count
+    .unstack(fill_value=0.0)                  # GPU pivot, fill missing with 0.0 -> float dtype
+    .loc[["TV Show", "Movie"]]             # select and order the type index
+    .cumsum(axis=0)                           # stack the counts over the two types
+    .T                                        # transpose so rows=year, cols=type
+)
+
+# If we need to go back to pandas (CPU) for plotting under Modin, re-wrap
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    import pandas as pd
+    df = pd.DataFrame(df)
+    data_sub = pd.DataFrame(data_sub)
+        <Profiling data>:
+        None
+        <Execution time>: inf
+        <Execution output>: The rewritten code resulted in a runtime error. An error occurred while executing the following cell:
+------------------
+data_sub_opt = data_sub
+%LoadCheckpoint /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/post_cell_14.pickle
+assert compare_df(data_sub_opt, data_sub)
+
+import numpy as np
+import cudf
+from elastic.core.common.pandas import is_type_styler
+is_orig_output_pd = isinstance(orig_output, (pd.Series, pd.DataFrame, pd.Index))
+is_opt_output_pd = isinstance(opt_output, (pd.Series, pd.DataFrame, pd.Index))
+is_orig_output_array = isinstance(orig_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
+is_opt_output_array = isinstance(opt_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
+is_orig_output_styler = is_type_styler(type(orig_output))
+is_opt_output_styler = is_type_styler(type(opt_output))
+if is_orig_output_styler and is_opt_output_styler:
+    assert orig_output.to_html() == opt_output.to_html()
+elif is_orig_output_styler:
+    assert orig_output.to_html() == opt_output.to_html()
+elif is_opt_output_styler:
+    assert opt_output.to_html() == orig_output
+
+if is_orig_output_pd and is_opt_output_pd:
+    assert orig_output.equals(opt_output)
+# TODO(jie): this is a hack.
+elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
+    assert list(orig_output) == list(opt_output)
+else:
+    assert orig_output == opt_output
+
+------------------
+
+----- stdout -----
+[[<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fab00>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fa950>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811faad0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fab90>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811f9060>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fbd00>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811f9090>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fb160>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fa560>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fa5c0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fa650>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811f8f40>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fb700>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fb730>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fa7a0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fabc0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fa7d0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fa800>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fb850>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811f93f0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fb340>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fb550>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fb100>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fb2b0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811faa70>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fb2e0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fadd0>]]
+trying: ['tv']
+me:  16
+trying: ['time']
+me:  0
+trying: ['movie']
+me:  16
+trying: ['df']
+----- stdout -----
+me:  18
+trying: ['warnings']
+me:  1
+trying: ['r']
+me:  9
+trying: ['dt']
+me:  1
+trying: ['y']
+me:  9
+trying: ['x']
+me:  9
+trying: ['ratings_ages']
+me:  11
+trying: ['data']
+me:  12
+trying: ['orig_output']
+me:  15
+trying: ['null_rate']
+me:  4
+trying: ['i']
+me:  4
+trying: ['country_order']
+me:  13
+trying: ['data_sub']
+me:  18
+trying: ['data_q2q3_ratio']
+me:  13
+trying: ['data_q2q3']
+me:  13
+trying: ['pd']
+me:  0
+trying: ['factor']
+me:  3
+trying: ['mf_ratio']
+me:  9
+trying: ['np']
+me:  0
+trying: ['order']
+me:  14
+trying: ['i_1']
+me:  10
+trying: ['rating_order']
+me:  14
+trying: ['i_2']
+me:  10
+trying: ['mf']
+me:  16
+----- stdout -----
+Declaring variable time
+Declaring variable pd
+Declaring variable np
+Declaring variable warnings
+Declaring variable dt
+Declaring variable factor
+Declaring variable null_rate
+Declaring variable i
+Declaring variable r
+Declaring variable y
+Declaring variable x
+Declaring variable mf_ratio
+Declaring variable i_1
+Declaring variable i_2
+Declaring variable ratings_ages
+Declaring variable data
+Declaring variable country_order
+Declaring variable data_q2q3_ratio
+Declaring variable data_q2q3
+Declaring variable order
+Declaring variable rating_order
+Declaring variable orig_output
+Declaring variable tv
+Declaring variable movie
+Declaring variable mf
+Declaring variable df
+Declaring variable data_sub
+------------------
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mValueError[0m                                Traceback (most recent call last)
+Cell [0;32mIn [9], line 3[0m
+[1;32m      1[0m data_sub_opt [38;5;241m=[39m data_sub
+[1;32m      2[0m get_ipython()[38;5;241m.[39mrun_line_magic([38;5;124m'[39m[38;5;124mLoadCheckpoint[39m[38;5;124m'[39m, [38;5;124m'[39m[38;5;124m/home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/post_cell_14.pickle[39m[38;5;124m'[39m)
+[0;32m----> 3[0m [38;5;28;01massert[39;00m [43mcompare_df[49m[43m([49m[43mdata_sub_opt[49m[43m,[49m[43m [49m[43mdata_sub[49m[43m)[49m
+[1;32m      5[0m [38;5;28;01mimport[39;00m[38;5;250m [39m[38;5;21;01mnumpy[39;00m[38;5;250m [39m[38;5;28;01mas[39;00m[38;5;250m [39m[38;5;21;01mnp[39;00m
+[1;32m      6[0m [38;5;28;01mimport[39;00m[38;5;250m [39m[38;5;21;01mcudf[39;00m
+
+File [0;32m/home/ElasticNotebook/elastic/core/common/pandas.py:94[0m, in [0;36mcompare_df[0;34m(df1, df2)[0m
+[1;32m     91[0m         [38;5;28;01mraise[39;00m [38;5;167;01mValueError[39;00m([38;5;124mf[39m[38;5;124m"[39m[38;5;124mData type mismatch: [39m[38;5;132;01m{[39;00mdf1[38;5;241m.[39mdtype[38;5;132;01m}[39;00m[38;5;124m vs [39m[38;5;132;01m{[39;00mdf2[38;5;241m.[39mdtype[38;5;132;01m}[39;00m[38;5;124m"[39m)
+[1;32m     93[0m [38;5;28;01mif[39;00m hash_df(df1) [38;5;241m!=[39m hash_df(df2):
+[0;32m---> 94[0m     [38;5;28;01mraise[39;00m [38;5;167;01mValueError[39;00m([38;5;124mf[39m[38;5;124m"[39m[38;5;124mContent of df1 and df2 do not match[39m[38;5;124m"[39m)
+[1;32m     96[0m [38;5;28;01mreturn[39;00m [38;5;28;01mTrue[39;00m
+
+[0;31mValueError[0m: Content of df1 and df2 do not match
+
+        <Iteration>: 2/3
+
+==========Running the manager agent to decide the next step==========
+Choice: repair
+Reason: The rewritten code resulted in a runtime error, suggesting there's an issue that needs fixing. We should attempt to repair the rewritten code since we still have iterations left for optimization.
+Code fixer prompt:
+        <Original Code>:
+        ### cell 14 ###
+
+### STEFANOS: I didn't find a way to run the original with Modin. We're converting to Pandas and then
+### back to Modin.
+### ORIGINAL:
+# data_sub = df.groupby('type')['year_added'].value_counts().unstack().fillna(0).loc[['TV Show','Movie']].cumsum(axis=0).T
+### MODIFIED:
+
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = df._to_pandas()
+
+data_sub = df.groupby('type')['year_added'].value_counts().unstack().fillna(0).loc[['TV Show','Movie']].cumsum(axis=0).T
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+  df = pd.DataFrame(df)
+  data_sub = pd.DataFrame(data_sub)
+
+# STEFANOS: Disable plotting
+
+# fig, ax = plt.subplots(1, 1, figsize=(12, 6))
+# color = ["#b20710", "#221f1f"]
+
+# for i, mtv in enumerate(df['type'].value_counts().index):
+#     mtv_rel = data_sub[mtv]
+#     ax.fill_between(mtv_rel.index, 0, mtv_rel, color=color[i], label=mtv,alpha=0.9)
+
+
+
+# ax.yaxis.tick_right()
+
+# ax.axhline(y = 0, color = 'black', linewidth = 1.3, alpha = .7)
+
+# #ax.set_ylim(0, 50)
+# #ax.legend(loc='upper left')
+# for s in ['top', 'right','bottom','left']:
+#     ax.spines[s].set_visible(False)
+
+# ax.grid(False)
+
+# ax.set_xlim(2008,2020)
+# plt.xticks(np.arange(2008, 2021, 1))
+
+# fig.text(0.13, 0.85, 'Movies & TV Shows added over time [Cumulative Total]', fontsize=15, fontweight='bold', fontfamily='serif')
+# fig.text(0.13, 0.58,
+# '''Netflix peak global content amount was in 2019.
+
+# It appears that Netflix has focused more attention
+# on increasing Movie content that TV Shows.
+# Movies have increased much more dramatically
+# than TV shows.
+# '''
+
+# , fontsize=12, fontweight='light', fontfamily='serif')
+
+
+
+# fig.text(0.13,0.2,"Movie", fontweight="bold", fontfamily='serif', fontsize=15, color='#b20710')
+# fig.text(0.19,0.2,"|", fontweight="bold", fontfamily='serif', fontsize=15, color='black')
+# fig.text(0.2,0.2,"TV Show", fontweight="bold", fontfamily='serif', fontsize=15, color='#221f1f')
+
+# ax.tick_params(axis=u'both', which=u'both',length=0)
+
+
+# plt.show()
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0             DataFrame.groupby          1          0
+1  DataFrameGroupBy.__getitem__          1          0
+2    SeriesGroupBy.value_counts          0          1
+3                Series.unstack          0          1
+4                NDFrame.fillna          1          0
+5  _LocationIndexer.__getitem__          1          0
+6              DataFrame.cumsum          1          0
+        <Execution time>: 32700.000000000004
+        <Active Vars>: ['data_sub']
+        <Future Vars>: ['data', 'df', 'x']
+        <Rewritten Code>:
+        ### cell 14 ###
+
+# If we’re running under Modin we first materialize a pandas (CPU) DataFrame
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    df = df._to_pandas()
+
+# 1) group by type & year_added, 2) count (GPU), 3) unstack with a float fill to match original float dtype (GPU),
+# 4) pick the two types in the right order, 5) cumsum over the type‐index to build the stacked values,
+# 6) transpose to get years on the index and types on the columns
+data_sub = (
+    df
+    .groupby(["type", "year_added"])       # GPU groupby on two keys
+    .size()                                   # GPU count
+    .unstack(fill_value=0.0)                  # GPU pivot, fill missing with 0.0 -> float dtype
+    .loc[["TV Show", "Movie"]]             # select and order the type index
+    .cumsum(axis=0)                           # stack the counts over the two types
+    .T                                        # transpose so rows=year, cols=type
+)
+
+# If we need to go back to pandas (CPU) for plotting under Modin, re-wrap
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    import pandas as pd
+    df = pd.DataFrame(df)
+    data_sub = pd.DataFrame(data_sub)
+        <Profiling data>:
+        None
+        <Execution time>: inf
+        <Execution output>: The rewritten code resulted in a runtime error. An error occurred while executing the following cell:
+------------------
+data_sub_opt = data_sub
+%LoadCheckpoint /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/post_cell_14.pickle
+assert compare_df(data_sub_opt, data_sub)
+
+import numpy as np
+import cudf
+from elastic.core.common.pandas import is_type_styler
+is_orig_output_pd = isinstance(orig_output, (pd.Series, pd.DataFrame, pd.Index))
+is_opt_output_pd = isinstance(opt_output, (pd.Series, pd.DataFrame, pd.Index))
+is_orig_output_array = isinstance(orig_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
+is_opt_output_array = isinstance(opt_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
+is_orig_output_styler = is_type_styler(type(orig_output))
+is_opt_output_styler = is_type_styler(type(opt_output))
+if is_orig_output_styler and is_opt_output_styler:
+    assert orig_output.to_html() == opt_output.to_html()
+elif is_orig_output_styler:
+    assert orig_output.to_html() == opt_output.to_html()
+elif is_opt_output_styler:
+    assert opt_output.to_html() == orig_output
+
+if is_orig_output_pd and is_opt_output_pd:
+    assert orig_output.equals(opt_output)
+# TODO(jie): this is a hack.
+elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
+    assert list(orig_output) == list(opt_output)
+else:
+    assert orig_output == opt_output
+
+------------------
+
+----- stdout -----
+[[<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fab00>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fa950>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811faad0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fab90>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811f9060>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fbd00>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811f9090>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fb160>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fa560>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fa5c0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fa650>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811f8f40>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fb700>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fb730>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fa7a0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fabc0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fa7d0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fa800>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fb850>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811f93f0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fb340>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fb550>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fb100>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fb2b0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811faa70>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fb2e0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f8a811fadd0>]]
+trying: ['tv']
+me:  16
+trying: ['time']
+me:  0
+trying: ['movie']
+me:  16
+trying: ['df']
+----- stdout -----
+me:  18
+trying: ['warnings']
+me:  1
+trying: ['r']
+me:  9
+trying: ['dt']
+me:  1
+trying: ['y']
+me:  9
+trying: ['x']
+me:  9
+trying: ['ratings_ages']
+me:  11
+trying: ['data']
+me:  12
+trying: ['orig_output']
+me:  15
+trying: ['null_rate']
+me:  4
+trying: ['i']
+me:  4
+trying: ['country_order']
+me:  13
+trying: ['data_sub']
+me:  18
+trying: ['data_q2q3_ratio']
+me:  13
+trying: ['data_q2q3']
+me:  13
+trying: ['pd']
+me:  0
+trying: ['factor']
+me:  3
+trying: ['mf_ratio']
+me:  9
+trying: ['np']
+me:  0
+trying: ['order']
+me:  14
+trying: ['i_1']
+me:  10
+trying: ['rating_order']
+me:  14
+trying: ['i_2']
+me:  10
+trying: ['mf']
+me:  16
+----- stdout -----
+Declaring variable time
+Declaring variable pd
+Declaring variable np
+Declaring variable warnings
+Declaring variable dt
+Declaring variable factor
+Declaring variable null_rate
+Declaring variable i
+Declaring variable r
+Declaring variable y
+Declaring variable x
+Declaring variable mf_ratio
+Declaring variable i_1
+Declaring variable i_2
+Declaring variable ratings_ages
+Declaring variable data
+Declaring variable country_order
+Declaring variable data_q2q3_ratio
+Declaring variable data_q2q3
+Declaring variable order
+Declaring variable rating_order
+Declaring variable orig_output
+Declaring variable tv
+Declaring variable movie
+Declaring variable mf
+Declaring variable df
+Declaring variable data_sub
+------------------
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mValueError[0m                                Traceback (most recent call last)
+Cell [0;32mIn [9], line 3[0m
+[1;32m      1[0m data_sub_opt [38;5;241m=[39m data_sub
+[1;32m      2[0m get_ipython()[38;5;241m.[39mrun_line_magic([38;5;124m'[39m[38;5;124mLoadCheckpoint[39m[38;5;124m'[39m, [38;5;124m'[39m[38;5;124m/home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/post_cell_14.pickle[39m[38;5;124m'[39m)
+[0;32m----> 3[0m [38;5;28;01massert[39;00m [43mcompare_df[49m[43m([49m[43mdata_sub_opt[49m[43m,[49m[43m [49m[43mdata_sub[49m[43m)[49m
+[1;32m      5[0m [38;5;28;01mimport[39;00m[38;5;250m [39m[38;5;21;01mnumpy[39;00m[38;5;250m [39m[38;5;28;01mas[39;00m[38;5;250m [39m[38;5;21;01mnp[39;00m
+[1;32m      6[0m [38;5;28;01mimport[39;00m[38;5;250m [39m[38;5;21;01mcudf[39;00m
+
+File [0;32m/home/ElasticNotebook/elastic/core/common/pandas.py:94[0m, in [0;36mcompare_df[0;34m(df1, df2)[0m
+[1;32m     91[0m         [38;5;28;01mraise[39;00m [38;5;167;01mValueError[39;00m([38;5;124mf[39m[38;5;124m"[39m[38;5;124mData type mismatch: [39m[38;5;132;01m{[39;00mdf1[38;5;241m.[39mdtype[38;5;132;01m}[39;00m[38;5;124m vs [39m[38;5;132;01m{[39;00mdf2[38;5;241m.[39mdtype[38;5;132;01m}[39;00m[38;5;124m"[39m)
+[1;32m     93[0m [38;5;28;01mif[39;00m hash_df(df1) [38;5;241m!=[39m hash_df(df2):
+[0;32m---> 94[0m     [38;5;28;01mraise[39;00m [38;5;167;01mValueError[39;00m([38;5;124mf[39m[38;5;124m"[39m[38;5;124mContent of df1 and df2 do not match[39m[38;5;124m"[39m)
+[1;32m     96[0m [38;5;28;01mreturn[39;00m [38;5;28;01mTrue[39;00m
+
+[0;31mValueError[0m: Content of df1 and df2 do not match
+
+        <Iteration>: 2/3
+
+Repairing the last generated code
+Code: ### cell 14 ###
+
+# If we’re running under Modin, pull the GPU‐backed df down to a pandas DataFrame
+if os.environ.get("IREWR_WITH_MODIN") == "True":
+    df = df._to_pandas()
+
+# 1) group by type & year_added, 2) count on the GPU, 3) pivot (unstack) and fill missing on the GPU,
+# 4) pick our two types in the desired order, 5) cumulative sum across the type‐index (axis=0),
+# 6) transpose so years → rows, types → columns
+data_sub = (
+    df
+    .groupby(["type", "year_added"])  # GPU groupby on two keys
+    .size()                              # GPU count for each (type, year)
+    .unstack()                           # GPU pivot: years → columns, types → rows
+    .fillna(0)                           # GPU fill missing combinations with 0
+    .loc[["TV Show", "Movie"]]       # select and order the two types
+    .cumsum(axis=0)                      # GPU cumulative sum across the type‐index
+    .T                                   # transpose: rows=years, columns=types
+)
+
+# If we need to go back to pandas for Modin plotting
+if os.environ.get("IREWR_WITH_MODIN") == "True":
+    import pandas as pd
+    df = pd.DataFrame(df)
+    data_sub = pd.DataFrame(data_sub)
+Reason: Replaced the CPU‐bound value_counts()/unstack() chain with a single GPU‐native groupby([...]).size().unstack() + fillna(0).  This eliminates the SeriesGroupBy.value_counts and the CPU unstack, while preserving exactly the same shape, ordering, and dtype of the original result.  The rest of the pipeline (.loc, .cumsum(axis=0), .T) remains unchanged to maintain semantic equivalence.
+Parsed response: ### cell 14 ###
+
+# If we’re running under Modin, pull the GPU‐backed df down to a pandas DataFrame
+if os.environ.get("IREWR_WITH_MODIN") == "True":
+    df = df._to_pandas()
+
+# 1) group by type & year_added, 2) count on the GPU, 3) pivot (unstack) and fill missing on the GPU,
+# 4) pick our two types in the desired order, 5) cumulative sum across the type‐index (axis=0),
+# 6) transpose so years → rows, types → columns
+data_sub = (
+    df
+    .groupby(["type", "year_added"])  # GPU groupby on two keys
+    .size()                              # GPU count for each (type, year)
+    .unstack()                           # GPU pivot: years → columns, types → rows
+    .fillna(0)                           # GPU fill missing combinations with 0
+    .loc[["TV Show", "Movie"]]       # select and order the two types
+    .cumsum(axis=0)                      # GPU cumulative sum across the type‐index
+    .T                                   # transpose: rows=years, columns=types
+)
+
+# If we need to go back to pandas for Modin plotting
+if os.environ.get("IREWR_WITH_MODIN") == "True":
+    import pandas as pd
+    df = pd.DataFrame(df)
+    data_sub = pd.DataFrame(data_sub)
+Try 2: calling rewrite agent for cell 14 took 214.17080092430115 seconds.
+Executing rewritten code... ### cell 14 ###
+
+# If we’re running under Modin, pull the GPU‐backed df down to a pandas DataFrame
+if os.environ.get("IREWR_WITH_MODIN") == "True":
+    df = df._to_pandas()
+
+# 1) group by type & year_added, 2) count on the GPU, 3) pivot (unstack) and fill missing on the GPU,
+# 4) pick our two types in the desired order, 5) cumulative sum across the type‐index (axis=0),
+# 6) transpose so years → rows, types → columns
+data_sub = (
+    df
+    .groupby(["type", "year_added"])  # GPU groupby on two keys
+    .size()                              # GPU count for each (type, year)
+    .unstack()                           # GPU pivot: years → columns, types → rows
+    .fillna(0)                           # GPU fill missing combinations with 0
+    .loc[["TV Show", "Movie"]]       # select and order the two types
+    .cumsum(axis=0)                      # GPU cumulative sum across the type‐index
+    .T                                   # transpose: rows=years, columns=types
+)
+
+# If we need to go back to pandas for Modin plotting
+if os.environ.get("IREWR_WITH_MODIN") == "True":
+    import pandas as pd
+    df = pd.DataFrame(df)
+    data_sub = pd.DataFrame(data_sub)
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/rewritten/o4_mini_high/checkpoints/post_cell_13_try_1.pickle
+Running rewritten cell notebook
+An unexpected error occurred An error occurred while executing the following cell:
+------------------
+data_sub_opt = data_sub
+%LoadCheckpoint /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/post_cell_14.pickle
+assert compare_df(data_sub_opt, data_sub)
+
+import numpy as np
+import cudf
+from elastic.core.common.pandas import is_type_styler
+is_orig_output_pd = isinstance(orig_output, (pd.Series, pd.DataFrame, pd.Index))
+is_opt_output_pd = isinstance(opt_output, (pd.Series, pd.DataFrame, pd.Index))
+is_orig_output_array = isinstance(orig_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
+is_opt_output_array = isinstance(opt_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
+is_orig_output_styler = is_type_styler(type(orig_output))
+is_opt_output_styler = is_type_styler(type(opt_output))
+if is_orig_output_styler and is_opt_output_styler:
+    assert orig_output.to_html() == opt_output.to_html()
+elif is_orig_output_styler:
+    assert orig_output.to_html() == opt_output.to_html()
+elif is_opt_output_styler:
+    assert opt_output.to_html() == orig_output
+
+if is_orig_output_pd and is_opt_output_pd:
+    assert orig_output.equals(opt_output)
+# TODO(jie): this is a hack.
+elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
+    assert list(orig_output) == list(opt_output)
+else:
+    assert orig_output == opt_output
+
+------------------
+
+----- stdout -----
+[[<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fa17af56b60>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fa17af569b0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fa17af56b30>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fa17af56bf0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fa17af553f0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fa17af57d60>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fa17af55420>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fa17af56590>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fa17af565c0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fa17af56620>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fa17af566b0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fa17af552d0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fa17af572b0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fa17af572e0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fa17af56800>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fa17af56c20>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fa17af56830>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fa17af56860>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fa17af57400>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fa17af55780>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fa17af56ef0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fa17af57100>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fa17af579d0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fa17af56e60>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fa17af56ad0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fa17af56e90>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7fa17af576a0>]]
+trying: ['tv']
+me:  16
+trying: ['time']
+me:  0
+trying: ['movie']
+me:  16
+trying: ['df']
+----- stdout -----
+me:  18
+trying: ['warnings']
+me:  1
+trying: ['r']
+me:  9
+trying: ['dt']
+me:  1
+trying: ['y']
+me:  9
+trying: ['x']
+me:  9
+trying: ['ratings_ages']
+me:  11
+trying: ['data']
+me:  12
+trying: ['orig_output']
+me:  15
+trying: ['null_rate']
+me:  4
+trying: ['i']
+me:  4
+trying: ['country_order']
+me:  13
+trying: ['data_sub']
+me:  18
+trying: ['data_q2q3_ratio']
+me:  13
+trying: ['data_q2q3']
+me:  13
+trying: ['pd']
+me:  0
+trying: ['factor']
+me:  3
+trying: ['mf_ratio']
+me:  9
+trying: ['np']
+me:  0
+trying: ['order']
+me:  14
+trying: ['i_1']
+me:  10
+trying: ['rating_order']
+me:  14
+trying: ['i_2']
+me:  10
+trying: ['mf']
+me:  16
+----- stdout -----
+Declaring variable time
+Declaring variable pd
+Declaring variable np
+Declaring variable warnings
+Declaring variable dt
+Declaring variable factor
+Declaring variable null_rate
+Declaring variable i
+Declaring variable r
+Declaring variable y
+Declaring variable x
+Declaring variable mf_ratio
+Declaring variable i_1
+Declaring variable i_2
+Declaring variable ratings_ages
+Declaring variable data
+Declaring variable country_order
+Declaring variable data_q2q3_ratio
+Declaring variable data_q2q3
+Declaring variable order
+Declaring variable rating_order
+Declaring variable orig_output
+Declaring variable tv
+Declaring variable movie
+Declaring variable mf
+Declaring variable df
+Declaring variable data_sub
+------------------
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mValueError[0m                                Traceback (most recent call last)
+Cell [0;32mIn [9], line 3[0m
+[1;32m      1[0m data_sub_opt [38;5;241m=[39m data_sub
+[1;32m      2[0m get_ipython()[38;5;241m.[39mrun_line_magic([38;5;124m'[39m[38;5;124mLoadCheckpoint[39m[38;5;124m'[39m, [38;5;124m'[39m[38;5;124m/home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/post_cell_14.pickle[39m[38;5;124m'[39m)
+[0;32m----> 3[0m [38;5;28;01massert[39;00m [43mcompare_df[49m[43m([49m[43mdata_sub_opt[49m[43m,[49m[43m [49m[43mdata_sub[49m[43m)[49m
+[1;32m      5[0m [38;5;28;01mimport[39;00m[38;5;250m [39m[38;5;21;01mnumpy[39;00m[38;5;250m [39m[38;5;28;01mas[39;00m[38;5;250m [39m[38;5;21;01mnp[39;00m
+[1;32m      6[0m [38;5;28;01mimport[39;00m[38;5;250m [39m[38;5;21;01mcudf[39;00m
+
+File [0;32m/home/ElasticNotebook/elastic/core/common/pandas.py:94[0m, in [0;36mcompare_df[0;34m(df1, df2)[0m
+[1;32m     91[0m         [38;5;28;01mraise[39;00m [38;5;167;01mValueError[39;00m([38;5;124mf[39m[38;5;124m"[39m[38;5;124mData type mismatch: [39m[38;5;132;01m{[39;00mdf1[38;5;241m.[39mdtype[38;5;132;01m}[39;00m[38;5;124m vs [39m[38;5;132;01m{[39;00mdf2[38;5;241m.[39mdtype[38;5;132;01m}[39;00m[38;5;124m"[39m)
+[1;32m     93[0m [38;5;28;01mif[39;00m hash_df(df1) [38;5;241m!=[39m hash_df(df2):
+[0;32m---> 94[0m     [38;5;28;01mraise[39;00m [38;5;167;01mValueError[39;00m([38;5;124mf[39m[38;5;124m"[39m[38;5;124mContent of df1 and df2 do not match[39m[38;5;124m"[39m)
+[1;32m     96[0m [38;5;28;01mreturn[39;00m [38;5;28;01mTrue[39;00m
+
+[0;31mValueError[0m: Content of df1 and df2 do not match
+
+Rewritten time: inf ms
+Checkpointing the rewritten cell for small notebook...
+Could not rewrite the cell. Continuing to next cell...
+========================================================
+After rewriting cell  14
+Rewritten pre-checkpoint path: /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/post_cell_14.pickle
+Pre-checkpoint path: /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/post_cell_14.pickle
+========================================================
+Cell 14 rewriting took 668.5950343608856 seconds.
+Getting original timing for cell 15
+HAHA original checkpoint path:  /home/dias-benchmarks/notebooks/joshuaswords/netflix-data-visualization/src/annotated/checkpoints/post_cell_14.pickle

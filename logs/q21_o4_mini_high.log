@@ -1,0 +1,2314 @@
+Annotated notebook saved to /home/dias-benchmarks/tpch/notebooks/q21/cell_exec_info.ipynb
+Executing code: import sys, os
+sys.path.insert(0, os.path.abspath('/home/ElasticNotebook'))
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df
+import pickle
+import cudf
+Executing code: %%RecordEventWithColumnInfo
+# %load_ext cudf.pandas
+import sys, os
+tpch_parent = os.path.abspath(os.path.join(os.getcwd(), ".."))
+sys.path.insert(0, tpch_parent)
+#from tpch import load_lineitem, load_orders, load_supplier, load_nation, q21
+import pandas as pd
+DATA_ROOT = "/home/dias-benchmarks/tpch/data"
+STORAGE_OPTS = {}
+
+
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+def load_lineitem(
+    data_folder: str, **storage_options
+) -> pd.DataFrame:
+    data_path = data_folder + "/lineitem.tbl"
+    # df = pd.read_parquet(
+    #     data_path,  storage_options=storage_options
+    # )
+    df = pd.read_csv(data_path, sep="|")
+    return df
+lineitem = load_lineitem(DATA_ROOT, **STORAGE_OPTS)
+
+Executing code: %%RecordEventWithColumnInfo
+### cell 1 ###
+
+def load_orders(
+    data_folder: str, **storage_options
+) -> pd.DataFrame:
+    data_path = data_folder + "/orders.tbl"
+    # df = pd.read_parquet(
+    #     data_path,  storage_options=storage_options
+    # )
+    df = pd.read_csv(data_path, sep="|")
+    return df
+orders = load_orders(DATA_ROOT, **STORAGE_OPTS)
+
+Executing code: %%RecordEventWithColumnInfo
+### cell 2 ###
+
+def load_supplier(
+    data_folder: str, **storage_options
+) -> pd.DataFrame:
+    data_path = data_folder + "/supplier.tbl"
+    # df = pd.read_parquet(
+    #     data_path,  storage_options=storage_options
+    # )
+    df = pd.read_csv(data_path, sep="|")
+    return df
+supplier = load_supplier(DATA_ROOT, **STORAGE_OPTS)
+
+Executing code: %%RecordEventWithColumnInfo
+### cell 3 ###
+
+def load_nation(
+    data_folder: str, **storage_options
+) -> pd.DataFrame:
+    data_path = data_folder + "/nation.tbl"
+    # df = pd.read_parquet(
+    #     data_path,  storage_options=storage_options
+    # )
+    df = pd.read_csv(data_path, sep="|")
+    return df
+nation = load_nation(DATA_ROOT, **STORAGE_OPTS)
+Executing code: %%RecordEventWithColumnInfo
+### cell 4 ###
+
+
+lineitem_filtered = lineitem.loc[
+    :, ["L_ORDERKEY", "L_SUPPKEY", "L_RECEIPTDATE", "L_COMMITDATE"]
+]
+
+# Keep all rows that have another row in linetiem with the same orderkey and different suppkey
+lineitem_orderkeys = (
+    lineitem_filtered.loc[:, ["L_ORDERKEY", "L_SUPPKEY"]]
+    .groupby("L_ORDERKEY", as_index=False, sort=False)["L_SUPPKEY"]
+    .nunique()
+)
+lineitem_orderkeys.columns = ["L_ORDERKEY", "nunique_col"]
+lineitem_orderkeys = lineitem_orderkeys[lineitem_orderkeys["nunique_col"] > 1]
+lineitem_orderkeys = lineitem_orderkeys.loc[:, ["L_ORDERKEY"]]
+
+# Keep all rows that have l_receiptdate > l_commitdate
+lineitem_filtered = lineitem_filtered[
+    lineitem_filtered["L_RECEIPTDATE"] > lineitem_filtered["L_COMMITDATE"]
+]
+lineitem_filtered = lineitem_filtered.loc[:, ["L_ORDERKEY", "L_SUPPKEY"]]
+
+# Merge Filter + Exists
+lineitem_filtered = lineitem_filtered.merge(
+    lineitem_orderkeys, on="L_ORDERKEY", how="inner"
+)
+
+# Not Exists: Check the exists condition isn't still satisfied on the output.
+lineitem_orderkeys = lineitem_filtered.groupby(
+    "L_ORDERKEY", as_index=False, sort=False
+)["L_SUPPKEY"].nunique()
+lineitem_orderkeys.columns = ["L_ORDERKEY", "nunique_col"]
+lineitem_orderkeys = lineitem_orderkeys[lineitem_orderkeys["nunique_col"] == 1]
+lineitem_orderkeys = lineitem_orderkeys.loc[:, ["L_ORDERKEY"]]
+
+# Merge Filter + Not Exists
+lineitem_filtered = lineitem_filtered.merge(
+    lineitem_orderkeys, on="L_ORDERKEY", how="inner"
+)
+
+orders_filtered = orders.loc[:, ["O_ORDERSTATUS", "O_ORDERKEY"]]
+orders_filtered = orders_filtered[orders_filtered["O_ORDERSTATUS"] == "F"]
+orders_filtered = orders_filtered.loc[:, ["O_ORDERKEY"]]
+total = lineitem_filtered.merge(
+    orders_filtered, left_on="L_ORDERKEY", right_on="O_ORDERKEY", how="inner"
+)
+total = total.loc[:, ["L_SUPPKEY"]]
+
+supplier_filtered = supplier.loc[:, ["S_SUPPKEY", "S_NATIONKEY", "S_NAME"]]
+total = total.merge(
+    supplier_filtered, left_on="L_SUPPKEY", right_on="S_SUPPKEY", how="inner"
+)
+total = total.loc[:, ["S_NATIONKEY", "S_NAME"]]
+nation_filtered = nation.loc[:, ["N_NAME", "N_NATIONKEY"]]
+nation_filtered = nation_filtered[nation_filtered["N_NAME"] == "SAUDI ARABIA"]
+total = total.merge(
+    nation_filtered, left_on="S_NATIONKEY", right_on="N_NATIONKEY", how="inner"
+)
+total = total.loc[:, ["S_NAME"]]
+total = total.groupby("S_NAME", as_index=False, sort=False).size()
+total.columns = ["S_NAME", "NUMWAIT"]
+total = total.sort_values(by=["NUMWAIT", "S_NAME"], ascending=[False, True])
+
+Executing code: %%RecordEventWithColumnInfo
+### cell 5 ###
+
+total.info()
+Executing code: %PrintCellInfo cell_exec_info
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Ran small notebook to get cell exec info in 100.6933159828186 seconds
+Getting cudf profile information...
+Annotated notebook saved to /home/dias-benchmarks/tpch/notebooks/q21/cudf_profile.ipynb
+Done getting cudf profile information.
+Ran small notebook to get cudf profile info in 83.39968800544739 seconds
+Annotated notebook saved to /home/dias-benchmarks/tpch/notebooks/q21/annotated.ipynb
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Executing code: %load_ext cudf.pandas
+Executing code: import sys, os
+sys.path.insert(0, os.path.abspath('/home/ElasticNotebook'))
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df
+import pickle
+import cudf
+Executing code: %%RecordEvent
+# %load_ext cudf.pandas
+import sys, os
+tpch_parent = os.path.abspath(os.path.join(os.getcwd(), ".."))
+sys.path.insert(0, tpch_parent)
+#from tpch import load_lineitem, load_orders, load_supplier, load_nation, q21
+import pandas as pd
+DATA_ROOT = "/home/dias-benchmarks/tpch/data"
+STORAGE_OPTS = {}
+
+
+Executing code: %%RecordEvent
+%%time
+### cell 0 ###
+
+def load_lineitem(
+    data_folder: str, **storage_options
+) -> pd.DataFrame:
+    data_path = data_folder + "/lineitem.tbl"
+    # df = pd.read_parquet(
+    #     data_path,  storage_options=storage_options
+    # )
+    df = pd.read_csv(data_path, sep="|")
+    return df
+lineitem = load_lineitem(DATA_ROOT, **STORAGE_OPTS)
+
+Executing code: %%RecordEvent
+%%time
+### cell 1 ###
+
+def load_orders(
+    data_folder: str, **storage_options
+) -> pd.DataFrame:
+    data_path = data_folder + "/orders.tbl"
+    # df = pd.read_parquet(
+    #     data_path,  storage_options=storage_options
+    # )
+    df = pd.read_csv(data_path, sep="|")
+    return df
+orders = load_orders(DATA_ROOT, **STORAGE_OPTS)
+
+Executing code: %%RecordEvent
+%%time
+### cell 2 ###
+
+def load_supplier(
+    data_folder: str, **storage_options
+) -> pd.DataFrame:
+    data_path = data_folder + "/supplier.tbl"
+    # df = pd.read_parquet(
+    #     data_path,  storage_options=storage_options
+    # )
+    df = pd.read_csv(data_path, sep="|")
+    return df
+supplier = load_supplier(DATA_ROOT, **STORAGE_OPTS)
+
+Executing code: %%RecordEvent
+%%time
+### cell 3 ###
+
+def load_nation(
+    data_folder: str, **storage_options
+) -> pd.DataFrame:
+    data_path = data_folder + "/nation.tbl"
+    # df = pd.read_parquet(
+    #     data_path,  storage_options=storage_options
+    # )
+    df = pd.read_csv(data_path, sep="|")
+    return df
+nation = load_nation(DATA_ROOT, **STORAGE_OPTS)
+Executing code: %Checkpoint /home/dias-benchmarks/tpch/notebooks/q21/annotated/checkpoints/pre_cell_4.pickle
+Checkpointing took 0.0007493495941162109 seconds.
+========================================================
+Cell  4
+Rewritten pre-checkpoint path: /home/dias-benchmarks/tpch/notebooks/q21/annotated/checkpoints/pre_cell_4.pickle
+Pre-checkpoint path: /home/dias-benchmarks/tpch/notebooks/q21/annotated/checkpoints/pre_cell_4.pickle
+Small rewritten pre-checkpoint path: /home/dias-benchmarks/tpch/notebooks/q21/q21_rewrite/checkpoints/pre_cell_4.pickle
+========================================================
+Getting original timing for cell 4
+HAHA original checkpoint path:  /home/dias-benchmarks/tpch/notebooks/q21/annotated/checkpoints/pre_cell_4.pickle
+Setting initially best_rewritten_post_checkpoint_path:  /home/dias-benchmarks/tpch/notebooks/q21/annotated/checkpoints/post_cell_4.pickle
+Setting initially best_small_rewritten_post_checkpoint_path:  /home/dias-benchmarks/tpch/notebooks/q21/q21_rewrite/checkpoints/pre_cell_5.pickle
+========================================================
+Rewriting cell 4... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 4 ###
+
+
+lineitem_filtered = lineitem.loc[
+    :, ["L_ORDERKEY", "L_SUPPKEY", "L_RECEIPTDATE", "L_COMMITDATE"]
+]
+
+# Keep all rows that have another row in linetiem with the same orderkey and different suppkey
+lineitem_orderkeys = (
+    lineitem_filtered.loc[:, ["L_ORDERKEY", "L_SUPPKEY"]]
+    .groupby("L_ORDERKEY", as_index=False, sort=False)["L_SUPPKEY"]
+    .nunique()
+)
+lineitem_orderkeys.columns = ["L_ORDERKEY", "nunique_col"]
+lineitem_orderkeys = lineitem_orderkeys[lineitem_orderkeys["nunique_col"] > 1]
+lineitem_orderkeys = lineitem_orderkeys.loc[:, ["L_ORDERKEY"]]
+
+# Keep all rows that have l_receiptdate > l_commitdate
+lineitem_filtered = lineitem_filtered[
+    lineitem_filtered["L_RECEIPTDATE"] > lineitem_filtered["L_COMMITDATE"]
+]
+lineitem_filtered = lineitem_filtered.loc[:, ["L_ORDERKEY", "L_SUPPKEY"]]
+
+# Merge Filter + Exists
+lineitem_filtered = lineitem_filtered.merge(
+    lineitem_orderkeys, on="L_ORDERKEY", how="inner"
+)
+
+# Not Exists: Check the exists condition isn't still satisfied on the output.
+lineitem_orderkeys = lineitem_filtered.groupby(
+    "L_ORDERKEY", as_index=False, sort=False
+)["L_SUPPKEY"].nunique()
+lineitem_orderkeys.columns = ["L_ORDERKEY", "nunique_col"]
+lineitem_orderkeys = lineitem_orderkeys[lineitem_orderkeys["nunique_col"] == 1]
+lineitem_orderkeys = lineitem_orderkeys.loc[:, ["L_ORDERKEY"]]
+
+# Merge Filter + Not Exists
+lineitem_filtered = lineitem_filtered.merge(
+    lineitem_orderkeys, on="L_ORDERKEY", how="inner"
+)
+
+orders_filtered = orders.loc[:, ["O_ORDERSTATUS", "O_ORDERKEY"]]
+orders_filtered = orders_filtered[orders_filtered["O_ORDERSTATUS"] == "F"]
+orders_filtered = orders_filtered.loc[:, ["O_ORDERKEY"]]
+total = lineitem_filtered.merge(
+    orders_filtered, left_on="L_ORDERKEY", right_on="O_ORDERKEY", how="inner"
+)
+total = total.loc[:, ["L_SUPPKEY"]]
+
+supplier_filtered = supplier.loc[:, ["S_SUPPKEY", "S_NATIONKEY", "S_NAME"]]
+total = total.merge(
+    supplier_filtered, left_on="L_SUPPKEY", right_on="S_SUPPKEY", how="inner"
+)
+total = total.loc[:, ["S_NATIONKEY", "S_NAME"]]
+nation_filtered = nation.loc[:, ["N_NAME", "N_NATIONKEY"]]
+nation_filtered = nation_filtered[nation_filtered["N_NAME"] == "SAUDI ARABIA"]
+total = total.merge(
+    nation_filtered, left_on="S_NATIONKEY", right_on="N_NATIONKEY", how="inner"
+)
+total = total.loc[:, ["S_NAME"]]
+total = total.groupby("S_NAME", as_index=False, sort=False).size()
+total.columns = ["S_NAME", "NUMWAIT"]
+total = total.sort_values(by=["NUMWAIT", "S_NAME"], ascending=[False, True])
+
+        <Profiling data>:
+                                Function  GPU calls  CPU calls
+0   _LocationIndexer.__getitem__         12          0
+1              DataFrame.groupby          3          0
+2   DataFrameGroupBy.__getitem__          2          0
+3          SeriesGroupBy.nunique          2          0
+4            NDFrame.__setattr__          3          0
+5          DataFrame.__getitem__         11          0
+6                OpsMixin.__gt__          2          0
+7                DataFrame.merge          5          0
+8                OpsMixin.__eq__          3          0
+9                   GroupBy.size          1          0
+10         DataFrame.sort_values          1          0
+
+        <Execution time>: 227.0
+        <Active vars>: ['total']
+
+        <Future vars>: []
+
+        <Iteration>: 1/5
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: The code appears to be functional but potentially could be optimized, especially considering the high number of DataFrame operations and the presence of repeated groupby and merge operations. As there's no rewritten code provided, and we have 4 more iterations, we should focus on generating a new optimized version of the original code to potentially reduce the execution time further.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 4 ###
+
+
+lineitem_filtered = lineitem.loc[
+    :, ["L_ORDERKEY", "L_SUPPKEY", "L_RECEIPTDATE", "L_COMMITDATE"]
+]
+
+# Keep all rows that have another row in linetiem with the same orderkey and different suppkey
+lineitem_orderkeys = (
+    lineitem_filtered.loc[:, ["L_ORDERKEY", "L_SUPPKEY"]]
+    .groupby("L_ORDERKEY", as_index=False, sort=False)["L_SUPPKEY"]
+    .nunique()
+)
+lineitem_orderkeys.columns = ["L_ORDERKEY", "nunique_col"]
+lineitem_orderkeys = lineitem_orderkeys[lineitem_orderkeys["nunique_col"] > 1]
+lineitem_orderkeys = lineitem_orderkeys.loc[:, ["L_ORDERKEY"]]
+
+# Keep all rows that have l_receiptdate > l_commitdate
+lineitem_filtered = lineitem_filtered[
+    lineitem_filtered["L_RECEIPTDATE"] > lineitem_filtered["L_COMMITDATE"]
+]
+lineitem_filtered = lineitem_filtered.loc[:, ["L_ORDERKEY", "L_SUPPKEY"]]
+
+# Merge Filter + Exists
+lineitem_filtered = lineitem_filtered.merge(
+    lineitem_orderkeys, on="L_ORDERKEY", how="inner"
+)
+
+# Not Exists: Check the exists condition isn't still satisfied on the output.
+lineitem_orderkeys = lineitem_filtered.groupby(
+    "L_ORDERKEY", as_index=False, sort=False
+)["L_SUPPKEY"].nunique()
+lineitem_orderkeys.columns = ["L_ORDERKEY", "nunique_col"]
+lineitem_orderkeys = lineitem_orderkeys[lineitem_orderkeys["nunique_col"] == 1]
+lineitem_orderkeys = lineitem_orderkeys.loc[:, ["L_ORDERKEY"]]
+
+# Merge Filter + Not Exists
+lineitem_filtered = lineitem_filtered.merge(
+    lineitem_orderkeys, on="L_ORDERKEY", how="inner"
+)
+
+orders_filtered = orders.loc[:, ["O_ORDERSTATUS", "O_ORDERKEY"]]
+orders_filtered = orders_filtered[orders_filtered["O_ORDERSTATUS"] == "F"]
+orders_filtered = orders_filtered.loc[:, ["O_ORDERKEY"]]
+total = lineitem_filtered.merge(
+    orders_filtered, left_on="L_ORDERKEY", right_on="O_ORDERKEY", how="inner"
+)
+total = total.loc[:, ["L_SUPPKEY"]]
+
+supplier_filtered = supplier.loc[:, ["S_SUPPKEY", "S_NATIONKEY", "S_NAME"]]
+total = total.merge(
+    supplier_filtered, left_on="L_SUPPKEY", right_on="S_SUPPKEY", how="inner"
+)
+total = total.loc[:, ["S_NATIONKEY", "S_NAME"]]
+nation_filtered = nation.loc[:, ["N_NAME", "N_NATIONKEY"]]
+nation_filtered = nation_filtered[nation_filtered["N_NAME"] == "SAUDI ARABIA"]
+total = total.merge(
+    nation_filtered, left_on="S_NATIONKEY", right_on="N_NATIONKEY", how="inner"
+)
+total = total.loc[:, ["S_NAME"]]
+total = total.groupby("S_NAME", as_index=False, sort=False).size()
+total.columns = ["S_NAME", "NUMWAIT"]
+total = total.sort_values(by=["NUMWAIT", "S_NAME"], ascending=[False, True])
+
+        <Profiling data>:
+                                Function  GPU calls  CPU calls
+0   _LocationIndexer.__getitem__         12          0
+1              DataFrame.groupby          3          0
+2   DataFrameGroupBy.__getitem__          2          0
+3          SeriesGroupBy.nunique          2          0
+4            NDFrame.__setattr__          3          0
+5          DataFrame.__getitem__         11          0
+6                OpsMixin.__gt__          2          0
+7                DataFrame.merge          5          0
+8                OpsMixin.__eq__          3          0
+9                   GroupBy.size          1          0
+10         DataFrame.sort_values          1          0
+
+        <Execution time>: 227.0
+        <Active vars>: ['total']
+
+        <Future vars>: []
+
+        <Iteration>: 1/5
+
+Code: # Select relevant columns from lineitem
+li = lineitem[['L_ORDERKEY','L_SUPPKEY','L_RECEIPTDATE','L_COMMITDATE']]
+
+# Pre-filter by date condition and keep minimal columns
+date_li = li[li.L_RECEIPTDATE > li.L_COMMITDATE][['L_ORDERKEY','L_SUPPKEY']]
+
+# Compute original and post-filter supplier counts per order
+o_orig = li.groupby('L_ORDERKEY').L_SUPPKEY.nunique().reset_index().rename(columns={'L_SUPPKEY':'orig_count'})
+o_new  = date_li.groupby('L_ORDERKEY').L_SUPPKEY.nunique().reset_index().rename(columns={'L_SUPPKEY':'new_count'})
+
+# Identify orders with >1 original supplier and exactly one after the date filter
+valid_orders = o_orig.merge(o_new, on='L_ORDERKEY', how='inner')
+valid_orders = valid_orders[(valid_orders.orig_count > 1) & (valid_orders.new_count == 1)][['L_ORDERKEY']]
+
+# Keep only those lineitems
+filtered_li = date_li.merge(valid_orders, on='L_ORDERKEY', how='inner')
+
+# Filter orders by status 'F'
+o_f = orders[orders.O_ORDERSTATUS == 'F'][['O_ORDERKEY']]
+
+# Join filtered lineitems with filtered orders
+df = filtered_li.merge(o_f, left_on='L_ORDERKEY', right_on='O_ORDERKEY', how='inner')
+
+# Build supplier→Saudi Arabia lookup
+supp_nat = supplier[['S_SUPPKEY','S_NATIONKEY','S_NAME']].merge(
+    nation[nation.N_NAME == 'SAUDI ARABIA'][['N_NATIONKEY']],
+    left_on='S_NATIONKEY', right_on='N_NATIONKEY', how='inner'
+)[['S_SUPPKEY','S_NAME']]
+
+# Final join and aggregation
+total = (
+    df.merge(supp_nat, left_on='L_SUPPKEY', right_on='S_SUPPKEY', how='inner')[['S_NAME']]
+      .groupby('S_NAME', as_index=False)
+      .size()
+      .rename(columns={'size':'NUMWAIT'})
+      .sort_values(by=['NUMWAIT','S_NAME'], ascending=[False,True])
+)
+Reason: We consolidated the multiple exists/not-exists group-bys into two count-based group-bys (original vs filtered), eliminated several intermediate DataFrame merges and column selections, and combined the suppliernation join into a single GPU merge. This reduces the number of groupby and merge calls, uses fully vectorized filters, and minimizes temporary views for more efficient cudf execution while preserving the original logic.
+Parsed response: # Select relevant columns from lineitem
+li = lineitem[['L_ORDERKEY','L_SUPPKEY','L_RECEIPTDATE','L_COMMITDATE']]
+
+# Pre-filter by date condition and keep minimal columns
+date_li = li[li.L_RECEIPTDATE > li.L_COMMITDATE][['L_ORDERKEY','L_SUPPKEY']]
+
+# Compute original and post-filter supplier counts per order
+o_orig = li.groupby('L_ORDERKEY').L_SUPPKEY.nunique().reset_index().rename(columns={'L_SUPPKEY':'orig_count'})
+o_new  = date_li.groupby('L_ORDERKEY').L_SUPPKEY.nunique().reset_index().rename(columns={'L_SUPPKEY':'new_count'})
+
+# Identify orders with >1 original supplier and exactly one after the date filter
+valid_orders = o_orig.merge(o_new, on='L_ORDERKEY', how='inner')
+valid_orders = valid_orders[(valid_orders.orig_count > 1) & (valid_orders.new_count == 1)][['L_ORDERKEY']]
+
+# Keep only those lineitems
+filtered_li = date_li.merge(valid_orders, on='L_ORDERKEY', how='inner')
+
+# Filter orders by status 'F'
+o_f = orders[orders.O_ORDERSTATUS == 'F'][['O_ORDERKEY']]
+
+# Join filtered lineitems with filtered orders
+df = filtered_li.merge(o_f, left_on='L_ORDERKEY', right_on='O_ORDERKEY', how='inner')
+
+# Build supplier→Saudi Arabia lookup
+supp_nat = supplier[['S_SUPPKEY','S_NATIONKEY','S_NAME']].merge(
+    nation[nation.N_NAME == 'SAUDI ARABIA'][['N_NATIONKEY']],
+    left_on='S_NATIONKEY', right_on='N_NATIONKEY', how='inner'
+)[['S_SUPPKEY','S_NAME']]
+
+# Final join and aggregation
+total = (
+    df.merge(supp_nat, left_on='L_SUPPKEY', right_on='S_SUPPKEY', how='inner')[['S_NAME']]
+      .groupby('S_NAME', as_index=False)
+      .size()
+      .rename(columns={'size':'NUMWAIT'})
+      .sort_values(by=['NUMWAIT','S_NAME'], ascending=[False,True])
+)
+Try 0: calling rewrite agent for cell 4 took 41.72026228904724 seconds.
+Executing rewritten code... ### cell 4 ###
+
+# Select relevant columns from lineitem
+li = lineitem[['L_ORDERKEY','L_SUPPKEY','L_RECEIPTDATE','L_COMMITDATE']]
+
+# Pre-filter by date condition and keep minimal columns
+date_li = li[li.L_RECEIPTDATE > li.L_COMMITDATE][['L_ORDERKEY','L_SUPPKEY']]
+
+# Compute original and post-filter supplier counts per order
+o_orig = li.groupby('L_ORDERKEY').L_SUPPKEY.nunique().reset_index().rename(columns={'L_SUPPKEY':'orig_count'})
+o_new  = date_li.groupby('L_ORDERKEY').L_SUPPKEY.nunique().reset_index().rename(columns={'L_SUPPKEY':'new_count'})
+
+# Identify orders with >1 original supplier and exactly one after the date filter
+valid_orders = o_orig.merge(o_new, on='L_ORDERKEY', how='inner')
+valid_orders = valid_orders[(valid_orders.orig_count > 1) & (valid_orders.new_count == 1)][['L_ORDERKEY']]
+
+# Keep only those lineitems
+filtered_li = date_li.merge(valid_orders, on='L_ORDERKEY', how='inner')
+
+# Filter orders by status 'F'
+o_f = orders[orders.O_ORDERSTATUS == 'F'][['O_ORDERKEY']]
+
+# Join filtered lineitems with filtered orders
+df = filtered_li.merge(o_f, left_on='L_ORDERKEY', right_on='O_ORDERKEY', how='inner')
+
+# Build supplier→Saudi Arabia lookup
+supp_nat = supplier[['S_SUPPKEY','S_NATIONKEY','S_NAME']].merge(
+    nation[nation.N_NAME == 'SAUDI ARABIA'][['N_NATIONKEY']],
+    left_on='S_NATIONKEY', right_on='N_NATIONKEY', how='inner'
+)[['S_SUPPKEY','S_NAME']]
+
+# Final join and aggregation
+total = (
+    df.merge(supp_nat, left_on='L_SUPPKEY', right_on='S_SUPPKEY', how='inner')[['S_NAME']]
+      .groupby('S_NAME', as_index=False)
+      .size()
+      .rename(columns={'size':'NUMWAIT'})
+      .sort_values(by=['NUMWAIT','S_NAME'], ascending=[False,True])
+)
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/tpch/notebooks/q21/annotated/checkpoints/pre_cell_4.pickle
+Running rewritten cell notebook
+Finished executing the rewritten code.
+Try 0: executing the rewritten code for cell 4 took 35.496174812316895 seconds.
+Rewritten time: 208.0 ms
+Checkpointing the rewritten cell for small notebook...
+The rewritten code is correct. Profiling cudf...
+HAHA small rewritten pre-checkpoint path:  /home/dias-benchmarks/tpch/notebooks/q21/q21_rewrite/checkpoints/pre_cell_4.pickle
+Try 0: cudf profiling the rewritten code for cell 4 took 9.917626857757568 seconds.
+gpu_calls_orig_perc: 1.0, gpu_calls_opt_perc: 1.0
+orig_time: 227.0, opt_time: 208.0
+Both the call ratio and the time are better.
+Rewritten code took 208.0ms. The previous fastest solution took 227.0ms.
+Previous best solution num GPU and CPU calls:  45 0
+New solution num GPU and CPU calls:  43 0
+Accepted the rewritten code.
+Setting best_rewritten_post_checkpoint_path to  /home/dias-benchmarks/tpch/notebooks/q21/rewritten/o4_mini_high/checkpoints/post_cell_4_try_0.pickle
+Setting best_small_rewritten_post_checkpoint_path to  /home/dias-benchmarks/tpch/notebooks/q21/rewritten/o4_mini_high_small/checkpoints/post_cell_4_try_0.pickle
+========================================================
+Rewriting cell 4... Try 1...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 4 ###
+
+
+lineitem_filtered = lineitem.loc[
+    :, ["L_ORDERKEY", "L_SUPPKEY", "L_RECEIPTDATE", "L_COMMITDATE"]
+]
+
+# Keep all rows that have another row in linetiem with the same orderkey and different suppkey
+lineitem_orderkeys = (
+    lineitem_filtered.loc[:, ["L_ORDERKEY", "L_SUPPKEY"]]
+    .groupby("L_ORDERKEY", as_index=False, sort=False)["L_SUPPKEY"]
+    .nunique()
+)
+lineitem_orderkeys.columns = ["L_ORDERKEY", "nunique_col"]
+lineitem_orderkeys = lineitem_orderkeys[lineitem_orderkeys["nunique_col"] > 1]
+lineitem_orderkeys = lineitem_orderkeys.loc[:, ["L_ORDERKEY"]]
+
+# Keep all rows that have l_receiptdate > l_commitdate
+lineitem_filtered = lineitem_filtered[
+    lineitem_filtered["L_RECEIPTDATE"] > lineitem_filtered["L_COMMITDATE"]
+]
+lineitem_filtered = lineitem_filtered.loc[:, ["L_ORDERKEY", "L_SUPPKEY"]]
+
+# Merge Filter + Exists
+lineitem_filtered = lineitem_filtered.merge(
+    lineitem_orderkeys, on="L_ORDERKEY", how="inner"
+)
+
+# Not Exists: Check the exists condition isn't still satisfied on the output.
+lineitem_orderkeys = lineitem_filtered.groupby(
+    "L_ORDERKEY", as_index=False, sort=False
+)["L_SUPPKEY"].nunique()
+lineitem_orderkeys.columns = ["L_ORDERKEY", "nunique_col"]
+lineitem_orderkeys = lineitem_orderkeys[lineitem_orderkeys["nunique_col"] == 1]
+lineitem_orderkeys = lineitem_orderkeys.loc[:, ["L_ORDERKEY"]]
+
+# Merge Filter + Not Exists
+lineitem_filtered = lineitem_filtered.merge(
+    lineitem_orderkeys, on="L_ORDERKEY", how="inner"
+)
+
+orders_filtered = orders.loc[:, ["O_ORDERSTATUS", "O_ORDERKEY"]]
+orders_filtered = orders_filtered[orders_filtered["O_ORDERSTATUS"] == "F"]
+orders_filtered = orders_filtered.loc[:, ["O_ORDERKEY"]]
+total = lineitem_filtered.merge(
+    orders_filtered, left_on="L_ORDERKEY", right_on="O_ORDERKEY", how="inner"
+)
+total = total.loc[:, ["L_SUPPKEY"]]
+
+supplier_filtered = supplier.loc[:, ["S_SUPPKEY", "S_NATIONKEY", "S_NAME"]]
+total = total.merge(
+    supplier_filtered, left_on="L_SUPPKEY", right_on="S_SUPPKEY", how="inner"
+)
+total = total.loc[:, ["S_NATIONKEY", "S_NAME"]]
+nation_filtered = nation.loc[:, ["N_NAME", "N_NATIONKEY"]]
+nation_filtered = nation_filtered[nation_filtered["N_NAME"] == "SAUDI ARABIA"]
+total = total.merge(
+    nation_filtered, left_on="S_NATIONKEY", right_on="N_NATIONKEY", how="inner"
+)
+total = total.loc[:, ["S_NAME"]]
+total = total.groupby("S_NAME", as_index=False, sort=False).size()
+total.columns = ["S_NAME", "NUMWAIT"]
+total = total.sort_values(by=["NUMWAIT", "S_NAME"], ascending=[False, True])
+
+        <Profiling data>:
+                                Function  GPU calls  CPU calls
+0   _LocationIndexer.__getitem__         12          0
+1              DataFrame.groupby          3          0
+2   DataFrameGroupBy.__getitem__          2          0
+3          SeriesGroupBy.nunique          2          0
+4            NDFrame.__setattr__          3          0
+5          DataFrame.__getitem__         11          0
+6                OpsMixin.__gt__          2          0
+7                DataFrame.merge          5          0
+8                OpsMixin.__eq__          3          0
+9                   GroupBy.size          1          0
+10         DataFrame.sort_values          1          0
+        <Execution time>: 227.0
+        <Active Vars>: ['total']
+        <Future Vars>: []
+        <Rewritten Code>:
+        ### cell 4 ###
+
+# Select relevant columns from lineitem
+li = lineitem[['L_ORDERKEY','L_SUPPKEY','L_RECEIPTDATE','L_COMMITDATE']]
+
+# Pre-filter by date condition and keep minimal columns
+date_li = li[li.L_RECEIPTDATE > li.L_COMMITDATE][['L_ORDERKEY','L_SUPPKEY']]
+
+# Compute original and post-filter supplier counts per order
+o_orig = li.groupby('L_ORDERKEY').L_SUPPKEY.nunique().reset_index().rename(columns={'L_SUPPKEY':'orig_count'})
+o_new  = date_li.groupby('L_ORDERKEY').L_SUPPKEY.nunique().reset_index().rename(columns={'L_SUPPKEY':'new_count'})
+
+# Identify orders with >1 original supplier and exactly one after the date filter
+valid_orders = o_orig.merge(o_new, on='L_ORDERKEY', how='inner')
+valid_orders = valid_orders[(valid_orders.orig_count > 1) & (valid_orders.new_count == 1)][['L_ORDERKEY']]
+
+# Keep only those lineitems
+filtered_li = date_li.merge(valid_orders, on='L_ORDERKEY', how='inner')
+
+# Filter orders by status 'F'
+o_f = orders[orders.O_ORDERSTATUS == 'F'][['O_ORDERKEY']]
+
+# Join filtered lineitems with filtered orders
+df = filtered_li.merge(o_f, left_on='L_ORDERKEY', right_on='O_ORDERKEY', how='inner')
+
+# Build supplier→Saudi Arabia lookup
+supp_nat = supplier[['S_SUPPKEY','S_NATIONKEY','S_NAME']].merge(
+    nation[nation.N_NAME == 'SAUDI ARABIA'][['N_NATIONKEY']],
+    left_on='S_NATIONKEY', right_on='N_NATIONKEY', how='inner'
+)[['S_SUPPKEY','S_NAME']]
+
+# Final join and aggregation
+total = (
+    df.merge(supp_nat, left_on='L_SUPPKEY', right_on='S_SUPPKEY', how='inner')[['S_NAME']]
+      .groupby('S_NAME', as_index=False)
+      .size()
+      .rename(columns={'size':'NUMWAIT'})
+      .sort_values(by=['NUMWAIT','S_NAME'], ascending=[False,True])
+)
+        <Profiling data>:
+                         Function  GPU calls  CPU calls
+0   DataFrame.__getitem__         12          0
+1     NDFrame.__getattr__          6          0
+2         OpsMixin.__gt__          2          0
+3       DataFrame.groupby          3          0
+4     GroupBy.__getattr__          2          0
+5   SeriesGroupBy.nunique          2          0
+6      Series.reset_index          2          0
+7        DataFrame.rename          3          0
+8         DataFrame.merge          5          0
+9         OpsMixin.__eq__          3          0
+10       OpsMixin.__and__          1          0
+11           GroupBy.size          1          0
+12  DataFrame.sort_values          1          0
+        <Execution time>: 208.0
+        <Execution output>: Rewritten time: 208.0 ms
+Original time: 227.0 ms
+        <Iteration>: 2/5
+
+==========Running the manager agent to decide the next step==========
+Choice: optimize
+Reason: The rewritten code is more efficient, but there's potential for further optimization. Alternative libraries or techniques might further reduce execution time.
+Code optimizer prompt:
+        <Original Code>:
+        ### cell 4 ###
+
+# Select relevant columns from lineitem
+li = lineitem[['L_ORDERKEY','L_SUPPKEY','L_RECEIPTDATE','L_COMMITDATE']]
+
+# Pre-filter by date condition and keep minimal columns
+date_li = li[li.L_RECEIPTDATE > li.L_COMMITDATE][['L_ORDERKEY','L_SUPPKEY']]
+
+# Compute original and post-filter supplier counts per order
+o_orig = li.groupby('L_ORDERKEY').L_SUPPKEY.nunique().reset_index().rename(columns={'L_SUPPKEY':'orig_count'})
+o_new  = date_li.groupby('L_ORDERKEY').L_SUPPKEY.nunique().reset_index().rename(columns={'L_SUPPKEY':'new_count'})
+
+# Identify orders with >1 original supplier and exactly one after the date filter
+valid_orders = o_orig.merge(o_new, on='L_ORDERKEY', how='inner')
+valid_orders = valid_orders[(valid_orders.orig_count > 1) & (valid_orders.new_count == 1)][['L_ORDERKEY']]
+
+# Keep only those lineitems
+filtered_li = date_li.merge(valid_orders, on='L_ORDERKEY', how='inner')
+
+# Filter orders by status 'F'
+o_f = orders[orders.O_ORDERSTATUS == 'F'][['O_ORDERKEY']]
+
+# Join filtered lineitems with filtered orders
+df = filtered_li.merge(o_f, left_on='L_ORDERKEY', right_on='O_ORDERKEY', how='inner')
+
+# Build supplier→Saudi Arabia lookup
+supp_nat = supplier[['S_SUPPKEY','S_NATIONKEY','S_NAME']].merge(
+    nation[nation.N_NAME == 'SAUDI ARABIA'][['N_NATIONKEY']],
+    left_on='S_NATIONKEY', right_on='N_NATIONKEY', how='inner'
+)[['S_SUPPKEY','S_NAME']]
+
+# Final join and aggregation
+total = (
+    df.merge(supp_nat, left_on='L_SUPPKEY', right_on='S_SUPPKEY', how='inner')[['S_NAME']]
+      .groupby('S_NAME', as_index=False)
+      .size()
+      .rename(columns={'size':'NUMWAIT'})
+      .sort_values(by=['NUMWAIT','S_NAME'], ascending=[False,True])
+)
+        <Profiling data>:
+                         Function  GPU calls  CPU calls
+0   DataFrame.__getitem__         12          0
+1     NDFrame.__getattr__          6          0
+2         OpsMixin.__gt__          2          0
+3       DataFrame.groupby          3          0
+4     GroupBy.__getattr__          2          0
+5   SeriesGroupBy.nunique          2          0
+6      Series.reset_index          2          0
+7        DataFrame.rename          3          0
+8         DataFrame.merge          5          0
+9         OpsMixin.__eq__          3          0
+10       OpsMixin.__and__          1          0
+11           GroupBy.size          1          0
+12  DataFrame.sort_values          1          0
+
+        <Execution time>: 208.0
+        <Active vars>: ['total']
+
+        <Future vars>: []
+
+        <Iteration>: 2/5
+
+Optimizing the last generated code
+Parsed response: # Pre-filter lineitems by orders with status 'F'
+li = (lineitem[['L_ORDERKEY', 'L_SUPPKEY', 'L_RECEIPTDATE', 'L_COMMITDATE']]
+      .merge(
+          orders[orders.O_ORDERSTATUS == 'F'][['O_ORDERKEY']],
+          left_on='L_ORDERKEY', right_on='O_ORDERKEY', how='inner'
+      )
+      .drop('O_ORDERKEY', axis=1)
+)
+
+# Apply date filter
+date_li = li[li.L_RECEIPTDATE > li.L_COMMITDATE][['L_ORDERKEY', 'L_SUPPKEY']]
+
+# Compute supplier counts per order (original vs. after date filter)
+orig_counts = li.groupby('L_ORDERKEY').L_SUPPKEY.nunique().reset_index(name='orig_count')
+new_counts  = date_li.groupby('L_ORDERKEY').L_SUPPKEY.nunique().reset_index(name='new_count')
+
+# Select orders with >1 original supplier and exactly one after filter
+valid_orders = (
+    orig_counts.merge(new_counts, on='L_ORDERKEY')
+               .query('orig_count > 1 and new_count == 1')
+               [['L_ORDERKEY']]
+)
+
+# Keep only qualifying lineitems
+filtered_li = date_li.merge(valid_orders, on='L_ORDERKEY', how='inner')
+
+# Build supplier → Saudi Arabia lookup
+supp_nat = (
+    supplier[['S_SUPPKEY', 'S_NATIONKEY', 'S_NAME']]
+    .merge(
+        nation[nation.N_NAME == 'SAUDI ARABIA'][['N_NATIONKEY']],
+        left_on='S_NATIONKEY', right_on='N_NATIONKEY', how='inner'
+    )
+    [['S_SUPPKEY', 'S_NAME']]
+)
+
+# Count waiting lineitems per supplier and join names
+total = (
+    filtered_li
+    .groupby('L_SUPPKEY')
+    .size()
+    .reset_index(name='NUMWAIT')
+    .merge(supp_nat, left_on='L_SUPPKEY', right_on='S_SUPPKEY', how='inner')
+    [['S_NAME', 'NUMWAIT']]
+    .sort_values(['NUMWAIT', 'S_NAME'], ascending=[False, True])
+)
+Try 1: calling rewrite agent for cell 4 took 50.94123148918152 seconds.
+Executing rewritten code... ### cell 4 ###
+
+# Pre-filter lineitems by orders with status 'F'
+li = (lineitem[['L_ORDERKEY', 'L_SUPPKEY', 'L_RECEIPTDATE', 'L_COMMITDATE']]
+      .merge(
+          orders[orders.O_ORDERSTATUS == 'F'][['O_ORDERKEY']],
+          left_on='L_ORDERKEY', right_on='O_ORDERKEY', how='inner'
+      )
+      .drop('O_ORDERKEY', axis=1)
+)
+
+# Apply date filter
+date_li = li[li.L_RECEIPTDATE > li.L_COMMITDATE][['L_ORDERKEY', 'L_SUPPKEY']]
+
+# Compute supplier counts per order (original vs. after date filter)
+orig_counts = li.groupby('L_ORDERKEY').L_SUPPKEY.nunique().reset_index(name='orig_count')
+new_counts  = date_li.groupby('L_ORDERKEY').L_SUPPKEY.nunique().reset_index(name='new_count')
+
+# Select orders with >1 original supplier and exactly one after filter
+valid_orders = (
+    orig_counts.merge(new_counts, on='L_ORDERKEY')
+               .query('orig_count > 1 and new_count == 1')
+               [['L_ORDERKEY']]
+)
+
+# Keep only qualifying lineitems
+filtered_li = date_li.merge(valid_orders, on='L_ORDERKEY', how='inner')
+
+# Build supplier → Saudi Arabia lookup
+supp_nat = (
+    supplier[['S_SUPPKEY', 'S_NATIONKEY', 'S_NAME']]
+    .merge(
+        nation[nation.N_NAME == 'SAUDI ARABIA'][['N_NATIONKEY']],
+        left_on='S_NATIONKEY', right_on='N_NATIONKEY', how='inner'
+    )
+    [['S_SUPPKEY', 'S_NAME']]
+)
+
+# Count waiting lineitems per supplier and join names
+total = (
+    filtered_li
+    .groupby('L_SUPPKEY')
+    .size()
+    .reset_index(name='NUMWAIT')
+    .merge(supp_nat, left_on='L_SUPPKEY', right_on='S_SUPPKEY', how='inner')
+    [['S_NAME', 'NUMWAIT']]
+    .sort_values(['NUMWAIT', 'S_NAME'], ascending=[False, True])
+)
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/tpch/notebooks/q21/annotated/checkpoints/pre_cell_4.pickle
+Running rewritten cell notebook
+Finished executing the rewritten code.
+Try 1: executing the rewritten code for cell 4 took 65.93745040893555 seconds.
+Rewritten time: 6460.0 ms
+Checkpointing the rewritten cell for small notebook...
+The rewritten code is correct. Profiling cudf...
+HAHA small rewritten pre-checkpoint path:  /home/dias-benchmarks/tpch/notebooks/q21/q21_rewrite/checkpoints/pre_cell_4.pickle
+Try 1: cudf profiling the rewritten code for cell 4 took 16.821749210357666 seconds.
+gpu_calls_orig_perc: 1.0, gpu_calls_opt_perc: 0.972972972972973
+orig_time: 208.0, opt_time: 6460.0
+Both the call ratio and the time are worse.
+Rewritten code took 6460.0ms. The previous fastest solution took 227.0ms.
+Previous best solution num GPU and CPU calls:  43 0
+New solution num GPU and CPU calls:  36 1
+========================================================
+Rewriting cell 4... Try 2...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 4 ###
+
+
+lineitem_filtered = lineitem.loc[
+    :, ["L_ORDERKEY", "L_SUPPKEY", "L_RECEIPTDATE", "L_COMMITDATE"]
+]
+
+# Keep all rows that have another row in linetiem with the same orderkey and different suppkey
+lineitem_orderkeys = (
+    lineitem_filtered.loc[:, ["L_ORDERKEY", "L_SUPPKEY"]]
+    .groupby("L_ORDERKEY", as_index=False, sort=False)["L_SUPPKEY"]
+    .nunique()
+)
+lineitem_orderkeys.columns = ["L_ORDERKEY", "nunique_col"]
+lineitem_orderkeys = lineitem_orderkeys[lineitem_orderkeys["nunique_col"] > 1]
+lineitem_orderkeys = lineitem_orderkeys.loc[:, ["L_ORDERKEY"]]
+
+# Keep all rows that have l_receiptdate > l_commitdate
+lineitem_filtered = lineitem_filtered[
+    lineitem_filtered["L_RECEIPTDATE"] > lineitem_filtered["L_COMMITDATE"]
+]
+lineitem_filtered = lineitem_filtered.loc[:, ["L_ORDERKEY", "L_SUPPKEY"]]
+
+# Merge Filter + Exists
+lineitem_filtered = lineitem_filtered.merge(
+    lineitem_orderkeys, on="L_ORDERKEY", how="inner"
+)
+
+# Not Exists: Check the exists condition isn't still satisfied on the output.
+lineitem_orderkeys = lineitem_filtered.groupby(
+    "L_ORDERKEY", as_index=False, sort=False
+)["L_SUPPKEY"].nunique()
+lineitem_orderkeys.columns = ["L_ORDERKEY", "nunique_col"]
+lineitem_orderkeys = lineitem_orderkeys[lineitem_orderkeys["nunique_col"] == 1]
+lineitem_orderkeys = lineitem_orderkeys.loc[:, ["L_ORDERKEY"]]
+
+# Merge Filter + Not Exists
+lineitem_filtered = lineitem_filtered.merge(
+    lineitem_orderkeys, on="L_ORDERKEY", how="inner"
+)
+
+orders_filtered = orders.loc[:, ["O_ORDERSTATUS", "O_ORDERKEY"]]
+orders_filtered = orders_filtered[orders_filtered["O_ORDERSTATUS"] == "F"]
+orders_filtered = orders_filtered.loc[:, ["O_ORDERKEY"]]
+total = lineitem_filtered.merge(
+    orders_filtered, left_on="L_ORDERKEY", right_on="O_ORDERKEY", how="inner"
+)
+total = total.loc[:, ["L_SUPPKEY"]]
+
+supplier_filtered = supplier.loc[:, ["S_SUPPKEY", "S_NATIONKEY", "S_NAME"]]
+total = total.merge(
+    supplier_filtered, left_on="L_SUPPKEY", right_on="S_SUPPKEY", how="inner"
+)
+total = total.loc[:, ["S_NATIONKEY", "S_NAME"]]
+nation_filtered = nation.loc[:, ["N_NAME", "N_NATIONKEY"]]
+nation_filtered = nation_filtered[nation_filtered["N_NAME"] == "SAUDI ARABIA"]
+total = total.merge(
+    nation_filtered, left_on="S_NATIONKEY", right_on="N_NATIONKEY", how="inner"
+)
+total = total.loc[:, ["S_NAME"]]
+total = total.groupby("S_NAME", as_index=False, sort=False).size()
+total.columns = ["S_NAME", "NUMWAIT"]
+total = total.sort_values(by=["NUMWAIT", "S_NAME"], ascending=[False, True])
+
+        <Profiling data>:
+                                Function  GPU calls  CPU calls
+0   _LocationIndexer.__getitem__         12          0
+1              DataFrame.groupby          3          0
+2   DataFrameGroupBy.__getitem__          2          0
+3          SeriesGroupBy.nunique          2          0
+4            NDFrame.__setattr__          3          0
+5          DataFrame.__getitem__         11          0
+6                OpsMixin.__gt__          2          0
+7                DataFrame.merge          5          0
+8                OpsMixin.__eq__          3          0
+9                   GroupBy.size          1          0
+10         DataFrame.sort_values          1          0
+        <Execution time>: 227.0
+        <Active Vars>: ['total']
+        <Future Vars>: []
+        <Rewritten Code>:
+        ### cell 4 ###
+
+# Pre-filter lineitems by orders with status 'F'
+li = (lineitem[['L_ORDERKEY', 'L_SUPPKEY', 'L_RECEIPTDATE', 'L_COMMITDATE']]
+      .merge(
+          orders[orders.O_ORDERSTATUS == 'F'][['O_ORDERKEY']],
+          left_on='L_ORDERKEY', right_on='O_ORDERKEY', how='inner'
+      )
+      .drop('O_ORDERKEY', axis=1)
+)
+
+# Apply date filter
+date_li = li[li.L_RECEIPTDATE > li.L_COMMITDATE][['L_ORDERKEY', 'L_SUPPKEY']]
+
+# Compute supplier counts per order (original vs. after date filter)
+orig_counts = li.groupby('L_ORDERKEY').L_SUPPKEY.nunique().reset_index(name='orig_count')
+new_counts  = date_li.groupby('L_ORDERKEY').L_SUPPKEY.nunique().reset_index(name='new_count')
+
+# Select orders with >1 original supplier and exactly one after filter
+valid_orders = (
+    orig_counts.merge(new_counts, on='L_ORDERKEY')
+               .query('orig_count > 1 and new_count == 1')
+               [['L_ORDERKEY']]
+)
+
+# Keep only qualifying lineitems
+filtered_li = date_li.merge(valid_orders, on='L_ORDERKEY', how='inner')
+
+# Build supplier → Saudi Arabia lookup
+supp_nat = (
+    supplier[['S_SUPPKEY', 'S_NATIONKEY', 'S_NAME']]
+    .merge(
+        nation[nation.N_NAME == 'SAUDI ARABIA'][['N_NATIONKEY']],
+        left_on='S_NATIONKEY', right_on='N_NATIONKEY', how='inner'
+    )
+    [['S_SUPPKEY', 'S_NAME']]
+)
+
+# Count waiting lineitems per supplier and join names
+total = (
+    filtered_li
+    .groupby('L_SUPPKEY')
+    .size()
+    .reset_index(name='NUMWAIT')
+    .merge(supp_nat, left_on='L_SUPPKEY', right_on='S_SUPPKEY', how='inner')
+    [['S_NAME', 'NUMWAIT']]
+    .sort_values(['NUMWAIT', 'S_NAME'], ascending=[False, True])
+)
+        <Profiling data>:
+                         Function  GPU calls  CPU calls
+0   DataFrame.__getitem__         11          0
+1     NDFrame.__getattr__          4          0
+2         OpsMixin.__eq__          2          0
+3         DataFrame.merge          5          0
+4          DataFrame.drop          1          0
+5         OpsMixin.__gt__          1          0
+6       DataFrame.groupby          3          0
+7     GroupBy.__getattr__          2          0
+8   SeriesGroupBy.nunique          2          0
+9      Series.reset_index          3          0
+10        DataFrame.query          0          1
+11           GroupBy.size          1          0
+12  DataFrame.sort_values          1          0
+        <Execution time>: 6460.0
+        <Execution output>: Rewritten time: 6460.0 ms
+Original time: 227.0 ms
+        <Iteration>: 3/5
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: The rewritten code is significantly slower than the original code. It's necessary to attempt optimizing the original code again to improve performance.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 4 ###
+
+
+lineitem_filtered = lineitem.loc[
+    :, ["L_ORDERKEY", "L_SUPPKEY", "L_RECEIPTDATE", "L_COMMITDATE"]
+]
+
+# Keep all rows that have another row in linetiem with the same orderkey and different suppkey
+lineitem_orderkeys = (
+    lineitem_filtered.loc[:, ["L_ORDERKEY", "L_SUPPKEY"]]
+    .groupby("L_ORDERKEY", as_index=False, sort=False)["L_SUPPKEY"]
+    .nunique()
+)
+lineitem_orderkeys.columns = ["L_ORDERKEY", "nunique_col"]
+lineitem_orderkeys = lineitem_orderkeys[lineitem_orderkeys["nunique_col"] > 1]
+lineitem_orderkeys = lineitem_orderkeys.loc[:, ["L_ORDERKEY"]]
+
+# Keep all rows that have l_receiptdate > l_commitdate
+lineitem_filtered = lineitem_filtered[
+    lineitem_filtered["L_RECEIPTDATE"] > lineitem_filtered["L_COMMITDATE"]
+]
+lineitem_filtered = lineitem_filtered.loc[:, ["L_ORDERKEY", "L_SUPPKEY"]]
+
+# Merge Filter + Exists
+lineitem_filtered = lineitem_filtered.merge(
+    lineitem_orderkeys, on="L_ORDERKEY", how="inner"
+)
+
+# Not Exists: Check the exists condition isn't still satisfied on the output.
+lineitem_orderkeys = lineitem_filtered.groupby(
+    "L_ORDERKEY", as_index=False, sort=False
+)["L_SUPPKEY"].nunique()
+lineitem_orderkeys.columns = ["L_ORDERKEY", "nunique_col"]
+lineitem_orderkeys = lineitem_orderkeys[lineitem_orderkeys["nunique_col"] == 1]
+lineitem_orderkeys = lineitem_orderkeys.loc[:, ["L_ORDERKEY"]]
+
+# Merge Filter + Not Exists
+lineitem_filtered = lineitem_filtered.merge(
+    lineitem_orderkeys, on="L_ORDERKEY", how="inner"
+)
+
+orders_filtered = orders.loc[:, ["O_ORDERSTATUS", "O_ORDERKEY"]]
+orders_filtered = orders_filtered[orders_filtered["O_ORDERSTATUS"] == "F"]
+orders_filtered = orders_filtered.loc[:, ["O_ORDERKEY"]]
+total = lineitem_filtered.merge(
+    orders_filtered, left_on="L_ORDERKEY", right_on="O_ORDERKEY", how="inner"
+)
+total = total.loc[:, ["L_SUPPKEY"]]
+
+supplier_filtered = supplier.loc[:, ["S_SUPPKEY", "S_NATIONKEY", "S_NAME"]]
+total = total.merge(
+    supplier_filtered, left_on="L_SUPPKEY", right_on="S_SUPPKEY", how="inner"
+)
+total = total.loc[:, ["S_NATIONKEY", "S_NAME"]]
+nation_filtered = nation.loc[:, ["N_NAME", "N_NATIONKEY"]]
+nation_filtered = nation_filtered[nation_filtered["N_NAME"] == "SAUDI ARABIA"]
+total = total.merge(
+    nation_filtered, left_on="S_NATIONKEY", right_on="N_NATIONKEY", how="inner"
+)
+total = total.loc[:, ["S_NAME"]]
+total = total.groupby("S_NAME", as_index=False, sort=False).size()
+total.columns = ["S_NAME", "NUMWAIT"]
+total = total.sort_values(by=["NUMWAIT", "S_NAME"], ascending=[False, True])
+
+        <Profiling data>:
+                                Function  GPU calls  CPU calls
+0   _LocationIndexer.__getitem__         12          0
+1              DataFrame.groupby          3          0
+2   DataFrameGroupBy.__getitem__          2          0
+3          SeriesGroupBy.nunique          2          0
+4            NDFrame.__setattr__          3          0
+5          DataFrame.__getitem__         11          0
+6                OpsMixin.__gt__          2          0
+7                DataFrame.merge          5          0
+8                OpsMixin.__eq__          3          0
+9                   GroupBy.size          1          0
+10         DataFrame.sort_values          1          0
+
+        <Execution time>: 227.0
+        <Active vars>: ['total']
+
+        <Future vars>: []
+
+        <Iteration>: 3/5
+
+Code: # Filter lineitems where receipt date > commit date
+mask_date = lineitem.L_RECEIPTDATE > lineitem.L_COMMITDATE
+lineitem_date = lineitem[mask_date][['L_ORDERKEY', 'L_SUPPKEY']]
+
+# Compute unique supplier counts per order before and after the date filter
+o_orig = (
+    lineitem[['L_ORDERKEY', 'L_SUPPKEY']]
+    .drop_duplicates()
+    .groupby('L_ORDERKEY', as_index=False, sort=False)
+    ['L_SUPPKEY']
+    .nunique()
+    .rename(columns={'L_SUPPKEY': 'orig_count'})
+)
+o_after = (
+    lineitem_date.drop_duplicates()
+    .groupby('L_ORDERKEY', as_index=False, sort=False)
+    ['L_SUPPKEY']
+    .nunique()
+    .rename(columns={'L_SUPPKEY': 'after_count'})
+)
+
+# Identify orders with >1 supplier originally and exactly 1 after the date filter
+valid_orders = (
+    o_orig[o_orig.orig_count > 1]
+    .merge(o_after[o_after.after_count == 1], on='L_ORDERKEY', how='inner')
+    ['L_ORDERKEY']
+)
+
+# Further restrict to orders with status 'F'
+orders_f = orders[orders.O_ORDERSTATUS == 'F'][['O_ORDERKEY']]
+valid_orders = valid_orders.merge(
+    orders_f,
+    left_on='L_ORDERKEY', right_on='O_ORDERKEY', how='inner'
+)['L_ORDERKEY']
+
+# Filter the date-qualified lineitems to only those valid orders
+li_final = lineitem_date[lineitem_date.L_ORDERKEY.isin(valid_orders)][['L_SUPPKEY']]
+
+# Join with supplier and nation, then aggregate and sort
+supplier_sel = supplier[['S_SUPPKEY', 'S_NATIONKEY', 'S_NAME']]
+nation_sa = nation[nation.N_NAME == 'SAUDI ARABIA'][['N_NATIONKEY']]
+
+total = (
+    li_final
+    .merge(supplier_sel, left_on='L_SUPPKEY', right_on='S_SUPPKEY', how='inner')[['S_NATIONKEY', 'S_NAME']]
+    .merge(nation_sa, left_on='S_NATIONKEY', right_on='N_NATIONKEY', how='inner')[['S_NAME']]
+    .groupby('S_NAME', as_index=False, sort=False)
+    .size()
+    .rename(columns={'size': 'NUMWAIT'})
+    .sort_values(by=['NUMWAIT', 'S_NAME'], ascending=[False, True])
+)
+Reason: Replaced multiple chained groupbys and merges on lineitem with two concise groupby operations and an intersection join to identify valid orders. Eliminated redundant sub-DataFrames and merged filter steps to reduce GPU kernel calls. Applied vectorized .isin filtering on order keys and combined supplier/nation merges in a streamlined pipeline, preserving semantic equivalence while minimizing data movement and GPU operations.
+Parsed response: # Filter lineitems where receipt date > commit date
+mask_date = lineitem.L_RECEIPTDATE > lineitem.L_COMMITDATE
+lineitem_date = lineitem[mask_date][['L_ORDERKEY', 'L_SUPPKEY']]
+
+# Compute unique supplier counts per order before and after the date filter
+o_orig = (
+    lineitem[['L_ORDERKEY', 'L_SUPPKEY']]
+    .drop_duplicates()
+    .groupby('L_ORDERKEY', as_index=False, sort=False)
+    ['L_SUPPKEY']
+    .nunique()
+    .rename(columns={'L_SUPPKEY': 'orig_count'})
+)
+o_after = (
+    lineitem_date.drop_duplicates()
+    .groupby('L_ORDERKEY', as_index=False, sort=False)
+    ['L_SUPPKEY']
+    .nunique()
+    .rename(columns={'L_SUPPKEY': 'after_count'})
+)
+
+# Identify orders with >1 supplier originally and exactly 1 after the date filter
+valid_orders = (
+    o_orig[o_orig.orig_count > 1]
+    .merge(o_after[o_after.after_count == 1], on='L_ORDERKEY', how='inner')
+    ['L_ORDERKEY']
+)
+
+# Further restrict to orders with status 'F'
+orders_f = orders[orders.O_ORDERSTATUS == 'F'][['O_ORDERKEY']]
+valid_orders = valid_orders.merge(
+    orders_f,
+    left_on='L_ORDERKEY', right_on='O_ORDERKEY', how='inner'
+)['L_ORDERKEY']
+
+# Filter the date-qualified lineitems to only those valid orders
+li_final = lineitem_date[lineitem_date.L_ORDERKEY.isin(valid_orders)][['L_SUPPKEY']]
+
+# Join with supplier and nation, then aggregate and sort
+supplier_sel = supplier[['S_SUPPKEY', 'S_NATIONKEY', 'S_NAME']]
+nation_sa = nation[nation.N_NAME == 'SAUDI ARABIA'][['N_NATIONKEY']]
+
+total = (
+    li_final
+    .merge(supplier_sel, left_on='L_SUPPKEY', right_on='S_SUPPKEY', how='inner')[['S_NATIONKEY', 'S_NAME']]
+    .merge(nation_sa, left_on='S_NATIONKEY', right_on='N_NATIONKEY', how='inner')[['S_NAME']]
+    .groupby('S_NAME', as_index=False, sort=False)
+    .size()
+    .rename(columns={'size': 'NUMWAIT'})
+    .sort_values(by=['NUMWAIT', 'S_NAME'], ascending=[False, True])
+)
+Try 2: calling rewrite agent for cell 4 took 39.132906913757324 seconds.
+Executing rewritten code... ### cell 4 ###
+
+# Filter lineitems where receipt date > commit date
+mask_date = lineitem.L_RECEIPTDATE > lineitem.L_COMMITDATE
+lineitem_date = lineitem[mask_date][['L_ORDERKEY', 'L_SUPPKEY']]
+
+# Compute unique supplier counts per order before and after the date filter
+o_orig = (
+    lineitem[['L_ORDERKEY', 'L_SUPPKEY']]
+    .drop_duplicates()
+    .groupby('L_ORDERKEY', as_index=False, sort=False)
+    ['L_SUPPKEY']
+    .nunique()
+    .rename(columns={'L_SUPPKEY': 'orig_count'})
+)
+o_after = (
+    lineitem_date.drop_duplicates()
+    .groupby('L_ORDERKEY', as_index=False, sort=False)
+    ['L_SUPPKEY']
+    .nunique()
+    .rename(columns={'L_SUPPKEY': 'after_count'})
+)
+
+# Identify orders with >1 supplier originally and exactly 1 after the date filter
+valid_orders = (
+    o_orig[o_orig.orig_count > 1]
+    .merge(o_after[o_after.after_count == 1], on='L_ORDERKEY', how='inner')
+    ['L_ORDERKEY']
+)
+
+# Further restrict to orders with status 'F'
+orders_f = orders[orders.O_ORDERSTATUS == 'F'][['O_ORDERKEY']]
+valid_orders = valid_orders.merge(
+    orders_f,
+    left_on='L_ORDERKEY', right_on='O_ORDERKEY', how='inner'
+)['L_ORDERKEY']
+
+# Filter the date-qualified lineitems to only those valid orders
+li_final = lineitem_date[lineitem_date.L_ORDERKEY.isin(valid_orders)][['L_SUPPKEY']]
+
+# Join with supplier and nation, then aggregate and sort
+supplier_sel = supplier[['S_SUPPKEY', 'S_NATIONKEY', 'S_NAME']]
+nation_sa = nation[nation.N_NAME == 'SAUDI ARABIA'][['N_NATIONKEY']]
+
+total = (
+    li_final
+    .merge(supplier_sel, left_on='L_SUPPKEY', right_on='S_SUPPKEY', how='inner')[['S_NATIONKEY', 'S_NAME']]
+    .merge(nation_sa, left_on='S_NATIONKEY', right_on='N_NATIONKEY', how='inner')[['S_NAME']]
+    .groupby('S_NAME', as_index=False, sort=False)
+    .size()
+    .rename(columns={'size': 'NUMWAIT'})
+    .sort_values(by=['NUMWAIT', 'S_NAME'], ascending=[False, True])
+)
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/tpch/notebooks/q21/annotated/checkpoints/pre_cell_4.pickle
+Running rewritten cell notebook
+An unexpected error occurred Execution failed in cell %%RecordEvent
+%%time
+### cell 4 ###
+
+# Filter lineitems where receipt date > commit date
+mask_date = lineitem.L_RECEIPTDATE > lineitem.L_COMMITDATE
+lineitem_date = lineitem[mask_date][['L_ORDERKEY', 'L_SUPPKEY']]
+
+# Compute unique supplier counts per order before and after the date filter
+o_orig = (
+    lineitem[['L_ORDERKEY', 'L_SUPPKEY']]
+    .drop_duplicates()
+    .groupby('L_ORDERKEY', as_index=False, sort=False)
+    ['L_SUPPKEY']
+    .nunique()
+    .rename(columns={'L_SUPPKEY': 'orig_count'})
+)
+o_after = (
+    lineitem_date.drop_duplicates()
+    .groupby('L_ORDERKEY', as_index=False, sort=False)
+    ['L_SUPPKEY']
+    .nunique()
+    .rename(columns={'L_SUPPKEY': 'after_count'})
+)
+
+# Identify orders with >1 supplier originally and exactly 1 after the date filter
+valid_orders = (
+    o_orig[o_orig.orig_count > 1]
+    .merge(o_after[o_after.after_count == 1], on='L_ORDERKEY', how='inner')
+    ['L_ORDERKEY']
+)
+
+# Further restrict to orders with status 'F'
+orders_f = orders[orders.O_ORDERSTATUS == 'F'][['O_ORDERKEY']]
+valid_orders = valid_orders.merge(
+    orders_f,
+    left_on='L_ORDERKEY', right_on='O_ORDERKEY', how='inner'
+)['L_ORDERKEY']
+
+# Filter the date-qualified lineitems to only those valid orders
+li_final = lineitem_date[lineitem_date.L_ORDERKEY.isin(valid_orders)][['L_SUPPKEY']]
+
+# Join with supplier and nation, then aggregate and sort
+supplier_sel = supplier[['S_SUPPKEY', 'S_NATIONKEY', 'S_NAME']]
+nation_sa = nation[nation.N_NAME == 'SAUDI ARABIA'][['N_NATIONKEY']]
+
+total = (
+    li_final
+    .merge(supplier_sel, left_on='L_SUPPKEY', right_on='S_SUPPKEY', how='inner')[['S_NATIONKEY', 'S_NAME']]
+    .merge(nation_sa, left_on='S_NATIONKEY', right_on='N_NATIONKEY', how='inner')[['S_NAME']]
+    .groupby('S_NAME', as_index=False, sort=False)
+    .size()
+    .rename(columns={'size': 'NUMWAIT'})
+    .sort_values(by=['NUMWAIT', 'S_NAME'], ascending=[False, True])
+): 'Series' object has no attribute 'merge'
+Rewritten time: inf ms
+Checkpointing the rewritten cell for small notebook...
+========================================================
+Rewriting cell 4... Try 3...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 4 ###
+
+
+lineitem_filtered = lineitem.loc[
+    :, ["L_ORDERKEY", "L_SUPPKEY", "L_RECEIPTDATE", "L_COMMITDATE"]
+]
+
+# Keep all rows that have another row in linetiem with the same orderkey and different suppkey
+lineitem_orderkeys = (
+    lineitem_filtered.loc[:, ["L_ORDERKEY", "L_SUPPKEY"]]
+    .groupby("L_ORDERKEY", as_index=False, sort=False)["L_SUPPKEY"]
+    .nunique()
+)
+lineitem_orderkeys.columns = ["L_ORDERKEY", "nunique_col"]
+lineitem_orderkeys = lineitem_orderkeys[lineitem_orderkeys["nunique_col"] > 1]
+lineitem_orderkeys = lineitem_orderkeys.loc[:, ["L_ORDERKEY"]]
+
+# Keep all rows that have l_receiptdate > l_commitdate
+lineitem_filtered = lineitem_filtered[
+    lineitem_filtered["L_RECEIPTDATE"] > lineitem_filtered["L_COMMITDATE"]
+]
+lineitem_filtered = lineitem_filtered.loc[:, ["L_ORDERKEY", "L_SUPPKEY"]]
+
+# Merge Filter + Exists
+lineitem_filtered = lineitem_filtered.merge(
+    lineitem_orderkeys, on="L_ORDERKEY", how="inner"
+)
+
+# Not Exists: Check the exists condition isn't still satisfied on the output.
+lineitem_orderkeys = lineitem_filtered.groupby(
+    "L_ORDERKEY", as_index=False, sort=False
+)["L_SUPPKEY"].nunique()
+lineitem_orderkeys.columns = ["L_ORDERKEY", "nunique_col"]
+lineitem_orderkeys = lineitem_orderkeys[lineitem_orderkeys["nunique_col"] == 1]
+lineitem_orderkeys = lineitem_orderkeys.loc[:, ["L_ORDERKEY"]]
+
+# Merge Filter + Not Exists
+lineitem_filtered = lineitem_filtered.merge(
+    lineitem_orderkeys, on="L_ORDERKEY", how="inner"
+)
+
+orders_filtered = orders.loc[:, ["O_ORDERSTATUS", "O_ORDERKEY"]]
+orders_filtered = orders_filtered[orders_filtered["O_ORDERSTATUS"] == "F"]
+orders_filtered = orders_filtered.loc[:, ["O_ORDERKEY"]]
+total = lineitem_filtered.merge(
+    orders_filtered, left_on="L_ORDERKEY", right_on="O_ORDERKEY", how="inner"
+)
+total = total.loc[:, ["L_SUPPKEY"]]
+
+supplier_filtered = supplier.loc[:, ["S_SUPPKEY", "S_NATIONKEY", "S_NAME"]]
+total = total.merge(
+    supplier_filtered, left_on="L_SUPPKEY", right_on="S_SUPPKEY", how="inner"
+)
+total = total.loc[:, ["S_NATIONKEY", "S_NAME"]]
+nation_filtered = nation.loc[:, ["N_NAME", "N_NATIONKEY"]]
+nation_filtered = nation_filtered[nation_filtered["N_NAME"] == "SAUDI ARABIA"]
+total = total.merge(
+    nation_filtered, left_on="S_NATIONKEY", right_on="N_NATIONKEY", how="inner"
+)
+total = total.loc[:, ["S_NAME"]]
+total = total.groupby("S_NAME", as_index=False, sort=False).size()
+total.columns = ["S_NAME", "NUMWAIT"]
+total = total.sort_values(by=["NUMWAIT", "S_NAME"], ascending=[False, True])
+
+        <Profiling data>:
+                                Function  GPU calls  CPU calls
+0   _LocationIndexer.__getitem__         12          0
+1              DataFrame.groupby          3          0
+2   DataFrameGroupBy.__getitem__          2          0
+3          SeriesGroupBy.nunique          2          0
+4            NDFrame.__setattr__          3          0
+5          DataFrame.__getitem__         11          0
+6                OpsMixin.__gt__          2          0
+7                DataFrame.merge          5          0
+8                OpsMixin.__eq__          3          0
+9                   GroupBy.size          1          0
+10         DataFrame.sort_values          1          0
+        <Execution time>: 227.0
+        <Active Vars>: ['total']
+        <Future Vars>: []
+        <Rewritten Code>:
+        ### cell 4 ###
+
+# Filter lineitems where receipt date > commit date
+mask_date = lineitem.L_RECEIPTDATE > lineitem.L_COMMITDATE
+lineitem_date = lineitem[mask_date][['L_ORDERKEY', 'L_SUPPKEY']]
+
+# Compute unique supplier counts per order before and after the date filter
+o_orig = (
+    lineitem[['L_ORDERKEY', 'L_SUPPKEY']]
+    .drop_duplicates()
+    .groupby('L_ORDERKEY', as_index=False, sort=False)
+    ['L_SUPPKEY']
+    .nunique()
+    .rename(columns={'L_SUPPKEY': 'orig_count'})
+)
+o_after = (
+    lineitem_date.drop_duplicates()
+    .groupby('L_ORDERKEY', as_index=False, sort=False)
+    ['L_SUPPKEY']
+    .nunique()
+    .rename(columns={'L_SUPPKEY': 'after_count'})
+)
+
+# Identify orders with >1 supplier originally and exactly 1 after the date filter
+valid_orders = (
+    o_orig[o_orig.orig_count > 1]
+    .merge(o_after[o_after.after_count == 1], on='L_ORDERKEY', how='inner')
+    ['L_ORDERKEY']
+)
+
+# Further restrict to orders with status 'F'
+orders_f = orders[orders.O_ORDERSTATUS == 'F'][['O_ORDERKEY']]
+valid_orders = valid_orders.merge(
+    orders_f,
+    left_on='L_ORDERKEY', right_on='O_ORDERKEY', how='inner'
+)['L_ORDERKEY']
+
+# Filter the date-qualified lineitems to only those valid orders
+li_final = lineitem_date[lineitem_date.L_ORDERKEY.isin(valid_orders)][['L_SUPPKEY']]
+
+# Join with supplier and nation, then aggregate and sort
+supplier_sel = supplier[['S_SUPPKEY', 'S_NATIONKEY', 'S_NAME']]
+nation_sa = nation[nation.N_NAME == 'SAUDI ARABIA'][['N_NATIONKEY']]
+
+total = (
+    li_final
+    .merge(supplier_sel, left_on='L_SUPPKEY', right_on='S_SUPPKEY', how='inner')[['S_NATIONKEY', 'S_NAME']]
+    .merge(nation_sa, left_on='S_NATIONKEY', right_on='N_NATIONKEY', how='inner')[['S_NAME']]
+    .groupby('S_NAME', as_index=False, sort=False)
+    .size()
+    .rename(columns={'size': 'NUMWAIT'})
+    .sort_values(by=['NUMWAIT', 'S_NAME'], ascending=[False, True])
+)
+        <Profiling data>:
+                         Function  GPU calls  CPU calls
+0   DataFrame.__getitem__         11          0
+1     NDFrame.__getattr__          4          0
+2         OpsMixin.__eq__          2          0
+3         DataFrame.merge          5          0
+4          DataFrame.drop          1          0
+5         OpsMixin.__gt__          1          0
+6       DataFrame.groupby          3          0
+7     GroupBy.__getattr__          2          0
+8   SeriesGroupBy.nunique          2          0
+9      Series.reset_index          3          0
+10        DataFrame.query          0          1
+11           GroupBy.size          1          0
+12  DataFrame.sort_values          1          0
+        <Execution time>: inf
+        <Execution output>: The rewritten code resulted in a runtime error. Execution failed in cell %%RecordEvent
+%%time
+### cell 4 ###
+
+# Filter lineitems where receipt date > commit date
+mask_date = lineitem.L_RECEIPTDATE > lineitem.L_COMMITDATE
+lineitem_date = lineitem[mask_date][['L_ORDERKEY', 'L_SUPPKEY']]
+
+# Compute unique supplier counts per order before and after the date filter
+o_orig = (
+    lineitem[['L_ORDERKEY', 'L_SUPPKEY']]
+    .drop_duplicates()
+    .groupby('L_ORDERKEY', as_index=False, sort=False)
+    ['L_SUPPKEY']
+    .nunique()
+    .rename(columns={'L_SUPPKEY': 'orig_count'})
+)
+o_after = (
+    lineitem_date.drop_duplicates()
+    .groupby('L_ORDERKEY', as_index=False, sort=False)
+    ['L_SUPPKEY']
+    .nunique()
+    .rename(columns={'L_SUPPKEY': 'after_count'})
+)
+
+# Identify orders with >1 supplier originally and exactly 1 after the date filter
+valid_orders = (
+    o_orig[o_orig.orig_count > 1]
+    .merge(o_after[o_after.after_count == 1], on='L_ORDERKEY', how='inner')
+    ['L_ORDERKEY']
+)
+
+# Further restrict to orders with status 'F'
+orders_f = orders[orders.O_ORDERSTATUS == 'F'][['O_ORDERKEY']]
+valid_orders = valid_orders.merge(
+    orders_f,
+    left_on='L_ORDERKEY', right_on='O_ORDERKEY', how='inner'
+)['L_ORDERKEY']
+
+# Filter the date-qualified lineitems to only those valid orders
+li_final = lineitem_date[lineitem_date.L_ORDERKEY.isin(valid_orders)][['L_SUPPKEY']]
+
+# Join with supplier and nation, then aggregate and sort
+supplier_sel = supplier[['S_SUPPKEY', 'S_NATIONKEY', 'S_NAME']]
+nation_sa = nation[nation.N_NAME == 'SAUDI ARABIA'][['N_NATIONKEY']]
+
+total = (
+    li_final
+    .merge(supplier_sel, left_on='L_SUPPKEY', right_on='S_SUPPKEY', how='inner')[['S_NATIONKEY', 'S_NAME']]
+    .merge(nation_sa, left_on='S_NATIONKEY', right_on='N_NATIONKEY', how='inner')[['S_NAME']]
+    .groupby('S_NAME', as_index=False, sort=False)
+    .size()
+    .rename(columns={'size': 'NUMWAIT'})
+    .sort_values(by=['NUMWAIT', 'S_NAME'], ascending=[False, True])
+): 'Series' object has no attribute 'merge'
+        <Iteration>: 4/5
+
+==========Running the manager agent to decide the next step==========
+Choice: repair
+Reason: The rewritten code resulted in a runtime error due to incorrect usage of the 'merge' method on a Series object. As it's the second-to-last iteration, we should attempt to fix the rewritten code for efficiency.
+Code fixer prompt:
+        <Original Code>:
+        ### cell 4 ###
+
+
+lineitem_filtered = lineitem.loc[
+    :, ["L_ORDERKEY", "L_SUPPKEY", "L_RECEIPTDATE", "L_COMMITDATE"]
+]
+
+# Keep all rows that have another row in linetiem with the same orderkey and different suppkey
+lineitem_orderkeys = (
+    lineitem_filtered.loc[:, ["L_ORDERKEY", "L_SUPPKEY"]]
+    .groupby("L_ORDERKEY", as_index=False, sort=False)["L_SUPPKEY"]
+    .nunique()
+)
+lineitem_orderkeys.columns = ["L_ORDERKEY", "nunique_col"]
+lineitem_orderkeys = lineitem_orderkeys[lineitem_orderkeys["nunique_col"] > 1]
+lineitem_orderkeys = lineitem_orderkeys.loc[:, ["L_ORDERKEY"]]
+
+# Keep all rows that have l_receiptdate > l_commitdate
+lineitem_filtered = lineitem_filtered[
+    lineitem_filtered["L_RECEIPTDATE"] > lineitem_filtered["L_COMMITDATE"]
+]
+lineitem_filtered = lineitem_filtered.loc[:, ["L_ORDERKEY", "L_SUPPKEY"]]
+
+# Merge Filter + Exists
+lineitem_filtered = lineitem_filtered.merge(
+    lineitem_orderkeys, on="L_ORDERKEY", how="inner"
+)
+
+# Not Exists: Check the exists condition isn't still satisfied on the output.
+lineitem_orderkeys = lineitem_filtered.groupby(
+    "L_ORDERKEY", as_index=False, sort=False
+)["L_SUPPKEY"].nunique()
+lineitem_orderkeys.columns = ["L_ORDERKEY", "nunique_col"]
+lineitem_orderkeys = lineitem_orderkeys[lineitem_orderkeys["nunique_col"] == 1]
+lineitem_orderkeys = lineitem_orderkeys.loc[:, ["L_ORDERKEY"]]
+
+# Merge Filter + Not Exists
+lineitem_filtered = lineitem_filtered.merge(
+    lineitem_orderkeys, on="L_ORDERKEY", how="inner"
+)
+
+orders_filtered = orders.loc[:, ["O_ORDERSTATUS", "O_ORDERKEY"]]
+orders_filtered = orders_filtered[orders_filtered["O_ORDERSTATUS"] == "F"]
+orders_filtered = orders_filtered.loc[:, ["O_ORDERKEY"]]
+total = lineitem_filtered.merge(
+    orders_filtered, left_on="L_ORDERKEY", right_on="O_ORDERKEY", how="inner"
+)
+total = total.loc[:, ["L_SUPPKEY"]]
+
+supplier_filtered = supplier.loc[:, ["S_SUPPKEY", "S_NATIONKEY", "S_NAME"]]
+total = total.merge(
+    supplier_filtered, left_on="L_SUPPKEY", right_on="S_SUPPKEY", how="inner"
+)
+total = total.loc[:, ["S_NATIONKEY", "S_NAME"]]
+nation_filtered = nation.loc[:, ["N_NAME", "N_NATIONKEY"]]
+nation_filtered = nation_filtered[nation_filtered["N_NAME"] == "SAUDI ARABIA"]
+total = total.merge(
+    nation_filtered, left_on="S_NATIONKEY", right_on="N_NATIONKEY", how="inner"
+)
+total = total.loc[:, ["S_NAME"]]
+total = total.groupby("S_NAME", as_index=False, sort=False).size()
+total.columns = ["S_NAME", "NUMWAIT"]
+total = total.sort_values(by=["NUMWAIT", "S_NAME"], ascending=[False, True])
+
+        <Profiling data>:
+                                Function  GPU calls  CPU calls
+0   _LocationIndexer.__getitem__         12          0
+1              DataFrame.groupby          3          0
+2   DataFrameGroupBy.__getitem__          2          0
+3          SeriesGroupBy.nunique          2          0
+4            NDFrame.__setattr__          3          0
+5          DataFrame.__getitem__         11          0
+6                OpsMixin.__gt__          2          0
+7                DataFrame.merge          5          0
+8                OpsMixin.__eq__          3          0
+9                   GroupBy.size          1          0
+10         DataFrame.sort_values          1          0
+        <Execution time>: 227.0
+        <Active Vars>: ['total']
+        <Future Vars>: []
+        <Rewritten Code>:
+        ### cell 4 ###
+
+# Filter lineitems where receipt date > commit date
+mask_date = lineitem.L_RECEIPTDATE > lineitem.L_COMMITDATE
+lineitem_date = lineitem[mask_date][['L_ORDERKEY', 'L_SUPPKEY']]
+
+# Compute unique supplier counts per order before and after the date filter
+o_orig = (
+    lineitem[['L_ORDERKEY', 'L_SUPPKEY']]
+    .drop_duplicates()
+    .groupby('L_ORDERKEY', as_index=False, sort=False)
+    ['L_SUPPKEY']
+    .nunique()
+    .rename(columns={'L_SUPPKEY': 'orig_count'})
+)
+o_after = (
+    lineitem_date.drop_duplicates()
+    .groupby('L_ORDERKEY', as_index=False, sort=False)
+    ['L_SUPPKEY']
+    .nunique()
+    .rename(columns={'L_SUPPKEY': 'after_count'})
+)
+
+# Identify orders with >1 supplier originally and exactly 1 after the date filter
+valid_orders = (
+    o_orig[o_orig.orig_count > 1]
+    .merge(o_after[o_after.after_count == 1], on='L_ORDERKEY', how='inner')
+    ['L_ORDERKEY']
+)
+
+# Further restrict to orders with status 'F'
+orders_f = orders[orders.O_ORDERSTATUS == 'F'][['O_ORDERKEY']]
+valid_orders = valid_orders.merge(
+    orders_f,
+    left_on='L_ORDERKEY', right_on='O_ORDERKEY', how='inner'
+)['L_ORDERKEY']
+
+# Filter the date-qualified lineitems to only those valid orders
+li_final = lineitem_date[lineitem_date.L_ORDERKEY.isin(valid_orders)][['L_SUPPKEY']]
+
+# Join with supplier and nation, then aggregate and sort
+supplier_sel = supplier[['S_SUPPKEY', 'S_NATIONKEY', 'S_NAME']]
+nation_sa = nation[nation.N_NAME == 'SAUDI ARABIA'][['N_NATIONKEY']]
+
+total = (
+    li_final
+    .merge(supplier_sel, left_on='L_SUPPKEY', right_on='S_SUPPKEY', how='inner')[['S_NATIONKEY', 'S_NAME']]
+    .merge(nation_sa, left_on='S_NATIONKEY', right_on='N_NATIONKEY', how='inner')[['S_NAME']]
+    .groupby('S_NAME', as_index=False, sort=False)
+    .size()
+    .rename(columns={'size': 'NUMWAIT'})
+    .sort_values(by=['NUMWAIT', 'S_NAME'], ascending=[False, True])
+)
+        <Profiling data>:
+                         Function  GPU calls  CPU calls
+0   DataFrame.__getitem__         11          0
+1     NDFrame.__getattr__          4          0
+2         OpsMixin.__eq__          2          0
+3         DataFrame.merge          5          0
+4          DataFrame.drop          1          0
+5         OpsMixin.__gt__          1          0
+6       DataFrame.groupby          3          0
+7     GroupBy.__getattr__          2          0
+8   SeriesGroupBy.nunique          2          0
+9      Series.reset_index          3          0
+10        DataFrame.query          0          1
+11           GroupBy.size          1          0
+12  DataFrame.sort_values          1          0
+        <Execution time>: inf
+        <Execution output>: The rewritten code resulted in a runtime error. Execution failed in cell %%RecordEvent
+%%time
+### cell 4 ###
+
+# Filter lineitems where receipt date > commit date
+mask_date = lineitem.L_RECEIPTDATE > lineitem.L_COMMITDATE
+lineitem_date = lineitem[mask_date][['L_ORDERKEY', 'L_SUPPKEY']]
+
+# Compute unique supplier counts per order before and after the date filter
+o_orig = (
+    lineitem[['L_ORDERKEY', 'L_SUPPKEY']]
+    .drop_duplicates()
+    .groupby('L_ORDERKEY', as_index=False, sort=False)
+    ['L_SUPPKEY']
+    .nunique()
+    .rename(columns={'L_SUPPKEY': 'orig_count'})
+)
+o_after = (
+    lineitem_date.drop_duplicates()
+    .groupby('L_ORDERKEY', as_index=False, sort=False)
+    ['L_SUPPKEY']
+    .nunique()
+    .rename(columns={'L_SUPPKEY': 'after_count'})
+)
+
+# Identify orders with >1 supplier originally and exactly 1 after the date filter
+valid_orders = (
+    o_orig[o_orig.orig_count > 1]
+    .merge(o_after[o_after.after_count == 1], on='L_ORDERKEY', how='inner')
+    ['L_ORDERKEY']
+)
+
+# Further restrict to orders with status 'F'
+orders_f = orders[orders.O_ORDERSTATUS == 'F'][['O_ORDERKEY']]
+valid_orders = valid_orders.merge(
+    orders_f,
+    left_on='L_ORDERKEY', right_on='O_ORDERKEY', how='inner'
+)['L_ORDERKEY']
+
+# Filter the date-qualified lineitems to only those valid orders
+li_final = lineitem_date[lineitem_date.L_ORDERKEY.isin(valid_orders)][['L_SUPPKEY']]
+
+# Join with supplier and nation, then aggregate and sort
+supplier_sel = supplier[['S_SUPPKEY', 'S_NATIONKEY', 'S_NAME']]
+nation_sa = nation[nation.N_NAME == 'SAUDI ARABIA'][['N_NATIONKEY']]
+
+total = (
+    li_final
+    .merge(supplier_sel, left_on='L_SUPPKEY', right_on='S_SUPPKEY', how='inner')[['S_NATIONKEY', 'S_NAME']]
+    .merge(nation_sa, left_on='S_NATIONKEY', right_on='N_NATIONKEY', how='inner')[['S_NAME']]
+    .groupby('S_NAME', as_index=False, sort=False)
+    .size()
+    .rename(columns={'size': 'NUMWAIT'})
+    .sort_values(by=['NUMWAIT', 'S_NAME'], ascending=[False, True])
+): 'Series' object has no attribute 'merge'
+        <Iteration>: 4/5
+
+Repairing the last generated code
+Code: ### cell 4 ###
+
+# Filter lineitems where receipt date > commit date
+mask_date = lineitem.L_RECEIPTDATE > lineitem.L_COMMITDATE
+lineitem_date = lineitem[mask_date][['L_ORDERKEY', 'L_SUPPKEY']]
+
+# Compute unique supplier counts per order before and after the date filter
+o_orig = (
+    lineitem[['L_ORDERKEY', 'L_SUPPKEY']]
+    .drop_duplicates()
+    .groupby('L_ORDERKEY', as_index=False, sort=False)['L_SUPPKEY']
+    .nunique()
+    .rename(columns={'L_SUPPKEY': 'orig_count'})
+)
+o_after = (
+    lineitem_date.drop_duplicates()
+    .groupby('L_ORDERKEY', as_index=False, sort=False)['L_SUPPKEY']
+    .nunique()
+    .rename(columns={'L_SUPPKEY': 'after_count'})
+)
+
+# Identify orders with >1 supplier originally and exactly 1 after the date filter
+valid_orders = (
+    o_orig[o_orig.orig_count > 1]
+    .merge(o_after[o_after.after_count == 1], on='L_ORDERKEY', how='inner')[['L_ORDERKEY']]
+)
+
+# Further restrict to orders with status 'F'
+orders_f = orders[orders.O_ORDERSTATUS == 'F'][['O_ORDERKEY']]
+valid_orders = (
+    valid_orders
+    .merge(orders_f, left_on='L_ORDERKEY', right_on='O_ORDERKEY', how='inner')[['L_ORDERKEY']]
+)
+
+# Filter the date-qualified lineitems to only those valid orders
+li_final = lineitem_date[lineitem_date.L_ORDERKEY.isin(valid_orders.L_ORDERKEY)][['L_SUPPKEY']]
+
+# Join with supplier and nation, then aggregate and sort
+supplier_sel = supplier[['S_SUPPKEY', 'S_NATIONKEY', 'S_NAME']]
+nation_sa = nation[nation.N_NAME == 'SAUDI ARABIA'][['N_NATIONKEY']]
+
+total = (
+    li_final
+    .merge(supplier_sel, left_on='L_SUPPKEY', right_on='S_SUPPKEY', how='inner')[['S_NATIONKEY', 'S_NAME']]
+    .merge(nation_sa, left_on='S_NATIONKEY', right_on='N_NATIONKEY', how='inner')[['S_NAME']]
+    .groupby('S_NAME', as_index=False, sort=False)
+    .size()
+    .rename(columns={'size': 'NUMWAIT'})
+    .sort_values(by=['NUMWAIT', 'S_NAME'], ascending=[False, True])
+)
+Reason: The failure occurred because `valid_orders = ...['L_ORDERKEY']` produced a Series, and Series objects don’t have a `.merge` method in pandas/cudf. By selecting with double brackets (`[['L_ORDERKEY']]`), `valid_orders` remains a DataFrame, allowing subsequent `.merge` calls to succeed without other logic changes.
+Parsed response: ### cell 4 ###
+
+# Filter lineitems where receipt date > commit date
+mask_date = lineitem.L_RECEIPTDATE > lineitem.L_COMMITDATE
+lineitem_date = lineitem[mask_date][['L_ORDERKEY', 'L_SUPPKEY']]
+
+# Compute unique supplier counts per order before and after the date filter
+o_orig = (
+    lineitem[['L_ORDERKEY', 'L_SUPPKEY']]
+    .drop_duplicates()
+    .groupby('L_ORDERKEY', as_index=False, sort=False)['L_SUPPKEY']
+    .nunique()
+    .rename(columns={'L_SUPPKEY': 'orig_count'})
+)
+o_after = (
+    lineitem_date.drop_duplicates()
+    .groupby('L_ORDERKEY', as_index=False, sort=False)['L_SUPPKEY']
+    .nunique()
+    .rename(columns={'L_SUPPKEY': 'after_count'})
+)
+
+# Identify orders with >1 supplier originally and exactly 1 after the date filter
+valid_orders = (
+    o_orig[o_orig.orig_count > 1]
+    .merge(o_after[o_after.after_count == 1], on='L_ORDERKEY', how='inner')[['L_ORDERKEY']]
+)
+
+# Further restrict to orders with status 'F'
+orders_f = orders[orders.O_ORDERSTATUS == 'F'][['O_ORDERKEY']]
+valid_orders = (
+    valid_orders
+    .merge(orders_f, left_on='L_ORDERKEY', right_on='O_ORDERKEY', how='inner')[['L_ORDERKEY']]
+)
+
+# Filter the date-qualified lineitems to only those valid orders
+li_final = lineitem_date[lineitem_date.L_ORDERKEY.isin(valid_orders.L_ORDERKEY)][['L_SUPPKEY']]
+
+# Join with supplier and nation, then aggregate and sort
+supplier_sel = supplier[['S_SUPPKEY', 'S_NATIONKEY', 'S_NAME']]
+nation_sa = nation[nation.N_NAME == 'SAUDI ARABIA'][['N_NATIONKEY']]
+
+total = (
+    li_final
+    .merge(supplier_sel, left_on='L_SUPPKEY', right_on='S_SUPPKEY', how='inner')[['S_NATIONKEY', 'S_NAME']]
+    .merge(nation_sa, left_on='S_NATIONKEY', right_on='N_NATIONKEY', how='inner')[['S_NAME']]
+    .groupby('S_NAME', as_index=False, sort=False)
+    .size()
+    .rename(columns={'size': 'NUMWAIT'})
+    .sort_values(by=['NUMWAIT', 'S_NAME'], ascending=[False, True])
+)
+Try 3: calling rewrite agent for cell 4 took 24.597331285476685 seconds.
+Executing rewritten code... ### cell 4 ###
+
+# Filter lineitems where receipt date > commit date
+mask_date = lineitem.L_RECEIPTDATE > lineitem.L_COMMITDATE
+lineitem_date = lineitem[mask_date][['L_ORDERKEY', 'L_SUPPKEY']]
+
+# Compute unique supplier counts per order before and after the date filter
+o_orig = (
+    lineitem[['L_ORDERKEY', 'L_SUPPKEY']]
+    .drop_duplicates()
+    .groupby('L_ORDERKEY', as_index=False, sort=False)['L_SUPPKEY']
+    .nunique()
+    .rename(columns={'L_SUPPKEY': 'orig_count'})
+)
+o_after = (
+    lineitem_date.drop_duplicates()
+    .groupby('L_ORDERKEY', as_index=False, sort=False)['L_SUPPKEY']
+    .nunique()
+    .rename(columns={'L_SUPPKEY': 'after_count'})
+)
+
+# Identify orders with >1 supplier originally and exactly 1 after the date filter
+valid_orders = (
+    o_orig[o_orig.orig_count > 1]
+    .merge(o_after[o_after.after_count == 1], on='L_ORDERKEY', how='inner')[['L_ORDERKEY']]
+)
+
+# Further restrict to orders with status 'F'
+orders_f = orders[orders.O_ORDERSTATUS == 'F'][['O_ORDERKEY']]
+valid_orders = (
+    valid_orders
+    .merge(orders_f, left_on='L_ORDERKEY', right_on='O_ORDERKEY', how='inner')[['L_ORDERKEY']]
+)
+
+# Filter the date-qualified lineitems to only those valid orders
+li_final = lineitem_date[lineitem_date.L_ORDERKEY.isin(valid_orders.L_ORDERKEY)][['L_SUPPKEY']]
+
+# Join with supplier and nation, then aggregate and sort
+supplier_sel = supplier[['S_SUPPKEY', 'S_NATIONKEY', 'S_NAME']]
+nation_sa = nation[nation.N_NAME == 'SAUDI ARABIA'][['N_NATIONKEY']]
+
+total = (
+    li_final
+    .merge(supplier_sel, left_on='L_SUPPKEY', right_on='S_SUPPKEY', how='inner')[['S_NATIONKEY', 'S_NAME']]
+    .merge(nation_sa, left_on='S_NATIONKEY', right_on='N_NATIONKEY', how='inner')[['S_NAME']]
+    .groupby('S_NAME', as_index=False, sort=False)
+    .size()
+    .rename(columns={'size': 'NUMWAIT'})
+    .sort_values(by=['NUMWAIT', 'S_NAME'], ascending=[False, True])
+)
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/tpch/notebooks/q21/annotated/checkpoints/pre_cell_4.pickle
+Running rewritten cell notebook
+Finished executing the rewritten code.
+Try 3: executing the rewritten code for cell 4 took 32.904300689697266 seconds.
+Rewritten time: 277.0 ms
+Checkpointing the rewritten cell for small notebook...
+The rewritten code is correct. Profiling cudf...
+HAHA small rewritten pre-checkpoint path:  /home/dias-benchmarks/tpch/notebooks/q21/q21_rewrite/checkpoints/pre_cell_4.pickle
+Try 3: cudf profiling the rewritten code for cell 4 took 9.908274173736572 seconds.
+gpu_calls_orig_perc: 1.0, gpu_calls_opt_perc: 1.0
+orig_time: 208.0, opt_time: 277.0
+Ratio improves.
+Improvement in percentage does not make up for the slowdown.
+Rewritten code took 277.0ms. The previous fastest solution took 227.0ms.
+Previous best solution num GPU and CPU calls:  43 0
+New solution num GPU and CPU calls:  48 0
+========================================================
+Rewriting cell 4... Try 4...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 4 ###
+
+
+lineitem_filtered = lineitem.loc[
+    :, ["L_ORDERKEY", "L_SUPPKEY", "L_RECEIPTDATE", "L_COMMITDATE"]
+]
+
+# Keep all rows that have another row in linetiem with the same orderkey and different suppkey
+lineitem_orderkeys = (
+    lineitem_filtered.loc[:, ["L_ORDERKEY", "L_SUPPKEY"]]
+    .groupby("L_ORDERKEY", as_index=False, sort=False)["L_SUPPKEY"]
+    .nunique()
+)
+lineitem_orderkeys.columns = ["L_ORDERKEY", "nunique_col"]
+lineitem_orderkeys = lineitem_orderkeys[lineitem_orderkeys["nunique_col"] > 1]
+lineitem_orderkeys = lineitem_orderkeys.loc[:, ["L_ORDERKEY"]]
+
+# Keep all rows that have l_receiptdate > l_commitdate
+lineitem_filtered = lineitem_filtered[
+    lineitem_filtered["L_RECEIPTDATE"] > lineitem_filtered["L_COMMITDATE"]
+]
+lineitem_filtered = lineitem_filtered.loc[:, ["L_ORDERKEY", "L_SUPPKEY"]]
+
+# Merge Filter + Exists
+lineitem_filtered = lineitem_filtered.merge(
+    lineitem_orderkeys, on="L_ORDERKEY", how="inner"
+)
+
+# Not Exists: Check the exists condition isn't still satisfied on the output.
+lineitem_orderkeys = lineitem_filtered.groupby(
+    "L_ORDERKEY", as_index=False, sort=False
+)["L_SUPPKEY"].nunique()
+lineitem_orderkeys.columns = ["L_ORDERKEY", "nunique_col"]
+lineitem_orderkeys = lineitem_orderkeys[lineitem_orderkeys["nunique_col"] == 1]
+lineitem_orderkeys = lineitem_orderkeys.loc[:, ["L_ORDERKEY"]]
+
+# Merge Filter + Not Exists
+lineitem_filtered = lineitem_filtered.merge(
+    lineitem_orderkeys, on="L_ORDERKEY", how="inner"
+)
+
+orders_filtered = orders.loc[:, ["O_ORDERSTATUS", "O_ORDERKEY"]]
+orders_filtered = orders_filtered[orders_filtered["O_ORDERSTATUS"] == "F"]
+orders_filtered = orders_filtered.loc[:, ["O_ORDERKEY"]]
+total = lineitem_filtered.merge(
+    orders_filtered, left_on="L_ORDERKEY", right_on="O_ORDERKEY", how="inner"
+)
+total = total.loc[:, ["L_SUPPKEY"]]
+
+supplier_filtered = supplier.loc[:, ["S_SUPPKEY", "S_NATIONKEY", "S_NAME"]]
+total = total.merge(
+    supplier_filtered, left_on="L_SUPPKEY", right_on="S_SUPPKEY", how="inner"
+)
+total = total.loc[:, ["S_NATIONKEY", "S_NAME"]]
+nation_filtered = nation.loc[:, ["N_NAME", "N_NATIONKEY"]]
+nation_filtered = nation_filtered[nation_filtered["N_NAME"] == "SAUDI ARABIA"]
+total = total.merge(
+    nation_filtered, left_on="S_NATIONKEY", right_on="N_NATIONKEY", how="inner"
+)
+total = total.loc[:, ["S_NAME"]]
+total = total.groupby("S_NAME", as_index=False, sort=False).size()
+total.columns = ["S_NAME", "NUMWAIT"]
+total = total.sort_values(by=["NUMWAIT", "S_NAME"], ascending=[False, True])
+
+        <Profiling data>:
+                                Function  GPU calls  CPU calls
+0   _LocationIndexer.__getitem__         12          0
+1              DataFrame.groupby          3          0
+2   DataFrameGroupBy.__getitem__          2          0
+3          SeriesGroupBy.nunique          2          0
+4            NDFrame.__setattr__          3          0
+5          DataFrame.__getitem__         11          0
+6                OpsMixin.__gt__          2          0
+7                DataFrame.merge          5          0
+8                OpsMixin.__eq__          3          0
+9                   GroupBy.size          1          0
+10         DataFrame.sort_values          1          0
+        <Execution time>: 227.0
+        <Active Vars>: ['total']
+        <Future Vars>: []
+        <Rewritten Code>:
+        ### cell 4 ###
+
+# Filter lineitems where receipt date > commit date
+mask_date = lineitem.L_RECEIPTDATE > lineitem.L_COMMITDATE
+lineitem_date = lineitem[mask_date][['L_ORDERKEY', 'L_SUPPKEY']]
+
+# Compute unique supplier counts per order before and after the date filter
+o_orig = (
+    lineitem[['L_ORDERKEY', 'L_SUPPKEY']]
+    .drop_duplicates()
+    .groupby('L_ORDERKEY', as_index=False, sort=False)['L_SUPPKEY']
+    .nunique()
+    .rename(columns={'L_SUPPKEY': 'orig_count'})
+)
+o_after = (
+    lineitem_date.drop_duplicates()
+    .groupby('L_ORDERKEY', as_index=False, sort=False)['L_SUPPKEY']
+    .nunique()
+    .rename(columns={'L_SUPPKEY': 'after_count'})
+)
+
+# Identify orders with >1 supplier originally and exactly 1 after the date filter
+valid_orders = (
+    o_orig[o_orig.orig_count > 1]
+    .merge(o_after[o_after.after_count == 1], on='L_ORDERKEY', how='inner')[['L_ORDERKEY']]
+)
+
+# Further restrict to orders with status 'F'
+orders_f = orders[orders.O_ORDERSTATUS == 'F'][['O_ORDERKEY']]
+valid_orders = (
+    valid_orders
+    .merge(orders_f, left_on='L_ORDERKEY', right_on='O_ORDERKEY', how='inner')[['L_ORDERKEY']]
+)
+
+# Filter the date-qualified lineitems to only those valid orders
+li_final = lineitem_date[lineitem_date.L_ORDERKEY.isin(valid_orders.L_ORDERKEY)][['L_SUPPKEY']]
+
+# Join with supplier and nation, then aggregate and sort
+supplier_sel = supplier[['S_SUPPKEY', 'S_NATIONKEY', 'S_NAME']]
+nation_sa = nation[nation.N_NAME == 'SAUDI ARABIA'][['N_NATIONKEY']]
+
+total = (
+    li_final
+    .merge(supplier_sel, left_on='L_SUPPKEY', right_on='S_SUPPKEY', how='inner')[['S_NATIONKEY', 'S_NAME']]
+    .merge(nation_sa, left_on='S_NATIONKEY', right_on='N_NATIONKEY', how='inner')[['S_NAME']]
+    .groupby('S_NAME', as_index=False, sort=False)
+    .size()
+    .rename(columns={'size': 'NUMWAIT'})
+    .sort_values(by=['NUMWAIT', 'S_NAME'], ascending=[False, True])
+)
+        <Profiling data>:
+                                Function  GPU calls  CPU calls
+0            NDFrame.__getattr__          8          0
+1                OpsMixin.__gt__          2          0
+2          DataFrame.__getitem__         16          0
+3      DataFrame.drop_duplicates          2          0
+4              DataFrame.groupby          3          0
+5   DataFrameGroupBy.__getitem__          2          0
+6          SeriesGroupBy.nunique          2          0
+7               DataFrame.rename          3          0
+8                OpsMixin.__eq__          3          0
+9                DataFrame.merge          4          0
+10                   Series.isin          1          0
+11                  GroupBy.size          1          0
+12         DataFrame.sort_values          1          0
+        <Execution time>: 277.0
+        <Execution output>: Rewritten time: 277.0 ms
+Original time: 227.0 ms
+        <Iteration>: 5/5
+
+==========Running the manager agent to decide the next step==========
+Choice: optimize
+Reason: The rewritten code is slower than the original, and since it's the final iteration, we should try to optimize the existing rewritten code instead of starting a new one. Potential aspects to optimize might include more efficient use of pandas operations, reducing duplicates of function calls, and refining merge operations.
+Code optimizer prompt:
+        <Original Code>:
+        ### cell 4 ###
+
+# Filter lineitems where receipt date > commit date
+mask_date = lineitem.L_RECEIPTDATE > lineitem.L_COMMITDATE
+lineitem_date = lineitem[mask_date][['L_ORDERKEY', 'L_SUPPKEY']]
+
+# Compute unique supplier counts per order before and after the date filter
+o_orig = (
+    lineitem[['L_ORDERKEY', 'L_SUPPKEY']]
+    .drop_duplicates()
+    .groupby('L_ORDERKEY', as_index=False, sort=False)['L_SUPPKEY']
+    .nunique()
+    .rename(columns={'L_SUPPKEY': 'orig_count'})
+)
+o_after = (
+    lineitem_date.drop_duplicates()
+    .groupby('L_ORDERKEY', as_index=False, sort=False)['L_SUPPKEY']
+    .nunique()
+    .rename(columns={'L_SUPPKEY': 'after_count'})
+)
+
+# Identify orders with >1 supplier originally and exactly 1 after the date filter
+valid_orders = (
+    o_orig[o_orig.orig_count > 1]
+    .merge(o_after[o_after.after_count == 1], on='L_ORDERKEY', how='inner')[['L_ORDERKEY']]
+)
+
+# Further restrict to orders with status 'F'
+orders_f = orders[orders.O_ORDERSTATUS == 'F'][['O_ORDERKEY']]
+valid_orders = (
+    valid_orders
+    .merge(orders_f, left_on='L_ORDERKEY', right_on='O_ORDERKEY', how='inner')[['L_ORDERKEY']]
+)
+
+# Filter the date-qualified lineitems to only those valid orders
+li_final = lineitem_date[lineitem_date.L_ORDERKEY.isin(valid_orders.L_ORDERKEY)][['L_SUPPKEY']]
+
+# Join with supplier and nation, then aggregate and sort
+supplier_sel = supplier[['S_SUPPKEY', 'S_NATIONKEY', 'S_NAME']]
+nation_sa = nation[nation.N_NAME == 'SAUDI ARABIA'][['N_NATIONKEY']]
+
+total = (
+    li_final
+    .merge(supplier_sel, left_on='L_SUPPKEY', right_on='S_SUPPKEY', how='inner')[['S_NATIONKEY', 'S_NAME']]
+    .merge(nation_sa, left_on='S_NATIONKEY', right_on='N_NATIONKEY', how='inner')[['S_NAME']]
+    .groupby('S_NAME', as_index=False, sort=False)
+    .size()
+    .rename(columns={'size': 'NUMWAIT'})
+    .sort_values(by=['NUMWAIT', 'S_NAME'], ascending=[False, True])
+)
+        <Profiling data>:
+                                Function  GPU calls  CPU calls
+0            NDFrame.__getattr__          8          0
+1                OpsMixin.__gt__          2          0
+2          DataFrame.__getitem__         16          0
+3      DataFrame.drop_duplicates          2          0
+4              DataFrame.groupby          3          0
+5   DataFrameGroupBy.__getitem__          2          0
+6          SeriesGroupBy.nunique          2          0
+7               DataFrame.rename          3          0
+8                OpsMixin.__eq__          3          0
+9                DataFrame.merge          4          0
+10                   Series.isin          1          0
+11                  GroupBy.size          1          0
+12         DataFrame.sort_values          1          0
+
+        <Execution time>: 277.0
+        <Active vars>: ['total']
+
+        <Future vars>: []
+
+        <Iteration>: 5/5
+
+Optimizing the last generated code
+Parsed response: # Filter lineitems where receipt date > commit date
+mask_date = lineitem.L_RECEIPTDATE > lineitem.L_COMMITDATE
+fi = lineitem[mask_date]
+
+# Compute unique supplier counts per order
+orig_count = (
+    lineitem
+    .groupby('L_ORDERKEY', sort=False)
+    .agg({'L_SUPPKEY': 'nunique'})
+    .reset_index()
+    .rename(columns={'L_SUPPKEY': 'orig_count'})
+)
+after_count = (
+    fi
+    .groupby('L_ORDERKEY', sort=False)
+    .agg({'L_SUPPKEY': 'nunique'})
+    .reset_index()
+    .rename(columns={'L_SUPPKEY': 'after_count'})
+)
+
+# Identify valid orders (orig_count >1 and after_count ==1)
+valid_orders = orig_count.merge(after_count, on='L_ORDERKEY', how='inner')
+valid_orders = valid_orders[(valid_orders.orig_count > 1) & (valid_orders.after_count == 1)]['L_ORDERKEY']
+
+# Restrict to orders with status 'F'
+f_orders = orders[orders.O_ORDERSTATUS == 'F']['O_ORDERKEY']
+valid_orders = valid_orders[valid_orders.isin(f_orders)]
+
+# Pre-filter Saudi Arabian suppliers
+supplier_sa = supplier.merge(
+    nation[nation.N_NAME == 'SAUDI ARABIA'][['N_NATIONKEY']],
+    left_on='S_NATIONKEY',
+    right_on='N_NATIONKEY',
+    how='inner'
+)[['S_SUPPKEY', 'S_NAME']]
+
+# Final aggregation: count waiting lineitems per Saudi supplier
+total = (
+    lineitem[mask_date & lineitem.L_ORDERKEY.isin(valid_orders)]
+    .merge(supplier_sa, left_on='L_SUPPKEY', right_on='S_SUPPKEY', how='inner')
+    .groupby('S_NAME', as_index=False, sort=False)
+    .size()
+    .rename(columns={'size': 'NUMWAIT'})
+    .sort_values(['NUMWAIT', 'S_NAME'], ascending=[False, True])
+)
+Try 4: calling rewrite agent for cell 4 took 72.08846664428711 seconds.
+Executing rewritten code... ### cell 4 ###
+
+# Filter lineitems where receipt date > commit date
+mask_date = lineitem.L_RECEIPTDATE > lineitem.L_COMMITDATE
+fi = lineitem[mask_date]
+
+# Compute unique supplier counts per order
+orig_count = (
+    lineitem
+    .groupby('L_ORDERKEY', sort=False)
+    .agg({'L_SUPPKEY': 'nunique'})
+    .reset_index()
+    .rename(columns={'L_SUPPKEY': 'orig_count'})
+)
+after_count = (
+    fi
+    .groupby('L_ORDERKEY', sort=False)
+    .agg({'L_SUPPKEY': 'nunique'})
+    .reset_index()
+    .rename(columns={'L_SUPPKEY': 'after_count'})
+)
+
+# Identify valid orders (orig_count >1 and after_count ==1)
+valid_orders = orig_count.merge(after_count, on='L_ORDERKEY', how='inner')
+valid_orders = valid_orders[(valid_orders.orig_count > 1) & (valid_orders.after_count == 1)]['L_ORDERKEY']
+
+# Restrict to orders with status 'F'
+f_orders = orders[orders.O_ORDERSTATUS == 'F']['O_ORDERKEY']
+valid_orders = valid_orders[valid_orders.isin(f_orders)]
+
+# Pre-filter Saudi Arabian suppliers
+supplier_sa = supplier.merge(
+    nation[nation.N_NAME == 'SAUDI ARABIA'][['N_NATIONKEY']],
+    left_on='S_NATIONKEY',
+    right_on='N_NATIONKEY',
+    how='inner'
+)[['S_SUPPKEY', 'S_NAME']]
+
+# Final aggregation: count waiting lineitems per Saudi supplier
+total = (
+    lineitem[mask_date & lineitem.L_ORDERKEY.isin(valid_orders)]
+    .merge(supplier_sa, left_on='L_SUPPKEY', right_on='S_SUPPKEY', how='inner')
+    .groupby('S_NAME', as_index=False, sort=False)
+    .size()
+    .rename(columns={'size': 'NUMWAIT'})
+    .sort_values(['NUMWAIT', 'S_NAME'], ascending=[False, True])
+)
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/tpch/notebooks/q21/annotated/checkpoints/pre_cell_4.pickle
+Running rewritten cell notebook
+Finished executing the rewritten code.
+Try 4: executing the rewritten code for cell 4 took 39.15922284126282 seconds.
+Rewritten time: 257.0 ms
+Checkpointing the rewritten cell for small notebook...
+The rewritten code is correct. Profiling cudf...
+HAHA small rewritten pre-checkpoint path:  /home/dias-benchmarks/tpch/notebooks/q21/q21_rewrite/checkpoints/pre_cell_4.pickle
+Try 4: cudf profiling the rewritten code for cell 4 took 11.023275375366211 seconds.
+gpu_calls_orig_perc: 1.0, gpu_calls_opt_perc: 1.0
+orig_time: 208.0, opt_time: 257.0
+Ratio improves.
+Improvement in percentage does not make up for the slowdown.
+Rewritten code took 257.0ms. The previous fastest solution took 227.0ms.
+Previous best solution num GPU and CPU calls:  43 0
+New solution num GPU and CPU calls:  41 0
+========================================================
+After rewriting cell  4
+Rewritten pre-checkpoint path: /home/dias-benchmarks/tpch/notebooks/q21/rewritten/o4_mini_high/checkpoints/post_cell_4_try_0.pickle
+Pre-checkpoint path: /home/dias-benchmarks/tpch/notebooks/q21/annotated/checkpoints/post_cell_4.pickle
+========================================================
+Cell 4 rewriting took 681.4057722091675 seconds.
+Getting original timing for cell 5
+HAHA original checkpoint path:  /home/dias-benchmarks/tpch/notebooks/q21/annotated/checkpoints/post_cell_4.pickle
+Setting initially best_rewritten_post_checkpoint_path:  /home/dias-benchmarks/tpch/notebooks/q21/annotated/checkpoints/post_cell_5.pickle
+Setting initially best_small_rewritten_post_checkpoint_path:  /home/dias-benchmarks/tpch/notebooks/q21/q21_rewrite/checkpoints/pre_cell_6.pickle
+========================================================
+Rewriting cell 5... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 5 ###
+
+total.info()
+        <Profiling data>:
+                 Function  GPU calls  CPU calls
+0  DataFrame.info          1          0
+
+        <Execution time>: 16.7
+        <Active vars>: []
+
+        <Future vars>: []
+
+        <Iteration>: 1/5
+
+==========Running the manager agent to decide the next step==========
+Choice: done
+Reason: The code is primarily for debugging purposes and `.info()` cannot be optimized meaningfully.
+Code is already optimized
+Try 0: calling rewrite agent for cell 5 took 1.7751779556274414 seconds.
+There is no need to rewrite the cell.
+Could not rewrite the cell. Continuing to next cell...
+========================================================
+After rewriting cell  5
+Rewritten pre-checkpoint path: /home/dias-benchmarks/tpch/notebooks/q21/annotated/checkpoints/post_cell_5.pickle
+Pre-checkpoint path: /home/dias-benchmarks/tpch/notebooks/q21/annotated/checkpoints/post_cell_5.pickle
+========================================================
+Cell 5 rewriting took 39.59974980354309 seconds.
+Rewrote notebook in 754.5167660713196 seconds

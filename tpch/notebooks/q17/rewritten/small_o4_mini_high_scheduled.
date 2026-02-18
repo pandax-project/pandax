@@ -1,0 +1,96 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "97ccb93a-f4de-43c3-ac71-df195d5f4460",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import pandas as pd\n",
+    "\n",
+    "# load just the datasets q01 needs.\n",
+    "factor = 10\n",
+    "DATA_ROOT = f\"/home/dias-benchmarks/tpch/data/factor_{factor}\"\n",
+    "STORAGE_OPTS = {}  # or load from JSON\n",
+    "\n",
+    "def load_lineitem(\n",
+    "    data_folder: str, **storage_options\n",
+    ") -> pd.DataFrame:\n",
+    "    data_path = data_folder + \"/lineitem.tbl\"\n",
+    "    # df = pd.read_parquet(\n",
+    "    #     data_path,  storage_options=storage_options\n",
+    "    # )\n",
+    "    df = pd.read_csv(data_path, sep=\"|\")\n",
+    "    return df\n",
+    "lineitem = load_lineitem(DATA_ROOT, **STORAGE_OPTS)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "22b91495-c45a-4820-a594-499b33e2519f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def load_part(\n",
+    "    data_folder: str, **storage_options\n",
+    ") -> pd.DataFrame:\n",
+    "    data_path = data_folder + \"/part.tbl\"\n",
+    "    # df = pd.read_parquet(\n",
+    "    #     data_path,  storage_options=storage_options\n",
+    "    # )\n",
+    "    df = pd.read_csv(data_path, sep=\"|\")\n",
+    "    return df\n",
+    "part = load_part(DATA_ROOT, **STORAGE_OPTS)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b7d95dfb-9094-414f-bb13-37afcc84a752",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "### cell 0 ###\n",
+    "\n",
+    "# 1. Filter PART to get the relevant keys on GPU\n",
+    "target_keys = part[(part.P_BRAND == 'Brand#23') & (part.P_CONTAINER == 'MED BOX')].P_PARTKEY"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6594f95c-b645-40ff-b0e1-ea93b4f77776",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "### cell 1 ###\n",
+    "\n",
+    "# 2. Early‐filter LINEITEM to just those keys\n",
+    "li = lineitem[lineitem.L_PARTKEY.isin(target_keys)]\n",
+    "\n",
+    "# 3. Compute the 20%‐scaled average quantity per key using transform (avoids a merge)\n",
+    "li['avg'] = li.groupby('L_PARTKEY').L_QUANTITY.transform('mean') * 0.2\n",
+    "\n",
+    "# 4. Apply the quantity filter and compute the final metric entirely on GPU\n",
+    "good = li[li.L_QUANTITY < li.avg]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "bc51a7c0-e725-4b7d-8911-e12c2a491896",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "### cell 2 ###\n",
+    "\n",
+    "total = pd.DataFrame({'avg_yearly': [good.L_EXTENDEDPRICE.sum() / 7.0]})"
+   ]
+  }
+ ],
+ "metadata": {},
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

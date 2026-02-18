@@ -1,0 +1,285 @@
+Running: python main.py /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/bench.ipynb /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/small_bench.ipynb
+Annotated notebook saved to /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/cell_exec_info.ipynb
+Executing code: import sys, os
+sys.path.insert(0, os.path.abspath('/home/ElasticNotebook'))
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df
+import pickle
+import cudf
+Executing code: %%RecordEventWithColumnInfo
+import numpy as np
+import os
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    # STEFANOS: Import Modin Pandas
+    import os
+    os.environ["MODIN_ENGINE"] = "ray"
+    import ray
+    ray.init(num_cpus=int(os.environ['MODIN_CPUS']), runtime_env={'env_vars': {'__MODIN_AUTOIMPORT_PANDAS__': '1'}})
+    import modin.pandas as pd
+else:
+    # STEFANOS: Import regular Pandas
+    import pandas as pd
+import time
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+train_df = pd.read_csv('/home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/input/feedback-prize-english-language-learning/train.csv')
+test_df = pd.read_csv('/home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/input/feedback-prize-english-language-learning/test.csv')
+Executing code: %%RecordEventWithColumnInfo
+### cell 1 ###
+
+factor = 10
+if "IREWR_LESS_REPLICATION" in os.environ and os.environ["IREWR_LESS_REPLICATION"] == "True":
+    factor = factor//5
+train_df = pd.concat([train_df]*factor)
+test_df = pd.concat([test_df]*factor)
+train_df.info()
+Executing code: %%RecordEventWithColumnInfo
+### cell 2 ###
+
+train_df.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 3 ###
+
+test_df.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 4 ###
+
+len(train_df), len(test_df)
+Executing code: %%RecordEventWithColumnInfo
+### cell 5 ###
+
+LABEL_COLUMNS = ['cohesion', 'syntax', 'vocabulary', 'phraseology', 'grammar', 'conventions']
+Executing code: %%RecordEventWithColumnInfo
+### cell 6 ###
+
+texts = train_df.sample(frac=1, random_state=420).head(4)
+Executing code: %%RecordEventWithColumnInfo
+### cell 7 ###
+
+train_df['total_score'] = train_df[LABEL_COLUMNS].sum(axis=1)
+lowest_df = train_df.sort_values('total_score').head(4)
+Executing code: %%RecordEventWithColumnInfo
+### cell 8 ###
+
+train_df['total_score'] = train_df[LABEL_COLUMNS].sum(axis=1)
+highest_df = train_df.sort_values('total_score', ascending=False).head(4)
+Executing code: %%RecordEventWithColumnInfo
+### cell 9 ###
+
+
+train_df['word_count'] = train_df.full_text.apply(lambda x: len(x.split()))
+Executing code: %%RecordEventWithColumnInfo
+### cell 10 ###
+
+train_df['word_count'].mean()
+Executing code: %%RecordEventWithColumnInfo
+### cell 11 ###
+
+train_df['word_count'].max()
+Executing code: %PrintCellInfo cell_exec_info
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Ran small notebook to get cell exec info in 6.827702760696411 seconds
+Annotated notebook saved to /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/cpu_to_gpu_cost_model_inputs.ipynb
+Executing code: import sys, os
+sys.path.insert(0, os.path.abspath('/home/ElasticNotebook'))
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df
+import pickle
+import cudf
+Executing code: import numpy as np
+import os
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    # STEFANOS: Import Modin Pandas
+    import os
+    os.environ["MODIN_ENGINE"] = "ray"
+    import ray
+    ray.init(num_cpus=int(os.environ['MODIN_CPUS']), runtime_env={'env_vars': {'__MODIN_AUTOIMPORT_PANDAS__': '1'}})
+    import modin.pandas as pd
+else:
+    # STEFANOS: Import regular Pandas
+    import pandas as pd
+import time
+Executing code: %%time
+### cell 0 ###
+
+train_df = pd.read_csv('/home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/input/feedback-prize-english-language-learning/train.csv')
+test_df = pd.read_csv('/home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/input/feedback-prize-english-language-learning/test.csv')
+Executing code: %%time
+### cell 1 ###
+
+factor = 200
+if "IREWR_LESS_REPLICATION" in os.environ and os.environ["IREWR_LESS_REPLICATION"] == "True":
+    factor = factor//5
+train_df = pd.concat([train_df]*factor)
+test_df = pd.concat([test_df]*factor)
+train_df.info()
+Executing code: %%time
+### cell 2 ###
+
+train_df.head()
+Executing code: %%time
+### cell 3 ###
+
+test_df.head()
+Executing code: %%time
+### cell 4 ###
+
+len(train_df), len(test_df)
+Executing code: %%time
+### cell 5 ###
+
+LABEL_COLUMNS = ['cohesion', 'syntax', 'vocabulary', 'phraseology', 'grammar', 'conventions']
+Executing code: %%time
+### cell 6 ###
+
+texts = train_df.sample(frac=1, random_state=420).head(4)
+Executing code: %%time
+### cell 7 ###
+
+train_df['total_score'] = train_df[LABEL_COLUMNS].sum(axis=1)
+lowest_df = train_df.sort_values('total_score').head(4)
+Executing code: %%time
+### cell 8 ###
+
+train_df['total_score'] = train_df[LABEL_COLUMNS].sum(axis=1)
+highest_df = train_df.sort_values('total_score', ascending=False).head(4)
+Executing code: %%time
+### cell 9 ###
+
+
+train_df['word_count'] = train_df.full_text.apply(lambda x: len(x.split()))
+Executing code: %%time
+### cell 10 ###
+
+train_df['word_count'].mean()
+Executing code: %%time
+### cell 11 ###
+
+train_df['word_count'].max()
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Annotated notebook saved to /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/gpu_to_cpu_cost_model_inputs.ipynb
+Executing code: %load_ext cudf.pandas
+Executing code: import sys, os
+sys.path.insert(0, os.path.abspath('/home/ElasticNotebook'))
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df
+import pickle
+import cudf
+Executing code: import numpy as np
+import os
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    # STEFANOS: Import Modin Pandas
+    import os
+    os.environ["MODIN_ENGINE"] = "ray"
+    import ray
+    ray.init(num_cpus=int(os.environ['MODIN_CPUS']), runtime_env={'env_vars': {'__MODIN_AUTOIMPORT_PANDAS__': '1'}})
+    import modin.pandas as pd
+else:
+    # STEFANOS: Import regular Pandas
+    import pandas as pd
+import time
+Executing code: %%time
+### cell 0 ###
+
+train_df = pd.read_csv('/home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/input/feedback-prize-english-language-learning/train.csv')
+test_df = pd.read_csv('/home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/input/feedback-prize-english-language-learning/test.csv')
+Executing code: %%time
+### cell 1 ###
+
+factor = 200
+if "IREWR_LESS_REPLICATION" in os.environ and os.environ["IREWR_LESS_REPLICATION"] == "True":
+    factor = factor//5
+train_df = pd.concat([train_df]*factor)
+test_df = pd.concat([test_df]*factor)
+train_df.info()
+Executing code: %%time
+### cell 2 ###
+
+train_df.head()
+Executing code: %%time
+### cell 3 ###
+
+test_df.head()
+Executing code: %%time
+### cell 4 ###
+
+len(train_df), len(test_df)
+Executing code: %%time
+### cell 5 ###
+
+LABEL_COLUMNS = ['cohesion', 'syntax', 'vocabulary', 'phraseology', 'grammar', 'conventions']
+Executing code: %%time
+### cell 6 ###
+
+texts = train_df.sample(frac=1, random_state=420).head(4)
+Executing code: %%time
+### cell 7 ###
+
+train_df['total_score'] = train_df[LABEL_COLUMNS].sum(axis=1)
+lowest_df = train_df.sort_values('total_score').head(4)
+Executing code: %%time
+### cell 8 ###
+
+train_df['total_score'] = train_df[LABEL_COLUMNS].sum(axis=1)
+highest_df = train_df.sort_values('total_score', ascending=False).head(4)
+Executing code: %%time
+### cell 9 ###
+
+
+train_df['word_count'] = train_df.full_text.apply(lambda x: len(x.split()))
+Executing code: %%time
+### cell 10 ###
+
+train_df['word_count'].mean()
+Executing code: %%time
+### cell 11 ###
+
+train_df['word_count'].max()
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Getting CPU to GPU transfer times
+Annotated notebook saved to /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/cpu_to_gpu_transfer_times.ipynb
+Finished getting CPU to GPU transfer times
+Getting GPU to CPU transfer times
+Annotated notebook saved to /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/gpu_to_cpu_transfer_times.ipynb
+Finished getting GPU to CPU transfer times
+cell index 0
+input transfer inputs []
+output transfer inputs [CostModelInput(df_name='test_df', df_type=<DFType.OBJECT: 'object'>, rows=3, cols=2, is_series=False, col_data={'text_id': (<DFType.OBJECT: 'object'>, 335, 52), 'full_text': (<DFType.OBJECT: 'object'>, 9051, 8768)}, col_names=['text_id', 'full_text'], cpu_to_gpu_col_transfer_times={'text_id': 1.59, 'full_text': 1.66}, gpu_to_cpu_col_transfer_times={'text_id': 9.56, 'full_text': 5.09}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None), CostModelInput(df_name='train_df', df_type=<DFType.FLOAT: 'float'>, rows=3911, cols=8, is_series=False, col_data={'text_id': (<DFType.OBJECT: 'object'>, 269987, 62580), 'full_text': (<DFType.OBJECT: 'object'>, 9353372, 9145965), 'cohesion': (<DFType.FLOAT: 'float'>, 31416, 31288), 'syntax': (<DFType.FLOAT: 'float'>, 31416, 31288), 'vocabulary': (<DFType.FLOAT: 'float'>, 31416, 31288), 'phraseology': (<DFType.FLOAT: 'float'>, 31416, 31288), 'grammar': (<DFType.FLOAT: 'float'>, 31416, 31288), 'conventions': (<DFType.FLOAT: 'float'>, 31416, 31288)}, col_names=['text_id', 'full_text', 'cohesion', 'syntax', 'vocabulary', 'phraseology', 'grammar', 'conventions'], cpu_to_gpu_col_transfer_times={'text_id': 2.17, 'full_text': 14.6, 'cohesion': 2.81, 'syntax': 2.21, 'vocabulary': 2.2, 'phraseology': 2.31, 'grammar': 2.12, 'conventions': 2.24}, gpu_to_cpu_col_transfer_times={'text_id': 11.1, 'full_text': 46.6, 'cohesion': 182.0, 'syntax': 7.61, 'vocabulary': 6.06, 'phraseology': 5.3, 'grammar': 5.81, 'conventions': 5.07}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+cell index 1
+input transfer inputs [CostModelInput(df_name='test_df', df_type=<DFType.OBJECT: 'object'>, rows=3, cols=2, is_series=False, col_data={'text_id': (<DFType.OBJECT: 'object'>, 335, 52), 'full_text': (<DFType.OBJECT: 'object'>, 9051, 8768)}, col_names=['text_id', 'full_text'], cpu_to_gpu_col_transfer_times={'text_id': 1.24, 'full_text': 1.36}, gpu_to_cpu_col_transfer_times={'text_id': 7.75, 'full_text': 6.06}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None), CostModelInput(df_name='train_df', df_type=<DFType.FLOAT: 'float'>, rows=3911, cols=8, is_series=False, col_data={'text_id': (<DFType.OBJECT: 'object'>, 269987, 62580), 'full_text': (<DFType.OBJECT: 'object'>, 9353372, 9145965), 'cohesion': (<DFType.FLOAT: 'float'>, 31416, 31288), 'syntax': (<DFType.FLOAT: 'float'>, 31416, 31288), 'vocabulary': (<DFType.FLOAT: 'float'>, 31416, 31288), 'phraseology': (<DFType.FLOAT: 'float'>, 31416, 31288), 'grammar': (<DFType.FLOAT: 'float'>, 31416, 31288), 'conventions': (<DFType.FLOAT: 'float'>, 31416, 31288)}, col_names=['text_id', 'full_text', 'cohesion', 'syntax', 'vocabulary', 'phraseology', 'grammar', 'conventions'], cpu_to_gpu_col_transfer_times={'text_id': 1.43, 'full_text': 9.64, 'cohesion': 2.05, 'syntax': 2.2, 'vocabulary': 2.39, 'phraseology': 2.08, 'grammar': 2.97, 'conventions': 2.16}, gpu_to_cpu_col_transfer_times={'text_id': 7.7, 'full_text': 32.7, 'cohesion': 5.43, 'syntax': 7.2, 'vocabulary': 4.84, 'phraseology': 4.2, 'grammar': 4.48, 'conventions': 4.18}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs [CostModelInput(df_name='test_df', df_type=<DFType.OBJECT: 'object'>, rows=600, cols=2, is_series=False, col_data={'text_id': (<DFType.OBJECT: 'object'>, 46200, 14404), 'full_text': (<DFType.OBJECT: 'object'>, 1789400, 1757604)}, col_names=['text_id', 'full_text'], cpu_to_gpu_col_transfer_times={'text_id': 1.99, 'full_text': 8.67}, gpu_to_cpu_col_transfer_times={'text_id': 11.6, 'full_text': 9.93}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None), CostModelInput(df_name='train_df', df_type=<DFType.FLOAT: 'float'>, rows=782200, cols=8, is_series=False, col_data={'text_id': (<DFType.OBJECT: 'object'>, 60229400, 18772804), 'full_text': (<DFType.OBJECT: 'object'>, 1876906400, 1835449804), 'cohesion': (<DFType.FLOAT: 'float'>, 12515200, 12515200), 'syntax': (<DFType.FLOAT: 'float'>, 12515200, 12515200), 'vocabulary': (<DFType.FLOAT: 'float'>, 12515200, 12515200), 'phraseology': (<DFType.FLOAT: 'float'>, 12515200, 12515200), 'grammar': (<DFType.FLOAT: 'float'>, 12515200, 12515200), 'conventions': (<DFType.FLOAT: 'float'>, 12515200, 12515200)}, col_names=['text_id', 'full_text', 'cohesion', 'syntax', 'vocabulary', 'phraseology', 'grammar', 'conventions'], cpu_to_gpu_col_transfer_times={'text_id': 65.8, 'full_text': 2000.0, 'cohesion': 10.2, 'syntax': 7.49, 'vocabulary': 7.28, 'phraseology': 5.04, 'grammar': 5.07, 'conventions': 5.26}, gpu_to_cpu_col_transfer_times={'text_id': 445.0, 'full_text': 4520.0, 'cohesion': 47.2, 'syntax': 52.3, 'vocabulary': 51.4, 'phraseology': 36.1, 'grammar': 33.7, 'conventions': 33.7}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+cell index 2
+input transfer inputs [CostModelInput(df_name='train_df', df_type=<DFType.FLOAT: 'float'>, rows=782200, cols=8, is_series=False, col_data={'text_id': (<DFType.OBJECT: 'object'>, 60229400, 18772804), 'full_text': (<DFType.OBJECT: 'object'>, 1876906400, 1835449804), 'cohesion': (<DFType.FLOAT: 'float'>, 12515200, 12515200), 'syntax': (<DFType.FLOAT: 'float'>, 12515200, 12515200), 'vocabulary': (<DFType.FLOAT: 'float'>, 12515200, 12515200), 'phraseology': (<DFType.FLOAT: 'float'>, 12515200, 12515200), 'grammar': (<DFType.FLOAT: 'float'>, 12515200, 12515200), 'conventions': (<DFType.FLOAT: 'float'>, 12515200, 12515200)}, col_names=['text_id', 'full_text', 'cohesion', 'syntax', 'vocabulary', 'phraseology', 'grammar', 'conventions'], cpu_to_gpu_col_transfer_times={'text_id': 95.9, 'full_text': 1990.0, 'cohesion': 8.51, 'syntax': 6.16, 'vocabulary': 6.24, 'phraseology': 5.47, 'grammar': 5.44, 'conventions': 4.72}, gpu_to_cpu_col_transfer_times={'text_id': 292.0, 'full_text': 4400.0, 'cohesion': 46.7, 'syntax': 45.7, 'vocabulary': 35.1, 'phraseology': 35.6, 'grammar': 38.8, 'conventions': 36.5}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 3
+input transfer inputs [CostModelInput(df_name='test_df', df_type=<DFType.OBJECT: 'object'>, rows=600, cols=2, is_series=False, col_data={'text_id': (<DFType.OBJECT: 'object'>, 46200, 14404), 'full_text': (<DFType.OBJECT: 'object'>, 1789400, 1757604)}, col_names=['text_id', 'full_text'], cpu_to_gpu_col_transfer_times={'text_id': 1.54, 'full_text': 3.26}, gpu_to_cpu_col_transfer_times={'text_id': 10.4, 'full_text': 8.64}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 4
+input transfer inputs [CostModelInput(df_name='test_df', df_type=<DFType.OBJECT: 'object'>, rows=600, cols=2, is_series=False, col_data={'text_id': (<DFType.OBJECT: 'object'>, 46200, 14404), 'full_text': (<DFType.OBJECT: 'object'>, 1789400, 1757604)}, col_names=['text_id', 'full_text'], cpu_to_gpu_col_transfer_times={'text_id': 1.55, 'full_text': 2.96}, gpu_to_cpu_col_transfer_times={'text_id': 5.82, 'full_text': 8.05}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None), CostModelInput(df_name='train_df', df_type=<DFType.FLOAT: 'float'>, rows=782200, cols=8, is_series=False, col_data={'text_id': (<DFType.OBJECT: 'object'>, 60229400, 18772804), 'full_text': (<DFType.OBJECT: 'object'>, 1876906400, 1835449804), 'cohesion': (<DFType.FLOAT: 'float'>, 12515200, 12515200), 'syntax': (<DFType.FLOAT: 'float'>, 12515200, 12515200), 'vocabulary': (<DFType.FLOAT: 'float'>, 12515200, 12515200), 'phraseology': (<DFType.FLOAT: 'float'>, 12515200, 12515200), 'grammar': (<DFType.FLOAT: 'float'>, 12515200, 12515200), 'conventions': (<DFType.FLOAT: 'float'>, 12515200, 12515200)}, col_names=['text_id', 'full_text', 'cohesion', 'syntax', 'vocabulary', 'phraseology', 'grammar', 'conventions'], cpu_to_gpu_col_transfer_times={'text_id': 65.1, 'full_text': 1990.0, 'cohesion': 6.17, 'syntax': 6.13, 'vocabulary': 6.06, 'phraseology': 5.21, 'grammar': 4.58, 'conventions': 4.65}, gpu_to_cpu_col_transfer_times={'text_id': 279.0, 'full_text': 4380.0, 'cohesion': 35.9, 'syntax': 39.4, 'vocabulary': 54.3, 'phraseology': 33.4, 'grammar': 36.2, 'conventions': 36.4}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 5
+input transfer inputs []
+output transfer inputs []
+cell index 6
+input transfer inputs [CostModelInput(df_name='train_df', df_type=<DFType.FLOAT: 'float'>, rows=782200, cols=8, is_series=False, col_data={'text_id': (<DFType.OBJECT: 'object'>, 60229400, 18772804), 'full_text': (<DFType.OBJECT: 'object'>, 1876906400, 1835449804), 'cohesion': (<DFType.FLOAT: 'float'>, 12515200, 12515200), 'syntax': (<DFType.FLOAT: 'float'>, 12515200, 12515200), 'vocabulary': (<DFType.FLOAT: 'float'>, 12515200, 12515200), 'phraseology': (<DFType.FLOAT: 'float'>, 12515200, 12515200), 'grammar': (<DFType.FLOAT: 'float'>, 12515200, 12515200), 'conventions': (<DFType.FLOAT: 'float'>, 12515200, 12515200)}, col_names=['text_id', 'full_text', 'cohesion', 'syntax', 'vocabulary', 'phraseology', 'grammar', 'conventions'], cpu_to_gpu_col_transfer_times={'text_id': 60.7, 'full_text': 1970.0, 'cohesion': 5.97, 'syntax': 6.65, 'vocabulary': 6.35, 'phraseology': 5.18, 'grammar': 4.67, 'conventions': 4.41}, gpu_to_cpu_col_transfer_times={'text_id': 282.0, 'full_text': 4430.0, 'cohesion': 64.0, 'syntax': 34.1, 'vocabulary': 34.2, 'phraseology': 33.9, 'grammar': 35.7, 'conventions': 34.3}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 7
+input transfer inputs [CostModelInput(df_name='train_df', df_type=<DFType.FLOAT: 'float'>, rows=782200, cols=6, is_series=False, col_data={'cohesion': (<DFType.FLOAT: 'float'>, 12515200, 12515200), 'vocabulary': (<DFType.FLOAT: 'float'>, 12515200, 12515200), 'conventions': (<DFType.FLOAT: 'float'>, 12515200, 12515200), 'phraseology': (<DFType.FLOAT: 'float'>, 12515200, 12515200), 'syntax': (<DFType.FLOAT: 'float'>, 12515200, 12515200), 'grammar': (<DFType.FLOAT: 'float'>, 12515200, 12515200)}, col_names=['cohesion', 'vocabulary', 'conventions', 'phraseology', 'syntax', 'grammar'], cpu_to_gpu_col_transfer_times={'cohesion': 12.0, 'vocabulary': 6.51, 'conventions': 6.18, 'phraseology': 5.43, 'syntax': 4.72, 'grammar': 4.72}, gpu_to_cpu_col_transfer_times={'cohesion': 34.5, 'vocabulary': 33.9, 'conventions': 34.6, 'phraseology': 43.5, 'syntax': 37.7, 'grammar': 40.2}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs [CostModelInput(df_name='train_df', df_type=<DFType.FLOAT: 'float'>, rows=782200, cols=9, is_series=False, col_data={'total_score': (<DFType.FLOAT: 'float'>, 12515200, 12515200)}, col_names=['total_score'], cpu_to_gpu_col_transfer_times={'total_score': 4.64}, gpu_to_cpu_col_transfer_times={'total_score': 33.6}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+cell index 8
+input transfer inputs [CostModelInput(df_name='train_df', df_type=<DFType.FLOAT: 'float'>, rows=782200, cols=7, is_series=False, col_data={'cohesion': (<DFType.FLOAT: 'float'>, 12515200, 12515200), 'vocabulary': (<DFType.FLOAT: 'float'>, 12515200, 12515200), 'conventions': (<DFType.FLOAT: 'float'>, 12515200, 12515200), 'phraseology': (<DFType.FLOAT: 'float'>, 12515200, 12515200), 'total_score': (<DFType.FLOAT: 'float'>, 12515200, 12515200), 'syntax': (<DFType.FLOAT: 'float'>, 12515200, 12515200), 'grammar': (<DFType.FLOAT: 'float'>, 12515200, 12515200)}, col_names=['cohesion', 'vocabulary', 'conventions', 'phraseology', 'total_score', 'syntax', 'grammar'], cpu_to_gpu_col_transfer_times={'cohesion': 3.98, 'vocabulary': 4.97, 'conventions': 4.57, 'phraseology': 4.88, 'total_score': 4.71, 'syntax': 4.59, 'grammar': 4.92}, gpu_to_cpu_col_transfer_times={'cohesion': 33.6, 'vocabulary': 34.9, 'conventions': 34.4, 'phraseology': 34.8, 'total_score': 45.2, 'syntax': 34.7, 'grammar': 34.1}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 9
+input transfer inputs [CostModelInput(df_name='train_df', df_type=<DFType.OBJECT: 'object'>, rows=782200, cols=1, is_series=False, col_data={'full_text': (<DFType.OBJECT: 'object'>, 1876906400, 1835449804)}, col_names=['full_text'], cpu_to_gpu_col_transfer_times={'full_text': 1920.0}, gpu_to_cpu_col_transfer_times={'full_text': 4380.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs [CostModelInput(df_name='train_df', df_type=<DFType.NUMBER: 'number'>, rows=782200, cols=10, is_series=False, col_data={'word_count': (<DFType.NUMBER: 'number'>, 12515200, 12515200)}, col_names=['word_count'], cpu_to_gpu_col_transfer_times={'word_count': 4.48}, gpu_to_cpu_col_transfer_times={'word_count': 36.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+cell index 10
+input transfer inputs [CostModelInput(df_name='train_df', df_type=<DFType.NUMBER: 'number'>, rows=782200, cols=1, is_series=False, col_data={'word_count': (<DFType.NUMBER: 'number'>, 12515200, 12515200)}, col_names=['word_count'], cpu_to_gpu_col_transfer_times={'word_count': 4.54}, gpu_to_cpu_col_transfer_times={'word_count': 38.8}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 11
+input transfer inputs [CostModelInput(df_name='train_df', df_type=<DFType.NUMBER: 'number'>, rows=782200, cols=1, is_series=False, col_data={'word_count': (<DFType.NUMBER: 'number'>, 12515200, 12515200)}, col_names=['word_count'], cpu_to_gpu_col_transfer_times={'word_count': 2.93}, gpu_to_cpu_col_transfer_times={'word_count': 34.5}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+✅ Success: /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/bench.ipynb

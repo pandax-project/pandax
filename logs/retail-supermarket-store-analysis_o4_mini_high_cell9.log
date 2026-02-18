@@ -1,0 +1,226 @@
+Annotated notebook saved to /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/cell_exec_info.ipynb
+Executing code: import sys, os
+sys.path.insert(0, os.path.abspath('/home/ElasticNotebook'))
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df
+import pickle
+import cudf
+Executing code: %%RecordEventWithColumnInfo
+import numpy as np
+import os
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    # STEFANOS: Import Modin Pandas
+    import os
+    os.environ["MODIN_ENGINE"] = "ray"
+    import ray
+    ray.init(num_cpus=int(os.environ['MODIN_CPUS']), runtime_env={'env_vars': {'__MODIN_AUTOIMPORT_PANDAS__': '1'}})
+    import modin.pandas as pd
+else:
+    # STEFANOS: Import regular Pandas
+    import pandas as pd
+import time
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+train_df = pd.read_csv('/home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/input/feedback-prize-english-language-learning/train.csv')
+test_df = pd.read_csv('/home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/input/feedback-prize-english-language-learning/test.csv')
+Executing code: %%RecordEventWithColumnInfo
+### cell 1 ###
+
+factor = 10
+if "IREWR_LESS_REPLICATION" in os.environ and os.environ["IREWR_LESS_REPLICATION"] == "True":
+    factor = factor//5
+train_df = pd.concat([train_df]*factor)
+test_df = pd.concat([test_df]*factor)
+train_df.info()
+Executing code: %%RecordEventWithColumnInfo
+### cell 2 ###
+
+train_df.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 3 ###
+
+test_df.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 4 ###
+
+len(train_df), len(test_df)
+Executing code: %%RecordEventWithColumnInfo
+### cell 5 ###
+
+LABEL_COLUMNS = ['cohesion', 'syntax', 'vocabulary', 'phraseology', 'grammar', 'conventions']
+Executing code: %%RecordEventWithColumnInfo
+### cell 6 ###
+
+texts = train_df.sample(frac=1, random_state=420).head(4)
+Executing code: %%RecordEventWithColumnInfo
+### cell 7 ###
+
+train_df['total_score'] = train_df[LABEL_COLUMNS].sum(axis=1)
+lowest_df = train_df.sort_values('total_score').head(4)
+Executing code: %%RecordEventWithColumnInfo
+### cell 8 ###
+
+train_df['total_score'] = train_df[LABEL_COLUMNS].sum(axis=1)
+highest_df = train_df.sort_values('total_score', ascending=False).head(4)
+Executing code: %%RecordEventWithColumnInfo
+### cell 9 ###
+
+
+train_df['word_count'] = train_df.full_text.apply(lambda x: len(x.split()))
+Executing code: %%RecordEventWithColumnInfo
+### cell 10 ###
+
+train_df['word_count'].mean()
+Executing code: %%RecordEventWithColumnInfo
+### cell 11 ###
+
+train_df['word_count'].max()
+Executing code: %PrintCellInfo cell_exec_info
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Ran small notebook to get cell exec info in 6.412259101867676 seconds
+Getting cudf profile information...
+Annotated notebook saved to /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/cudf_profile.ipynb
+Done getting cudf profile information.
+Ran small notebook to get cudf profile info in 48.369866609573364 seconds
+Annotated notebook saved to /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated.ipynb
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Executing code: %load_ext cudf.pandas
+Executing code: import sys, os
+sys.path.insert(0, os.path.abspath('/home/ElasticNotebook'))
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df
+import pickle
+import cudf
+Executing code: %%RecordEvent
+import numpy as np
+import os
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    # STEFANOS: Import Modin Pandas
+    import os
+    os.environ["MODIN_ENGINE"] = "ray"
+    import ray
+    ray.init(num_cpus=int(os.environ['MODIN_CPUS']), runtime_env={'env_vars': {'__MODIN_AUTOIMPORT_PANDAS__': '1'}})
+    import modin.pandas as pd
+else:
+    # STEFANOS: Import regular Pandas
+    import pandas as pd
+import time
+Executing code: %%RecordEvent
+%%time
+### cell 0 ###
+
+train_df = pd.read_csv('/home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/input/feedback-prize-english-language-learning/train.csv')
+test_df = pd.read_csv('/home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/input/feedback-prize-english-language-learning/test.csv')
+Executing code: %%RecordEvent
+%%time
+### cell 1 ###
+
+factor = 500
+if "IREWR_LESS_REPLICATION" in os.environ and os.environ["IREWR_LESS_REPLICATION"] == "True":
+    factor = factor//5
+train_df = pd.concat([train_df]*factor)
+test_df = pd.concat([test_df]*factor)
+train_df.info()
+Executing code: %%RecordEvent
+%%time
+### cell 2 ###
+
+train_df.head()
+Executing code: %%RecordEvent
+%%time
+### cell 3 ###
+
+test_df.head()
+Executing code: %%RecordEvent
+%%time
+### cell 4 ###
+
+len(train_df), len(test_df)
+Executing code: %%RecordEvent
+%%time
+### cell 5 ###
+
+LABEL_COLUMNS = ['cohesion', 'syntax', 'vocabulary', 'phraseology', 'grammar', 'conventions']
+Executing code: %%RecordEvent
+%%time
+### cell 6 ###
+
+texts = train_df.sample(frac=1, random_state=420).head(4)
+Executing code: %%RecordEvent
+%%time
+### cell 7 ###
+
+train_df['total_score'] = train_df[LABEL_COLUMNS].sum(axis=1)
+lowest_df = train_df.sort_values('total_score').head(4)
+Executing code: %%RecordEvent
+%%time
+### cell 8 ###
+
+train_df['total_score'] = train_df[LABEL_COLUMNS].sum(axis=1)
+highest_df = train_df.sort_values('total_score', ascending=False).head(4)
+Executing code: %Checkpoint /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated/checkpoints/pre_cell_9.pickle
+Checkpointing took 0.007142305374145508 seconds.
+========================================================
+Cell  9
+Rewritten pre-checkpoint path: /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated/checkpoints/pre_cell_9.pickle
+Pre-checkpoint path: /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated/checkpoints/pre_cell_9.pickle
+========================================================
+Getting original timing for cell 9
+HAHA original checkpoint path:  /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated/checkpoints/pre_cell_9.pickle
+HAHA setting initially best_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated/checkpoints/post_cell_9.pickle
+========================================================
+Rewriting cell 9... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 9 ###
+
+
+train_df['word_count'] = train_df.full_text.apply(lambda x: len(x.split()))
+        <Profiling data>:
+                        Function  GPU calls  CPU calls
+0    NDFrame.__getattr__          1          0
+1           Series.apply          0          1
+2  DataFrame.__setitem__          1          0
+
+        <Execution time>: 54700.0
+        <Active vars>: ['train_df']
+
+        <Future vars>: []
+
+        <Iteration>: 0/3
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: The original code can be optimized further to work efficiently with GPU using libraries like CuDF.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 9 ###
+
+
+train_df['word_count'] = train_df.full_text.apply(lambda x: len(x.split()))
+        <Profiling data>:
+                        Function  GPU calls  CPU calls
+0    NDFrame.__getattr__          1          0
+1           Series.apply          0          1
+2  DataFrame.__setitem__          1          0
+
+        <Execution time>: 54700.0
+        <Active vars>: ['train_df']
+
+        <Future vars>: []
+
+        <Iteration>: 0/3
+
+Code: train_df['word_count'] = train_df.full_text.str.split().list.len()
+Reason: Replaced the Python-level apply + split (CPU-bound) with cudf’s vectorized string split and list length operations, eliminating the Python loop and keeping all work on the GPU.
+Parsed response: train_df['word_count'] = train_df.full_text.str.split().list.len()
+Try 0: calling rewrite agent for cell 9 took 8.78623080253601 seconds.
+Executing rewritten code... ### cell 9 ###
+
+train_df['word_count'] = train_df.full_text.str.split().list.len()
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/annotated/checkpoints/pre_cell_9.pickle
+Running rewritten cell notebook

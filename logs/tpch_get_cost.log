@@ -1,0 +1,625 @@
+Annotated notebook saved to /home/dias-benchmarks/tpch/notebooks/q01/rewritten/cell_exec_info.ipynb
+Executing code: import sys, os
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df, convert_col
+import pickle
+import cudf
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+import pandas as pd
+
+# load just the datasets q01 needs.
+factor = 1
+DATA_ROOT = f"/home/dias-benchmarks/tpch/data/factor_{factor}"
+STORAGE_OPTS = {}  # or load from JSON
+
+def load_lineitem(
+    data_folder: str, **storage_options
+) -> pd.DataFrame:
+    data_path = data_folder + "/lineitem.tbl"
+    # df = pd.read_parquet(
+    #     data_path,  storage_options=storage_options
+    # )
+    df = pd.read_csv(data_path, sep="|")
+    print(df.columns)
+    df["L_SHIPDATE"] = pd.to_datetime(df.L_SHIPDATE, format="%Y-%m-%d")
+    df["L_RECEIPTDATE"] = pd.to_datetime(df.L_RECEIPTDATE, format="%Y-%m-%d")
+    df["L_COMMITDATE"] = pd.to_datetime(df.L_COMMITDATE, format="%Y-%m-%d")
+    return df
+lineitem = load_lineitem(DATA_ROOT, **STORAGE_OPTS)
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+threshold = '1998-09-02'
+cols = [
+    'L_QUANTITY', 'L_EXTENDEDPRICE', 'L_DISCOUNT', 'L_TAX',
+    'L_RETURNFLAG', 'L_LINESTATUS', 'L_SHIPDATE', 'L_ORDERKEY'
+]
+
+# 1) Single .loc with bracket indexing for projection & filter
+lf = lineitem.loc[lineitem['L_SHIPDATE'] <= threshold, cols]
+Executing code: %%RecordEventWithColumnInfo
+### cell 1 ###
+
+lf = lf.assign(
+    AVG_QTY=lf['L_QUANTITY'],
+    AVG_PRICE=lf['L_EXTENDEDPRICE'],
+    DISC_PRICE=lf['L_EXTENDEDPRICE'] * (1 - lf['L_DISCOUNT']),
+    CHARGE=(
+        lf['L_EXTENDEDPRICE'] * (1 - lf['L_DISCOUNT']) * (1 + lf['L_TAX'])
+    )
+)
+
+# 3) GPU-friendly groupby & aggregation
+total = lf.groupby(
+    ['L_RETURNFLAG', 'L_LINESTATUS'], as_index=False
+).agg({
+    'L_QUANTITY': 'sum',
+    'L_EXTENDEDPRICE': 'sum',
+    'DISC_PRICE': 'sum',
+    'CHARGE': 'sum',
+    'AVG_QTY': 'mean',
+    'AVG_PRICE': 'mean',
+    'L_DISCOUNT': 'mean',
+    'L_ORDERKEY': 'count'
+})
+Executing code: %PrintCellInfo cell_exec_info
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Ran small notebook to get cell exec info in 77.56089448928833 seconds
+Replaced factor in cell with 5
+Transfer cost notebook saved to /home/dias-benchmarks/tpch/notebooks/q01/rewritten/transfer_cost_bench.ipynb
+Annotated notebook saved to /home/dias-benchmarks/tpch/notebooks/q01/rewritten/cpu_to_gpu_cost_model_inputs.ipynb
+Annotated notebook saved to /home/dias-benchmarks/tpch/notebooks/q02/rewritten/cell_exec_info.ipynb
+Executing code: import sys, os
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df, convert_col
+import pickle
+import cudf
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+import pandas as pd
+
+factor = 1
+DATA_ROOT = f"/home/dias-benchmarks/tpch/data/factor_{factor}"
+STORAGE_OPTS = {}  # or load from JSON
+
+# load just the datasets q01 needs:
+def load_part(
+    data_folder: str, **storage_options
+) -> pd.DataFrame:
+    data_path = data_folder + "/part.tbl"
+    # df = pd.read_parquet(
+    #     data_path,  storage_options=storage_options
+    # )
+    df = pd.read_csv(data_path, sep="|")
+    return df
+part = load_part(DATA_ROOT, **STORAGE_OPTS)
+Executing code: %%RecordEventWithColumnInfo
+### cell 1 ###
+
+def load_partsupp(
+    data_folder: str, **storage_options
+) -> pd.DataFrame:
+    data_path = data_folder + "/partsupp.tbl"
+    # df = pd.read_parquet(
+    #     data_path,  storage_options=storage_options
+    # )
+    df = pd.read_csv(data_path, sep="|")
+    return df
+partsupp = load_partsupp(DATA_ROOT, **STORAGE_OPTS)
+Executing code: %%RecordEventWithColumnInfo
+### cell 2 ###
+
+def load_supplier(
+    data_folder: str, **storage_options
+) -> pd.DataFrame:
+    data_path = data_folder + "/supplier.tbl"
+    # df = pd.read_parquet(
+    #     data_path,  storage_options=storage_options
+    # )
+    df = pd.read_csv(data_path, sep="|")
+    return df
+supplier = load_supplier(DATA_ROOT, **STORAGE_OPTS)
+Executing code: %%RecordEventWithColumnInfo
+### cell 3 ###
+
+def load_nation(
+    data_folder: str, **storage_options
+) -> pd.DataFrame:
+    data_path = data_folder + "/nation.tbl"
+    # df = pd.read_parquet(
+    #     data_path,  storage_options=storage_options
+    # )
+    df = pd.read_csv(data_path, sep="|")
+    return df
+nation = load_nation(DATA_ROOT, **STORAGE_OPTS)
+Executing code: %%RecordEventWithColumnInfo
+### cell 4 ###
+
+def load_region(
+    data_folder: str, **storage_options
+) -> pd.DataFrame:
+    data_path = data_folder + "/region.tbl"
+    # df = pd.read_parquet(
+    #     data_path,  storage_options=storage_options
+    # )
+    df = pd.read_csv(data_path, sep="|")
+    return df
+region = load_region(DATA_ROOT, **STORAGE_OPTS)
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+nation_filtered = nation.loc[:, ["N_NATIONKEY", "N_NAME", "N_REGIONKEY"]]
+Executing code: %%RecordEventWithColumnInfo
+### cell 1 ###
+
+region_filtered = region[(region["R_NAME"] == "EUROPE")]
+region_filtered = region_filtered.loc[:, ["R_REGIONKEY"]]
+Executing code: %%RecordEventWithColumnInfo
+### cell 2 ###
+
+r_n_merged = nation_filtered.merge(
+    region_filtered, left_on="N_REGIONKEY", right_on="R_REGIONKEY", how="inner"
+)
+r_n_merged = r_n_merged.loc[:, ["N_NATIONKEY", "N_NAME"]]
+Executing code: %%RecordEventWithColumnInfo
+### cell 3 ###
+
+supplier_filtered = supplier.loc[
+    :,
+    [
+        "S_SUPPKEY",
+        "S_NAME",
+        "S_ADDRESS",
+        "S_NATIONKEY",
+        "S_PHONE",
+        "S_ACCTBAL",
+        "S_COMMENT",
+    ],
+]
+Executing code: %%RecordEventWithColumnInfo
+### cell 4 ###
+
+s_r_n_merged = r_n_merged.merge(
+    supplier_filtered, left_on="N_NATIONKEY", right_on="S_NATIONKEY", how="inner"
+)
+Executing code: %%RecordEventWithColumnInfo
+### cell 5 ###
+
+s_r_n_merged = s_r_n_merged.loc[
+    :,
+    [
+        "N_NAME",
+        "S_SUPPKEY",
+        "S_NAME",
+        "S_ADDRESS",
+        "S_PHONE",
+        "S_ACCTBAL",
+        "S_COMMENT",
+    ],
+]
+Executing code: %%RecordEventWithColumnInfo
+### cell 6 ###
+
+partsupp_filtered = partsupp.loc[:, ["PS_PARTKEY", "PS_SUPPKEY", "PS_SUPPLYCOST"]]
+Executing code: %%RecordEventWithColumnInfo
+### cell 7 ###
+
+ps_s_r_n_merged = s_r_n_merged.merge(
+    partsupp_filtered, left_on="S_SUPPKEY", right_on="PS_SUPPKEY", how="inner"
+)
+Executing code: %%RecordEventWithColumnInfo
+### cell 8 ###
+
+ps_s_r_n_merged = ps_s_r_n_merged.loc[
+    :,
+    [
+        "N_NAME",
+        "S_NAME",
+        "S_ADDRESS",
+        "S_PHONE",
+        "S_ACCTBAL",
+        "S_COMMENT",
+        "PS_PARTKEY",
+        "PS_SUPPLYCOST",
+    ],
+]
+Executing code: %%RecordEventWithColumnInfo
+### cell 9 ###
+
+part_filtered = part.loc[:, ["P_PARTKEY", "P_MFGR", "P_SIZE", "P_TYPE"]]
+Executing code: %%RecordEventWithColumnInfo
+### cell 10 ###
+
+part_filtered = part_filtered[
+    (part_filtered["P_SIZE"] == 15)
+    & (part_filtered["P_TYPE"].str.endswith("BRASS"))
+]
+Executing code: %%RecordEventWithColumnInfo
+### cell 11 ###
+
+part_filtered = part_filtered.loc[:, ["P_PARTKEY", "P_MFGR"]]
+Executing code: %%RecordEventWithColumnInfo
+### cell 12 ###
+
+merged_df = part_filtered.merge(
+    ps_s_r_n_merged, left_on="P_PARTKEY", right_on="PS_PARTKEY", how="inner"
+)
+Executing code: %%RecordEventWithColumnInfo
+### cell 13 ###
+
+merged_df = merged_df.loc[
+    :,
+    [
+        "N_NAME",
+        "S_NAME",
+        "S_ADDRESS",
+        "S_PHONE",
+        "S_ACCTBAL",
+        "S_COMMENT",
+        "PS_SUPPLYCOST",
+        "P_PARTKEY",
+        "P_MFGR",
+    ],
+]
+Executing code: %%RecordEventWithColumnInfo
+### cell 14 ###
+
+min_values = merged_df.groupby("P_PARTKEY", as_index=False, sort=False)[
+    "PS_SUPPLYCOST"
+].min()
+min_values.columns = ["P_PARTKEY_CPY", "MIN_SUPPLYCOST"]
+Executing code: %%RecordEventWithColumnInfo
+### cell 15 ###
+
+merged_df = merged_df.merge(
+    min_values,
+    left_on=["P_PARTKEY", "PS_SUPPLYCOST"],
+    right_on=["P_PARTKEY_CPY", "MIN_SUPPLYCOST"],
+    how="inner",
+)
+Executing code: %%RecordEventWithColumnInfo
+### cell 16 ###
+
+total = merged_df.loc[
+    :,
+    [
+        "S_ACCTBAL",
+        "S_NAME",
+        "N_NAME",
+        "P_PARTKEY",
+        "P_MFGR",
+        "S_ADDRESS",
+        "S_PHONE",
+        "S_COMMENT",
+    ],
+]
+Executing code: %%RecordEventWithColumnInfo
+### cell 17 ###
+
+total = total.sort_values(
+    by=["S_ACCTBAL", "N_NAME", "S_NAME", "P_PARTKEY"],
+    ascending=[False, True, True, True],
+)
+Executing code: %PrintCellInfo cell_exec_info
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Ran small notebook to get cell exec info in 43.12727236747742 seconds
+Replaced factor in cell with 5
+Transfer cost notebook saved to /home/dias-benchmarks/tpch/notebooks/q02/rewritten/transfer_cost_bench.ipynb
+Annotated notebook saved to /home/dias-benchmarks/tpch/notebooks/q02/rewritten/cpu_to_gpu_cost_model_inputs.ipynb
+Annotated notebook saved to /home/dias-benchmarks/tpch/notebooks/q03/rewritten/cell_exec_info.ipynb
+Executing code: import sys, os
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df, convert_col
+import pickle
+import cudf
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+import pandas as pd
+
+factor = 1
+DATA_ROOT = f"/home/dias-benchmarks/tpch/data/factor_{factor}"
+STORAGE_OPTS = {}  # or load from JSON
+
+# load just the datasets q01 needs:
+def load_lineitem(
+    data_folder: str, **storage_options
+) -> pd.DataFrame:
+    data_path = data_folder + "/lineitem.tbl"
+    # df = pd.read_parquet(
+    #     data_path,  storage_options=storage_options
+    # )
+    df = pd.read_csv(data_path, sep="|")
+    print(df.columns)
+    df["L_SHIPDATE"] = pd.to_datetime(df.L_SHIPDATE, format="%Y-%m-%d")
+    df["L_RECEIPTDATE"] = pd.to_datetime(df.L_RECEIPTDATE, format="%Y-%m-%d")
+    df["L_COMMITDATE"] = pd.to_datetime(df.L_COMMITDATE, format="%Y-%m-%d")
+    return df
+lineitem = load_lineitem(DATA_ROOT, **STORAGE_OPTS)
+Executing code: %%RecordEventWithColumnInfo
+### cell 1 ###
+
+def load_orders(
+    data_folder: str, **storage_options
+) -> pd.DataFrame:
+    data_path = data_folder + "/orders.tbl"
+    # df = pd.read_parquet(
+    #     data_path,  storage_options=storage_options
+    # )
+    df = pd.read_csv(data_path, sep="|")
+    df["O_ORDERDATE"] = pd.to_datetime(df.O_ORDERDATE, format="%Y-%m-%d")
+    return df
+orders = load_orders(DATA_ROOT, **STORAGE_OPTS)
+Executing code: %%RecordEventWithColumnInfo
+### cell 2 ###
+
+def load_customer(
+    data_folder: str, **storage_options
+) -> pd.DataFrame:
+    data_path = data_folder + "/customer.tbl"
+    # df = pd.read_parquet(
+    #     data_path,  storage_options=storage_options
+    # )
+    df = pd.read_csv(data_path, sep="|")
+    return df
+customer = load_customer(DATA_ROOT, **STORAGE_OPTS)
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+# Define the cutoff date as a pandas Timestamp (will be handled on GPU)
+date = pd.Timestamp("1995-03-04")
+fcustomer = customer.loc[
+    customer.C_MKTSEGMENT == "HOUSEHOLD",
+    ["C_CUSTKEY"]
+]
+
+forders = orders.loc[
+    orders.O_ORDERDATE < date,
+    ["O_ORDERKEY", "O_CUSTKEY", "O_ORDERDATE", "O_SHIPPRIORITY"]
+]
+
+flineitem = lineitem.loc[
+    lineitem.L_SHIPDATE > date,
+    ["L_ORDERKEY", "L_EXTENDEDPRICE", "L_DISCOUNT"]
+]
+
+# 2) Perform the two joins entirely on GPU
+jn2 = (
+    fcustomer
+      .merge(forders,    left_on="C_CUSTKEY", right_on="O_CUSTKEY")
+      .merge(flineitem,  left_on="O_ORDERKEY", right_on="L_ORDERKEY")
+)
+
+# 3) Compute the TMP column, group, sum and sort—all GPU operations
+jn2["TMP"] = jn2.L_EXTENDEDPRICE * (1 - jn2.L_DISCOUNT)
+
+res = (
+    jn2
+      .groupby(
+          ["L_ORDERKEY", "O_ORDERDATE", "O_SHIPPRIORITY"],
+          as_index=False,
+          sort=False
+      )["TMP"]
+      .sum()
+      .sort_values("TMP", ascending=False)
+)
+Executing code: %PrintCellInfo cell_exec_info
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Ran small notebook to get cell exec info in 86.82080483436584 seconds
+Replaced factor in cell with 5
+Transfer cost notebook saved to /home/dias-benchmarks/tpch/notebooks/q03/rewritten/transfer_cost_bench.ipynb
+Annotated notebook saved to /home/dias-benchmarks/tpch/notebooks/q03/rewritten/cpu_to_gpu_cost_model_inputs.ipynb
+Annotated notebook saved to /home/dias-benchmarks/tpch/notebooks/q04/rewritten/cell_exec_info.ipynb
+Executing code: import sys, os
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df, convert_col
+import pickle
+import cudf
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+import pandas as pd
+
+# load just the datasets q01 needs.
+factor = 1
+DATA_ROOT = f"/home/dias-benchmarks/tpch/data/factor_{factor}"
+STORAGE_OPTS = {}  # or load from JSON
+
+
+def load_lineitem(
+    data_folder: str, **storage_options
+) -> pd.DataFrame:
+    data_path = data_folder + "/lineitem.tbl"
+    # df = pd.read_parquet(
+    #     data_path,  storage_options=storage_options
+    # )
+    df = pd.read_csv(data_path, sep="|")
+    print(df.columns)
+    df["L_SHIPDATE"] = pd.to_datetime(df.L_SHIPDATE, format="%Y-%m-%d")
+    df["L_RECEIPTDATE"] = pd.to_datetime(df.L_RECEIPTDATE, format="%Y-%m-%d")
+    df["L_COMMITDATE"] = pd.to_datetime(df.L_COMMITDATE, format="%Y-%m-%d")
+    return df
+lineitem = load_lineitem(DATA_ROOT, **STORAGE_OPTS)
+Executing code: %%RecordEventWithColumnInfo
+### cell 1 ###
+
+def load_orders(
+    data_folder: str, **storage_options
+) -> pd.DataFrame:
+    data_path = data_folder + "/orders.tbl"
+    # df = pd.read_parquet(
+    #     data_path,  storage_options=storage_options
+    # )
+    df = pd.read_csv(data_path, sep="|")
+    df["O_ORDERDATE"] = pd.to_datetime(df.O_ORDERDATE, format="%Y-%m-%d")
+    return df
+orders = load_orders(DATA_ROOT, **STORAGE_OPTS)
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+# Filter lineitem and extract unique order keys
+fline_keys = lineitem.loc[lineitem.L_COMMITDATE < lineitem.L_RECEIPTDATE, 'L_ORDERKEY']
+
+# Filter orders by date range
+orders_filtered = orders.loc[
+    (orders.O_ORDERDATE >= '1993-08-01') &
+    (orders.O_ORDERDATE < '1993-11-01')
+]
+
+# Select orders matching the filtered lineitem keys
+matched_orders = orders_filtered.loc[
+    orders_filtered.O_ORDERKEY.isin(fline_keys)
+]
+Executing code: %%RecordEventWithColumnInfo
+### cell 1 ###
+
+total = matched_orders.groupby('O_ORDERPRIORITY', as_index=False)['O_ORDERKEY'].count()
+Executing code: %PrintCellInfo cell_exec_info
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Ran small notebook to get cell exec info in 83.47660875320435 seconds
+Replaced factor in cell with 5
+Transfer cost notebook saved to /home/dias-benchmarks/tpch/notebooks/q04/rewritten/transfer_cost_bench.ipynb
+Annotated notebook saved to /home/dias-benchmarks/tpch/notebooks/q04/rewritten/cpu_to_gpu_cost_model_inputs.ipynb
+Annotated notebook saved to /home/dias-benchmarks/tpch/notebooks/q05/rewritten/cell_exec_info.ipynb
+Executing code: import sys, os
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df, convert_col
+import pickle
+import cudf
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+import pandas as pd
+
+# load just the datasets q01 needs.
+factor = 1
+DATA_ROOT = f"/home/dias-benchmarks/tpch/data/factor_{factor}"
+STORAGE_OPTS = {}  # or load from JSON
+
+def load_lineitem(
+    data_folder: str, **storage_options
+) -> pd.DataFrame:
+    data_path = f"{data_folder}/lineitem.tbl"
+    # parse the date columns on GPU during the read
+    df = pd.read_csv(
+        data_path,
+        sep="|",
+        parse_dates=["L_SHIPDATE", "L_RECEIPTDATE", "L_COMMITDATE"],
+        **storage_options
+    )
+    print(df.columns)
+    return df
+
+lineitem = load_lineitem(DATA_ROOT, **STORAGE_OPTS)
+Executing code: %%RecordEventWithColumnInfo
+### cell 1 ###
+
+def load_orders(
+    data_folder: str, **storage_options
+) -> pd.DataFrame:
+    data_path = f"{data_folder}/orders.tbl"
+    # parse O_ORDERDATE on GPU during CSV read to avoid a separate to_datetime pass
+    df = pd.read_csv(
+        data_path,
+        sep='|',
+        parse_dates=['O_ORDERDATE'],
+        **storage_options
+    )
+    return df
+
+orders = load_orders(DATA_ROOT, **STORAGE_OPTS)
+Executing code: %%RecordEventWithColumnInfo
+### cell 2 ###
+
+def load_customer(
+    data_folder: str, **storage_options
+) -> pd.DataFrame:
+    data_path = data_folder + "/customer.tbl"
+    # df = pd.read_parquet(
+    #     data_path,  storage_options=storage_options
+    # )
+    df = pd.read_csv(data_path, sep="|")
+    return df
+customer = load_customer(DATA_ROOT, **STORAGE_OPTS)
+Executing code: %%RecordEventWithColumnInfo
+### cell 3 ###
+
+def load_nation(
+    data_folder: str, **storage_options
+) -> pd.DataFrame:
+    data_path = data_folder + "/nation.tbl"
+    # df = pd.read_parquet(
+    #     data_path,  storage_options=storage_options
+    # )
+    df = pd.read_csv(data_path, sep="|")
+    return df
+nation = load_nation(DATA_ROOT, **STORAGE_OPTS)
+Executing code: %%RecordEventWithColumnInfo
+### cell 4 ###
+
+def load_region(
+    data_folder: str, **storage_options
+) -> pd.DataFrame:
+    data_path = data_folder + "/region.tbl"
+    # df = pd.read_parquet(
+    #     data_path,  storage_options=storage_options
+    # )
+    df = pd.read_csv(data_path, sep="|")
+    return df
+region = load_region(DATA_ROOT, **STORAGE_OPTS)
+Executing code: %%RecordEventWithColumnInfo
+### cell 5 ###
+
+def load_supplier(
+    data_folder: str, **storage_options
+) -> pd.DataFrame:
+    data_path = data_folder + "/supplier.tbl"
+    # df = pd.read_parquet(
+    #     data_path,  storage_options=storage_options
+    # )
+    df = pd.read_csv(data_path, sep="|")
+    return df
+supplier = load_supplier(DATA_ROOT, **STORAGE_OPTS)
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+# Filter on region and order year using GPU-friendly dt.year to avoid CPU-side Timestamp comparisons
+rsel = region.R_NAME == "ASIA"
+fregion = region[rsel]
+
+# Use dt.year for a single GPU comparison instead of two CPU comparisons
+osel = orders.O_ORDERDATE.dt.year == 1996
+forders = orders[osel]
+
+# Perform the sequence of merges as before (all GPU)
+jn1 = fregion.merge(nation,   left_on="R_REGIONKEY", right_on="N_REGIONKEY")
+jn2 = jn1.merge( customer,    left_on="N_NATIONKEY", right_on="C_NATIONKEY")
+jn3 = jn2.merge( forders,     left_on="C_CUSTKEY",   right_on="O_CUSTKEY")
+jn4 = jn3.merge( lineitem,    left_on="O_ORDERKEY",  right_on="L_ORDERKEY")
+jn5 = supplier.merge(
+    jn4,
+    left_on=["S_SUPPKEY", "S_NATIONKEY"],
+    right_on=["L_SUPPKEY", "N_NATIONKEY"]
+)
+
+# Compute revenue and aggregate
+jn5["TMP"] = jn5.L_EXTENDEDPRICE * (1.0 - jn5.L_DISCOUNT)
+total = (
+    jn5.groupby("N_NAME", as_index=False, sort=False)["TMP"]
+       .sum()
+       .sort_values("TMP", ascending=False)
+)
+Executing code: %PrintCellInfo cell_exec_info
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Ran small notebook to get cell exec info in 111.98023009300232 seconds
+Replaced factor in cell with 5
+Transfer cost notebook saved to /home/dias-benchmarks/tpch/notebooks/q05/rewritten/transfer_cost_bench.ipynb
+Annotated notebook saved to /home/dias-benchmarks/tpch/notebooks/q05/rewritten/cpu_to_gpu_cost_model_inputs.ipynb

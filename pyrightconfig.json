@@ -1,0 +1,8 @@
+{
+    "include": ["."],
+    "extraPaths": [
+      "/Users/jieq/Desktop/elastic-notebook" // or your own path.
+    ],
+    "reportMissingImports": true,
+    "verboseOutput": true
+  }

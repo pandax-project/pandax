@@ -1,0 +1,1122 @@
+Running: python main.py /home/dias-benchmarks/notebooks/aieducation/what-course-are-you-going-to-take/src/bench.ipynb /home/dias-benchmarks/notebooks/aieducation/what-course-are-you-going-to-take/src/small_bench.ipynb
+Annotated notebook saved to /home/dias-benchmarks/notebooks/aieducation/what-course-are-you-going-to-take/src/cell_exec_info.ipynb
+Executing code: import sys, os
+sys.path.insert(0, os.path.abspath('/home/ElasticNotebook'))
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df
+import pickle
+import cudf
+Executing code: %%RecordEventWithColumnInfo
+import os
+# STEFANOS: Conditionally import Modin Pandas
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    # STEFANOS: Import Modin Pandas
+    import os
+    os.environ["MODIN_ENGINE"] = "ray"
+    import ray
+    ray.init(num_cpus=int(os.environ['MODIN_CPUS']), runtime_env={'env_vars': {'__MODIN_AUTOIMPORT_PANDAS__': '1'}})
+    import modin.pandas as pd
+else:
+
+    # STEFANOS: Import regular Pandas
+    import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+course = pd.read_csv("/home/dias-benchmarks/notebooks/aieducation/what-course-are-you-going-to-take/input/course-reviews-university-of-waterloo/course_data_clean.csv")
+Executing code: %%RecordEventWithColumnInfo
+### cell 1 ###
+
+factor = 30
+course = pd.concat([course]*factor, ignore_index=True)
+course.info()
+Executing code: %%RecordEventWithColumnInfo
+### cell 2 ###
+
+course.head(10)
+Executing code: %%RecordEventWithColumnInfo
+### cell 3 ###
+
+course.tail(10)
+Executing code: %%RecordEventWithColumnInfo
+### cell 4 ###
+
+course.describe()
+Executing code: %%RecordEventWithColumnInfo
+### cell 5 ###
+
+course.info()
+Executing code: %%RecordEventWithColumnInfo
+### cell 6 ###
+
+course = course.dropna()
+Executing code: %%RecordEventWithColumnInfo
+### cell 7 ###
+
+course[["course_unit", "course_num"]] = course["course_code"].str.split(" ", expand=True)
+Executing code: %%RecordEventWithColumnInfo
+### cell 8 ###
+
+course
+Executing code: %%RecordEventWithColumnInfo
+### cell 9 ###
+
+course[course["num_reviews"] < 10].index
+Executing code: %%RecordEventWithColumnInfo
+### cell 10 ###
+
+def extract_filter_features(df, col_name, threshold):
+    """Extracts features for predicting execution time of filtering operation."""
+
+    num_rows = len(df)
+    dtype_str = str(df[col_name].dtype)  # Get dtype as string
+    nan_ratio = df[col_name].isna().mean()  # Compute NaN ratio
+
+    # Compute selectivity: fraction of rows passing the filter
+    if df[col_name].dropna().empty:
+        target_selectivity = 0.0
+    else:
+        target_selectivity = (df[col_name] < threshold).mean()
+
+    return {
+        'num_rows': num_rows,
+        'dtype_str': dtype_str,
+        'nan_ratio': nan_ratio,
+        'target_selectivity': target_selectivity
+    }
+
+extract_filter_features(course, "num_reviews", 10)
+Executing code: %%RecordEventWithColumnInfo
+### cell 11 ###
+
+course.drop(course[course["num_reviews"] < 10].index, inplace=True)
+Executing code: %%RecordEventWithColumnInfo
+### cell 12 ###
+
+course
+Executing code: %%RecordEventWithColumnInfo
+### cell 13 ###
+
+for i_1 in ["useful", "easy", "liked"]:
+    course[i_1] = course[i_1].str.replace("%", "")
+    course[i_1] = course[i_1].astype("int")
+Executing code: %%RecordEventWithColumnInfo
+### cell 14 ###
+
+course.set_index("course_unit", inplace=True)
+Executing code: %%RecordEventWithColumnInfo
+### cell 15 ###
+
+course
+Executing code: %%RecordEventWithColumnInfo
+### cell 16 ###
+
+course.drop(["course_title", "reviews", "course_rating"], axis=1, inplace=True)
+Executing code: %%RecordEventWithColumnInfo
+### cell 17 ###
+
+course
+Executing code: %%RecordEventWithColumnInfo
+### cell 18 ###
+
+course.info()
+Executing code: %%RecordEventWithColumnInfo
+### cell 19 ###
+
+course_gp = course.groupby("course_unit").mean(numeric_only=True)
+Executing code: %%RecordEventWithColumnInfo
+### cell 20 ###
+
+course_gp.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 21 ###
+
+# STEFANOS-DISABLE-FOR-MODIN: Modin seems to fail in the LHS, giving an error that "course_rating_mean" is
+# not in the DF. Of course, it's valid code because we're creating this column here.
+# The problem we cannot just disable this code because follow-up code depends on this column. So, we will create
+# the column before the loop so that indexing in the LHS does not fail.
+
+###### ORIGINAL CODE ###########
+# for i in course_gp.index:
+#     course.loc[i, "course_rating_mean"] = course_gp.loc[i, "course_rating_int"]
+
+###### CODE THAT MODIN CAN RUN ########
+course["course_rating_mean"] = None
+for i_2 in course_gp.index:
+    course.loc[i_2, "course_rating_mean"] = course_gp.loc[i_2, "course_rating_int"]
+Executing code: %%RecordEventWithColumnInfo
+### cell 22 ###
+
+course
+Executing code: %%RecordEventWithColumnInfo
+### cell 23 ###
+
+course.reset_index(inplace=True)
+Executing code: %%RecordEventWithColumnInfo
+### cell 24 ###
+
+course
+Executing code: %%RecordEventWithColumnInfo
+### cell 25 ###
+
+course.groupby("course_unit").mean(numeric_only=True)["course_rating_int"]
+Executing code: %%RecordEventWithColumnInfo
+### cell 26 ###
+
+def extract_features_from_dataframe(df, group_column, agg_function="mean"):
+    """Extracts features for predicting the execution time of a groupby operation."""
+    n_rows = df.shape[0]
+    n_cols = df.shape[1]
+
+    n_groups = df[group_column].nunique()
+    group_sizes = df[group_column].value_counts()
+    max_group_size = group_sizes.max()
+
+    int_count = df.select_dtypes(include=['int', 'int32', 'int64']).shape[1]
+    float_count = df.select_dtypes(include=['float', 'float32', 'float64']).shape[1]
+    str_count = df.select_dtypes(include=['object', 'string']).shape[1]
+
+    aggregation_mapping = {"sum": 0, "mean": 1, "count": 2}
+    agg_function_encoded = aggregation_mapping.get(agg_function, 1)  # Default to 'mean'
+
+    return {
+        'n_rows': n_rows,
+        'n_cols': n_cols,
+        'group_range': n_groups,  # Alias for n_groups
+        'n_groups': n_groups,
+        'max_group_size': max_group_size,
+        'int_count': int_count,
+        'float_count': float_count,
+        'str_count': str_count,
+        'agg_function': agg_function_encoded
+    }
+extract_features_from_dataframe(course, "course_unit","mean")
+Executing code: %%RecordEventWithColumnInfo
+### cell 27 ###
+
+course[course["course_code"].str.startswith("CS")].value_counts()
+Executing code: %%RecordEventWithColumnInfo
+### cell 28 ###
+
+course
+Executing code: # STEFANOS: Disable plotting
+# plt.figure(figsize=(25,20))
+# sns.pairplot(data=course)
+# plt.show()
+Executing code: # STEFANOS: Disable plotting
+# plt.figure(figsize=(12,10))
+# sns.scatterplot(x="num_ratings", y="course_rating_mean", data=course)
+# plt.show()
+Executing code: # STEFANOS: Disable plotting
+# plt.figure(figsize=(12,10))
+# sns.scatterplot(x="num_reviews", y="course_rating_mean", data=course)
+# plt.show()
+Executing code: # STEFANOS: Disable plotting
+# plt.figure(figsize=(25,20))
+# sns.scatterplot(x="useful", y="course_rating_mean", hue="course_unit", data=course)
+# plt.xlabel("useful", fontsize = 20)
+# plt.ylabel("Course Rating Mean", fontsize = 20)
+# plt.show()
+Executing code: # STEFANOS: Disable plotting
+# plt.figure(figsize=(25,20))
+# sns.scatterplot(x="easy", y="course_rating_mean", hue="course_unit", data=course)
+# plt.xlabel("easy", fontsize = 20)
+# plt.ylabel("Course Rating Mean", fontsize = 20)
+# plt.show()
+Executing code: # STEFANOS: Disable plotting
+# plt.figure(figsize=(25,20))
+# sns.scatterplot(x="liked", y="course_rating_mean", hue="course_unit", data=course)
+# plt.xlabel("liked", fontsize = 20)
+# plt.ylabel("Course Rating Mean", fontsize = 20)
+# plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 29 ###
+
+course.sort_values("course_rating_mean", ascending=False, inplace=True)
+
+# STEFANOS: Disable plotting
+# plt.figure(figsize=(25,20))
+# sns.set_palette("Pastel1")
+# sns.barplot(x="course_rating_mean", y="course_unit", data=course)
+# plt.xlabel("Course Rating Mean", fontsize = 20)
+# plt.ylabel("Course Unit", fontsize = 20)
+# plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 30 ###
+
+course.reset_index(inplace=True)
+Executing code: %%RecordEventWithColumnInfo
+### cell 31 ###
+
+course.set_index("course_unit", inplace=True)
+Executing code: %%RecordEventWithColumnInfo
+### cell 32 ###
+
+course.loc["KOREA", "course_rating_mean"].value_counts()
+Executing code: %%RecordEventWithColumnInfo
+### cell 33 ###
+
+KOREA = course.loc["KOREA", :]
+Executing code: # STEFANOS: Disable plotting
+# plt.figure(figsize=(10,10))
+# sns.barplot(x="course_code", y="course_rating_mean", data=KOREA)
+# plt.xlabel("KOREA course", fontsize = 20)
+# plt.ylabel("Course Rating Mean", fontsize = 20)
+# plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 34 ###
+
+course.loc["CHINA", "course_rating_mean"].value_counts()
+Executing code: %%RecordEventWithColumnInfo
+### cell 35 ###
+
+china = course.loc["CHINA", :]
+Executing code: # STEFANOS: Disable plotting
+# plt.figure(figsize=(10,10))
+# sns.barplot(x="course_code", y="course_rating_mean", data=china)
+# plt.xlabel("CHINA course", fontsize = 20)
+# plt.ylabel("Course Rating Mean", fontsize = 20)
+# plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 36 ###
+
+course.loc["CHINA", "course_rating_mean"].value_counts()
+Executing code: %%RecordEventWithColumnInfo
+### cell 37 ###
+
+span = course.loc["SPAN", :]
+
+# STEFANOS: Disable plotting
+# plt.figure(figsize=(10,10))
+# sns.barplot(x="course_code", y="course_rating_mean", data=span)
+# plt.xlabel("SPANISH course", fontsize = 20)
+# plt.ylabel("Course Rating Mean", fontsize = 20)
+# plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 38 ###
+
+course.loc["CS", "course_rating_mean"].value_counts()
+Executing code: %%RecordEventWithColumnInfo
+### cell 39 ###
+
+cs = course.loc["CS", :]
+cs
+Executing code: %%RecordEventWithColumnInfo
+### cell 40 ###
+
+cs_mean = cs.groupby("course_code").mean(numeric_only=True).sort_values("course_rating_int", ascending=False)
+cs_mean
+Executing code: # STEFANOS: Disable plotting
+# plt.figure(figsize=(15,10))
+# sns.barplot(x="course_rating_int", y=cs_mean.index, data=cs_mean)
+# plt.xlabel("Course Rating Mean", fontsize = 20)
+# plt.ylabel("CS Course", fontsize = 20)
+# plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 41 ###
+
+course.loc["WKRPT", "course_rating_mean"].value_counts()
+Executing code: %%RecordEventWithColumnInfo
+### cell 42 ###
+
+wkrpt = course.loc["WKRPT", :]
+wkrpt
+Executing code: %%RecordEventWithColumnInfo
+### cell 43 ###
+
+wkrpt_mean = wkrpt.groupby("course_code").mean(numeric_only=True).sort_values("course_rating_int", ascending=False)
+wkrpt_mean
+Executing code: %%RecordEventWithColumnInfo
+### cell 44 ###
+
+
+wkrpt.groupby("course_code").mean(numeric_only=True)
+Executing code: # STEFANOS: Disable plotting
+# plt.figure(figsize=(15,10))
+# sns.barplot(x="course_rating_int", y=wkrpt_mean.index, data=wkrpt_mean)
+# plt.xlabel("Course Rating Mean", fontsize = 20)
+# plt.ylabel("WKRPT Course", fontsize = 20)
+# plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 45 ###
+
+course.loc["PD", "course_rating_mean"].value_counts()
+Executing code: %%RecordEventWithColumnInfo
+### cell 46 ###
+
+pd_df = course.loc["PD", :]
+pd_df
+Executing code: %%RecordEventWithColumnInfo
+### cell 47 ###
+
+pd_mean = pd_df.groupby("course_code").mean(numeric_only=True).sort_values("course_rating_int", ascending=False)
+pd_mean
+Executing code: # STEFANOS: Disable plotting
+# plt.figure(figsize=(15,10))
+# sns.barplot(x="course_rating_int", y=pd_mean.index, data=pd_mean)
+# plt.xlabel("Course Rating Mean", fontsize = 20)
+# plt.ylabel("PD Course", fontsize = 20)
+# plt.show()
+Executing code: %PrintCellInfo cell_exec_info
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Ran small notebook to get cell exec info in 54.550835847854614 seconds
+Annotated notebook saved to /home/dias-benchmarks/notebooks/aieducation/what-course-are-you-going-to-take/src/cpu_to_gpu_cost_model_inputs.ipynb
+Executing code: import sys, os
+sys.path.insert(0, os.path.abspath('/home/ElasticNotebook'))
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df
+import pickle
+import cudf
+Executing code: import os
+# STEFANOS: Conditionally import Modin Pandas
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    # STEFANOS: Import Modin Pandas
+    import os
+    os.environ["MODIN_ENGINE"] = "ray"
+    import ray
+    ray.init(num_cpus=int(os.environ['MODIN_CPUS']), runtime_env={'env_vars': {'__MODIN_AUTOIMPORT_PANDAS__': '1'}})
+    import modin.pandas as pd
+else:
+
+    # STEFANOS: Import regular Pandas
+    import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+Executing code: %%time
+### cell 0 ###
+
+course = pd.read_csv("/home/dias-benchmarks/notebooks/aieducation/what-course-are-you-going-to-take/input/course-reviews-university-of-waterloo/course_data_clean.csv")
+Executing code: %%time
+### cell 1 ###
+
+factor = 70
+course = pd.concat([course]*factor, ignore_index=True)
+course.info()
+Executing code: %%time
+### cell 2 ###
+
+course.head(10)
+Executing code: %%time
+### cell 3 ###
+
+course.tail(10)
+Executing code: %%time
+### cell 4 ###
+
+course.describe()
+Executing code: %%time
+### cell 5 ###
+
+course.info()
+Executing code: %%time
+### cell 6 ###
+
+course = course.dropna()
+Executing code: %%time
+### cell 7 ###
+
+course[["course_unit", "course_num"]] = course["course_code"].str.split(" ", expand=True)
+Executing code: %%time
+### cell 8 ###
+
+course
+Executing code: %%time
+### cell 9 ###
+
+course[course["num_reviews"] < 10].index
+Executing code: %%time
+### cell 10 ###
+
+def extract_filter_features(df, col_name, threshold):
+    """Extracts features for predicting execution time of filtering operation."""
+
+    num_rows = len(df)
+    dtype_str = str(df[col_name].dtype)  # Get dtype as string
+    nan_ratio = df[col_name].isna().mean()  # Compute NaN ratio
+
+    # Compute selectivity: fraction of rows passing the filter
+    if df[col_name].dropna().empty:
+        target_selectivity = 0.0
+    else:
+        target_selectivity = (df[col_name] < threshold).mean()
+
+    return {
+        'num_rows': num_rows,
+        'dtype_str': dtype_str,
+        'nan_ratio': nan_ratio,
+        'target_selectivity': target_selectivity
+    }
+
+extract_filter_features(course, "num_reviews", 10)
+Executing code: %%time
+### cell 11 ###
+
+course.drop(course[course["num_reviews"] < 10].index, inplace=True)
+Executing code: %%time
+### cell 12 ###
+
+course
+Executing code: %%time
+### cell 13 ###
+
+for i_1 in ["useful", "easy", "liked"]:
+    course[i_1] = course[i_1].str.replace("%", "")
+    course[i_1] = course[i_1].astype("int")
+Executing code: %%time
+### cell 14 ###
+
+course.set_index("course_unit", inplace=True)
+Executing code: %%time
+### cell 15 ###
+
+course
+Executing code: %%time
+### cell 16 ###
+
+course.drop(["course_title", "reviews", "course_rating"], axis=1, inplace=True)
+Executing code: %%time
+### cell 17 ###
+
+course
+Executing code: %%time
+### cell 18 ###
+
+course.info()
+Executing code: %%time
+### cell 19 ###
+
+course_gp = course.groupby("course_unit").mean(numeric_only=True)
+Executing code: %%time
+### cell 20 ###
+
+course_gp.head()
+Executing code: %%time
+### cell 21 ###
+
+# STEFANOS-DISABLE-FOR-MODIN: Modin seems to fail in the LHS, giving an error that "course_rating_mean" is
+# not in the DF. Of course, it's valid code because we're creating this column here.
+# The problem we cannot just disable this code because follow-up code depends on this column. So, we will create
+# the column before the loop so that indexing in the LHS does not fail.
+
+###### ORIGINAL CODE ###########
+# for i in course_gp.index:
+#     course.loc[i, "course_rating_mean"] = course_gp.loc[i, "course_rating_int"]
+
+###### CODE THAT MODIN CAN RUN ########
+course["course_rating_mean"] = None
+for i_2 in course_gp.index:
+    course.loc[i_2, "course_rating_mean"] = course_gp.loc[i_2, "course_rating_int"]
+Executing code: %%time
+### cell 22 ###
+
+course
+Executing code: %%time
+### cell 23 ###
+
+course.reset_index(inplace=True)
+Executing code: %%time
+### cell 24 ###
+
+course
+Executing code: %%time
+### cell 25 ###
+
+course.groupby("course_unit").mean(numeric_only=True)["course_rating_int"]
+Executing code: %%time
+### cell 26 ###
+
+def extract_features_from_dataframe(df, group_column, agg_function="mean"):
+    """Extracts features for predicting the execution time of a groupby operation."""
+    n_rows = df.shape[0]
+    n_cols = df.shape[1]
+
+    n_groups = df[group_column].nunique()
+    group_sizes = df[group_column].value_counts()
+    max_group_size = group_sizes.max()
+
+    int_count = df.select_dtypes(include=['int', 'int32', 'int64']).shape[1]
+    float_count = df.select_dtypes(include=['float', 'float32', 'float64']).shape[1]
+    str_count = df.select_dtypes(include=['object', 'string']).shape[1]
+
+    aggregation_mapping = {"sum": 0, "mean": 1, "count": 2}
+    agg_function_encoded = aggregation_mapping.get(agg_function, 1)  # Default to 'mean'
+
+    return {
+        'n_rows': n_rows,
+        'n_cols': n_cols,
+        'group_range': n_groups,  # Alias for n_groups
+        'n_groups': n_groups,
+        'max_group_size': max_group_size,
+        'int_count': int_count,
+        'float_count': float_count,
+        'str_count': str_count,
+        'agg_function': agg_function_encoded
+    }
+extract_features_from_dataframe(course, "course_unit","mean")
+Executing code: %%time
+### cell 27 ###
+
+course[course["course_code"].str.startswith("CS")].value_counts()
+Executing code: %%time
+### cell 28 ###
+
+course
+Executing code: %%time
+### cell 29 ###
+
+course.sort_values("course_rating_mean", ascending=False, inplace=True)
+
+# STEFANOS: Disable plotting
+# plt.figure(figsize=(25,20))
+# sns.set_palette("Pastel1")
+# sns.barplot(x="course_rating_mean", y="course_unit", data=course)
+# plt.xlabel("Course Rating Mean", fontsize = 20)
+# plt.ylabel("Course Unit", fontsize = 20)
+# plt.show()
+Executing code: %%time
+### cell 30 ###
+
+course.reset_index(inplace=True)
+Executing code: %%time
+### cell 31 ###
+
+course.set_index("course_unit", inplace=True)
+Executing code: %%time
+### cell 32 ###
+
+course.loc["KOREA", "course_rating_mean"].value_counts()
+Executing code: %%time
+### cell 33 ###
+
+KOREA = course.loc["KOREA", :]
+Executing code: %%time
+### cell 34 ###
+
+course.loc["CHINA", "course_rating_mean"].value_counts()
+Executing code: %%time
+### cell 35 ###
+
+china = course.loc["CHINA", :]
+Executing code: %%time
+### cell 36 ###
+
+course.loc["CHINA", "course_rating_mean"].value_counts()
+Executing code: %%time
+### cell 37 ###
+
+span = course.loc["SPAN", :]
+
+# STEFANOS: Disable plotting
+# plt.figure(figsize=(10,10))
+# sns.barplot(x="course_code", y="course_rating_mean", data=span)
+# plt.xlabel("SPANISH course", fontsize = 20)
+# plt.ylabel("Course Rating Mean", fontsize = 20)
+# plt.show()
+Executing code: %%time
+### cell 38 ###
+
+course.loc["CS", "course_rating_mean"].value_counts()
+Executing code: %%time
+### cell 39 ###
+
+cs = course.loc["CS", :]
+cs
+Executing code: %%time
+### cell 40 ###
+
+cs_mean = cs.groupby("course_code").mean(numeric_only=True).sort_values("course_rating_int", ascending=False)
+cs_mean
+Executing code: %%time
+### cell 41 ###
+
+course.loc["WKRPT", "course_rating_mean"].value_counts()
+Executing code: %%time
+### cell 42 ###
+
+wkrpt = course.loc["WKRPT", :]
+wkrpt
+Executing code: %%time
+### cell 43 ###
+
+wkrpt_mean = wkrpt.groupby("course_code").mean(numeric_only=True).sort_values("course_rating_int", ascending=False)
+wkrpt_mean
+Executing code: %%time
+### cell 44 ###
+
+
+wkrpt.groupby("course_code").mean(numeric_only=True)
+Executing code: %%time
+### cell 45 ###
+
+course.loc["PD", "course_rating_mean"].value_counts()
+Executing code: %%time
+### cell 46 ###
+
+pd_df = course.loc["PD", :]
+pd_df
+Executing code: %%time
+### cell 47 ###
+
+pd_mean = pd_df.groupby("course_code").mean(numeric_only=True).sort_values("course_rating_int", ascending=False)
+pd_mean
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Annotated notebook saved to /home/dias-benchmarks/notebooks/aieducation/what-course-are-you-going-to-take/src/gpu_to_cpu_cost_model_inputs.ipynb
+Executing code: %load_ext cudf.pandas
+Executing code: import sys, os
+sys.path.insert(0, os.path.abspath('/home/ElasticNotebook'))
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df
+import pickle
+import cudf
+Executing code: import os
+# STEFANOS: Conditionally import Modin Pandas
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    # STEFANOS: Import Modin Pandas
+    import os
+    os.environ["MODIN_ENGINE"] = "ray"
+    import ray
+    ray.init(num_cpus=int(os.environ['MODIN_CPUS']), runtime_env={'env_vars': {'__MODIN_AUTOIMPORT_PANDAS__': '1'}})
+    import modin.pandas as pd
+else:
+
+    # STEFANOS: Import regular Pandas
+    import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+Executing code: %%time
+### cell 0 ###
+
+course = pd.read_csv("/home/dias-benchmarks/notebooks/aieducation/what-course-are-you-going-to-take/input/course-reviews-university-of-waterloo/course_data_clean.csv")
+Executing code: %%time
+### cell 1 ###
+
+factor = 70
+course = pd.concat([course]*factor, ignore_index=True)
+course.info()
+Executing code: %%time
+### cell 2 ###
+
+course.head(10)
+Executing code: %%time
+### cell 3 ###
+
+course.tail(10)
+Executing code: %%time
+### cell 4 ###
+
+course.describe()
+Executing code: %%time
+### cell 5 ###
+
+course.info()
+Executing code: %%time
+### cell 6 ###
+
+course = course.dropna()
+Executing code: %%time
+### cell 7 ###
+
+course[["course_unit", "course_num"]] = course["course_code"].str.split(" ", expand=True)
+Executing code: %%time
+### cell 8 ###
+
+course
+Executing code: %%time
+### cell 9 ###
+
+course[course["num_reviews"] < 10].index
+Executing code: %%time
+### cell 10 ###
+
+def extract_filter_features(df, col_name, threshold):
+    """Extracts features for predicting execution time of filtering operation."""
+
+    num_rows = len(df)
+    dtype_str = str(df[col_name].dtype)  # Get dtype as string
+    nan_ratio = df[col_name].isna().mean()  # Compute NaN ratio
+
+    # Compute selectivity: fraction of rows passing the filter
+    if df[col_name].dropna().empty:
+        target_selectivity = 0.0
+    else:
+        target_selectivity = (df[col_name] < threshold).mean()
+
+    return {
+        'num_rows': num_rows,
+        'dtype_str': dtype_str,
+        'nan_ratio': nan_ratio,
+        'target_selectivity': target_selectivity
+    }
+
+extract_filter_features(course, "num_reviews", 10)
+Executing code: %%time
+### cell 11 ###
+
+course.drop(course[course["num_reviews"] < 10].index, inplace=True)
+Executing code: %%time
+### cell 12 ###
+
+course
+Executing code: %%time
+### cell 13 ###
+
+for i_1 in ["useful", "easy", "liked"]:
+    course[i_1] = course[i_1].str.replace("%", "")
+    course[i_1] = course[i_1].astype("int")
+Executing code: %%time
+### cell 14 ###
+
+course.set_index("course_unit", inplace=True)
+Executing code: %%time
+### cell 15 ###
+
+course
+Executing code: %%time
+### cell 16 ###
+
+course.drop(["course_title", "reviews", "course_rating"], axis=1, inplace=True)
+Executing code: %%time
+### cell 17 ###
+
+course
+Executing code: %%time
+### cell 18 ###
+
+course.info()
+Executing code: %%time
+### cell 19 ###
+
+course_gp = course.groupby("course_unit").mean(numeric_only=True)
+Executing code: %%time
+### cell 20 ###
+
+course_gp.head()
+Executing code: %%time
+### cell 21 ###
+
+# STEFANOS-DISABLE-FOR-MODIN: Modin seems to fail in the LHS, giving an error that "course_rating_mean" is
+# not in the DF. Of course, it's valid code because we're creating this column here.
+# The problem we cannot just disable this code because follow-up code depends on this column. So, we will create
+# the column before the loop so that indexing in the LHS does not fail.
+
+###### ORIGINAL CODE ###########
+# for i in course_gp.index:
+#     course.loc[i, "course_rating_mean"] = course_gp.loc[i, "course_rating_int"]
+
+###### CODE THAT MODIN CAN RUN ########
+course["course_rating_mean"] = None
+for i_2 in course_gp.index:
+    course.loc[i_2, "course_rating_mean"] = course_gp.loc[i_2, "course_rating_int"]
+Executing code: %%time
+### cell 22 ###
+
+course
+Executing code: %%time
+### cell 23 ###
+
+course.reset_index(inplace=True)
+Executing code: %%time
+### cell 24 ###
+
+course
+Executing code: %%time
+### cell 25 ###
+
+course.groupby("course_unit").mean(numeric_only=True)["course_rating_int"]
+Executing code: %%time
+### cell 26 ###
+
+def extract_features_from_dataframe(df, group_column, agg_function="mean"):
+    """Extracts features for predicting the execution time of a groupby operation."""
+    n_rows = df.shape[0]
+    n_cols = df.shape[1]
+
+    n_groups = df[group_column].nunique()
+    group_sizes = df[group_column].value_counts()
+    max_group_size = group_sizes.max()
+
+    int_count = df.select_dtypes(include=['int', 'int32', 'int64']).shape[1]
+    float_count = df.select_dtypes(include=['float', 'float32', 'float64']).shape[1]
+    str_count = df.select_dtypes(include=['object', 'string']).shape[1]
+
+    aggregation_mapping = {"sum": 0, "mean": 1, "count": 2}
+    agg_function_encoded = aggregation_mapping.get(agg_function, 1)  # Default to 'mean'
+
+    return {
+        'n_rows': n_rows,
+        'n_cols': n_cols,
+        'group_range': n_groups,  # Alias for n_groups
+        'n_groups': n_groups,
+        'max_group_size': max_group_size,
+        'int_count': int_count,
+        'float_count': float_count,
+        'str_count': str_count,
+        'agg_function': agg_function_encoded
+    }
+extract_features_from_dataframe(course, "course_unit","mean")
+Executing code: %%time
+### cell 27 ###
+
+course[course["course_code"].str.startswith("CS")].value_counts()
+Executing code: %%time
+### cell 28 ###
+
+course
+Executing code: %%time
+### cell 29 ###
+
+course.sort_values("course_rating_mean", ascending=False, inplace=True)
+
+# STEFANOS: Disable plotting
+# plt.figure(figsize=(25,20))
+# sns.set_palette("Pastel1")
+# sns.barplot(x="course_rating_mean", y="course_unit", data=course)
+# plt.xlabel("Course Rating Mean", fontsize = 20)
+# plt.ylabel("Course Unit", fontsize = 20)
+# plt.show()
+Executing code: %%time
+### cell 30 ###
+
+course.reset_index(inplace=True)
+Executing code: %%time
+### cell 31 ###
+
+course.set_index("course_unit", inplace=True)
+Executing code: %%time
+### cell 32 ###
+
+course.loc["KOREA", "course_rating_mean"].value_counts()
+Executing code: %%time
+### cell 33 ###
+
+KOREA = course.loc["KOREA", :]
+Executing code: %%time
+### cell 34 ###
+
+course.loc["CHINA", "course_rating_mean"].value_counts()
+Executing code: %%time
+### cell 35 ###
+
+china = course.loc["CHINA", :]
+Executing code: %%time
+### cell 36 ###
+
+course.loc["CHINA", "course_rating_mean"].value_counts()
+Executing code: %%time
+### cell 37 ###
+
+span = course.loc["SPAN", :]
+
+# STEFANOS: Disable plotting
+# plt.figure(figsize=(10,10))
+# sns.barplot(x="course_code", y="course_rating_mean", data=span)
+# plt.xlabel("SPANISH course", fontsize = 20)
+# plt.ylabel("Course Rating Mean", fontsize = 20)
+# plt.show()
+Executing code: %%time
+### cell 38 ###
+
+course.loc["CS", "course_rating_mean"].value_counts()
+Executing code: %%time
+### cell 39 ###
+
+cs = course.loc["CS", :]
+cs
+Executing code: %%time
+### cell 40 ###
+
+cs_mean = cs.groupby("course_code").mean(numeric_only=True).sort_values("course_rating_int", ascending=False)
+cs_mean
+Executing code: %%time
+### cell 41 ###
+
+course.loc["WKRPT", "course_rating_mean"].value_counts()
+Executing code: %%time
+### cell 42 ###
+
+wkrpt = course.loc["WKRPT", :]
+wkrpt
+Executing code: %%time
+### cell 43 ###
+
+wkrpt_mean = wkrpt.groupby("course_code").mean(numeric_only=True).sort_values("course_rating_int", ascending=False)
+wkrpt_mean
+Executing code: %%time
+### cell 44 ###
+
+
+wkrpt.groupby("course_code").mean(numeric_only=True)
+Executing code: %%time
+### cell 45 ###
+
+course.loc["PD", "course_rating_mean"].value_counts()
+Executing code: %%time
+### cell 46 ###
+
+pd_df = course.loc["PD", :]
+pd_df
+Executing code: %%time
+### cell 47 ###
+
+pd_mean = pd_df.groupby("course_code").mean(numeric_only=True).sort_values("course_rating_int", ascending=False)
+pd_mean
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Getting CPU to GPU transfer times
+Annotated notebook saved to /home/dias-benchmarks/notebooks/aieducation/what-course-are-you-going-to-take/src/cpu_to_gpu_transfer_times.ipynb
+Finished getting CPU to GPU transfer times
+Getting GPU to CPU transfer times
+Annotated notebook saved to /home/dias-benchmarks/notebooks/aieducation/what-course-are-you-going-to-take/src/gpu_to_cpu_transfer_times.ipynb
+Finished getting GPU to CPU transfer times
+cell index 0
+input transfer inputs []
+output transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=14838, cols=10, is_series=False, col_data={'course_code': (<DFType.OBJECT: 'object'>, 957853, 171315), 'course_title': (<DFType.OBJECT: 'object'>, 1278011, 491473), 'num_ratings': (<DFType.NUMBER: 'number'>, 118832, 118704), 'useful': (<DFType.OBJECT: 'object'>, 890908, 106276), 'easy': (<DFType.OBJECT: 'object'>, 890490, 105883), 'liked': (<DFType.OBJECT: 'object'>, 890742, 106135), 'num_reviews': (<DFType.NUMBER: 'number'>, 118832, 118704), 'reviews': (<DFType.OBJECT: 'object'>, 4229801, 3389045), 'course_rating': (<DFType.OBJECT: 'object'>, 1030226, 251094), 'course_rating_int': (<DFType.FLOAT: 'float'>, 118832, 120560)}, col_names=['course_code', 'course_title', 'num_ratings', 'useful', 'easy', 'liked', 'num_reviews', 'reviews', 'course_rating', 'course_rating_int'], cpu_to_gpu_col_transfer_times={'course_code': 4.24, 'course_title': 3.7, 'num_ratings': 1.02, 'useful': 2.16, 'easy': 2.13, 'liked': 2.18, 'num_reviews': 1.02, 'reviews': 7.5, 'course_rating': 2.2, 'course_rating_int': 3.4}, gpu_to_cpu_col_transfer_times={'course_code': 17.6, 'course_title': 10.6, 'num_ratings': 122.0, 'useful': 11.0, 'easy': 10.3, 'liked': 10.4, 'num_reviews': 3.94, 'reviews': 29.9, 'course_rating': 12.8, 'course_rating_int': 4.61}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+cell index 1
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=14838, cols=10, is_series=False, col_data={'course_code': (<DFType.OBJECT: 'object'>, 957853, 171315), 'course_title': (<DFType.OBJECT: 'object'>, 1278011, 491473), 'num_ratings': (<DFType.NUMBER: 'number'>, 118832, 118704), 'useful': (<DFType.OBJECT: 'object'>, 890908, 106276), 'easy': (<DFType.OBJECT: 'object'>, 890490, 105883), 'liked': (<DFType.OBJECT: 'object'>, 890742, 106135), 'num_reviews': (<DFType.NUMBER: 'number'>, 118832, 118704), 'reviews': (<DFType.OBJECT: 'object'>, 4229801, 3389045), 'course_rating': (<DFType.OBJECT: 'object'>, 1030226, 251094), 'course_rating_int': (<DFType.FLOAT: 'float'>, 118832, 120560)}, col_names=['course_code', 'course_title', 'num_ratings', 'useful', 'easy', 'liked', 'num_reviews', 'reviews', 'course_rating', 'course_rating_int'], cpu_to_gpu_col_transfer_times={'course_code': 3.02, 'course_title': 3.39, 'num_ratings': 1.15, 'useful': 3.03, 'easy': 2.11, 'liked': 2.09, 'num_reviews': 0.903, 'reviews': 5.48, 'course_rating': 2.19, 'course_rating_int': 2.04}, gpu_to_cpu_col_transfer_times={'course_code': 10.1, 'course_title': 11.8, 'num_ratings': 3.73, 'useful': 9.44, 'easy': 9.41, 'liked': 11.2, 'num_reviews': 4.13, 'reviews': 23.2, 'course_rating': 11.2, 'course_rating_int': 3.91}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=1038660, cols=10, is_series=False, col_data={'course_code': (<DFType.OBJECT: 'object'>, 67040878, 11991774), 'course_title': (<DFType.OBJECT: 'object'>, 89451938, 34402834), 'num_ratings': (<DFType.NUMBER: 'number'>, 8309408, 8309280), 'useful': (<DFType.OBJECT: 'object'>, 62354728, 7438980), 'easy': (<DFType.OBJECT: 'object'>, 62325468, 7411470), 'liked': (<DFType.OBJECT: 'object'>, 62343108, 7429110), 'num_reviews': (<DFType.NUMBER: 'number'>, 8309408, 8309280), 'reviews': (<DFType.OBJECT: 'object'>, 296077238, 237232810), 'course_rating': (<DFType.OBJECT: 'object'>, 72106988, 17576240), 'course_rating_int': (<DFType.FLOAT: 'float'>, 8309408, 8439136)}, col_names=['course_code', 'course_title', 'num_ratings', 'useful', 'easy', 'liked', 'num_reviews', 'reviews', 'course_rating', 'course_rating_int'], cpu_to_gpu_col_transfer_times={'course_code': 73.9, 'course_title': 117.0, 'num_ratings': 5.94, 'useful': 79.8, 'easy': 69.6, 'liked': 70.0, 'num_reviews': 2.61, 'reviews': 370.0, 'course_rating': 83.9, 'course_rating_int': 4.04}, gpu_to_cpu_col_transfer_times={'course_code': 352.0, 'course_title': 398.0, 'num_ratings': 33.3, 'useful': 340.0, 'easy': 313.0, 'liked': 316.0, 'num_reviews': 31.3, 'reviews': 1020.0, 'course_rating': 324.0, 'course_rating_int': 26.9}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+cell index 2
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=1038660, cols=10, is_series=False, col_data={'course_code': (<DFType.OBJECT: 'object'>, 67040878, 11991774), 'course_title': (<DFType.OBJECT: 'object'>, 89451938, 34402834), 'num_ratings': (<DFType.NUMBER: 'number'>, 8309408, 8309280), 'useful': (<DFType.OBJECT: 'object'>, 62354728, 7438980), 'easy': (<DFType.OBJECT: 'object'>, 62325468, 7411470), 'liked': (<DFType.OBJECT: 'object'>, 62343108, 7429110), 'num_reviews': (<DFType.NUMBER: 'number'>, 8309408, 8309280), 'reviews': (<DFType.OBJECT: 'object'>, 296077238, 237232810), 'course_rating': (<DFType.OBJECT: 'object'>, 72106988, 17576240), 'course_rating_int': (<DFType.FLOAT: 'float'>, 8309408, 8439136)}, col_names=['course_code', 'course_title', 'num_ratings', 'useful', 'easy', 'liked', 'num_reviews', 'reviews', 'course_rating', 'course_rating_int'], cpu_to_gpu_col_transfer_times={'course_code': 72.9, 'course_title': 89.5, 'num_ratings': 2.76, 'useful': 71.0, 'easy': 71.6, 'liked': 70.3, 'num_reviews': 2.88, 'reviews': 363.0, 'course_rating': 74.9, 'course_rating_int': 4.27}, gpu_to_cpu_col_transfer_times={'course_code': 357.0, 'course_title': 359.0, 'num_ratings': 20.0, 'useful': 314.0, 'easy': 330.0, 'liked': 330.0, 'num_reviews': 20.0, 'reviews': 1030.0, 'course_rating': 347.0, 'course_rating_int': 22.1}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 3
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=1038660, cols=10, is_series=False, col_data={'course_code': (<DFType.OBJECT: 'object'>, 67040878, 11991774), 'course_title': (<DFType.OBJECT: 'object'>, 89451938, 34402834), 'num_ratings': (<DFType.NUMBER: 'number'>, 8309408, 8309280), 'useful': (<DFType.OBJECT: 'object'>, 62354728, 7438980), 'easy': (<DFType.OBJECT: 'object'>, 62325468, 7411470), 'liked': (<DFType.OBJECT: 'object'>, 62343108, 7429110), 'num_reviews': (<DFType.NUMBER: 'number'>, 8309408, 8309280), 'reviews': (<DFType.OBJECT: 'object'>, 296077238, 237232810), 'course_rating': (<DFType.OBJECT: 'object'>, 72106988, 17576240), 'course_rating_int': (<DFType.FLOAT: 'float'>, 8309408, 8439136)}, col_names=['course_code', 'course_title', 'num_ratings', 'useful', 'easy', 'liked', 'num_reviews', 'reviews', 'course_rating', 'course_rating_int'], cpu_to_gpu_col_transfer_times={'course_code': 72.6, 'course_title': 89.6, 'num_ratings': 2.65, 'useful': 70.4, 'easy': 73.9, 'liked': 74.1, 'num_reviews': 2.73, 'reviews': 356.0, 'course_rating': 75.2, 'course_rating_int': 4.35}, gpu_to_cpu_col_transfer_times={'course_code': 336.0, 'course_title': 363.0, 'num_ratings': 27.7, 'useful': 330.0, 'easy': 313.0, 'liked': 315.0, 'num_reviews': 20.2, 'reviews': 1030.0, 'course_rating': 326.0, 'course_rating_int': 22.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 4
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=1038660, cols=10, is_series=False, col_data={'course_code': (<DFType.OBJECT: 'object'>, 67040878, 11991774), 'course_title': (<DFType.OBJECT: 'object'>, 89451938, 34402834), 'num_ratings': (<DFType.NUMBER: 'number'>, 8309408, 8309280), 'useful': (<DFType.OBJECT: 'object'>, 62354728, 7438980), 'easy': (<DFType.OBJECT: 'object'>, 62325468, 7411470), 'liked': (<DFType.OBJECT: 'object'>, 62343108, 7429110), 'num_reviews': (<DFType.NUMBER: 'number'>, 8309408, 8309280), 'reviews': (<DFType.OBJECT: 'object'>, 296077238, 237232810), 'course_rating': (<DFType.OBJECT: 'object'>, 72106988, 17576240), 'course_rating_int': (<DFType.FLOAT: 'float'>, 8309408, 8439136)}, col_names=['course_code', 'course_title', 'num_ratings', 'useful', 'easy', 'liked', 'num_reviews', 'reviews', 'course_rating', 'course_rating_int'], cpu_to_gpu_col_transfer_times={'course_code': 73.7, 'course_title': 92.3, 'num_ratings': 3.16, 'useful': 72.0, 'easy': 76.4, 'liked': 74.9, 'num_reviews': 3.22, 'reviews': 368.0, 'course_rating': 76.7, 'course_rating_int': 4.34}, gpu_to_cpu_col_transfer_times={'course_code': 316.0, 'course_title': 368.0, 'num_ratings': 32.8, 'useful': 344.0, 'easy': 312.0, 'liked': 316.0, 'num_reviews': 23.1, 'reviews': 1030.0, 'course_rating': 335.0, 'course_rating_int': 22.7}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 5
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=1038660, cols=10, is_series=False, col_data={'course_code': (<DFType.OBJECT: 'object'>, 67040878, 11991774), 'course_title': (<DFType.OBJECT: 'object'>, 89451938, 34402834), 'num_ratings': (<DFType.NUMBER: 'number'>, 8309408, 8309280), 'useful': (<DFType.OBJECT: 'object'>, 62354728, 7438980), 'easy': (<DFType.OBJECT: 'object'>, 62325468, 7411470), 'liked': (<DFType.OBJECT: 'object'>, 62343108, 7429110), 'num_reviews': (<DFType.NUMBER: 'number'>, 8309408, 8309280), 'reviews': (<DFType.OBJECT: 'object'>, 296077238, 237232810), 'course_rating': (<DFType.OBJECT: 'object'>, 72106988, 17576240), 'course_rating_int': (<DFType.FLOAT: 'float'>, 8309408, 8439136)}, col_names=['course_code', 'course_title', 'num_ratings', 'useful', 'easy', 'liked', 'num_reviews', 'reviews', 'course_rating', 'course_rating_int'], cpu_to_gpu_col_transfer_times={'course_code': 73.2, 'course_title': 101.0, 'num_ratings': 3.01, 'useful': 76.2, 'easy': 73.1, 'liked': 71.0, 'num_reviews': 2.73, 'reviews': 361.0, 'course_rating': 76.6, 'course_rating_int': 4.49}, gpu_to_cpu_col_transfer_times={'course_code': 314.0, 'course_title': 375.0, 'num_ratings': 33.5, 'useful': 327.0, 'easy': 311.0, 'liked': 323.0, 'num_reviews': 20.1, 'reviews': 1020.0, 'course_rating': 321.0, 'course_rating_int': 22.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 6
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=1038660, cols=10, is_series=False, col_data={'easy': (<DFType.OBJECT: 'object'>, 62325468, 7411470), 'liked': (<DFType.OBJECT: 'object'>, 62343108, 7429110), 'num_ratings': (<DFType.NUMBER: 'number'>, 8309408, 8309280), 'course_title': (<DFType.OBJECT: 'object'>, 89451938, 34402834), 'reviews': (<DFType.OBJECT: 'object'>, 296077238, 237232810), 'num_reviews': (<DFType.NUMBER: 'number'>, 8309408, 8309280), 'useful': (<DFType.OBJECT: 'object'>, 62354728, 7438980), 'course_rating_int': (<DFType.FLOAT: 'float'>, 8309408, 8439136), 'course_rating': (<DFType.OBJECT: 'object'>, 72106988, 17576240), 'course_code': (<DFType.OBJECT: 'object'>, 67040878, 11991774)}, col_names=['easy', 'liked', 'num_ratings', 'course_title', 'reviews', 'num_reviews', 'useful', 'course_rating_int', 'course_rating', 'course_code'], cpu_to_gpu_col_transfer_times={'easy': 70.6, 'liked': 72.3, 'num_ratings': 2.74, 'course_title': 94.5, 'reviews': 371.0, 'num_reviews': 2.78, 'useful': 71.0, 'course_rating_int': 4.32, 'course_rating': 75.6, 'course_code': 71.9}, gpu_to_cpu_col_transfer_times={'easy': 318.0, 'liked': 319.0, 'num_ratings': 36.6, 'course_title': 382.0, 'reviews': 1040.0, 'num_reviews': 42.0, 'useful': 554.0, 'course_rating_int': 48.8, 'course_rating': 375.0, 'course_code': 495.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 7
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.OBJECT: 'object'>, rows=1022350, cols=1, is_series=False, col_data={'course_code': (<DFType.OBJECT: 'object'>, 74166330, 19981784)}, col_names=['course_code'], cpu_to_gpu_col_transfer_times={'course_code': 74.6}, gpu_to_cpu_col_transfer_times={'course_code': 355.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs [CostModelInput(df_name='course', df_type=<DFType.OBJECT: 'object'>, rows=1022350, cols=12, is_series=False, col_data={'course_num': (<DFType.OBJECT: 'object'>, 69579440, 15394894), 'course_unit': (<DFType.OBJECT: 'object'>, 70017290, 15832744)}, col_names=['course_num', 'course_unit'], cpu_to_gpu_col_transfer_times={'course_num': 126.0, 'course_unit': 131.0}, gpu_to_cpu_col_transfer_times={'course_num': 537.0, 'course_unit': 350.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+cell index 8
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=1022350, cols=12, is_series=False, col_data={'course_code': (<DFType.OBJECT: 'object'>, 74166330, 19981784), 'course_title': (<DFType.OBJECT: 'object'>, 96231660, 42047114), 'num_ratings': (<DFType.NUMBER: 'number'>, 16357600, 16357600), 'useful': (<DFType.OBJECT: 'object'>, 69558720, 15374174), 'easy': (<DFType.OBJECT: 'object'>, 69531560, 15347014), 'liked': (<DFType.OBJECT: 'object'>, 69548850, 15364304), 'num_reviews': (<DFType.NUMBER: 'number'>, 16357600, 16357600), 'reviews': (<DFType.OBJECT: 'object'>, 300284250, 242164934), 'course_rating': (<DFType.OBJECT: 'object'>, 79733990, 25549444), 'course_rating_int': (<DFType.FLOAT: 'float'>, 16357600, 16357600), 'course_unit': (<DFType.OBJECT: 'object'>, 70017290, 15832744), 'course_num': (<DFType.OBJECT: 'object'>, 69579440, 15394894)}, col_names=['course_code', 'course_title', 'num_ratings', 'useful', 'easy', 'liked', 'num_reviews', 'reviews', 'course_rating', 'course_rating_int', 'course_unit', 'course_num'], cpu_to_gpu_col_transfer_times={'course_code': 75.0, 'course_title': 94.1, 'num_ratings': 5.75, 'useful': 75.3, 'easy': 75.7, 'liked': 78.5, 'num_reviews': 5.54, 'reviews': 384.0, 'course_rating': 79.9, 'course_rating_int': 6.51, 'course_unit': 138.0, 'course_num': 124.0}, gpu_to_cpu_col_transfer_times={'course_code': 347.0, 'course_title': 425.0, 'num_ratings': 68.2, 'useful': 335.0, 'easy': 336.0, 'liked': 350.0, 'num_reviews': 44.6, 'reviews': 1010.0, 'course_rating': 345.0, 'course_rating_int': 65.7, 'course_unit': 333.0, 'course_num': 350.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 9
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=1022350, cols=1, is_series=False, col_data={'num_reviews': (<DFType.NUMBER: 'number'>, 16357600, 16357600)}, col_names=['num_reviews'], cpu_to_gpu_col_transfer_times={'num_reviews': 4.1}, gpu_to_cpu_col_transfer_times={'num_reviews': 47.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 10
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=1022350, cols=1, is_series=False, col_data={'num_reviews': (<DFType.NUMBER: 'number'>, 16357600, 16357600)}, col_names=['num_reviews'], cpu_to_gpu_col_transfer_times={'num_reviews': 4.42}, gpu_to_cpu_col_transfer_times={'num_reviews': 48.6}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 11
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=1022350, cols=12, is_series=False, col_data={'easy': (<DFType.OBJECT: 'object'>, 69531560, 15347014), 'course_unit': (<DFType.OBJECT: 'object'>, 70017290, 15832744), 'liked': (<DFType.OBJECT: 'object'>, 69548850, 15364304), 'num_ratings': (<DFType.NUMBER: 'number'>, 16357600, 16357600), 'course_title': (<DFType.OBJECT: 'object'>, 96231660, 42047114), 'reviews': (<DFType.OBJECT: 'object'>, 300284250, 242164934), 'num_reviews': (<DFType.NUMBER: 'number'>, 16357600, 16357600), 'useful': (<DFType.OBJECT: 'object'>, 69558720, 15374174), 'course_rating_int': (<DFType.FLOAT: 'float'>, 16357600, 16357600), 'course_num': (<DFType.OBJECT: 'object'>, 69579440, 15394894), 'course_rating': (<DFType.OBJECT: 'object'>, 79733990, 25549444), 'course_code': (<DFType.OBJECT: 'object'>, 74166330, 19981784)}, col_names=['easy', 'course_unit', 'liked', 'num_ratings', 'course_title', 'reviews', 'num_reviews', 'useful', 'course_rating_int', 'course_num', 'course_rating', 'course_code'], cpu_to_gpu_col_transfer_times={'easy': 72.0, 'course_unit': 124.0, 'liked': 86.5, 'num_ratings': 5.56, 'course_title': 92.8, 'reviews': 349.0, 'num_reviews': 5.44, 'useful': 71.5, 'course_rating_int': 5.61, 'course_num': 120.0, 'course_rating': 74.9, 'course_code': 72.7}, gpu_to_cpu_col_transfer_times={'easy': 347.0, 'course_unit': 334.0, 'liked': 338.0, 'num_ratings': 62.5, 'course_title': 412.0, 'reviews': 1250.0, 'num_reviews': 66.8, 'useful': 516.0, 'course_rating_int': 65.1, 'course_num': 335.0, 'course_rating': 342.0, 'course_code': 363.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=705250, cols=12, is_series=False, col_data={'easy': (<DFType.OBJECT: 'object'>, 47955880, 10577634), 'course_unit': (<DFType.OBJECT: 'object'>, 48275220, 10896974), 'liked': (<DFType.OBJECT: 'object'>, 47945240, 10566994), 'num_ratings': (<DFType.NUMBER: 'number'>, 11284000, 11284000), 'course_title': (<DFType.OBJECT: 'object'>, 66110940, 28732694), 'reviews': (<DFType.OBJECT: 'object'>, 202560260, 162297874), 'num_reviews': (<DFType.NUMBER: 'number'>, 11284000, 11284000), 'useful': (<DFType.OBJECT: 'object'>, 47959170, 10580924), 'course_rating_int': (<DFType.FLOAT: 'float'>, 11284000, 11284000), 'course_num': (<DFType.OBJECT: 'object'>, 47984930, 10606684), 'course_rating': (<DFType.OBJECT: 'object'>, 55030640, 17652394), 'course_code': (<DFType.OBJECT: 'object'>, 51124150, 13745904)}, col_names=['easy', 'course_unit', 'liked', 'num_ratings', 'course_title', 'reviews', 'num_reviews', 'useful', 'course_rating_int', 'course_num', 'course_rating', 'course_code'], cpu_to_gpu_col_transfer_times={'easy': 49.6, 'course_unit': 85.1, 'liked': 51.0, 'num_ratings': 3.95, 'course_title': 65.3, 'reviews': 208.0, 'num_reviews': 4.29, 'useful': 51.1, 'course_rating_int': 4.8, 'course_num': 84.7, 'course_rating': 53.7, 'course_code': 51.1}, gpu_to_cpu_col_transfer_times={'easy': 231.0, 'course_unit': 232.0, 'liked': 261.0, 'num_ratings': 31.5, 'course_title': 269.0, 'reviews': 660.0, 'num_reviews': 32.9, 'useful': 230.0, 'course_rating_int': 31.6, 'course_num': 239.0, 'course_rating': 243.0, 'course_code': 236.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+cell index 12
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=705250, cols=12, is_series=False, col_data={'course_code': (<DFType.OBJECT: 'object'>, 51124150, 13745904), 'course_title': (<DFType.OBJECT: 'object'>, 66110940, 28732694), 'num_ratings': (<DFType.NUMBER: 'number'>, 11284000, 11284000), 'useful': (<DFType.OBJECT: 'object'>, 47959170, 10580924), 'easy': (<DFType.OBJECT: 'object'>, 47955880, 10577634), 'liked': (<DFType.OBJECT: 'object'>, 47945240, 10566994), 'num_reviews': (<DFType.NUMBER: 'number'>, 11284000, 11284000), 'reviews': (<DFType.OBJECT: 'object'>, 202560260, 162297874), 'course_rating': (<DFType.OBJECT: 'object'>, 55030640, 17652394), 'course_rating_int': (<DFType.FLOAT: 'float'>, 11284000, 11284000), 'course_unit': (<DFType.OBJECT: 'object'>, 48275220, 10896974), 'course_num': (<DFType.OBJECT: 'object'>, 47984930, 10606684)}, col_names=['course_code', 'course_title', 'num_ratings', 'useful', 'easy', 'liked', 'num_reviews', 'reviews', 'course_rating', 'course_rating_int', 'course_unit', 'course_num'], cpu_to_gpu_col_transfer_times={'course_code': 49.6, 'course_title': 86.1, 'num_ratings': 4.53, 'useful': 52.2, 'easy': 49.7, 'liked': 49.7, 'num_reviews': 4.11, 'reviews': 207.0, 'course_rating': 55.6, 'course_rating_int': 4.79, 'course_unit': 88.8, 'course_num': 85.4}, gpu_to_cpu_col_transfer_times={'course_code': 266.0, 'course_title': 268.0, 'num_ratings': 39.6, 'useful': 258.0, 'easy': 234.0, 'liked': 231.0, 'num_reviews': 32.2, 'reviews': 667.0, 'course_rating': 255.0, 'course_rating_int': 31.0, 'course_unit': 253.0, 'course_num': 233.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 13
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.OBJECT: 'object'>, rows=705250, cols=3, is_series=False, col_data={'easy': (<DFType.OBJECT: 'object'>, 47955880, 10577634), 'useful': (<DFType.OBJECT: 'object'>, 47959170, 10580924), 'liked': (<DFType.OBJECT: 'object'>, 47945240, 10566994)}, col_names=['easy', 'useful', 'liked'], cpu_to_gpu_col_transfer_times={'easy': 49.2, 'useful': 49.9, 'liked': 50.5}, gpu_to_cpu_col_transfer_times={'easy': 235.0, 'useful': 234.0, 'liked': 236.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=705250, cols=12, is_series=False, col_data={'easy': (<DFType.NUMBER: 'number'>, 11284000, 11284000), 'useful': (<DFType.NUMBER: 'number'>, 11284000, 11284000), 'liked': (<DFType.NUMBER: 'number'>, 11284000, 11284000)}, col_names=['easy', 'useful', 'liked'], cpu_to_gpu_col_transfer_times={'easy': 3.22, 'useful': 3.94, 'liked': 3.87}, gpu_to_cpu_col_transfer_times={'easy': 32.4, 'useful': 32.6, 'liked': 45.9}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+cell index 14
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=705250, cols=12, is_series=False, col_data={'easy': (<DFType.NUMBER: 'number'>, 11284000, 11284000), 'course_unit': (<DFType.OBJECT: 'object'>, 48275220, 10896974), 'liked': (<DFType.NUMBER: 'number'>, 11284000, 11284000), 'num_ratings': (<DFType.NUMBER: 'number'>, 11284000, 11284000), 'course_title': (<DFType.OBJECT: 'object'>, 66110940, 28732694), 'reviews': (<DFType.OBJECT: 'object'>, 202560260, 162297874), 'num_reviews': (<DFType.NUMBER: 'number'>, 11284000, 11284000), 'useful': (<DFType.NUMBER: 'number'>, 11284000, 11284000), 'course_rating_int': (<DFType.FLOAT: 'float'>, 11284000, 11284000), 'course_num': (<DFType.OBJECT: 'object'>, 47984930, 10606684), 'course_rating': (<DFType.OBJECT: 'object'>, 55030640, 17652394), 'course_code': (<DFType.OBJECT: 'object'>, 51124150, 13745904)}, col_names=['easy', 'course_unit', 'liked', 'num_ratings', 'course_title', 'reviews', 'num_reviews', 'useful', 'course_rating_int', 'course_num', 'course_rating', 'course_code'], cpu_to_gpu_col_transfer_times={'easy': 2.47, 'course_unit': 86.5, 'liked': 4.22, 'num_ratings': 3.92, 'course_title': 67.2, 'reviews': 207.0, 'num_reviews': 4.47, 'useful': 3.87, 'course_rating_int': 4.32, 'course_num': 86.8, 'course_rating': 54.6, 'course_code': 51.4}, gpu_to_cpu_col_transfer_times={'easy': 31.6, 'course_unit': 232.0, 'liked': 33.0, 'num_ratings': 36.3, 'course_title': 295.0, 'reviews': 658.0, 'num_reviews': 45.6, 'useful': 31.9, 'course_rating_int': 31.6, 'course_num': 232.0, 'course_rating': 244.0, 'course_code': 261.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=705250, cols=11, is_series=False, col_data={'easy': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'liked': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'num_ratings': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'course_title': (<DFType.OBJECT: 'object'>, 103102160, 28345668), 'reviews': (<DFType.OBJECT: 'object'>, 239551480, 161910848), 'num_reviews': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'useful': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'course_rating_int': (<DFType.FLOAT: 'float'>, 48275220, 10896974), 'course_num': (<DFType.OBJECT: 'object'>, 84976150, 10219658), 'course_rating': (<DFType.OBJECT: 'object'>, 92021860, 17265368), 'course_code': (<DFType.OBJECT: 'object'>, 88115370, 13358878)}, col_names=['easy', 'liked', 'num_ratings', 'course_title', 'reviews', 'num_reviews', 'useful', 'course_rating_int', 'course_num', 'course_rating', 'course_code'], cpu_to_gpu_col_transfer_times={'easy': 190.0, 'liked': 149.0, 'num_ratings': 149.0, 'course_title': 261.0, 'reviews': 405.0, 'num_reviews': 149.0, 'useful': 151.0, 'course_rating_int': 149.0, 'course_num': 280.0, 'course_rating': 250.0, 'course_code': 246.0}, gpu_to_cpu_col_transfer_times={'easy': 578.0, 'liked': 475.0, 'num_ratings': 519.0, 'course_title': 755.0, 'reviews': 1110.0, 'num_reviews': 438.0, 'useful': 457.0, 'course_rating_int': 447.0, 'course_num': 670.0, 'course_rating': 680.0, 'course_code': 681.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+cell index 15
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=705250, cols=11, is_series=False, col_data={'course_code': (<DFType.OBJECT: 'object'>, 88115370, 13358878), 'course_title': (<DFType.OBJECT: 'object'>, 103102160, 28345668), 'num_ratings': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'useful': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'easy': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'liked': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'num_reviews': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'reviews': (<DFType.OBJECT: 'object'>, 239551480, 161910848), 'course_rating': (<DFType.OBJECT: 'object'>, 92021860, 17265368), 'course_rating_int': (<DFType.FLOAT: 'float'>, 48275220, 10896974), 'course_num': (<DFType.OBJECT: 'object'>, 84976150, 10219658)}, col_names=['course_code', 'course_title', 'num_ratings', 'useful', 'easy', 'liked', 'num_reviews', 'reviews', 'course_rating', 'course_rating_int', 'course_num'], cpu_to_gpu_col_transfer_times={'course_code': 246.0, 'course_title': 262.0, 'num_ratings': 148.0, 'useful': 150.0, 'easy': 149.0, 'liked': 149.0, 'num_reviews': 149.0, 'reviews': 411.0, 'course_rating': 250.0, 'course_rating_int': 148.0, 'course_num': 276.0}, gpu_to_cpu_col_transfer_times={'course_code': 687.0, 'course_title': 721.0, 'num_ratings': 441.0, 'useful': 440.0, 'easy': 480.0, 'liked': 403.0, 'num_reviews': 443.0, 'reviews': 1080.0, 'course_rating': 681.0, 'course_rating_int': 461.0, 'course_num': 668.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 16
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=705250, cols=11, is_series=False, col_data={'easy': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'liked': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'num_ratings': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'course_title': (<DFType.OBJECT: 'object'>, 103102160, 28345668), 'reviews': (<DFType.OBJECT: 'object'>, 239551480, 161910848), 'num_reviews': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'useful': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'course_rating_int': (<DFType.FLOAT: 'float'>, 48275220, 10896974), 'course_num': (<DFType.OBJECT: 'object'>, 84976150, 10219658), 'course_rating': (<DFType.OBJECT: 'object'>, 92021860, 17265368), 'course_code': (<DFType.OBJECT: 'object'>, 88115370, 13358878)}, col_names=['easy', 'liked', 'num_ratings', 'course_title', 'reviews', 'num_reviews', 'useful', 'course_rating_int', 'course_num', 'course_rating', 'course_code'], cpu_to_gpu_col_transfer_times={'easy': 149.0, 'liked': 150.0, 'num_ratings': 150.0, 'course_title': 262.0, 'reviews': 408.0, 'num_reviews': 148.0, 'useful': 148.0, 'course_rating_int': 149.0, 'course_num': 277.0, 'course_rating': 250.0, 'course_code': 247.0}, gpu_to_cpu_col_transfer_times={'easy': 399.0, 'liked': 441.0, 'num_ratings': 411.0, 'course_title': 704.0, 'reviews': 1130.0, 'num_reviews': 443.0, 'useful': 438.0, 'course_rating_int': 438.0, 'course_num': 654.0, 'course_rating': 677.0, 'course_code': 680.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=705250, cols=8, is_series=False, col_data={'easy': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'liked': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'num_ratings': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'num_reviews': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'useful': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'course_rating_int': (<DFType.FLOAT: 'float'>, 48275220, 10896974), 'course_num': (<DFType.OBJECT: 'object'>, 84976150, 10219658), 'course_code': (<DFType.OBJECT: 'object'>, 88115370, 13358878)}, col_names=['easy', 'liked', 'num_ratings', 'num_reviews', 'useful', 'course_rating_int', 'course_num', 'course_code'], cpu_to_gpu_col_transfer_times={'easy': 148.0, 'liked': 148.0, 'num_ratings': 149.0, 'num_reviews': 149.0, 'useful': 162.0, 'course_rating_int': 151.0, 'course_num': 278.0, 'course_code': 246.0}, gpu_to_cpu_col_transfer_times={'easy': 447.0, 'liked': 430.0, 'num_ratings': 440.0, 'num_reviews': 418.0, 'useful': 421.0, 'course_rating_int': 439.0, 'course_num': 643.0, 'course_code': 658.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+cell index 17
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=705250, cols=8, is_series=False, col_data={'course_code': (<DFType.OBJECT: 'object'>, 88115370, 13358878), 'num_ratings': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'useful': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'easy': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'liked': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'num_reviews': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'course_rating_int': (<DFType.FLOAT: 'float'>, 48275220, 10896974), 'course_num': (<DFType.OBJECT: 'object'>, 84976150, 10219658)}, col_names=['course_code', 'num_ratings', 'useful', 'easy', 'liked', 'num_reviews', 'course_rating_int', 'course_num'], cpu_to_gpu_col_transfer_times={'course_code': 247.0, 'num_ratings': 151.0, 'useful': 151.0, 'easy': 151.0, 'liked': 150.0, 'num_reviews': 154.0, 'course_rating_int': 154.0, 'course_num': 285.0}, gpu_to_cpu_col_transfer_times={'course_code': 693.0, 'num_ratings': 428.0, 'useful': 422.0, 'easy': 440.0, 'liked': 419.0, 'num_reviews': 417.0, 'course_rating_int': 436.0, 'course_num': 647.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 18
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=705250, cols=8, is_series=False, col_data={'course_code': (<DFType.OBJECT: 'object'>, 88115370, 13358878), 'num_ratings': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'useful': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'easy': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'liked': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'num_reviews': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'course_rating_int': (<DFType.FLOAT: 'float'>, 48275220, 10896974), 'course_num': (<DFType.OBJECT: 'object'>, 84976150, 10219658)}, col_names=['course_code', 'num_ratings', 'useful', 'easy', 'liked', 'num_reviews', 'course_rating_int', 'course_num'], cpu_to_gpu_col_transfer_times={'course_code': 247.0, 'num_ratings': 150.0, 'useful': 151.0, 'easy': 149.0, 'liked': 151.0, 'num_reviews': 150.0, 'course_rating_int': 149.0, 'course_num': 279.0}, gpu_to_cpu_col_transfer_times={'course_code': 643.0, 'num_ratings': 431.0, 'useful': 412.0, 'easy': 413.0, 'liked': 469.0, 'num_reviews': 425.0, 'course_rating_int': 400.0, 'course_num': 674.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 19
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=705250, cols=6, is_series=False, col_data={'easy': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'liked': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'num_ratings': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'num_reviews': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'useful': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'course_rating_int': (<DFType.FLOAT: 'float'>, 48275220, 10896974)}, col_names=['easy', 'liked', 'num_ratings', 'num_reviews', 'useful', 'course_rating_int'], cpu_to_gpu_col_transfer_times={'easy': 148.0, 'liked': 172.0, 'num_ratings': 149.0, 'num_reviews': 149.0, 'useful': 150.0, 'course_rating_int': 150.0}, gpu_to_cpu_col_transfer_times={'easy': 396.0, 'liked': 401.0, 'num_ratings': 393.0, 'num_reviews': 396.0, 'useful': 461.0, 'course_rating_int': 416.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs [CostModelInput(df_name='course_gp', df_type=<DFType.FLOAT: 'float'>, rows=69, cols=6, is_series=False, col_data={'num_ratings': (<DFType.FLOAT: 'float'>, 4744, 1091), 'useful': (<DFType.FLOAT: 'float'>, 4744, 1091), 'easy': (<DFType.FLOAT: 'float'>, 4744, 1091), 'liked': (<DFType.FLOAT: 'float'>, 4744, 1091), 'num_reviews': (<DFType.FLOAT: 'float'>, 4744, 1091), 'course_rating_int': (<DFType.FLOAT: 'float'>, 4744, 1091)}, col_names=['num_ratings', 'useful', 'easy', 'liked', 'num_reviews', 'course_rating_int'], cpu_to_gpu_col_transfer_times={'num_ratings': 2.76, 'useful': 3.05, 'easy': 3.18, 'liked': 3.0, 'num_reviews': 2.9, 'course_rating_int': 3.04}, gpu_to_cpu_col_transfer_times={'num_ratings': 5.47, 'useful': 13.0, 'easy': 4.96, 'liked': 4.89, 'num_reviews': 5.3, 'course_rating_int': 4.85}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+cell index 20
+input transfer inputs [CostModelInput(df_name='course_gp', df_type=<DFType.FLOAT: 'float'>, rows=69, cols=6, is_series=False, col_data={'num_ratings': (<DFType.FLOAT: 'float'>, 4744, 1091), 'useful': (<DFType.FLOAT: 'float'>, 4744, 1091), 'easy': (<DFType.FLOAT: 'float'>, 4744, 1091), 'liked': (<DFType.FLOAT: 'float'>, 4744, 1091), 'num_reviews': (<DFType.FLOAT: 'float'>, 4744, 1091), 'course_rating_int': (<DFType.FLOAT: 'float'>, 4744, 1091)}, col_names=['num_ratings', 'useful', 'easy', 'liked', 'num_reviews', 'course_rating_int'], cpu_to_gpu_col_transfer_times={'num_ratings': 2.26, 'useful': 2.98, 'easy': 3.21, 'liked': 2.88, 'num_reviews': 3.02, 'course_rating_int': 3.03}, gpu_to_cpu_col_transfer_times={'num_ratings': 5.41, 'useful': 4.91, 'easy': 5.04, 'liked': 5.28, 'num_reviews': 5.02, 'course_rating_int': 5.11}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 21
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=705250, cols=8, is_series=False, col_data={'easy': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'liked': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'num_ratings': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'num_reviews': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'useful': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'course_rating_int': (<DFType.FLOAT: 'float'>, 48275220, 10896974), 'course_num': (<DFType.OBJECT: 'object'>, 84976150, 10219658), 'course_code': (<DFType.OBJECT: 'object'>, 88115370, 13358878)}, col_names=['easy', 'liked', 'num_ratings', 'num_reviews', 'useful', 'course_rating_int', 'course_num', 'course_code'], cpu_to_gpu_col_transfer_times={'easy': 149.0, 'liked': 149.0, 'num_ratings': 149.0, 'num_reviews': 148.0, 'useful': 150.0, 'course_rating_int': 149.0, 'course_num': 324.0, 'course_code': 246.0}, gpu_to_cpu_col_transfer_times={'easy': 399.0, 'liked': 389.0, 'num_ratings': 418.0, 'num_reviews': 488.0, 'useful': 418.0, 'course_rating_int': 396.0, 'course_num': 681.0, 'course_code': 664.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None), CostModelInput(df_name='course_gp', df_type=<DFType.FLOAT: 'float'>, rows=69, cols=1, is_series=False, col_data={'course_rating_int': (<DFType.FLOAT: 'float'>, 4744, 1091)}, col_names=['course_rating_int'], cpu_to_gpu_col_transfer_times={'course_rating_int': 2.15}, gpu_to_cpu_col_transfer_times={'course_rating_int': 5.76}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs [CostModelInput(df_name='course', df_type=<DFType.OBJECT: 'object'>, rows=705250, cols=9, is_series=False, col_data={'course_rating_mean': (<DFType.OBJECT: 'object'>, 87751548, 20469898)}, col_names=['course_rating_mean'], cpu_to_gpu_col_transfer_times={'course_rating_mean': 200.0}, gpu_to_cpu_col_transfer_times={'course_rating_mean': 645.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+cell index 22
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=705250, cols=9, is_series=False, col_data={'course_code': (<DFType.OBJECT: 'object'>, 105023698, 13358878), 'num_ratings': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'useful': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'easy': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'liked': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'num_reviews': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'course_rating_int': (<DFType.FLOAT: 'float'>, 65183548, 10896974), 'course_num': (<DFType.OBJECT: 'object'>, 101884478, 10219658), 'course_rating_mean': (<DFType.OBJECT: 'object'>, 87751548, 20469898)}, col_names=['course_code', 'num_ratings', 'useful', 'easy', 'liked', 'num_reviews', 'course_rating_int', 'course_num', 'course_rating_mean'], cpu_to_gpu_col_transfer_times={'course_code': 256.0, 'num_ratings': 175.0, 'useful': 155.0, 'easy': 156.0, 'liked': 153.0, 'num_reviews': 149.0, 'course_rating_int': 150.0, 'course_num': 280.0, 'course_rating_mean': 202.0}, gpu_to_cpu_col_transfer_times={'course_code': 646.0, 'num_ratings': 393.0, 'useful': 391.0, 'easy': 445.0, 'liked': 416.0, 'num_reviews': 390.0, 'course_rating_int': 432.0, 'course_num': 652.0, 'course_rating_mean': 638.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 23
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=705250, cols=9, is_series=False, col_data={'course_rating_mean': (<DFType.OBJECT: 'object'>, 87751548, 20469898), 'easy': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'liked': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'num_ratings': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'num_reviews': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'useful': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'course_rating_int': (<DFType.FLOAT: 'float'>, 65183548, 10896974), 'course_num': (<DFType.OBJECT: 'object'>, 101884478, 10219658), 'course_code': (<DFType.OBJECT: 'object'>, 105023698, 13358878)}, col_names=['course_rating_mean', 'easy', 'liked', 'num_ratings', 'num_reviews', 'useful', 'course_rating_int', 'course_num', 'course_code'], cpu_to_gpu_col_transfer_times={'course_rating_mean': 201.0, 'easy': 148.0, 'liked': 147.0, 'num_ratings': 167.0, 'num_reviews': 148.0, 'useful': 147.0, 'course_rating_int': 148.0, 'course_num': 274.0, 'course_code': 245.0}, gpu_to_cpu_col_transfer_times={'course_rating_mean': 655.0, 'easy': 401.0, 'liked': 420.0, 'num_ratings': 391.0, 'num_reviews': 433.0, 'useful': 420.0, 'course_rating_int': 388.0, 'course_num': 657.0, 'course_code': 664.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=705250, cols=10, is_series=False, col_data={'course_rating_mean': (<DFType.OBJECT: 'object'>, 28210128, 15214924), 'easy': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'course_unit': (<DFType.OBJECT: 'object'>, 42633348, 5254974), 'liked': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'num_ratings': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'num_reviews': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'useful': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'course_rating_int': (<DFType.FLOAT: 'float'>, 5642128, 5642000), 'course_num': (<DFType.OBJECT: 'object'>, 42343058, 4964684), 'course_code': (<DFType.OBJECT: 'object'>, 45482278, 8103904)}, col_names=['course_rating_mean', 'easy', 'course_unit', 'liked', 'num_ratings', 'num_reviews', 'useful', 'course_rating_int', 'course_num', 'course_code'], cpu_to_gpu_col_transfer_times={'course_rating_mean': 22.0, 'easy': 1.78, 'course_unit': 83.7, 'liked': 2.13, 'num_ratings': 1.92, 'num_reviews': 1.56, 'useful': 1.52, 'course_rating_int': 2.7, 'course_num': 84.2, 'course_code': 48.4}, gpu_to_cpu_col_transfer_times={'course_rating_mean': 232.0, 'easy': 15.3, 'course_unit': 215.0, 'liked': 37.3, 'num_ratings': 14.3, 'num_reviews': 13.7, 'useful': 13.7, 'course_rating_int': 14.1, 'course_num': 213.0, 'course_code': 217.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+cell index 24
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=705250, cols=10, is_series=False, col_data={'course_unit': (<DFType.OBJECT: 'object'>, 42633348, 5254974), 'course_code': (<DFType.OBJECT: 'object'>, 45482278, 8103904), 'num_ratings': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'useful': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'easy': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'liked': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'num_reviews': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'course_rating_int': (<DFType.FLOAT: 'float'>, 5642128, 5642000), 'course_num': (<DFType.OBJECT: 'object'>, 42343058, 4964684), 'course_rating_mean': (<DFType.OBJECT: 'object'>, 28210128, 15214924)}, col_names=['course_unit', 'course_code', 'num_ratings', 'useful', 'easy', 'liked', 'num_reviews', 'course_rating_int', 'course_num', 'course_rating_mean'], cpu_to_gpu_col_transfer_times={'course_unit': 82.8, 'course_code': 49.3, 'num_ratings': 2.31, 'useful': 2.05, 'easy': 1.66, 'liked': 1.76, 'num_reviews': 1.44, 'course_rating_int': 2.71, 'course_num': 88.3, 'course_rating_mean': 22.5}, gpu_to_cpu_col_transfer_times={'course_unit': 213.0, 'course_code': 231.0, 'num_ratings': 15.1, 'useful': 14.2, 'easy': 14.3, 'liked': 18.3, 'num_reviews': 13.8, 'course_rating_int': 13.7, 'course_num': 213.0, 'course_rating_mean': 237.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 25
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=705250, cols=7, is_series=False, col_data={'easy': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'course_unit': (<DFType.OBJECT: 'object'>, 42633348, 5254974), 'liked': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'num_ratings': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'num_reviews': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'useful': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'course_rating_int': (<DFType.FLOAT: 'float'>, 5642128, 5642000)}, col_names=['easy', 'course_unit', 'liked', 'num_ratings', 'num_reviews', 'useful', 'course_rating_int'], cpu_to_gpu_col_transfer_times={'easy': 2.14, 'course_unit': 83.3, 'liked': 2.25, 'num_ratings': 1.69, 'num_reviews': 1.65, 'useful': 1.64, 'course_rating_int': 2.56}, gpu_to_cpu_col_transfer_times={'easy': 13.6, 'course_unit': 215.0, 'liked': 14.2, 'num_ratings': 13.6, 'num_reviews': 14.0, 'useful': 15.2, 'course_rating_int': 13.4}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 26
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.OBJECT: 'object'>, rows=705250, cols=1, is_series=False, col_data={'course_unit': (<DFType.OBJECT: 'object'>, 42633348, 5254974)}, col_names=['course_unit'], cpu_to_gpu_col_transfer_times={'course_unit': 95.3}, gpu_to_cpu_col_transfer_times={'course_unit': 213.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 27
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.OBJECT: 'object'>, rows=705250, cols=1, is_series=False, col_data={'course_code': (<DFType.OBJECT: 'object'>, 45482278, 8103904)}, col_names=['course_code'], cpu_to_gpu_col_transfer_times={'course_code': 49.4}, gpu_to_cpu_col_transfer_times={'course_code': 216.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 28
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=705250, cols=10, is_series=False, col_data={'course_unit': (<DFType.OBJECT: 'object'>, 42633348, 5254974), 'course_code': (<DFType.OBJECT: 'object'>, 45482278, 8103904), 'num_ratings': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'useful': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'easy': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'liked': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'num_reviews': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'course_rating_int': (<DFType.FLOAT: 'float'>, 5642128, 5642000), 'course_num': (<DFType.OBJECT: 'object'>, 42343058, 4964684), 'course_rating_mean': (<DFType.OBJECT: 'object'>, 28210128, 15214924)}, col_names=['course_unit', 'course_code', 'num_ratings', 'useful', 'easy', 'liked', 'num_reviews', 'course_rating_int', 'course_num', 'course_rating_mean'], cpu_to_gpu_col_transfer_times={'course_unit': 81.0, 'course_code': 48.7, 'num_ratings': 2.21, 'useful': 1.73, 'easy': 1.65, 'liked': 1.51, 'num_reviews': 1.44, 'course_rating_int': 2.74, 'course_num': 82.8, 'course_rating_mean': 22.3}, gpu_to_cpu_col_transfer_times={'course_unit': 211.0, 'course_code': 221.0, 'num_ratings': 15.0, 'useful': 14.2, 'easy': 13.9, 'liked': 16.6, 'num_reviews': 14.0, 'course_rating_int': 13.9, 'course_num': 215.0, 'course_rating_mean': 249.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 29
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=705250, cols=10, is_series=False, col_data={'easy': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'course_rating_mean': (<DFType.OBJECT: 'object'>, 28210128, 15214924), 'course_unit': (<DFType.OBJECT: 'object'>, 42633348, 5254974), 'liked': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'num_ratings': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'num_reviews': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'useful': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'course_rating_int': (<DFType.FLOAT: 'float'>, 5642128, 5642000), 'course_num': (<DFType.OBJECT: 'object'>, 42343058, 4964684), 'course_code': (<DFType.OBJECT: 'object'>, 45482278, 8103904)}, col_names=['easy', 'course_rating_mean', 'course_unit', 'liked', 'num_ratings', 'num_reviews', 'useful', 'course_rating_int', 'course_num', 'course_code'], cpu_to_gpu_col_transfer_times={'easy': 1.72, 'course_rating_mean': 21.3, 'course_unit': 83.4, 'liked': 2.07, 'num_ratings': 1.85, 'num_reviews': 1.45, 'useful': 1.41, 'course_rating_int': 2.57, 'course_num': 82.8, 'course_code': 48.6}, gpu_to_cpu_col_transfer_times={'easy': 13.4, 'course_rating_mean': 232.0, 'course_unit': 212.0, 'liked': 15.0, 'num_ratings': 14.4, 'num_reviews': 18.6, 'useful': 14.6, 'course_rating_int': 16.0, 'course_num': 220.0, 'course_code': 220.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=705250, cols=10, is_series=False, col_data={'course_rating_mean': (<DFType.OBJECT: 'object'>, 33852000, 20856924), 'easy': (<DFType.NUMBER: 'number'>, 11284000, 11284000), 'course_unit': (<DFType.OBJECT: 'object'>, 48275220, 10896974), 'liked': (<DFType.NUMBER: 'number'>, 11284000, 11284000), 'num_ratings': (<DFType.NUMBER: 'number'>, 11284000, 11284000), 'num_reviews': (<DFType.NUMBER: 'number'>, 11284000, 11284000), 'useful': (<DFType.NUMBER: 'number'>, 11284000, 11284000), 'course_rating_int': (<DFType.FLOAT: 'float'>, 11284000, 11284000), 'course_num': (<DFType.OBJECT: 'object'>, 47984930, 10606684), 'course_code': (<DFType.OBJECT: 'object'>, 51124150, 13745904)}, col_names=['course_rating_mean', 'easy', 'course_unit', 'liked', 'num_ratings', 'num_reviews', 'useful', 'course_rating_int', 'course_num', 'course_code'], cpu_to_gpu_col_transfer_times={'course_rating_mean': 23.3, 'easy': 4.14, 'course_unit': 111.0, 'liked': 4.55, 'num_ratings': 3.87, 'num_reviews': 3.99, 'useful': 3.85, 'course_rating_int': 4.8, 'course_num': 111.0, 'course_code': 54.0}, gpu_to_cpu_col_transfer_times={'course_rating_mean': 276.0, 'easy': 33.6, 'course_unit': 248.0, 'liked': 32.2, 'num_ratings': 32.9, 'num_reviews': 33.1, 'useful': 35.2, 'course_rating_int': 32.3, 'course_num': 235.0, 'course_code': 243.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+cell index 30
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=705250, cols=10, is_series=False, col_data={'course_rating_mean': (<DFType.OBJECT: 'object'>, 33852000, 20856924), 'easy': (<DFType.NUMBER: 'number'>, 11284000, 11284000), 'course_unit': (<DFType.OBJECT: 'object'>, 48275220, 10896974), 'liked': (<DFType.NUMBER: 'number'>, 11284000, 11284000), 'num_ratings': (<DFType.NUMBER: 'number'>, 11284000, 11284000), 'num_reviews': (<DFType.NUMBER: 'number'>, 11284000, 11284000), 'useful': (<DFType.NUMBER: 'number'>, 11284000, 11284000), 'course_rating_int': (<DFType.FLOAT: 'float'>, 11284000, 11284000), 'course_num': (<DFType.OBJECT: 'object'>, 47984930, 10606684), 'course_code': (<DFType.OBJECT: 'object'>, 51124150, 13745904)}, col_names=['course_rating_mean', 'easy', 'course_unit', 'liked', 'num_ratings', 'num_reviews', 'useful', 'course_rating_int', 'course_num', 'course_code'], cpu_to_gpu_col_transfer_times={'course_rating_mean': 24.3, 'easy': 3.77, 'course_unit': 111.0, 'liked': 3.7, 'num_ratings': 3.49, 'num_reviews': 3.53, 'useful': 3.35, 'course_rating_int': 4.19, 'course_num': 109.0, 'course_code': 50.7}, gpu_to_cpu_col_transfer_times={'course_rating_mean': 252.0, 'easy': 32.8, 'course_unit': 246.0, 'liked': 32.3, 'num_ratings': 32.5, 'num_reviews': 32.6, 'useful': 35.9, 'course_rating_int': 32.4, 'course_num': 235.0, 'course_code': 271.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=705250, cols=11, is_series=False, col_data={'course_rating_mean': (<DFType.OBJECT: 'object'>, 28210128, 15214924), 'easy': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'course_unit': (<DFType.OBJECT: 'object'>, 42633348, 5254974), 'liked': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'num_ratings': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'num_reviews': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'index': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'useful': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'course_rating_int': (<DFType.FLOAT: 'float'>, 5642128, 5642000), 'course_num': (<DFType.OBJECT: 'object'>, 42343058, 4964684), 'course_code': (<DFType.OBJECT: 'object'>, 45482278, 8103904)}, col_names=['course_rating_mean', 'easy', 'course_unit', 'liked', 'num_ratings', 'num_reviews', 'index', 'useful', 'course_rating_int', 'course_num', 'course_code'], cpu_to_gpu_col_transfer_times={'course_rating_mean': 21.1, 'easy': 1.5, 'course_unit': 106.0, 'liked': 2.17, 'num_ratings': 1.61, 'num_reviews': 1.44, 'index': 1.45, 'useful': 1.4, 'course_rating_int': 2.57, 'course_num': 106.0, 'course_code': 48.8}, gpu_to_cpu_col_transfer_times={'course_rating_mean': 229.0, 'easy': 14.8, 'course_unit': 212.0, 'liked': 29.3, 'num_ratings': 14.3, 'num_reviews': 14.1, 'index': 13.9, 'useful': 14.5, 'course_rating_int': 13.8, 'course_num': 213.0, 'course_code': 216.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+cell index 31
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=705250, cols=11, is_series=False, col_data={'course_rating_mean': (<DFType.OBJECT: 'object'>, 28210128, 15214924), 'easy': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'course_unit': (<DFType.OBJECT: 'object'>, 42633348, 5254974), 'liked': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'num_ratings': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'num_reviews': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'index': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'useful': (<DFType.NUMBER: 'number'>, 5642128, 5642000), 'course_rating_int': (<DFType.FLOAT: 'float'>, 5642128, 5642000), 'course_num': (<DFType.OBJECT: 'object'>, 42343058, 4964684), 'course_code': (<DFType.OBJECT: 'object'>, 45482278, 8103904)}, col_names=['course_rating_mean', 'easy', 'course_unit', 'liked', 'num_ratings', 'num_reviews', 'index', 'useful', 'course_rating_int', 'course_num', 'course_code'], cpu_to_gpu_col_transfer_times={'course_rating_mean': 21.5, 'easy': 1.83, 'course_unit': 106.0, 'liked': 2.12, 'num_ratings': 1.43, 'num_reviews': 1.46, 'index': 1.3, 'useful': 1.39, 'course_rating_int': 2.66, 'course_num': 105.0, 'course_code': 48.7}, gpu_to_cpu_col_transfer_times={'course_rating_mean': 241.0, 'easy': 15.2, 'course_unit': 213.0, 'liked': 15.4, 'num_ratings': 23.5, 'num_reviews': 14.2, 'index': 14.1, 'useful': 14.2, 'course_rating_int': 14.3, 'course_num': 243.0, 'course_code': 216.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=705250, cols=10, is_series=False, col_data={'course_rating_mean': (<DFType.OBJECT: 'object'>, 70843220, 20469898), 'easy': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'liked': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'num_ratings': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'num_reviews': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'index': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'useful': (<DFType.NUMBER: 'number'>, 48275220, 10896974), 'course_rating_int': (<DFType.FLOAT: 'float'>, 48275220, 10896974), 'course_num': (<DFType.OBJECT: 'object'>, 84976150, 10219658), 'course_code': (<DFType.OBJECT: 'object'>, 88115370, 13358878)}, col_names=['course_rating_mean', 'easy', 'liked', 'num_ratings', 'num_reviews', 'index', 'useful', 'course_rating_int', 'course_num', 'course_code'], cpu_to_gpu_col_transfer_times={'course_rating_mean': 347.0, 'easy': 218.0, 'liked': 228.0, 'num_ratings': 221.0, 'num_reviews': 218.0, 'index': 219.0, 'useful': 216.0, 'course_rating_int': 217.0, 'course_num': 394.0, 'course_code': 346.0}, gpu_to_cpu_col_transfer_times={'course_rating_mean': 671.0, 'easy': 391.0, 'liked': 396.0, 'num_ratings': 444.0, 'num_reviews': 418.0, 'index': 394.0, 'useful': 427.0, 'course_rating_int': 450.0, 'course_num': 623.0, 'course_code': 659.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+cell index 32
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.OBJECT: 'object'>, rows=705250, cols=1, is_series=False, col_data={'course_rating_mean': (<DFType.OBJECT: 'object'>, 70843220, 20469898)}, col_names=['course_rating_mean'], cpu_to_gpu_col_transfer_times={'course_rating_mean': 297.0}, gpu_to_cpu_col_transfer_times={'course_rating_mean': 700.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 33
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=705250, cols=9, is_series=False, col_data={'easy': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'liked': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'num_ratings': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'num_reviews': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'index': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'useful': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'course_rating_int': (<DFType.FLOAT: 'float'>, 65183548, 10896974), 'course_num': (<DFType.OBJECT: 'object'>, 101884478, 10219658), 'course_code': (<DFType.OBJECT: 'object'>, 105023698, 13358878)}, col_names=['easy', 'liked', 'num_ratings', 'num_reviews', 'index', 'useful', 'course_rating_int', 'course_num', 'course_code'], cpu_to_gpu_col_transfer_times={'easy': 216.0, 'liked': 216.0, 'num_ratings': 215.0, 'num_reviews': 225.0, 'index': 217.0, 'useful': 219.0, 'course_rating_int': 220.0, 'course_num': 406.0, 'course_code': 344.0}, gpu_to_cpu_col_transfer_times={'easy': 397.0, 'liked': 394.0, 'num_ratings': 396.0, 'num_reviews': 459.0, 'index': 420.0, 'useful': 391.0, 'course_rating_int': 419.0, 'course_num': 667.0, 'course_code': 677.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 34
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.OBJECT: 'object'>, rows=705250, cols=1, is_series=False, col_data={'course_rating_mean': (<DFType.OBJECT: 'object'>, 87751548, 20469898)}, col_names=['course_rating_mean'], cpu_to_gpu_col_transfer_times={'course_rating_mean': 292.0}, gpu_to_cpu_col_transfer_times={'course_rating_mean': 649.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 35
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=705250, cols=9, is_series=False, col_data={'easy': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'liked': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'num_ratings': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'num_reviews': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'index': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'useful': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'course_rating_int': (<DFType.FLOAT: 'float'>, 65183548, 10896974), 'course_num': (<DFType.OBJECT: 'object'>, 101884478, 10219658), 'course_code': (<DFType.OBJECT: 'object'>, 105023698, 13358878)}, col_names=['easy', 'liked', 'num_ratings', 'num_reviews', 'index', 'useful', 'course_rating_int', 'course_num', 'course_code'], cpu_to_gpu_col_transfer_times={'easy': 219.0, 'liked': 219.0, 'num_ratings': 218.0, 'num_reviews': 216.0, 'index': 235.0, 'useful': 219.0, 'course_rating_int': 217.0, 'course_num': 395.0, 'course_code': 447.0}, gpu_to_cpu_col_transfer_times={'easy': 398.0, 'liked': 391.0, 'num_ratings': 411.0, 'num_reviews': 408.0, 'index': 425.0, 'useful': 423.0, 'course_rating_int': 397.0, 'course_num': 696.0, 'course_code': 663.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 36
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.OBJECT: 'object'>, rows=705250, cols=1, is_series=False, col_data={'course_rating_mean': (<DFType.OBJECT: 'object'>, 87751548, 20469898)}, col_names=['course_rating_mean'], cpu_to_gpu_col_transfer_times={'course_rating_mean': 306.0}, gpu_to_cpu_col_transfer_times={'course_rating_mean': 649.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 37
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=705250, cols=9, is_series=False, col_data={'easy': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'liked': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'num_ratings': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'num_reviews': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'index': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'useful': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'course_rating_int': (<DFType.FLOAT: 'float'>, 65183548, 10896974), 'course_num': (<DFType.OBJECT: 'object'>, 101884478, 10219658), 'course_code': (<DFType.OBJECT: 'object'>, 105023698, 13358878)}, col_names=['easy', 'liked', 'num_ratings', 'num_reviews', 'index', 'useful', 'course_rating_int', 'course_num', 'course_code'], cpu_to_gpu_col_transfer_times={'easy': 265.0, 'liked': 236.0, 'num_ratings': 231.0, 'num_reviews': 233.0, 'index': 229.0, 'useful': 239.0, 'course_rating_int': 221.0, 'course_num': 401.0, 'course_code': 361.0}, gpu_to_cpu_col_transfer_times={'easy': 400.0, 'liked': 396.0, 'num_ratings': 410.0, 'num_reviews': 417.0, 'index': 392.0, 'useful': 405.0, 'course_rating_int': 416.0, 'course_num': 631.0, 'course_code': 644.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 38
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.OBJECT: 'object'>, rows=705250, cols=1, is_series=False, col_data={'course_rating_mean': (<DFType.OBJECT: 'object'>, 87751548, 20469898)}, col_names=['course_rating_mean'], cpu_to_gpu_col_transfer_times={'course_rating_mean': 293.0}, gpu_to_cpu_col_transfer_times={'course_rating_mean': 663.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 39
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=705250, cols=9, is_series=False, col_data={'easy': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'liked': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'num_ratings': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'num_reviews': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'index': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'useful': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'course_rating_int': (<DFType.FLOAT: 'float'>, 65183548, 10896974), 'course_num': (<DFType.OBJECT: 'object'>, 101884478, 10219658), 'course_code': (<DFType.OBJECT: 'object'>, 105023698, 13358878)}, col_names=['easy', 'liked', 'num_ratings', 'num_reviews', 'index', 'useful', 'course_rating_int', 'course_num', 'course_code'], cpu_to_gpu_col_transfer_times={'easy': 218.0, 'liked': 217.0, 'num_ratings': 217.0, 'num_reviews': 215.0, 'index': 217.0, 'useful': 218.0, 'course_rating_int': 230.0, 'course_num': 399.0, 'course_code': 347.0}, gpu_to_cpu_col_transfer_times={'easy': 398.0, 'liked': 408.0, 'num_ratings': 406.0, 'num_reviews': 390.0, 'index': 438.0, 'useful': 393.0, 'course_rating_int': 393.0, 'course_num': 683.0, 'course_code': 629.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs [CostModelInput(df_name='cs', df_type=<DFType.NUMBER: 'number'>, rows=111230, cols=10, is_series=False, col_data={'index': (<DFType.NUMBER: 'number'>, 7452410, 1557224), 'course_code': (<DFType.OBJECT: 'object'>, 13571110, 1780738), 'num_ratings': (<DFType.NUMBER: 'number'>, 7452410, 1557224), 'useful': (<DFType.NUMBER: 'number'>, 7452410, 1557224), 'easy': (<DFType.NUMBER: 'number'>, 7452410, 1557224), 'liked': (<DFType.NUMBER: 'number'>, 7452410, 1557224), 'num_reviews': (<DFType.NUMBER: 'number'>, 7452410, 1557224), 'course_rating_int': (<DFType.FLOAT: 'float'>, 7452410, 1557224), 'course_num': (<DFType.OBJECT: 'object'>, 13237420, 1447048), 'course_rating_mean': (<DFType.OBJECT: 'object'>, 11011770, 3114448)}, col_names=['index', 'course_code', 'num_ratings', 'useful', 'easy', 'liked', 'num_reviews', 'course_rating_int', 'course_num', 'course_rating_mean'], cpu_to_gpu_col_transfer_times={'index': 25.6, 'course_code': 19.1, 'num_ratings': 11.0, 'useful': 11.0, 'easy': 10.3, 'liked': 10.6, 'num_reviews': 10.9, 'course_rating_int': 11.9, 'course_num': 21.3, 'course_rating_mean': 15.4}, gpu_to_cpu_col_transfer_times={'index': 87.9, 'course_code': 145.0, 'num_ratings': 87.7, 'useful': 93.9, 'easy': 85.5, 'liked': 90.6, 'num_reviews': 87.3, 'course_rating_int': 92.1, 'course_num': 172.0, 'course_rating_mean': 118.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+cell index 40
+input transfer inputs [CostModelInput(df_name='cs', df_type=<DFType.NUMBER: 'number'>, rows=111230, cols=8, is_series=False, col_data={'easy': (<DFType.NUMBER: 'number'>, 7452410, 1557224), 'liked': (<DFType.NUMBER: 'number'>, 7452410, 1557224), 'num_ratings': (<DFType.NUMBER: 'number'>, 7452410, 1557224), 'num_reviews': (<DFType.NUMBER: 'number'>, 7452410, 1557224), 'index': (<DFType.NUMBER: 'number'>, 7452410, 1557224), 'useful': (<DFType.NUMBER: 'number'>, 7452410, 1557224), 'course_rating_int': (<DFType.FLOAT: 'float'>, 7452410, 1557224), 'course_code': (<DFType.OBJECT: 'object'>, 13571110, 1780738)}, col_names=['easy', 'liked', 'num_ratings', 'num_reviews', 'index', 'useful', 'course_rating_int', 'course_code'], cpu_to_gpu_col_transfer_times={'easy': 9.85, 'liked': 11.1, 'num_ratings': 11.0, 'num_reviews': 10.8, 'index': 10.8, 'useful': 10.5, 'course_rating_int': 11.2, 'course_code': 17.9}, gpu_to_cpu_col_transfer_times={'easy': 55.6, 'liked': 54.6, 'num_ratings': 60.1, 'num_reviews': 53.7, 'index': 54.7, 'useful': 59.7, 'course_rating_int': 55.5, 'course_code': 90.6}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 41
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.OBJECT: 'object'>, rows=705250, cols=1, is_series=False, col_data={'course_rating_mean': (<DFType.OBJECT: 'object'>, 87751548, 20469898)}, col_names=['course_rating_mean'], cpu_to_gpu_col_transfer_times={'course_rating_mean': 301.0}, gpu_to_cpu_col_transfer_times={'course_rating_mean': 653.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 42
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=705250, cols=9, is_series=False, col_data={'easy': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'liked': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'num_ratings': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'num_reviews': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'index': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'useful': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'course_rating_int': (<DFType.FLOAT: 'float'>, 65183548, 10896974), 'course_num': (<DFType.OBJECT: 'object'>, 101884478, 10219658), 'course_code': (<DFType.OBJECT: 'object'>, 105023698, 13358878)}, col_names=['easy', 'liked', 'num_ratings', 'num_reviews', 'index', 'useful', 'course_rating_int', 'course_num', 'course_code'], cpu_to_gpu_col_transfer_times={'easy': 220.0, 'liked': 236.0, 'num_ratings': 223.0, 'num_reviews': 220.0, 'index': 221.0, 'useful': 220.0, 'course_rating_int': 223.0, 'course_num': 397.0, 'course_code': 346.0}, gpu_to_cpu_col_transfer_times={'easy': 396.0, 'liked': 398.0, 'num_ratings': 416.0, 'num_reviews': 391.0, 'index': 411.0, 'useful': 423.0, 'course_rating_int': 394.0, 'course_num': 634.0, 'course_code': 658.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs [CostModelInput(df_name='wkrpt', df_type=<DFType.NUMBER: 'number'>, rows=1890, cols=10, is_series=False, col_data={'index': (<DFType.NUMBER: 'number'>, 132300, 32134), 'course_code': (<DFType.OBJECT: 'object'>, 241920, 41588), 'num_ratings': (<DFType.NUMBER: 'number'>, 132300, 32134), 'useful': (<DFType.NUMBER: 'number'>, 132300, 32134), 'easy': (<DFType.NUMBER: 'number'>, 132300, 32134), 'liked': (<DFType.NUMBER: 'number'>, 132300, 32134), 'num_reviews': (<DFType.NUMBER: 'number'>, 132300, 32134), 'course_rating_int': (<DFType.FLOAT: 'float'>, 132300, 32134), 'course_num': (<DFType.OBJECT: 'object'>, 230580, 30248), 'course_rating_mean': (<DFType.OBJECT: 'object'>, 192780, 62378)}, col_names=['index', 'course_code', 'num_ratings', 'useful', 'easy', 'liked', 'num_reviews', 'course_rating_int', 'course_num', 'course_rating_mean'], cpu_to_gpu_col_transfer_times={'index': 2.63, 'course_code': 4.17, 'num_ratings': 2.26, 'useful': 2.28, 'easy': 2.52, 'liked': 2.61, 'num_reviews': 2.9, 'course_rating_int': 3.29, 'course_num': 2.78, 'course_rating_mean': 3.34}, gpu_to_cpu_col_transfer_times={'index': 6.75, 'course_code': 7.94, 'num_ratings': 5.88, 'useful': 6.26, 'easy': 5.87, 'liked': 5.88, 'num_reviews': 6.17, 'course_rating_int': 5.8, 'course_num': 7.88, 'course_rating_mean': 8.21}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+cell index 43
+input transfer inputs [CostModelInput(df_name='wkrpt', df_type=<DFType.NUMBER: 'number'>, rows=1890, cols=8, is_series=False, col_data={'easy': (<DFType.NUMBER: 'number'>, 132300, 32134), 'liked': (<DFType.NUMBER: 'number'>, 132300, 32134), 'num_ratings': (<DFType.NUMBER: 'number'>, 132300, 32134), 'num_reviews': (<DFType.NUMBER: 'number'>, 132300, 32134), 'index': (<DFType.NUMBER: 'number'>, 132300, 32134), 'useful': (<DFType.NUMBER: 'number'>, 132300, 32134), 'course_rating_int': (<DFType.FLOAT: 'float'>, 132300, 32134), 'course_code': (<DFType.OBJECT: 'object'>, 241920, 41588)}, col_names=['easy', 'liked', 'num_ratings', 'num_reviews', 'index', 'useful', 'course_rating_int', 'course_code'], cpu_to_gpu_col_transfer_times={'easy': 1.34, 'liked': 2.45, 'num_ratings': 2.79, 'num_reviews': 2.38, 'index': 2.63, 'useful': 2.48, 'course_rating_int': 3.17, 'course_code': 2.92}, gpu_to_cpu_col_transfer_times={'easy': 6.09, 'liked': 5.62, 'num_ratings': 6.29, 'num_reviews': 5.97, 'index': 5.73, 'useful': 6.95, 'course_rating_int': 5.64, 'course_code': 7.56}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 44
+input transfer inputs [CostModelInput(df_name='wkrpt', df_type=<DFType.NUMBER: 'number'>, rows=1890, cols=8, is_series=False, col_data={'easy': (<DFType.NUMBER: 'number'>, 132300, 32134), 'liked': (<DFType.NUMBER: 'number'>, 132300, 32134), 'num_ratings': (<DFType.NUMBER: 'number'>, 132300, 32134), 'num_reviews': (<DFType.NUMBER: 'number'>, 132300, 32134), 'index': (<DFType.NUMBER: 'number'>, 132300, 32134), 'useful': (<DFType.NUMBER: 'number'>, 132300, 32134), 'course_rating_int': (<DFType.FLOAT: 'float'>, 132300, 32134), 'course_code': (<DFType.OBJECT: 'object'>, 241920, 41588)}, col_names=['easy', 'liked', 'num_ratings', 'num_reviews', 'index', 'useful', 'course_rating_int', 'course_code'], cpu_to_gpu_col_transfer_times={'easy': 2.0, 'liked': 3.5, 'num_ratings': 3.5, 'num_reviews': 2.36, 'index': 2.56, 'useful': 2.1, 'course_rating_int': 2.86, 'course_code': 2.49}, gpu_to_cpu_col_transfer_times={'easy': 6.29, 'liked': 5.7, 'num_ratings': 5.91, 'num_reviews': 6.29, 'index': 5.94, 'useful': 7.96, 'course_rating_int': 6.81, 'course_code': 12.8}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 45
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.OBJECT: 'object'>, rows=705250, cols=1, is_series=False, col_data={'course_rating_mean': (<DFType.OBJECT: 'object'>, 87751548, 20469898)}, col_names=['course_rating_mean'], cpu_to_gpu_col_transfer_times={'course_rating_mean': 297.0}, gpu_to_cpu_col_transfer_times={'course_rating_mean': 646.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 46
+input transfer inputs [CostModelInput(df_name='course', df_type=<DFType.NUMBER: 'number'>, rows=705250, cols=9, is_series=False, col_data={'easy': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'liked': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'num_ratings': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'num_reviews': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'index': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'useful': (<DFType.NUMBER: 'number'>, 65183548, 10896974), 'course_rating_int': (<DFType.FLOAT: 'float'>, 65183548, 10896974), 'course_num': (<DFType.OBJECT: 'object'>, 101884478, 10219658), 'course_code': (<DFType.OBJECT: 'object'>, 105023698, 13358878)}, col_names=['easy', 'liked', 'num_ratings', 'num_reviews', 'index', 'useful', 'course_rating_int', 'course_num', 'course_code'], cpu_to_gpu_col_transfer_times={'easy': 216.0, 'liked': 215.0, 'num_ratings': 214.0, 'num_reviews': 219.0, 'index': 218.0, 'useful': 217.0, 'course_rating_int': 230.0, 'course_num': 409.0, 'course_code': 349.0}, gpu_to_cpu_col_transfer_times={'easy': 423.0, 'liked': 389.0, 'num_ratings': 409.0, 'num_reviews': 392.0, 'index': 417.0, 'useful': 437.0, 'course_rating_int': 391.0, 'course_num': 627.0, 'course_code': 655.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs [CostModelInput(df_name='pd_df', df_type=<DFType.NUMBER: 'number'>, rows=14140, cols=10, is_series=False, col_data={'index': (<DFType.NUMBER: 'number'>, 947380, 197964), 'course_code': (<DFType.OBJECT: 'object'>, 1700510, 201678), 'num_ratings': (<DFType.NUMBER: 'number'>, 947380, 197964), 'useful': (<DFType.NUMBER: 'number'>, 947380, 197964), 'easy': (<DFType.NUMBER: 'number'>, 947380, 197964), 'liked': (<DFType.NUMBER: 'number'>, 947380, 197964), 'num_reviews': (<DFType.NUMBER: 'number'>, 947380, 197964), 'course_rating_int': (<DFType.FLOAT: 'float'>, 947380, 197964), 'course_num': (<DFType.OBJECT: 'object'>, 1658090, 159258), 'course_rating_mean': (<DFType.OBJECT: 'object'>, 1399860, 410068)}, col_names=['index', 'course_code', 'num_ratings', 'useful', 'easy', 'liked', 'num_reviews', 'course_rating_int', 'course_num', 'course_rating_mean'], cpu_to_gpu_col_transfer_times={'index': 4.29, 'course_code': 4.29, 'num_ratings': 3.34, 'useful': 3.36, 'easy': 3.4, 'liked': 3.39, 'num_reviews': 3.24, 'course_rating_int': 4.12, 'course_num': 4.35, 'course_rating_mean': 4.75}, gpu_to_cpu_col_transfer_times={'index': 12.5, 'course_code': 17.8, 'num_ratings': 13.0, 'useful': 12.3, 'easy': 11.6, 'liked': 11.6, 'num_reviews': 12.5, 'course_rating_int': 11.5, 'course_num': 17.1, 'course_rating_mean': 18.7}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+cell index 47
+input transfer inputs [CostModelInput(df_name='pd_df', df_type=<DFType.NUMBER: 'number'>, rows=14140, cols=8, is_series=False, col_data={'easy': (<DFType.NUMBER: 'number'>, 947380, 197964), 'liked': (<DFType.NUMBER: 'number'>, 947380, 197964), 'num_ratings': (<DFType.NUMBER: 'number'>, 947380, 197964), 'num_reviews': (<DFType.NUMBER: 'number'>, 947380, 197964), 'index': (<DFType.NUMBER: 'number'>, 947380, 197964), 'useful': (<DFType.NUMBER: 'number'>, 947380, 197964), 'course_rating_int': (<DFType.FLOAT: 'float'>, 947380, 197964), 'course_code': (<DFType.OBJECT: 'object'>, 1700510, 201678)}, col_names=['easy', 'liked', 'num_ratings', 'num_reviews', 'index', 'useful', 'course_rating_int', 'course_code'], cpu_to_gpu_col_transfer_times={'easy': 2.33, 'liked': 3.53, 'num_ratings': 3.4, 'num_reviews': 3.4, 'index': 3.7, 'useful': 3.2, 'course_rating_int': 4.13, 'course_code': 4.63}, gpu_to_cpu_col_transfer_times={'easy': 11.7, 'liked': 11.5, 'num_ratings': 12.7, 'num_reviews': 11.3, 'index': 11.4, 'useful': 12.5, 'course_rating_int': 11.5, 'course_code': 17.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+✅ Success: /home/dias-benchmarks/notebooks/aieducation/what-course-are-you-going-to-take/src/bench.ipynb

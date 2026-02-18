@@ -1,0 +1,1081 @@
+Annotated notebook saved to /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/cell_exec_info.ipynb
+Executing code: import sys, os
+sys.path.insert(0, os.path.abspath('/home/ElasticNotebook'))
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df
+import pickle
+import cudf
+Executing code: %%RecordEventWithColumnInfo
+
+import numpy as np
+import os
+# STEFANOS: Conditionally import Modin Pandas
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    # STEFANOS: Import Modin Pandas
+    import os
+    os.environ["MODIN_ENGINE"] = "ray"
+    import ray
+    ray.init(num_cpus=int(os.environ['MODIN_CPUS']), runtime_env={'env_vars': {'__MODIN_AUTOIMPORT_PANDAS__': '1'}})
+    import modin.pandas as pd
+else:
+    # STEFANOS: Import regular Pandas
+    import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+import plotly.express as px
+
+# from wordcloud import WordCloud
+import string
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+df = pd.read_csv('/home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/input/indian-startup-recognized-by-dpiit/Startup_Counts_Across_India.csv')
+# df.head().style.background_gradient(cmap='coolwarm')
+Executing code: %%RecordEventWithColumnInfo
+### cell 1 ###
+
+factor = 25
+df = pd.concat([df]*factor, ignore_index=True)
+df.info()
+Executing code: # STEFANOS: Disable plotting
+# fig = px.scatter(df,x="Industry", y="Year", size="Count", color="Count",template='plotly_dark', title="Industry Vs Year")
+# fig.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 2 ###
+
+# fig, ax = plt.subplots(1,1, figsize=(15, 6))
+df_year = df['Year'].value_counts().sort_index()
+# STEFANOS: Disable plotting
+# ax.bar(df_year.index, df_year, width=0.55,linewidth=0.7, color = 'purple')
+# for i in df_year.index:
+#     ax.annotate(f"{df_year[i]}",xy=(i, df_year[i] + 100),
+#                    va = 'center', ha='center')
+# ax.set_ylim(0, 1300)
+# fig.text(0.1, 0.95, "Growth of Startup's from 2016-2022", fontsize=15, fontweight='bold')
+
+# ax.grid(axis='y', linestyle='-', alpha=0.4)
+Executing code: %%RecordEventWithColumnInfo
+### cell 3 ###
+
+df.groupby('Industry').size().sort_values(ascending=False).to_frame().style.background_gradient(cmap='coolwarm').set_uuid("uuid")
+Executing code: %%RecordEventWithColumnInfo
+### cell 4 ###
+
+# fig, ax = plt.subplots(1,1, figsize=(20, 6))
+df_ind = df['Industry'].value_counts().iloc[:20]
+
+# STEFANOS: Disable plotting
+# ax.bar(df_ind.index, df_ind, width=0.55,linewidth=0.7, color = 'pink')
+# for i in df_ind.index:
+#     ax.annotate(f"{df_ind[i]}",xy=(i, df_ind[i] + 20),va = 'center', ha='center')
+# ax.set_ylim(0, 220)
+# fig.text(0.1, 0.95, "Top 20 Startup Industries from 2016", fontsize=15, fontweight='bold')
+# plt.xticks(rotation=90)
+# ax.grid(axis='y', linestyle='-', alpha=0.4)
+Executing code: %%RecordEventWithColumnInfo
+### cell 5 ###
+
+# fig, ax = plt.subplots(1,1, figsize=(20, 6))
+X = df['State'].value_counts().iloc[:20]
+
+# STEFANOS: Disable plotting
+# ax.bar(X.index, X, width=0.55,linewidth=0.7, color = 'lightblue')
+# for i in X.index:
+#     ax.annotate(f"{X[i]}",xy=(i, X[i] + 50),
+#                    va = 'center', ha='center')
+# ax.set_ylim(0, 400)
+# fig.text(0.1, 0.95, "Top 20 States Having maximum Start'ups from 2016", fontsize=15, fontweight='bold')
+# plt.xticks(rotation=90)
+# ax.grid(axis='y', linestyle='-', alpha=0.4)
+Executing code: %%RecordEventWithColumnInfo
+### cell 6 ###
+
+ds_list=['Internet of Things','AI','Robotics','Analytics','Computer Vision']
+ds_df = df[df['Industry'].isin(ds_list)]
+Executing code: # STEFANOS: Disable plotting
+# sns.set_style('whitegrid')
+# sns.catplot(x='Year', hue = 'Industry', kind='count', data=ds_df,palette="Set3", height=8.27, aspect=11.7/8.27);
+# plt.show()
+Executing code: %PrintCellInfo cell_exec_info
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Ran small notebook to get cell exec info in 6.519958257675171 seconds
+Getting cudf profile information...
+Annotated notebook saved to /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/cudf_profile.ipynb
+Done getting cudf profile information.
+Ran small notebook to get cudf profile info in 24.47133779525757 seconds
+Annotated notebook saved to /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated.ipynb
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Executing code: %load_ext cudf.pandas
+Executing code: import sys, os
+sys.path.insert(0, os.path.abspath('/home/ElasticNotebook'))
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df
+import pickle
+import cudf
+Executing code: %%RecordEvent
+
+import numpy as np
+import os
+# STEFANOS: Conditionally import Modin Pandas
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    # STEFANOS: Import Modin Pandas
+    import os
+    os.environ["MODIN_ENGINE"] = "ray"
+    import ray
+    ray.init(num_cpus=int(os.environ['MODIN_CPUS']), runtime_env={'env_vars': {'__MODIN_AUTOIMPORT_PANDAS__': '1'}})
+    import modin.pandas as pd
+else:
+    # STEFANOS: Import regular Pandas
+    import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+import plotly.express as px
+
+# from wordcloud import WordCloud
+import string
+Executing code: %Checkpoint /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/pre_cell_0.pickle
+Checkpointing took 0.00124359130859375 seconds.
+Getting original timing for cell 0
+========================================================
+Rewriting cell 0... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 0 ###
+
+df = pd.read_csv('/home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/input/indian-startup-recognized-by-dpiit/Startup_Counts_Across_India.csv')
+# df.head().style.background_gradient(cmap='coolwarm')
+        <Profiling data>:
+           Function  GPU calls  CPU calls
+0  read_csv          1          0
+
+        <Execution time>: 85.8
+        <Active vars>: []
+
+        <Future vars>: []
+
+        <Iteration>: 0/3
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: The original code uses pandas for reading a CSV file, which can be optimized using cudf for better performance in a GPU environment. As there is no rewritten code, we should generate a new optimized version using cudf.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 0 ###
+
+df = pd.read_csv('/home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/input/indian-startup-recognized-by-dpiit/Startup_Counts_Across_India.csv')
+# df.head().style.background_gradient(cmap='coolwarm')
+        <Profiling data>:
+           Function  GPU calls  CPU calls
+0  read_csv          1          0
+
+        <Execution time>: 85.8
+        <Active vars>: []
+
+        <Future vars>: []
+
+        <Iteration>: 0/3
+
+Code: done
+Reason: The read_csv call is already executed on the GPU (no CPU calls) and there are no further optimizations possible at this step.
+No Modifications made to the original code
+Try 0: calling rewrite agent for cell 0 took 10.814094305038452 seconds.
+There is no need to rewrite the cell.
+Could not rewrite the cell. Continuing to next cell...
+Cell 0 rewriting took 21.121440649032593 seconds.
+Getting original timing for cell 1
+========================================================
+Rewriting cell 1... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 1 ###
+
+factor = 25
+df = pd.concat([df]*factor, ignore_index=True)
+df.info()
+        <Profiling data>:
+                 Function  GPU calls  CPU calls
+0          concat          1          0
+1  DataFrame.info          1          0
+
+        <Execution time>: 41.6
+        <Active vars>: []
+
+        <Future vars>: []
+
+        <Iteration>: 0/3
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: The code is primarily for data inspection and expansion using concatenation. We can look into optimizing the concatenation with alternatives like using cuDF if GPU acceleration is available and Pandas needs optimization.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 1 ###
+
+factor = 25
+df = pd.concat([df]*factor, ignore_index=True)
+df.info()
+        <Profiling data>:
+                 Function  GPU calls  CPU calls
+0          concat          1          0
+1  DataFrame.info          1          0
+
+        <Execution time>: 41.6
+        <Active vars>: []
+
+        <Future vars>: []
+
+        <Iteration>: 0/3
+
+Code: factor = 25
+# Use a single GPU gather via index.repeat and iloc instead of concatenating 25 copies
+df = df.iloc[df.index.repeat(factor)].reset_index(drop=True)
+df.info()
+Reason: Replaced pd.concat of a list of DataFrames with a vectorized gather (index.repeat + iloc) to reduce overhead and leverage cuDF’s efficient GPU kernels.
+Parsed response: factor = 25
+# Use a single GPU gather via index.repeat and iloc instead of concatenating 25 copies
+df = df.iloc[df.index.repeat(factor)].reset_index(drop=True)
+df.info()
+Try 0: calling rewrite agent for cell 1 took 53.241775035858154 seconds.
+Executing rewritten code... ### cell 1 ###
+
+factor = 25
+# Use a single GPU gather via index.repeat and iloc instead of concatenating 25 copies
+df = df.iloc[df.index.repeat(factor)].reset_index(drop=True)
+df.info()
+Finished executing the rewritten code.
+Try 0: executing the rewritten code for cell 1 took 9.918756484985352 seconds.
+Rewritten time: 72.9 ms
+The rewritten code is correct. Profiling cudf...
+Try 0: cudf profiling the rewritten code for cell 1 took 9.021682739257812 seconds.
+gpu_calls_orig_perc: 1.0, gpu_calls_opt_perc: 1.0
+orig_time: 41.6, opt_time: 72.9
+Ratio improves.
+Improvement in percentage does not make up for the slowdown.
+Rewritten code took 72.9ms. The previous fastest solution took 41.6ms.
+Previous best solution num GPU and CPU calls:  2 0
+New solution num GPU and CPU calls:  6 0
+========================================================
+Rewriting cell 1... Try 1...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 1 ###
+
+factor = 25
+df = pd.concat([df]*factor, ignore_index=True)
+df.info()
+        <Profiling data>:
+                 Function  GPU calls  CPU calls
+0          concat          1          0
+1  DataFrame.info          1          0
+        <Execution time>: 41.6
+        <Active Vars>: []
+        <Future Vars>: []
+        <Rewritten Code>:
+        ### cell 1 ###
+
+factor = 25
+# Use a single GPU gather via index.repeat and iloc instead of concatenating 25 copies
+df = df.iloc[df.index.repeat(factor)].reset_index(drop=True)
+df.info()
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0                     DataFrame          2          0
+1                  Index.repeat          1          0
+2  _LocationIndexer.__getitem__          1          0
+3         DataFrame.reset_index          1          0
+4                DataFrame.info          1          0
+        <Execution time>: 72.9
+        <Execution output>: Rewritten time: 72.9 ms
+Original time: 41.6 ms
+        <Iteration>: 1/1
+
+==========Running the manager agent to decide the next step==========
+Choice: done
+Reason: The rewritten code using `iloc` and `index.repeat` is slower than the original `concat` approach, even though it moved operations to GPU. Given the iteration limit and profiling data, further attempts to improve performance aren't feasible and the original code was already the better choice.
+Code is already optimized
+Try 1: calling rewrite agent for cell 1 took 1.6908555030822754 seconds.
+Could not rewrite the cell. Continuing to next cell...
+Cell 1 rewriting took 84.17923736572266 seconds.
+Getting original timing for cell 2
+========================================================
+Rewriting cell 2... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 2 ###
+
+# fig, ax = plt.subplots(1,1, figsize=(15, 6))
+df_year = df['Year'].value_counts().sort_index()
+# STEFANOS: Disable plotting
+# ax.bar(df_year.index, df_year, width=0.55,linewidth=0.7, color = 'purple')
+# for i in df_year.index:
+#     ax.annotate(f"{df_year[i]}",xy=(i, df_year[i] + 100),
+#                    va = 'center', ha='center')
+# ax.set_ylim(0, 1300)
+# fig.text(0.1, 0.95, "Growth of Startup's from 2016-2022", fontsize=15, fontweight='bold')
+
+# ax.grid(axis='y', linestyle='-', alpha=0.4)
+        <Profiling data>:
+                             Function  GPU calls  CPU calls
+0       DataFrame.__getitem__          1          0
+1  IndexOpsMixin.value_counts          1          0
+2           Series.sort_index          1          0
+
+        <Execution time>: 54.4
+        <Active vars>: []
+
+        <Future vars>: []
+
+        <Iteration>: 0/3
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: The code primarily involves data manipulation using Pandas functions, which can potentially be optimized using cudf for better performance. Since this is the first iteration and there is no rewritten code provided, we can focus on generating a new, optimized version of the original code using cudf.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 2 ###
+
+# fig, ax = plt.subplots(1,1, figsize=(15, 6))
+df_year = df['Year'].value_counts().sort_index()
+# STEFANOS: Disable plotting
+# ax.bar(df_year.index, df_year, width=0.55,linewidth=0.7, color = 'purple')
+# for i in df_year.index:
+#     ax.annotate(f"{df_year[i]}",xy=(i, df_year[i] + 100),
+#                    va = 'center', ha='center')
+# ax.set_ylim(0, 1300)
+# fig.text(0.1, 0.95, "Growth of Startup's from 2016-2022", fontsize=15, fontweight='bold')
+
+# ax.grid(axis='y', linestyle='-', alpha=0.4)
+        <Profiling data>:
+                             Function  GPU calls  CPU calls
+0       DataFrame.__getitem__          1          0
+1  IndexOpsMixin.value_counts          1          0
+2           Series.sort_index          1          0
+
+        <Execution time>: 54.4
+        <Active vars>: []
+
+        <Future vars>: []
+
+        <Iteration>: 0/3
+
+Code: done
+Reason: The code is already fully GPU-accelerated using cudf APIs (value_counts and sort_index), with no CPU operations to eliminate or further optimize.
+No Modifications made to the original code
+Try 0: calling rewrite agent for cell 2 took 4.046152830123901 seconds.
+There is no need to rewrite the cell.
+Could not rewrite the cell. Continuing to next cell...
+Cell 2 rewriting took 14.263725280761719 seconds.
+Getting original timing for cell 3
+========================================================
+Rewriting cell 3... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 3 ###
+
+df.groupby('Industry').size().sort_values(ascending=False).to_frame().style.background_gradient(cmap='coolwarm').set_uuid("uuid")
+        <Profiling data>:
+                             Function  GPU calls  CPU calls
+0           DataFrame.groupby          1          0
+1                GroupBy.size          1          0
+2          Series.sort_values          1          0
+3             Series.to_frame          1          0
+4                   DataFrame          0          1
+5  Styler.background_gradient          0          1
+6             Styler.set_uuid          0          1
+7             object.__repr__          0          1
+8          Styler._repr_html_          0          1
+9         Styler._repr_latex_          0          1
+
+        <Execution time>: 66.5
+        <Active vars>: []
+
+        <Future vars>: []
+
+        <Iteration>: 0/3
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: The original code can be optimized for performance, and we have iterations left to explore potential improvements.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 3 ###
+
+df.groupby('Industry').size().sort_values(ascending=False).to_frame().style.background_gradient(cmap='coolwarm').set_uuid("uuid")
+        <Profiling data>:
+                             Function  GPU calls  CPU calls
+0           DataFrame.groupby          1          0
+1                GroupBy.size          1          0
+2          Series.sort_values          1          0
+3             Series.to_frame          1          0
+4                   DataFrame          0          1
+5  Styler.background_gradient          0          1
+6             Styler.set_uuid          0          1
+7             object.__repr__          0          1
+8          Styler._repr_html_          0          1
+9         Styler._repr_latex_          0          1
+
+        <Execution time>: 66.5
+        <Active vars>: []
+
+        <Future vars>: []
+
+        <Iteration>: 0/3
+
+Code: df['Industry']
+  .value_counts()
+  .rename('size')
+  .to_frame()
+  .style
+    .background_gradient(cmap='coolwarm')
+    .set_uuid('uuid')
+Reason: Replaced groupby('Industry').size().sort_values(...) with the vectorized df['Industry'].value_counts() (which returns sorted counts by default) to keep the work on the GPU and eliminate the extra sort step, reducing CPU/GPU overhead while maintaining identical output.
+Parsed response: df['Industry']
+  .value_counts()
+  .rename('size')
+  .to_frame()
+  .style
+    .background_gradient(cmap='coolwarm')
+    .set_uuid('uuid')
+Try 0: calling rewrite agent for cell 3 took 12.984473943710327 seconds.
+Executing rewritten code... ### cell 3 ###
+
+df['Industry']
+  .value_counts()
+  .rename('size')
+  .to_frame()
+  .style
+    .background_gradient(cmap='coolwarm')
+    .set_uuid('uuid')
+An unexpected error occurred An error occurred while executing the following cell:
+------------------
+%%RecordEvent
+%%time
+### cell 3 ###
+
+df['Industry']
+  .value_counts()
+  .rename('size')
+  .to_frame()
+  .style
+    .background_gradient(cmap='coolwarm')
+    .set_uuid('uuid')
+------------------
+
+
+Traceback [0;36m(most recent call last)[0m:
+
+[0m  File [1;32m/opt/conda/envs/rapids-25.02/lib/python3.10/site-packages/IPython/core/interactiveshell.py:3579[0m in [1;35mrun_code[0m
+    exec(code_obj, self.user_global_ns, self.user_ns)[0m
+
+[0m  Cell [1;32mIn[4], line 1[0m
+    get_ipython().run_cell_magic('RecordEvent', '', "%%time\n### cell 3 ###\n\ndf['Industry']\n  .value_counts()\n  .rename('size')\n  .to_frame()\n  .style\n    .background_gradient(cmap='coolwarm')\n    .set_uuid('uuid')\n")[0m
+
+[0m  File [1;32m/opt/conda/envs/rapids-25.02/lib/python3.10/site-packages/IPython/core/interactiveshell.py:2543[0m in [1;35mrun_cell_magic[0m
+    result = fn(*args, **kwargs)[0m
+
+[0m  File [1;32m/home/ElasticNotebook/ElasticNotebook.py:282[0m in [1;35mRecordEvent[0m
+    self.record_event(line, cell, track_column_info=False)[0m
+
+[0m  File [1;32m/home/ElasticNotebook/ElasticNotebook.py:153[0m in [1;35mrecord_event[0m
+    input_variables, function_defs = find_input_vars(cell, set(self.dependency_graph.variable_snapshots.keys()),[0m
+
+[0m  File [1;32m/home/ElasticNotebook/elastic/core/notebook/find_input_vars.py:79[0m in [1;35mfind_input_vars[0m
+    v1.visit(ast.parse(cell))[0m
+
+[0;36m  File [0;32m/opt/conda/envs/rapids-25.02/lib/python3.10/ast.py:50[0;36m in [0;35mparse[0;36m
+[0;31m    return compile(source, filename, mode, flags,[0;36m
+
+[0;36m  File [0;32m<unknown>:4[0;36m[0m
+[0;31m    .value_counts()[0m
+[0m    ^[0m
+[0;31mIndentationError[0m[0;31m:[0m unexpected indent
+
+
+Rewritten time: inf ms
+========================================================
+Rewriting cell 3... Try 1...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 3 ###
+
+df.groupby('Industry').size().sort_values(ascending=False).to_frame().style.background_gradient(cmap='coolwarm').set_uuid("uuid")
+        <Profiling data>:
+                             Function  GPU calls  CPU calls
+0           DataFrame.groupby          1          0
+1                GroupBy.size          1          0
+2          Series.sort_values          1          0
+3             Series.to_frame          1          0
+4                   DataFrame          0          1
+5  Styler.background_gradient          0          1
+6             Styler.set_uuid          0          1
+7             object.__repr__          0          1
+8          Styler._repr_html_          0          1
+9         Styler._repr_latex_          0          1
+        <Execution time>: 66.5
+        <Active Vars>: []
+        <Future Vars>: []
+        <Rewritten Code>:
+        ### cell 3 ###
+
+df['Industry']
+  .value_counts()
+  .rename('size')
+  .to_frame()
+  .style
+    .background_gradient(cmap='coolwarm')
+    .set_uuid('uuid')
+        <Profiling data>:
+        None
+        <Execution time>: inf
+        <Execution output>: The rewritten code resulted in a runtime error. An error occurred while executing the following cell:
+------------------
+%%RecordEvent
+%%time
+### cell 3 ###
+
+df['Industry']
+  .value_counts()
+  .rename('size')
+  .to_frame()
+  .style
+    .background_gradient(cmap='coolwarm')
+    .set_uuid('uuid')
+------------------
+
+
+Traceback [0;36m(most recent call last)[0m:
+
+[0m  File [1;32m/opt/conda/envs/rapids-25.02/lib/python3.10/site-packages/IPython/core/interactiveshell.py:3579[0m in [1;35mrun_code[0m
+    exec(code_obj, self.user_global_ns, self.user_ns)[0m
+
+[0m  Cell [1;32mIn[4], line 1[0m
+    get_ipython().run_cell_magic('RecordEvent', '', "%%time\n### cell 3 ###\n\ndf['Industry']\n  .value_counts()\n  .rename('size')\n  .to_frame()\n  .style\n    .background_gradient(cmap='coolwarm')\n    .set_uuid('uuid')\n")[0m
+
+[0m  File [1;32m/opt/conda/envs/rapids-25.02/lib/python3.10/site-packages/IPython/core/interactiveshell.py:2543[0m in [1;35mrun_cell_magic[0m
+    result = fn(*args, **kwargs)[0m
+
+[0m  File [1;32m/home/ElasticNotebook/ElasticNotebook.py:282[0m in [1;35mRecordEvent[0m
+    self.record_event(line, cell, track_column_info=False)[0m
+
+[0m  File [1;32m/home/ElasticNotebook/ElasticNotebook.py:153[0m in [1;35mrecord_event[0m
+    input_variables, function_defs = find_input_vars(cell, set(self.dependency_graph.variable_snapshots.keys()),[0m
+
+[0m  File [1;32m/home/ElasticNotebook/elastic/core/notebook/find_input_vars.py:79[0m in [1;35mfind_input_vars[0m
+    v1.visit(ast.parse(cell))[0m
+
+[0;36m  File [0;32m/opt/conda/envs/rapids-25.02/lib/python3.10/ast.py:50[0;36m in [0;35mparse[0;36m
+[0;31m    return compile(source, filename, mode, flags,[0;36m
+
+[0;36m  File [0;32m<unknown>:4[0;36m[0m
+[0;31m    .value_counts()[0m
+[0m    ^[0m
+[0;31mIndentationError[0m[0;31m:[0m unexpected indent
+
+
+        <Iteration>: 1/1
+
+==========Running the manager agent to decide the next step==========
+Choice: repair
+Reason: The rewritten code produced a runtime error due to incorrect syntax (unexpected indent). Since this was the last iteration, we should repair the rewritten code to fix the error and make it executable.
+Code fixer prompt:
+        <Original Code>:
+        ### cell 3 ###
+
+df.groupby('Industry').size().sort_values(ascending=False).to_frame().style.background_gradient(cmap='coolwarm').set_uuid("uuid")
+        <Profiling data>:
+                             Function  GPU calls  CPU calls
+0           DataFrame.groupby          1          0
+1                GroupBy.size          1          0
+2          Series.sort_values          1          0
+3             Series.to_frame          1          0
+4                   DataFrame          0          1
+5  Styler.background_gradient          0          1
+6             Styler.set_uuid          0          1
+7             object.__repr__          0          1
+8          Styler._repr_html_          0          1
+9         Styler._repr_latex_          0          1
+        <Execution time>: 66.5
+        <Active Vars>: []
+        <Future Vars>: []
+        <Rewritten Code>:
+        ### cell 3 ###
+
+df['Industry']
+  .value_counts()
+  .rename('size')
+  .to_frame()
+  .style
+    .background_gradient(cmap='coolwarm')
+    .set_uuid('uuid')
+        <Profiling data>:
+        None
+        <Execution time>: inf
+        <Execution output>: The rewritten code resulted in a runtime error. An error occurred while executing the following cell:
+------------------
+%%RecordEvent
+%%time
+### cell 3 ###
+
+df['Industry']
+  .value_counts()
+  .rename('size')
+  .to_frame()
+  .style
+    .background_gradient(cmap='coolwarm')
+    .set_uuid('uuid')
+------------------
+
+
+Traceback [0;36m(most recent call last)[0m:
+
+[0m  File [1;32m/opt/conda/envs/rapids-25.02/lib/python3.10/site-packages/IPython/core/interactiveshell.py:3579[0m in [1;35mrun_code[0m
+    exec(code_obj, self.user_global_ns, self.user_ns)[0m
+
+[0m  Cell [1;32mIn[4], line 1[0m
+    get_ipython().run_cell_magic('RecordEvent', '', "%%time\n### cell 3 ###\n\ndf['Industry']\n  .value_counts()\n  .rename('size')\n  .to_frame()\n  .style\n    .background_gradient(cmap='coolwarm')\n    .set_uuid('uuid')\n")[0m
+
+[0m  File [1;32m/opt/conda/envs/rapids-25.02/lib/python3.10/site-packages/IPython/core/interactiveshell.py:2543[0m in [1;35mrun_cell_magic[0m
+    result = fn(*args, **kwargs)[0m
+
+[0m  File [1;32m/home/ElasticNotebook/ElasticNotebook.py:282[0m in [1;35mRecordEvent[0m
+    self.record_event(line, cell, track_column_info=False)[0m
+
+[0m  File [1;32m/home/ElasticNotebook/ElasticNotebook.py:153[0m in [1;35mrecord_event[0m
+    input_variables, function_defs = find_input_vars(cell, set(self.dependency_graph.variable_snapshots.keys()),[0m
+
+[0m  File [1;32m/home/ElasticNotebook/elastic/core/notebook/find_input_vars.py:79[0m in [1;35mfind_input_vars[0m
+    v1.visit(ast.parse(cell))[0m
+
+[0;36m  File [0;32m/opt/conda/envs/rapids-25.02/lib/python3.10/ast.py:50[0;36m in [0;35mparse[0;36m
+[0;31m    return compile(source, filename, mode, flags,[0;36m
+
+[0;36m  File [0;32m<unknown>:4[0;36m[0m
+[0;31m    .value_counts()[0m
+[0m    ^[0m
+[0;31mIndentationError[0m[0;31m:[0m unexpected indent
+
+
+        <Iteration>: 1/1
+
+Repairing the last generated code
+Code: ### cell 3 ###
+
+df['Industry'].value_counts() \
+    .rename('size') \
+    .to_frame() \
+    .style \
+    .background_gradient(cmap='coolwarm') \
+    .set_uuid('uuid')
+Reason: Fixed the syntax errors caused by improper line breaks and indentation. Switched from groupby–size–sort to value_counts (which is a single GPU call and returns a sorted Series by default) to minimize intermediate steps and maintain full GPU execution.
+Parsed response: ### cell 3 ###
+
+df['Industry'].value_counts() \
+    .rename('size') \
+    .to_frame() \
+    .style \
+    .background_gradient(cmap='coolwarm') \
+    .set_uuid('uuid')
+Try 1: calling rewrite agent for cell 3 took 7.8854591846466064 seconds.
+Executing rewritten code... ### cell 3 ###
+
+df['Industry'].value_counts() \
+    .rename('size') \
+    .to_frame() \
+    .style \
+    .background_gradient(cmap='coolwarm') \
+    .set_uuid('uuid')
+Test failed. An error occurred while executing the following cell:
+------------------
+%LoadCheckpoint /home/dias-benchmarks/notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/annotated/checkpoints/post_cell_3.pickle
+
+import numpy as np
+import cudf
+from elastic.core.common.pandas import is_type_styler
+is_orig_output_pd = isinstance(orig_output, (pd.Series, pd.DataFrame, pd.Index))
+is_opt_output_pd = isinstance(opt_output, (pd.Series, pd.DataFrame, pd.Index))
+is_orig_output_array = isinstance(orig_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
+is_opt_output_array = isinstance(opt_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
+is_orig_output_styler = is_type_styler(type(orig_output))
+is_opt_output_styler = is_type_styler(type(opt_output))
+if is_orig_output_styler and is_opt_output_styler:
+    assert orig_output.to_html() == opt_output.to_html()
+elif is_orig_output_styler:
+    assert orig_output.to_html() == opt_output.to_html()
+elif is_opt_output_styler:
+    assert opt_output.to_html() == orig_output
+
+if is_orig_output_pd and is_opt_output_pd:
+    assert orig_output.equals(opt_output)
+# TODO(jie): this is a hack.
+elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
+    assert list(orig_output) == list(opt_output)
+else:
+    assert orig_output == opt_output
+
+------------------
+
+----- stdout -----
+[[<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f0994e54220>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f0994e55f30>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f0994e57400>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f0994e56bc0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f0994e579d0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f0994e579a0>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f0994e56f80>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f0994e56710>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f0994cf4700>], [<elastic.core.graph.variable_snapshot.VariableSnapshot object at 0x7f0994e56320>]]
+trying: ['np']
+me:  0
+trying: ['factor']
+me:  3
+trying: ['plt']
+me:  0
+trying: ['pd']
+me:  0
+trying: ['string']
+me:  0
+trying: ['px']
+me:  0
+trying: ['sns']
+me:  0
+trying: ['df']
+me:  3
+trying: ['orig_output']
+me:  8
+trying: ['df_year']
+me:  5
+Declaring variable np
+Declaring variable plt
+Declaring variable pd
+Declaring variable string
+Declaring variable px
+Declaring variable sns
+Declaring variable factor
+Declaring variable df
+Declaring variable df_year
+Declaring variable orig_output
+------------------
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mAssertionError[0m                            Traceback (most recent call last)
+Cell [0;32mIn[9], line 17[0m
+[1;32m     15[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mto_html() [38;5;241m==[39m opt_output[38;5;241m.[39mto_html()
+[1;32m     16[0m [38;5;28;01melif[39;00m is_opt_output_styler:
+[0;32m---> 17[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
+[1;32m     19[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
+[1;32m     20[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
+
+[0;31mAssertionError[0m:
+
+Rewritten time: inf ms
+Could not rewrite the cell. Continuing to next cell...
+Cell 3 rewriting took 49.474976539611816 seconds.
+Getting original timing for cell 4
+========================================================
+Rewriting cell 4... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 4 ###
+
+# fig, ax = plt.subplots(1,1, figsize=(20, 6))
+df_ind = df['Industry'].value_counts().iloc[:20]
+
+# STEFANOS: Disable plotting
+# ax.bar(df_ind.index, df_ind, width=0.55,linewidth=0.7, color = 'pink')
+# for i in df_ind.index:
+#     ax.annotate(f"{df_ind[i]}",xy=(i, df_ind[i] + 20),va = 'center', ha='center')
+# ax.set_ylim(0, 220)
+# fig.text(0.1, 0.95, "Top 20 Startup Industries from 2016", fontsize=15, fontweight='bold')
+# plt.xticks(rotation=90)
+# ax.grid(axis='y', linestyle='-', alpha=0.4)
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0         DataFrame.__getitem__          1          0
+1    IndexOpsMixin.value_counts          1          0
+2                        Series          1          0
+3  _LocationIndexer.__getitem__          1          0
+
+        <Execution time>: 65.2
+        <Active vars>: []
+
+        <Future vars>: []
+
+        <Iteration>: 0/3
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: The original code involves counting values in a DataFrame, and since there's no rewritten code provided and there are available iterations, we can attempt to optimize it for GPU using libraries like cuDF if appropriate alternatives exist.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 4 ###
+
+# fig, ax = plt.subplots(1,1, figsize=(20, 6))
+df_ind = df['Industry'].value_counts().iloc[:20]
+
+# STEFANOS: Disable plotting
+# ax.bar(df_ind.index, df_ind, width=0.55,linewidth=0.7, color = 'pink')
+# for i in df_ind.index:
+#     ax.annotate(f"{df_ind[i]}",xy=(i, df_ind[i] + 20),va = 'center', ha='center')
+# ax.set_ylim(0, 220)
+# fig.text(0.1, 0.95, "Top 20 Startup Industries from 2016", fontsize=15, fontweight='bold')
+# plt.xticks(rotation=90)
+# ax.grid(axis='y', linestyle='-', alpha=0.4)
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0         DataFrame.__getitem__          1          0
+1    IndexOpsMixin.value_counts          1          0
+2                        Series          1          0
+3  _LocationIndexer.__getitem__          1          0
+
+        <Execution time>: 65.2
+        <Active vars>: []
+
+        <Future vars>: []
+
+        <Iteration>: 0/3
+
+Code: done
+Reason: The code is already fully GPU-accelerated (value_counts and iloc are executed on the GPU) with no CPU operations, so no further optimization is needed.
+No Modifications made to the original code
+Try 0: calling rewrite agent for cell 4 took 5.412737131118774 seconds.
+There is no need to rewrite the cell.
+Could not rewrite the cell. Continuing to next cell...
+Cell 4 rewriting took 17.444642782211304 seconds.
+Getting original timing for cell 5
+========================================================
+Rewriting cell 5... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 5 ###
+
+# fig, ax = plt.subplots(1,1, figsize=(20, 6))
+X = df['State'].value_counts().iloc[:20]
+
+# STEFANOS: Disable plotting
+# ax.bar(X.index, X, width=0.55,linewidth=0.7, color = 'lightblue')
+# for i in X.index:
+#     ax.annotate(f"{X[i]}",xy=(i, X[i] + 50),
+#                    va = 'center', ha='center')
+# ax.set_ylim(0, 400)
+# fig.text(0.1, 0.95, "Top 20 States Having maximum Start'ups from 2016", fontsize=15, fontweight='bold')
+# plt.xticks(rotation=90)
+# ax.grid(axis='y', linestyle='-', alpha=0.4)
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0         DataFrame.__getitem__          1          0
+1    IndexOpsMixin.value_counts          1          0
+2  _LocationIndexer.__getitem__          1          0
+
+        <Execution time>: 57.7
+        <Active vars>: []
+
+        <Future vars>: []
+
+        <Iteration>: 0/3
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: Since there is no rewritten code available and the code is focused on data manipulation, we should attempt to optimize the original code. Currently, the focus is on reducing the execution time of the operations used, such as `value_counts` and slicing with `.iloc`.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 5 ###
+
+# fig, ax = plt.subplots(1,1, figsize=(20, 6))
+X = df['State'].value_counts().iloc[:20]
+
+# STEFANOS: Disable plotting
+# ax.bar(X.index, X, width=0.55,linewidth=0.7, color = 'lightblue')
+# for i in X.index:
+#     ax.annotate(f"{X[i]}",xy=(i, X[i] + 50),
+#                    va = 'center', ha='center')
+# ax.set_ylim(0, 400)
+# fig.text(0.1, 0.95, "Top 20 States Having maximum Start'ups from 2016", fontsize=15, fontweight='bold')
+# plt.xticks(rotation=90)
+# ax.grid(axis='y', linestyle='-', alpha=0.4)
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0         DataFrame.__getitem__          1          0
+1    IndexOpsMixin.value_counts          1          0
+2  _LocationIndexer.__getitem__          1          0
+
+        <Execution time>: 57.7
+        <Active vars>: []
+
+        <Future vars>: []
+
+        <Iteration>: 0/3
+
+Code: X = df['State'].value_counts(nrows=20)
+Reason: By passing nrows=20 to value_counts we perform the counting and a partial top-k sort entirely on the GPU, eliminating the extra iloc slice and reducing overall GPU work.
+Parsed response: X = df['State'].value_counts(nrows=20)
+Try 0: calling rewrite agent for cell 5 took 22.753027200698853 seconds.
+Executing rewritten code... ### cell 5 ###
+
+X = df['State'].value_counts(nrows=20)
+An unexpected error occurred Execution failed in cell %%RecordEvent
+%%time
+### cell 5 ###
+
+X = df['State'].value_counts(nrows=20): IndexOpsMixin.value_counts() got an unexpected keyword argument 'nrows'
+Rewritten time: inf ms
+========================================================
+Rewriting cell 5... Try 1...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 5 ###
+
+# fig, ax = plt.subplots(1,1, figsize=(20, 6))
+X = df['State'].value_counts().iloc[:20]
+
+# STEFANOS: Disable plotting
+# ax.bar(X.index, X, width=0.55,linewidth=0.7, color = 'lightblue')
+# for i in X.index:
+#     ax.annotate(f"{X[i]}",xy=(i, X[i] + 50),
+#                    va = 'center', ha='center')
+# ax.set_ylim(0, 400)
+# fig.text(0.1, 0.95, "Top 20 States Having maximum Start'ups from 2016", fontsize=15, fontweight='bold')
+# plt.xticks(rotation=90)
+# ax.grid(axis='y', linestyle='-', alpha=0.4)
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0         DataFrame.__getitem__          1          0
+1    IndexOpsMixin.value_counts          1          0
+2  _LocationIndexer.__getitem__          1          0
+        <Execution time>: 57.7
+        <Active Vars>: []
+        <Future Vars>: []
+        <Rewritten Code>:
+        ### cell 5 ###
+
+X = df['State'].value_counts(nrows=20)
+        <Profiling data>:
+        None
+        <Execution time>: inf
+        <Execution output>: The rewritten code resulted in a runtime error. Execution failed in cell %%RecordEvent
+%%time
+### cell 5 ###
+
+X = df['State'].value_counts(nrows=20): IndexOpsMixin.value_counts() got an unexpected keyword argument 'nrows'
+        <Iteration>: 1/1
+
+==========Running the manager agent to decide the next step==========
+Choice: repair
+Reason: The rewritten code failed due to an incorrect usage of the 'value_counts' method with an invalid 'nrows' argument, which needs to be fixed.
+Code fixer prompt:
+        <Original Code>:
+        ### cell 5 ###
+
+# fig, ax = plt.subplots(1,1, figsize=(20, 6))
+X = df['State'].value_counts().iloc[:20]
+
+# STEFANOS: Disable plotting
+# ax.bar(X.index, X, width=0.55,linewidth=0.7, color = 'lightblue')
+# for i in X.index:
+#     ax.annotate(f"{X[i]}",xy=(i, X[i] + 50),
+#                    va = 'center', ha='center')
+# ax.set_ylim(0, 400)
+# fig.text(0.1, 0.95, "Top 20 States Having maximum Start'ups from 2016", fontsize=15, fontweight='bold')
+# plt.xticks(rotation=90)
+# ax.grid(axis='y', linestyle='-', alpha=0.4)
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0         DataFrame.__getitem__          1          0
+1    IndexOpsMixin.value_counts          1          0
+2  _LocationIndexer.__getitem__          1          0
+        <Execution time>: 57.7
+        <Active Vars>: []
+        <Future Vars>: []
+        <Rewritten Code>:
+        ### cell 5 ###
+
+X = df['State'].value_counts(nrows=20)
+        <Profiling data>:
+        None
+        <Execution time>: inf
+        <Execution output>: The rewritten code resulted in a runtime error. Execution failed in cell %%RecordEvent
+%%time
+### cell 5 ###
+
+X = df['State'].value_counts(nrows=20): IndexOpsMixin.value_counts() got an unexpected keyword argument 'nrows'
+        <Iteration>: 1/1
+
+Repairing the last generated code
+Code: ### cell 5 ###
+
+# Compute the top 20 states by startup count directly on the GPU
+X = df['State'].value_counts().head(20)
+Reason: cudf.Series.value_counts does not support an `nrows` argument; using `.head(20)` is the GPU‐native, vectorized way to take the top 20 counts without falling back to a CPU operation.
+Parsed response: ### cell 5 ###
+
+# Compute the top 20 states by startup count directly on the GPU
+X = df['State'].value_counts().head(20)
+Try 1: calling rewrite agent for cell 5 took 7.927615642547607 seconds.
+Executing rewritten code... ### cell 5 ###
+
+# Compute the top 20 states by startup count directly on the GPU
+X = df['State'].value_counts().head(20)
+Finished executing the rewritten code.
+Try 1: executing the rewritten code for cell 5 took 10.516100645065308 seconds.
+Rewritten time: 60.6 ms
+The rewritten code is correct. Profiling cudf...
+Try 1: cudf profiling the rewritten code for cell 5 took 9.021484851837158 seconds.
+gpu_calls_orig_perc: 1.0, gpu_calls_opt_perc: 1.0
+orig_time: 57.7, opt_time: 60.6
+Ratio improves.
+Improvement in percentage does not make up for the slowdown.
+Rewritten code took 60.6ms. The previous fastest solution took 57.7ms.
+Previous best solution num GPU and CPU calls:  3 0
+New solution num GPU and CPU calls:  3 0
+Could not rewrite the cell. Continuing to next cell...
+Cell 5 rewriting took 71.18531274795532 seconds.
+Getting original timing for cell 6
+========================================================
+Rewriting cell 6... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 6 ###
+
+ds_list=['Internet of Things','AI','Robotics','Analytics','Computer Vision']
+ds_df = df[df['Industry'].isin(ds_list)]
+        <Profiling data>:
+                        Function  GPU calls  CPU calls
+0  DataFrame.__getitem__          2          0
+1            Series.isin          1          0
+
+        <Execution time>: 33.1
+        <Active vars>: []
+
+        <Future vars>: []
+
+        <Iteration>: 0/3
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: There is no rewritten code to work from, so we should attempt to optimize the original code.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 6 ###
+
+ds_list=['Internet of Things','AI','Robotics','Analytics','Computer Vision']
+ds_df = df[df['Industry'].isin(ds_list)]
+        <Profiling data>:
+                        Function  GPU calls  CPU calls
+0  DataFrame.__getitem__          2          0
+1            Series.isin          1          0
+
+        <Execution time>: 33.1
+        <Active vars>: []
+
+        <Future vars>: []
+
+        <Iteration>: 0/3
+
+Code: done
+Reason: The filtering uses vectorized `isin` and slicing, all executed on the GPU via cudf. No further optimization is needed.
+No Modifications made to the original code
+Try 0: calling rewrite agent for cell 6 took 8.002358198165894 seconds.
+There is no need to rewrite the cell.
+Could not rewrite the cell. Continuing to next cell...
+Cell 6 rewriting took 20.031959772109985 seconds.
+Rewrote notebook in 280.47645378112793 seconds

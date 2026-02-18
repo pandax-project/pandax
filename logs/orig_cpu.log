@@ -1,0 +1,126 @@
+---------------------------------------
+processing notebooks/aieducation/what-course-are-you-going-to-take/src/bench.ipynb
+Execution time: 30.169095516204834 seconds
+30.072108507156372 30.169095516204834
+Average execution time: 30.120602011680603 seconds
+---------------------------------------
+processing notebooks/ampiiere/animal-crossing-villager-popularity-analysis/src/bench.ipynb
+Execution time: 140.93118739128113 seconds
+140.9554328918457 140.93118739128113
+Average execution time: 140.94331014156342 seconds
+---------------------------------------
+processing notebooks/dataranch/supermarket-sales-prediction-xgboost-fastai/src/bench.ipynb
+Execution time: 21.110279321670532 seconds
+21.02627730369568 21.110279321670532
+Average execution time: 21.068278312683105 seconds
+---------------------------------------
+processing notebooks/erikbruin/nlp-on-student-writing-eda/src/bench.ipynb
+Execution time: 187.75869750976562 seconds
+192.47933268547058 187.75869750976562
+Average execution time: 190.1190150976181 seconds
+---------------------------------------
+processing notebooks/gksriharsha/eda-speedtests/src/bench.ipynb
+Execution time: 13.475535154342651 seconds
+13.516081094741821 13.475535154342651
+Average execution time: 13.495808124542236 seconds
+---------------------------------------
+processing notebooks/ibtesama/getting-started-with-a-movie-recommendation-system/src/bench.ipynb
+Execution time: 401.61028957366943 seconds
+403.872576713562 401.61028957366943
+Average execution time: 402.7414331436157 seconds
+---------------------------------------
+processing notebooks/josecode1/billionaires-statistics-2023/src/bench.ipynb
+Execution time: 8.486128568649292 seconds
+8.549129247665405 8.486128568649292
+Average execution time: 8.517628908157349 seconds
+---------------------------------------
+processing notebooks/joshuaswords/netflix-data-visualization/src/bench.ipynb
+Execution time: 38.25726938247681 seconds
+38.553250312805176 38.25726938247681
+Average execution time: 38.40525984764099 seconds
+---------------------------------------
+processing notebooks/kkhandekar/environmental-vs-ai-startups-india-eda/src/bench.ipynb
+Execution time: 5.380556583404541 seconds
+5.4323859214782715 5.380556583404541
+Average execution time: 5.406471252441406 seconds
+---------------------------------------
+processing notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/bench.ipynb
+Execution time: 39.6718590259552 seconds
+39.88140320777893 39.6718590259552
+Average execution time: 39.776631116867065 seconds
+---------------------------------------
+processing notebooks/madhurpant/beautiful-kaggle-2022-analysis/src/bench.ipynb
+Execution time: 2.4619569778442383 seconds
+2.5955564975738525 2.4619569778442383
+Average execution time: 2.5287567377090454 seconds
+---------------------------------------
+processing notebooks/mpwolke/just-you-wait-rishi-sunak/src/bench.ipynb
+Execution time: 115.1944580078125 seconds
+113.93254613876343 115.1944580078125
+Average execution time: 114.56350207328796 seconds
+---------------------------------------
+processing notebooks/nickwan/creating-player-stats-using-tracking-data/src/bench.ipynb
+Execution time: 3.38572096824646 seconds
+3.7357523441314697 3.38572096824646
+Average execution time: 3.560736656188965 seconds
+---------------------------------------
+processing notebooks/paultimothymooney/kaggle-survey-2022-all-results/src/bench.ipynb
+Execution time: 16.177868366241455 seconds
+16.694496870040894 16.177868366241455
+Average execution time: 16.436182618141174 seconds
+---------------------------------------
+processing notebooks/pmarcelino/comprehensive-data-exploration-with-python/src/bench.ipynb
+Execution time: 8.21045708656311 seconds
+8.159167051315308 8.21045708656311
+Average execution time: 8.184812068939209 seconds
+---------------------------------------
+processing notebooks/roopacalistus/retail-supermarket-store-analysis/src/bench.ipynb
+Execution time: 10.01433515548706 seconds
+10.118827819824219 10.01433515548706
+Average execution time: 10.06658148765564 seconds
+---------------------------------------
+processing notebooks/saisandeepjallepalli/adidas-retail-eda-data-visualization/src/bench.ipynb
+Execution time: 14.504244565963745 seconds
+14.514661312103271 14.504244565963745
+Average execution time: 14.509452939033508 seconds
+---------------------------------------
+processing notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/bench.ipynb
+Execution time: 3.678105115890503 seconds
+3.9954280853271484 3.678105115890503
+Average execution time: 3.8367666006088257 seconds
+---------------------------------------
+processing notebooks/sanket7994/imdb-dataset-eda-project/src/bench.ipynb
+Execution time: 21.523038625717163 seconds
+24.038302183151245 21.523038625717163
+Average execution time: 22.780670404434204 seconds
+---------------------------------------
+processing notebooks/spscientist/student-performance-in-exams/src/bench.ipynb
+Execution time: 17.072555780410767 seconds
+17.046877145767212 17.072555780410767
+Average execution time: 17.05971646308899 seconds
+---------------------------------------
+processing new_notebooks/nyc-flight/bench.ipynb
+Execution time: 14.19524359703064 seconds
+14.599101543426514 14.19524359703064
+Average execution time: 14.397172570228577 seconds
+---------------------------------------
+processing new_notebooks/imdb/bench.ipynb
+Execution time: 5.297548532485962 seconds
+5.3167335987091064 5.297548532485962
+Average execution time: 5.307141065597534 seconds
+---------------------------------------
+processing new_notebooks/us-birth/bench.ipynb
+Execution time: 7.878000497817993 seconds
+7.920785665512085 7.878000497817993
+Average execution time: 7.899393081665039 seconds
+---------------------------------------
+processing new_notebooks/nyc-taxi/bench.ipynb
+Execution time: 136.08043956756592 seconds
+138.0519917011261 136.08043956756592
+Average execution time: 137.066215634346 seconds
+---------------------------------------
+processing new_notebooks/nyc-airbnb/bench.ipynb
+Execution time: 97.47445821762085 seconds
+97.29950213432312 97.47445821762085
+Average execution time: 97.38698017597198 seconds
+Failed paths: []

@@ -1,0 +1,554 @@
+Annotated notebook saved to /home/dias-benchmarks/tpch/notebooks/q06/cell_exec_info.ipynb
+Executing code: import sys, os
+sys.path.insert(0, os.path.abspath('/home/ElasticNotebook'))
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df
+import pickle
+import cudf
+Executing code: %%RecordEventWithColumnInfo
+# %load_ext cudf.pandas
+import sys, os
+tpch_parent = os.path.abspath(os.path.join(os.getcwd(), ".."))
+sys.path.insert(0, tpch_parent)
+# from tpch import load_lineitem, q06
+import pandas as pd
+DATA_ROOT = "/home/dias-benchmarks/tpch/data"
+STORAGE_OPTS = {}
+
+
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+def load_lineitem(
+    data_folder: str, **storage_options
+) -> pd.DataFrame:
+    data_path = data_folder + "/lineitem.tbl"
+    # df = pd.read_parquet(
+    #     data_path,  storage_options=storage_options
+    # )
+    df = pd.read_csv(data_path, sep="|")
+    print(df.columns)
+    df["L_SHIPDATE"] = pd.to_datetime(df.L_SHIPDATE, format="%Y-%m-%d")
+    df["L_RECEIPTDATE"] = pd.to_datetime(df.L_RECEIPTDATE, format="%Y-%m-%d")
+    df["L_COMMITDATE"] = pd.to_datetime(df.L_COMMITDATE, format="%Y-%m-%d")
+    return df
+lineitem = load_lineitem(DATA_ROOT, **STORAGE_OPTS)
+Executing code: %%RecordEventWithColumnInfo
+### cell 1 ###
+
+
+
+date1 = pd.Timestamp("1996-01-01")
+date2 = pd.Timestamp("1997-01-01")
+lineitem_filtered = lineitem.loc[
+    :, ["L_QUANTITY", "L_EXTENDEDPRICE", "L_DISCOUNT", "L_SHIPDATE"]
+]
+sel = (
+    (lineitem_filtered.L_SHIPDATE >= date1)
+    & (lineitem_filtered.L_SHIPDATE < date2)
+    & (lineitem_filtered.L_DISCOUNT >= 0.08)
+    & (lineitem_filtered.L_DISCOUNT <= 0.1)
+    & (lineitem_filtered.L_QUANTITY < 24)
+)
+flineitem = lineitem_filtered[sel]
+total = (flineitem.L_EXTENDEDPRICE * flineitem.L_DISCOUNT).sum()
+
+
+Executing code: %%RecordEventWithColumnInfo
+### cell 2 ###
+
+total = total + 1
+Executing code: %PrintCellInfo cell_exec_info
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Ran small notebook to get cell exec info in 46.066715478897095 seconds
+Getting cudf profile information...
+Annotated notebook saved to /home/dias-benchmarks/tpch/notebooks/q06/cudf_profile.ipynb
+Done getting cudf profile information.
+Ran small notebook to get cudf profile info in 38.923227071762085 seconds
+Annotated notebook saved to /home/dias-benchmarks/tpch/notebooks/q06/annotated.ipynb
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Executing code: %load_ext cudf.pandas
+Executing code: import sys, os
+sys.path.insert(0, os.path.abspath('/home/ElasticNotebook'))
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df
+import pickle
+import cudf
+Executing code: %%RecordEvent
+# %load_ext cudf.pandas
+import sys, os
+tpch_parent = os.path.abspath(os.path.join(os.getcwd(), ".."))
+sys.path.insert(0, tpch_parent)
+# from tpch import load_lineitem, q06
+import pandas as pd
+DATA_ROOT = "/home/dias-benchmarks/tpch/data"
+STORAGE_OPTS = {}
+
+
+Executing code: %%RecordEvent
+%%time
+### cell 0 ###
+
+def load_lineitem(
+    data_folder: str, **storage_options
+) -> pd.DataFrame:
+    data_path = data_folder + "/lineitem.tbl"
+    # df = pd.read_parquet(
+    #     data_path,  storage_options=storage_options
+    # )
+    df = pd.read_csv(data_path, sep="|")
+    print(df.columns)
+    df["L_SHIPDATE"] = pd.to_datetime(df.L_SHIPDATE, format="%Y-%m-%d")
+    df["L_RECEIPTDATE"] = pd.to_datetime(df.L_RECEIPTDATE, format="%Y-%m-%d")
+    df["L_COMMITDATE"] = pd.to_datetime(df.L_COMMITDATE, format="%Y-%m-%d")
+    return df
+lineitem = load_lineitem(DATA_ROOT, **STORAGE_OPTS)
+Executing code: %Checkpoint /home/dias-benchmarks/tpch/notebooks/q06/annotated/checkpoints/pre_cell_1.pickle
+Checkpointing took 0.0008132457733154297 seconds.
+========================================================
+Cell  1
+Rewritten pre-checkpoint path: /home/dias-benchmarks/tpch/notebooks/q06/annotated/checkpoints/pre_cell_1.pickle
+Pre-checkpoint path: /home/dias-benchmarks/tpch/notebooks/q06/annotated/checkpoints/pre_cell_1.pickle
+Small rewritten pre-checkpoint path: /home/dias-benchmarks/tpch/notebooks/q06/q06_rewrite/checkpoints/pre_cell_1.pickle
+========================================================
+Getting original timing for cell 1
+HAHA original checkpoint path:  /home/dias-benchmarks/tpch/notebooks/q06/annotated/checkpoints/pre_cell_1.pickle
+Setting initially best_rewritten_post_checkpoint_path:  /home/dias-benchmarks/tpch/notebooks/q06/annotated/checkpoints/post_cell_1.pickle
+Setting initially best_small_rewritten_post_checkpoint_path:  /home/dias-benchmarks/tpch/notebooks/q06/q06_rewrite/checkpoints/pre_cell_2.pickle
+========================================================
+Rewriting cell 1... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 1 ###
+
+
+
+date1 = pd.Timestamp("1996-01-01")
+date2 = pd.Timestamp("1997-01-01")
+lineitem_filtered = lineitem.loc[
+    :, ["L_QUANTITY", "L_EXTENDEDPRICE", "L_DISCOUNT", "L_SHIPDATE"]
+]
+sel = (
+    (lineitem_filtered.L_SHIPDATE >= date1)
+    & (lineitem_filtered.L_SHIPDATE < date2)
+    & (lineitem_filtered.L_DISCOUNT >= 0.08)
+    & (lineitem_filtered.L_DISCOUNT <= 0.1)
+    & (lineitem_filtered.L_QUANTITY < 24)
+)
+flineitem = lineitem_filtered[sel]
+total = (flineitem.L_EXTENDEDPRICE * flineitem.L_DISCOUNT).sum()
+
+
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0                     Timestamp          0          2
+1  _LocationIndexer.__getitem__          1          0
+2           NDFrame.__getattr__          7          0
+3               OpsMixin.__ge__          1          1
+4               OpsMixin.__lt__          1          1
+5              OpsMixin.__and__          4          0
+6               OpsMixin.__le__          1          0
+7         DataFrame.__getitem__          1          0
+8              OpsMixin.__mul__          1          0
+9                    Series.sum          1          0
+
+        <Execution time>: 183.0
+        <Active vars>: ['total']
+
+        <Future vars>: []
+
+        <Iteration>: 1/5
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: This is the first iteration, and there is no rewritten code. We should attempt to optimize the original code for performance gains, potentially by using libraries like cuDF for GPU acceleration.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 1 ###
+
+
+
+date1 = pd.Timestamp("1996-01-01")
+date2 = pd.Timestamp("1997-01-01")
+lineitem_filtered = lineitem.loc[
+    :, ["L_QUANTITY", "L_EXTENDEDPRICE", "L_DISCOUNT", "L_SHIPDATE"]
+]
+sel = (
+    (lineitem_filtered.L_SHIPDATE >= date1)
+    & (lineitem_filtered.L_SHIPDATE < date2)
+    & (lineitem_filtered.L_DISCOUNT >= 0.08)
+    & (lineitem_filtered.L_DISCOUNT <= 0.1)
+    & (lineitem_filtered.L_QUANTITY < 24)
+)
+flineitem = lineitem_filtered[sel]
+total = (flineitem.L_EXTENDEDPRICE * flineitem.L_DISCOUNT).sum()
+
+
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0                     Timestamp          0          2
+1  _LocationIndexer.__getitem__          1          0
+2           NDFrame.__getattr__          7          0
+3               OpsMixin.__ge__          1          1
+4               OpsMixin.__lt__          1          1
+5              OpsMixin.__and__          4          0
+6               OpsMixin.__le__          1          0
+7         DataFrame.__getitem__          1          0
+8              OpsMixin.__mul__          1          0
+9                    Series.sum          1          0
+
+        <Execution time>: 183.0
+        <Active vars>: ['total']
+
+        <Future vars>: []
+
+        <Iteration>: 1/5
+
+Code: # Filter and compute total entirely on GPU
+date_filter = (lineitem["L_SHIPDATE"].dt.year == 1996)
+
+discount_filter = lineitem["L_DISCOUNT"].between(0.08, 0.1)
+quantity_filter = lineitem["L_QUANTITY"] < 24
+
+mask = date_filter & discount_filter & quantity_filter
+
+total = (lineitem["L_EXTENDEDPRICE"] * lineitem["L_DISCOUNT"])[mask].sum()
+Reason: Eliminated CPU-bound pd.Timestamp constructions and intermediate DataFrame slicing. Used the GPU-friendly .dt.year accessor and .between to perform all comparisons on the device, and combined multiplication and masking in one step to reduce kernel launches and data movement.
+Parsed response: # Filter and compute total entirely on GPU
+date_filter = (lineitem["L_SHIPDATE"].dt.year == 1996)
+
+discount_filter = lineitem["L_DISCOUNT"].between(0.08, 0.1)
+quantity_filter = lineitem["L_QUANTITY"] < 24
+
+mask = date_filter & discount_filter & quantity_filter
+
+total = (lineitem["L_EXTENDEDPRICE"] * lineitem["L_DISCOUNT"])[mask].sum()
+Try 0: calling rewrite agent for cell 1 took 45.995590686798096 seconds.
+Executing rewritten code... ### cell 1 ###
+
+# Filter and compute total entirely on GPU
+date_filter = (lineitem["L_SHIPDATE"].dt.year == 1996)
+
+discount_filter = lineitem["L_DISCOUNT"].between(0.08, 0.1)
+quantity_filter = lineitem["L_QUANTITY"] < 24
+
+mask = date_filter & discount_filter & quantity_filter
+
+total = (lineitem["L_EXTENDEDPRICE"] * lineitem["L_DISCOUNT"])[mask].sum()
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/tpch/notebooks/q06/annotated/checkpoints/pre_cell_1.pickle
+Running rewritten cell notebook
+Finished executing the rewritten code.
+Try 0: executing the rewritten code for cell 1 took 26.432055234909058 seconds.
+Rewritten time: 68.6 ms
+Checkpointing the rewritten cell for small notebook...
+The rewritten code is correct. Profiling cudf...
+HAHA small rewritten pre-checkpoint path:  /home/dias-benchmarks/tpch/notebooks/q06/q06_rewrite/checkpoints/pre_cell_1.pickle
+Try 0: cudf profiling the rewritten code for cell 1 took 8.743884801864624 seconds.
+gpu_calls_orig_perc: 0.8181818181818182, gpu_calls_opt_perc: 1.0
+orig_time: 183.0, opt_time: 68.6
+Both the call ratio and the time are better.
+Rewritten code took 68.6ms. The previous fastest solution took 183.0ms.
+Previous best solution num GPU and CPU calls:  18 4
+New solution num GPU and CPU calls:  15 0
+Accepted the rewritten code.
+Setting best_rewritten_post_checkpoint_path to  /home/dias-benchmarks/tpch/notebooks/q06/rewritten/o4_mini_high/checkpoints/post_cell_1_try_0.pickle
+Setting best_small_rewritten_post_checkpoint_path to  /home/dias-benchmarks/tpch/notebooks/q06/rewritten/o4_mini_high_small/checkpoints/post_cell_1_try_0.pickle
+========================================================
+Rewriting cell 1... Try 1...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 1 ###
+
+
+
+date1 = pd.Timestamp("1996-01-01")
+date2 = pd.Timestamp("1997-01-01")
+lineitem_filtered = lineitem.loc[
+    :, ["L_QUANTITY", "L_EXTENDEDPRICE", "L_DISCOUNT", "L_SHIPDATE"]
+]
+sel = (
+    (lineitem_filtered.L_SHIPDATE >= date1)
+    & (lineitem_filtered.L_SHIPDATE < date2)
+    & (lineitem_filtered.L_DISCOUNT >= 0.08)
+    & (lineitem_filtered.L_DISCOUNT <= 0.1)
+    & (lineitem_filtered.L_QUANTITY < 24)
+)
+flineitem = lineitem_filtered[sel]
+total = (flineitem.L_EXTENDEDPRICE * flineitem.L_DISCOUNT).sum()
+
+
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0                     Timestamp          0          2
+1  _LocationIndexer.__getitem__          1          0
+2           NDFrame.__getattr__          7          0
+3               OpsMixin.__ge__          1          1
+4               OpsMixin.__lt__          1          1
+5              OpsMixin.__and__          4          0
+6               OpsMixin.__le__          1          0
+7         DataFrame.__getitem__          1          0
+8              OpsMixin.__mul__          1          0
+9                    Series.sum          1          0
+        <Execution time>: 183.0
+        <Active Vars>: ['total']
+        <Future Vars>: []
+        <Rewritten Code>:
+        ### cell 1 ###
+
+# Filter and compute total entirely on GPU
+date_filter = (lineitem["L_SHIPDATE"].dt.year == 1996)
+
+discount_filter = lineitem["L_DISCOUNT"].between(0.08, 0.1)
+quantity_filter = lineitem["L_QUANTITY"] < 24
+
+mask = date_filter & discount_filter & quantity_filter
+
+total = (lineitem["L_EXTENDEDPRICE"] * lineitem["L_DISCOUNT"])[mask].sum()
+        <Profiling data>:
+                                Function  GPU calls  CPU calls
+0          DataFrame.__getitem__          5          0
+1                         Series          1          0
+2  CombinedDatetimelikeProperti…          1          0
+3                OpsMixin.__eq__          1          0
+4                 Series.between          1          0
+5                OpsMixin.__lt__          1          0
+6               OpsMixin.__and__          2          0
+7               OpsMixin.__mul__          1          0
+8             Series.__getitem__          1          0
+9                     Series.sum          1          0
+        <Execution time>: 68.6
+        <Execution output>: Rewritten time: 68.6 ms
+Original time: 183.0 ms
+        <Iteration>: 2/5
+
+==========Running the manager agent to decide the next step==========
+Choice: optimize
+Reason: The rewritten code significantly improves execution time. Further optimization might be achieved by using more efficient data structures or library functions specifically optimized for GPU computation.
+Code optimizer prompt:
+        <Original Code>:
+        ### cell 1 ###
+
+# Filter and compute total entirely on GPU
+date_filter = (lineitem["L_SHIPDATE"].dt.year == 1996)
+
+discount_filter = lineitem["L_DISCOUNT"].between(0.08, 0.1)
+quantity_filter = lineitem["L_QUANTITY"] < 24
+
+mask = date_filter & discount_filter & quantity_filter
+
+total = (lineitem["L_EXTENDEDPRICE"] * lineitem["L_DISCOUNT"])[mask].sum()
+        <Profiling data>:
+                                Function  GPU calls  CPU calls
+0          DataFrame.__getitem__          5          0
+1                         Series          1          0
+2  CombinedDatetimelikeProperti…          1          0
+3                OpsMixin.__eq__          1          0
+4                 Series.between          1          0
+5                OpsMixin.__lt__          1          0
+6               OpsMixin.__and__          2          0
+7               OpsMixin.__mul__          1          0
+8             Series.__getitem__          1          0
+9                     Series.sum          1          0
+
+        <Execution time>: 68.6
+        <Active vars>: ['total']
+
+        <Future vars>: []
+
+        <Iteration>: 2/5
+
+Optimizing the last generated code
+Parsed response: # Compute revenue and filter on GPU using .where to reduce indexing overhead
+ship_year = lineitem.L_SHIPDATE.dt.year
+_discount = lineitem.L_DISCOUNT
+_quantity = lineitem.L_QUANTITY
+
+mask = (ship_year == 1996) \
+       & _discount.between(0.08, 0.1) \
+       & (_quantity < 24)
+
+total = (lineitem.L_EXTENDEDPRICE * _discount).where(mask).sum()
+Try 1: calling rewrite agent for cell 1 took 41.797895431518555 seconds.
+Executing rewritten code... ### cell 1 ###
+
+# Compute revenue and filter on GPU using .where to reduce indexing overhead
+ship_year = lineitem.L_SHIPDATE.dt.year
+_discount = lineitem.L_DISCOUNT
+_quantity = lineitem.L_QUANTITY
+
+mask = (ship_year == 1996) \
+       & _discount.between(0.08, 0.1) \
+       & (_quantity < 24)
+
+total = (lineitem.L_EXTENDEDPRICE * _discount).where(mask).sum()
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/tpch/notebooks/q06/annotated/checkpoints/pre_cell_1.pickle
+Running rewritten cell notebook
+Finished executing the rewritten code.
+Try 1: executing the rewritten code for cell 1 took 26.233454942703247 seconds.
+Rewritten time: 72.0 ms
+Checkpointing the rewritten cell for small notebook...
+The rewritten code is correct. Profiling cudf...
+HAHA small rewritten pre-checkpoint path:  /home/dias-benchmarks/tpch/notebooks/q06/q06_rewrite/checkpoints/pre_cell_1.pickle
+Try 1: cudf profiling the rewritten code for cell 1 took 8.7759690284729 seconds.
+gpu_calls_orig_perc: 1.0, gpu_calls_opt_perc: 1.0
+orig_time: 68.6, opt_time: 72.0
+Ratio improves.
+Improvement in percentage does not make up for the slowdown.
+Rewritten code took 72.0ms. The previous fastest solution took 183.0ms.
+Previous best solution num GPU and CPU calls:  15 0
+New solution num GPU and CPU calls:  14 0
+========================================================
+Rewriting cell 1... Try 2...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 1 ###
+
+
+
+date1 = pd.Timestamp("1996-01-01")
+date2 = pd.Timestamp("1997-01-01")
+lineitem_filtered = lineitem.loc[
+    :, ["L_QUANTITY", "L_EXTENDEDPRICE", "L_DISCOUNT", "L_SHIPDATE"]
+]
+sel = (
+    (lineitem_filtered.L_SHIPDATE >= date1)
+    & (lineitem_filtered.L_SHIPDATE < date2)
+    & (lineitem_filtered.L_DISCOUNT >= 0.08)
+    & (lineitem_filtered.L_DISCOUNT <= 0.1)
+    & (lineitem_filtered.L_QUANTITY < 24)
+)
+flineitem = lineitem_filtered[sel]
+total = (flineitem.L_EXTENDEDPRICE * flineitem.L_DISCOUNT).sum()
+
+
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0                     Timestamp          0          2
+1  _LocationIndexer.__getitem__          1          0
+2           NDFrame.__getattr__          7          0
+3               OpsMixin.__ge__          1          1
+4               OpsMixin.__lt__          1          1
+5              OpsMixin.__and__          4          0
+6               OpsMixin.__le__          1          0
+7         DataFrame.__getitem__          1          0
+8              OpsMixin.__mul__          1          0
+9                    Series.sum          1          0
+        <Execution time>: 183.0
+        <Active Vars>: ['total']
+        <Future Vars>: []
+        <Rewritten Code>:
+        ### cell 1 ###
+
+# Compute revenue and filter on GPU using .where to reduce indexing overhead
+ship_year = lineitem.L_SHIPDATE.dt.year
+_discount = lineitem.L_DISCOUNT
+_quantity = lineitem.L_QUANTITY
+
+mask = (ship_year == 1996) \
+       & _discount.between(0.08, 0.1) \
+       & (_quantity < 24)
+
+total = (lineitem.L_EXTENDEDPRICE * _discount).where(mask).sum()
+        <Profiling data>:
+                                Function  GPU calls  CPU calls
+0            NDFrame.__getattr__          4          0
+1                         Series          1          0
+2  CombinedDatetimelikeProperti…          1          0
+3                OpsMixin.__eq__          1          0
+4                 Series.between          1          0
+5               OpsMixin.__and__          2          0
+6                OpsMixin.__lt__          1          0
+7               OpsMixin.__mul__          1          0
+8                  NDFrame.where          1          0
+9                     Series.sum          1          0
+        <Execution time>: 72.0
+        <Execution output>: Rewritten time: 72.0 ms
+Original time: 183.0 ms
+        <Iteration>: 3/5
+
+==========Running the manager agent to decide the next step==========
+Choice: optimize
+Reason: The rewritten code achieves a significant performance improvement, reducing execution time from 183.0 ms to 72.0 ms. However, further optimization might be possible using more efficient GPU libraries such as cuDF or further minimizing CPU-GPU communication.
+Code optimizer prompt:
+        <Original Code>:
+        ### cell 1 ###
+
+# Compute revenue and filter on GPU using .where to reduce indexing overhead
+ship_year = lineitem.L_SHIPDATE.dt.year
+_discount = lineitem.L_DISCOUNT
+_quantity = lineitem.L_QUANTITY
+
+mask = (ship_year == 1996) \
+       & _discount.between(0.08, 0.1) \
+       & (_quantity < 24)
+
+total = (lineitem.L_EXTENDEDPRICE * _discount).where(mask).sum()
+        <Profiling data>:
+                                Function  GPU calls  CPU calls
+0            NDFrame.__getattr__          4          0
+1                         Series          1          0
+2  CombinedDatetimelikeProperti…          1          0
+3                OpsMixin.__eq__          1          0
+4                 Series.between          1          0
+5               OpsMixin.__and__          2          0
+6                OpsMixin.__lt__          1          0
+7               OpsMixin.__mul__          1          0
+8                  NDFrame.where          1          0
+9                     Series.sum          1          0
+
+        <Execution time>: 72.0
+        <Active vars>: ['total']
+
+        <Future vars>: []
+
+        <Iteration>: 3/5
+
+Optimizing the last generated code
+No Modifications made to the original code
+Try 2: calling rewrite agent for cell 1 took 32.883559465408325 seconds.
+========================================================
+After rewriting cell  1
+Rewritten pre-checkpoint path: /home/dias-benchmarks/tpch/notebooks/q06/rewritten/o4_mini_high/checkpoints/post_cell_1_try_0.pickle
+Pre-checkpoint path: /home/dias-benchmarks/tpch/notebooks/q06/annotated/checkpoints/post_cell_1.pickle
+========================================================
+Cell 1 rewriting took 273.1990418434143 seconds.
+Getting original timing for cell 2
+HAHA original checkpoint path:  /home/dias-benchmarks/tpch/notebooks/q06/annotated/checkpoints/post_cell_1.pickle
+Setting initially best_rewritten_post_checkpoint_path:  /home/dias-benchmarks/tpch/notebooks/q06/annotated/checkpoints/post_cell_2.pickle
+Setting initially best_small_rewritten_post_checkpoint_path:  /home/dias-benchmarks/tpch/notebooks/q06/q06_rewrite/checkpoints/pre_cell_3.pickle
+========================================================
+Rewriting cell 2... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 2 ###
+
+total = total + 1
+        <Profiling data>:
+        Empty DataFrame
+Columns: []
+Index: []
+
+        <Execution time>: 0.00882
+        <Active vars>: []
+
+        <Future vars>: []
+
+        <Iteration>: 1/5
+
+==========Running the manager agent to decide the next step==========
+Choice: done
+Reason: The code is too simple to optimize further and does not impact performance.
+Code is already optimized
+Try 0: calling rewrite agent for cell 2 took 1.5472843647003174 seconds.
+There is no need to rewrite the cell.
+Could not rewrite the cell. Continuing to next cell...
+========================================================
+After rewriting cell  2
+Rewritten pre-checkpoint path: /home/dias-benchmarks/tpch/notebooks/q06/annotated/checkpoints/post_cell_2.pickle
+Pre-checkpoint path: /home/dias-benchmarks/tpch/notebooks/q06/annotated/checkpoints/post_cell_2.pickle
+========================================================
+Cell 2 rewriting took 36.336132287979126 seconds.
+Rewrote notebook in 319.8350043296814 seconds

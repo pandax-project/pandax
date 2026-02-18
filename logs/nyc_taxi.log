@@ -1,0 +1,1350 @@
+Annotated notebook saved to new_notebooks/nyc-taxi/cell_exec_info.ipynb
+Executing code: import sys, os
+sys.path.insert(0, os.path.abspath('/home/ElasticNotebook'))
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df
+import pickle
+import cudf
+Executing code: %%RecordEventWithColumnInfo
+# %load_ext cudf.pandas
+# import important libraries - matplotlib, seaborn and pandas
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+import time
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+file_loc = '/home/dias-benchmarks/new_notebooks/nyc-taxi/yellow_tripdata.csv'
+
+# read file
+trip_data = pd.read_csv(file_loc)
+trip_data = trip_data[:100000]
+trip_data.shape, trip_data.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 1 ###
+
+# print data tail
+trip_data.tail()
+Executing code: %%RecordEventWithColumnInfo
+### cell 2 ###
+
+# print data info
+trip_data.info()
+Executing code: %%RecordEventWithColumnInfo
+### cell 3 ###
+
+# remove following columns - 'VendorID','RatecodeID','store_and_fwd_flag'
+trip_data.drop(['VendorID','RatecodeID','store_and_fwd_flag'],axis=1,inplace=True)
+# print data head
+trip_data.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 4 ###
+
+# convert 'tpep_pickup_datetime' and 'tpep_dropoff_datetime' to datetime format
+trip_data['tpep_pickup_datetime'] = pd.to_datetime(trip_data['tpep_pickup_datetime'],errors='coerce' )
+trip_data['tpep_dropoff_datetime'] = pd.to_datetime(trip_data['tpep_dropoff_datetime'], errors='coerce' )
+# print data info
+print(trip_data.info())
+# print data head
+trip_data.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 5 ###
+
+# create 'duration' column using pd.Timedelta(minutes=1)
+trip_data['duration'] = (trip_data['tpep_dropoff_datetime'] - trip_data['tpep_pickup_datetime'])/ pd.Timedelta(minutes=1)
+# create 'trip_pickup_hour' column using 'tpep_pickup_datetime' column
+trip_data['trip_pickup_hour'] = trip_data['tpep_pickup_datetime'].dt.hour
+# create 'trip_dropoff_hour' column using 'tpep_dropoff_datetime' column
+trip_data['trip_dropoff_hour'] = trip_data['tpep_dropoff_datetime'].dt.hour
+# create 'trip_day' column using 'tpep_pickup_datetime' column - use day_name()
+trip_data['trip_day'] = trip_data['tpep_pickup_datetime'].dt.day_name()
+# print data info
+print(trip_data.info())
+# print data head
+trip_data.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 6 ###
+
+# print missing values for each column - use .isnull().sum
+trip_data.isnull().sum(axis=0).reset_index()
+Executing code: %%RecordEventWithColumnInfo
+### cell 7 ###
+
+# value_counts for 'payment_type' column
+trip_data['payment_type'].value_counts()
+Executing code: %%RecordEventWithColumnInfo
+### cell 8 ###
+
+# function for mapping numerical payment_type to actual payment
+def map_payment_type(x):
+    if x==1:
+        return 'Credit_card'
+    elif x==2:
+        return 'Cash'
+    elif x==3:
+        return 'No_charge'
+    elif x==4:
+        return 'Dispute'
+    elif x==5:
+        return 'Unknown'
+    else:
+        return 'Voided_trip'
+
+# use .apply and lambda on payment_type column to change 'payment_type' column
+trip_data['payment_type'] = trip_data.payment_type.apply(lambda x:map_payment_type(x))
+# print data head
+trip_data.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 9 ###
+
+# print data info to show that payment_type data type has changed
+trip_data.info()
+Executing code: %%RecordEventWithColumnInfo
+### cell 10 ###
+
+# create 'total_taxes' column from summing 'extra','mta_tax', 'improvement_surcharge'
+trip_data['total_taxes'] = trip_data['extra']+trip_data['mta_tax']+trip_data['improvement_surcharge']
+# drop 'extra','mta_tax','improvement_surcharge' columns
+trip_data.drop(['extra','mta_tax','improvement_surcharge'],axis=1,inplace=True)
+# print data head
+trip_data.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 11 ###
+
+# continuous_columns list
+continuous_columns = ['fare_amount','tip_amount','total_taxes','total_amount','duration','trip_distance','tolls_amount']
+Executing code: %%RecordEventWithColumnInfo
+### cell 12 ###
+
+# use .describe() for showing the statistics for continuous columns
+trip_data[continuous_columns].describe()
+Executing code: # # import gridspec function from matplotlib
+# from matplotlib import gridspec
+Executing code: # # for loop for continuous_columns variable
+# for feature in continuous_columns:
+#     # create a figure object using plt.figure
+#     fig = plt.figure(figsize=(14,7))
+#     # use gridspec.GridSpect with arguments nrows, ncols and figure to create areas for 2 plots in figure object
+#     gs = gridspec.GridSpec(nrows=1, ncols=2, figure=fig)
+#     # ax1 is first axes object created using fig.add_subplot(gs[0,0]) - controls the first area of figure object
+#     ax1 = fig.add_subplot(gs[0, 0])
+#     # histogram plot in first area using sns.distplot - attributes are kde and ax
+#     sns.distplot(trip_data[feature],kde=True,ax=ax1)
+#     # using ax1.set_title to create title for histograms
+#     ax1.set_title('histogram of column values in '+feature)
+#     # ax2 is second axes object created using fig.add_subplot(gs[0,1]) - controls the second area of figure object
+#     ax2 = fig.add_subplot(gs[0,1])
+#     # box plot  in second area using sns.boxplot - attributes are ax
+#     sns.boxplot(trip_data[feature],ax=ax2)
+#     # using ax2.set_title for box plot
+#     ax2.set_title('box plot of column values in '+feature)
+#     # seaborn style setting
+#     sns.set()
+#     # matplotlib command for displaying plots
+#     plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 13 ###
+
+# using .loc to show negative values in fare_amount
+trip_data.loc[trip_data['fare_amount']<0]
+Executing code: %%RecordEventWithColumnInfo
+### cell 14 ###
+
+# using .loc to show negative values in tip_amount
+trip_data.loc[trip_data['tip_amount']<0]
+Executing code: %%RecordEventWithColumnInfo
+### cell 15 ###
+
+# using .loc to show negative values in tolls_amount
+trip_data.loc[trip_data['tolls_amount']<0]
+Executing code: %%RecordEventWithColumnInfo
+### cell 16 ###
+
+# using .loc to show negative values in total_taxes
+trip_data.loc[trip_data['total_taxes']<0]
+Executing code: %%RecordEventWithColumnInfo
+### cell 17 ###
+
+# using .loc to show negative values in total_amount
+trip_data.loc[trip_data['total_amount']<0]
+Executing code: %%RecordEventWithColumnInfo
+### cell 18 ###
+
+# data shape before filtering negative fare_amount rows
+print(trip_data.shape)
+# using .loc to filter only those rows where fare_amount is positive
+trip_data = trip_data.loc[trip_data['fare_amount']>=0]
+trip_data.shape, trip_data.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 19 ###
+
+# using .loc to show negative values in duration
+trip_data.loc[trip_data['duration']<0]
+Executing code: %%RecordEventWithColumnInfo
+### cell 20 ###
+
+# using .loc to filter only those rows where duration is positive
+trip_data = trip_data.loc[trip_data['duration']>=0]
+trip_data.shape
+Executing code: # # plot box plot and histograms for continuous_columns variables
+# for feature in continuous_columns:
+#     fig = plt.figure(figsize=(14,7))
+#     gs = gridspec.GridSpec(nrows=1, ncols=2, figure=fig)
+#     ax1 = fig.add_subplot(gs[0, 0])
+#     sns.distplot(trip_data[feature],kde=True,ax=ax1)
+#     ax1.set_title('histogram of column values in '+feature)
+#     ax2 = fig.add_subplot(gs[0,1])
+#     sns.boxplot(trip_data[feature],ax=ax2)
+#     ax2.set_title('box plot of column values in '+feature)
+#     sns.set()
+#     plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 21 ###
+
+# use .describe() again to show the statistics for these continuous variables
+trip_data[continuous_columns].describe()
+Executing code: %%RecordEventWithColumnInfo
+### cell 22 ###
+
+# list of categorical_variables
+categorical_variables = ['payment_type','trip_pickup_hour','trip_dropoff_hour','trip_day','PULocationID','DOLocationID']
+Executing code: %%RecordEventWithColumnInfo
+### cell 23 ###
+
+# start exploration with payment_type using .value_counts()
+trip_data['payment_type'].value_counts()
+Executing code: %%RecordEventWithColumnInfo
+### cell 24 ###
+
+# but this is a series for ease of plotting we need to use dataframe using .reset_index() on value_counts()
+payment_type_category_count = trip_data['payment_type'].value_counts().reset_index()
+payment_type_category_count.columns = ["payment_type", "count"]
+# print the above dataframe
+payment_type_category_count
+Executing code: %%RecordEventWithColumnInfo
+### cell 25 ###
+
+# we are shown the count under each category but it is better to have count% for comparison - create count_percent col
+payment_type_category_count['count_percent'] = (payment_type_category_count['count']/trip_data.shape[0])*100
+# print the data frame
+payment_type_category_count
+Executing code: # # now let's plot it as bar chart
+# # first step - create fig, ax object using plt.subplots
+# fig,ax = plt.subplots(figsize=(7,7))
+# # second step - use sns.barplot(x, y , data, ax) for plotting bar plot
+# sns.barplot(x = 'index', y = 'count_percent', data=payment_type_category_count,ax=ax)
+# # third step - use ax object to change plot properties - here we set a title with ax.set_title()
+# ax.set_title('box plot for payment_type column')
+# # third step - seaborn style setting
+# sns.set()
+# # fourth step - use plt.show() for showing the plots
+# plt.show()
+Executing code: # # now let's plot all the time based categorical variables in this way using a for loop
+# for feature in ['trip_pickup_hour','trip_dropoff_hour','trip_day']:
+#     # Create a dataframe for the feature using value_counts().reset_index()
+#     feature_value_counts = trip_data[feature].value_counts().reset_index()
+#     # create count_percent column
+#     feature_value_counts['count_percent'] = (feature_value_counts[feature]/trip_data.shape[0])*100
+#     # print the number of categories in the feature
+#     print('Number of categories in feature '+ feature + ' is ' + str(feature_value_counts.shape[0]))
+#     # Create fig,ax object using plt.subplots
+#     if feature_value_counts.shape[0]<10:
+#         fig,ax = plt.subplots(figsize=(7,7))
+#     else:
+#         fig,ax = plt.subplots(figsize=(20,7))
+#     # plot barplot x='index' and y='count_percent' using sns.barplot
+#     sns.barplot(x='index',y='count_percent',data=feature_value_counts,ax=ax)
+#     # set_title
+#     ax.set_title('Bar plot for '+ feature)
+#     # set_xlabel
+#     ax.set_xlabel(feature)
+#     sns.set()
+#     plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 26 ###
+
+# let's see the number of categories available in both pickup and dropoff location - PULocationID and DOLocationID
+trip_data['PULocationID'].value_counts().shape, trip_data['DOLocationID'].value_counts().shape
+Executing code: # for feature in ['PULocationID','DOLocationID']:
+#     # Create a dataframe for the feature using value_counts().reset_index()
+#     feature_value_counts = trip_data[feature].value_counts().reset_index()
+#     # create count_percent column
+#     feature_value_counts['count_percent'] = (feature_value_counts[feature]/trip_data.shape[0])*100
+#     # print the number of categories in the feature
+#     print('Number of categories in feature '+ feature + ' is ' + str(feature_value_counts.shape[0]))
+#     # Create fig,ax object using plt.subplots
+#     fig,ax = plt.subplots(figsize=(25,7))
+#     # plot barplot x='index' and y='count_percent' using sns.barplot
+#     sns.barplot(x='index',y='count_percent',data=feature_value_counts,ax=ax)
+#     # set_title
+#     ax.set_title('Bar plot for '+ feature)
+#     # set_xlabel
+#     ax.set_xlabel(feature)
+#     sns.set()
+#     plt.show()
+Executing code: # for feature in ['PULocationID','DOLocationID']:
+#     feature_value_counts = trip_data[feature].value_counts().reset_index()
+#     feature_value_counts['count_percent'] = (feature_value_counts[feature]/trip_data.shape[0])*100
+#     # filter only those location which has more than 0.5 % of traffic
+#     feature_value_counts = feature_value_counts.loc[feature_value_counts['count_percent']>=0.5]
+#     print('Number of categories in feature '+ feature + ' above 0.5 % count is ' + str(feature_value_counts.shape[0]))
+#     fig,ax = plt.subplots(figsize=(25,7))
+#     sns.barplot(x='index',y='count_percent',data=feature_value_counts,ax=ax)
+#     ax.set_title('Bar plot for '+ feature)
+#     ax.set_xlabel(feature)
+#     sns.set()
+#     plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 27 ###
+
+# create routes column using PULocationID and DOLocationID with lambda function
+trip_data['routes'] = trip_data.apply(lambda x: str(x['PULocationID'])+'-'+str(x['DOLocationID']),axis=1)
+Executing code: # # save routes data to csv to load it later for analysis
+# trip_data['routes'].to_csv('/home/dias-benchmarks/new_notebooks/nyc-taxi/routes_yellow_tripdata_2018-01.csv',index=False)
+Executing code: # # loading routes_data
+# file_loc_routes_data = 'routes_yellow_tripdata_2018-01.csv'
+# routes_data = pd.read_csv(file_loc_routes_data)
+# # assigning new column 'routes' in trip_data to routes_data
+# trip_data['routes'] = routes_data
+Executing code: %%RecordEventWithColumnInfo
+### cell 28 ###
+
+trip_data.head()
+Executing code: # # plot bar plot for routes which have trip count above 0.25%
+# feature = 'routes'
+# feature_value_counts = trip_data[feature].value_counts().reset_index()
+# feature_value_counts['count_percent'] = (feature_value_counts[feature]/trip_data.shape[0])*100
+# # choosing routes where the trip percent is above 0.25% of total trips
+# feature_value_counts = feature_value_counts.loc[feature_value_counts['count_percent']>=0.25]
+# print('Number of categories in feature '+ feature + ' above 0.25 % count is ' + str(feature_value_counts.shape[0]))
+# fig,ax = plt.subplots(figsize=(25,7))
+# sns.barplot(x='index',y='count_percent',data=feature_value_counts,ax=ax)
+# ax.set_title('Bar plot for '+ feature)
+# ax.set_xlabel(feature)
+# sns.set()
+# plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 29 ###
+
+# look into value_counts of 'passenger_count'
+trip_data['passenger_count'].value_counts()
+Executing code: # # fig,ax object using plt.subplots()
+# fig,ax = plt.subplots(figsize=(25,7))
+# # box plot using - sns.boxplot(x, y , data, ax)
+# sns.boxplot(x = 'trip_pickup_hour',y='fare_amount',data=trip_data,ax=ax)
+# # ax.set_title
+# ax.set_title('box plot of fare_amount wrt hour of the day')
+# # seaborn style setting
+# sns.set()
+# # matplotlib plt.show()
+# plt.show()
+Executing code: # # fig,ax object using plt.subplots()
+# fig,ax = plt.subplots(figsize=(25,7))
+# # box plot using - sns.boxplot(x, y , data, ax)
+# sns.boxplot(x = 'trip_dropoff_hour',y='fare_amount',data=trip_data,ax=ax)
+# # ax.set_title
+# ax.set_title('box plot of fare_amount wrt hour of the day')
+# # seaborn style setting
+# sns.set()
+# # matplotlib plt.show()
+# plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 30 ###
+
+# restricted_fare_amount_data dataframe formation by filtering fare_amount less than 50 dollars
+restricted_fare_amount_data = trip_data.loc[trip_data['fare_amount']<=50]
+restricted_fare_amount_data.shape
+Executing code: # fig,ax = plt.subplots(figsize=(25,7))
+# sns.boxplot(x = 'trip_pickup_hour',y='fare_amount',data=restricted_fare_amount_data,ax=ax)
+# ax.set_title('box plot of fare_amount wrt hour of the day')
+# sns.set()
+# plt.show()
+Executing code: # fig,ax = plt.subplots(figsize=(25,7))
+# sns.boxplot(x = 'trip_dropoff_hour',y='fare_amount',data=restricted_fare_amount_data,ax=ax)
+# ax.set_title('box plot of fare_amount wrt hour of the day')
+# sns.set()
+# plt.show()
+Executing code: # fig,ax = plt.subplots(figsize=(25,7))
+# # sns.boxplot changes
+# sns.boxplot(x = 'trip_pickup_hour',y='total_amount',data=trip_data,ax=ax)
+# ax.set_title('box plot of total_amount wrt hour of the day')
+# sns.set()
+# plt.show()
+Executing code: # fig,ax = plt.subplots(figsize=(25,7))
+# # sns.boxplot changes
+# sns.boxplot(x = 'trip_dropoff_hour',y='total_amount',data=trip_data,ax=ax)
+# ax.set_title('box plot of total_amount wrt hour of the day')
+# sns.set()
+# plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 31 ###
+
+# restricted_total_amount_data for filtering total_amount data to less than 50 dollars
+restricted_total_amount_data = trip_data.loc[trip_data['total_amount']<=50]
+restricted_total_amount_data.shape
+Executing code: # fig,ax = plt.subplots(figsize=(25,7))
+# sns.boxplot(x = 'trip_pickup_hour',y='total_amount',data=restricted_total_amount_data,ax=ax)
+# ax.set_title('box plot of total_amount wrt hour of the day')
+# sns.set()
+# plt.show()
+Executing code: # fig,ax = plt.subplots(figsize=(25,7))
+# sns.boxplot(x = 'trip_dropoff_hour',y='total_amount',data=restricted_total_amount_data,ax=ax)
+# ax.set_title('box plot of total_amount wrt hour of the day')
+# sns.set()
+# plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 32 ###
+
+restricted_tip_amount_data = trip_data.loc[trip_data['tip_amount']<10]
+restricted_total_taxes_data = trip_data.loc[trip_data['total_taxes']<10]
+restricted_tip_amount_data.shape, restricted_total_taxes_data.shape
+Executing code: # fig,ax = plt.subplots(figsize=(25,7))
+# sns.boxplot(x = 'trip_pickup_hour',y='tip_amount',data=restricted_tip_amount_data,ax=ax)
+# ax.set_title('box plot of tip_amount wrt hour of the day')
+# sns.set()
+# plt.show()
+Executing code: # fig,ax = plt.subplots(figsize=(25,7))
+# sns.boxplot(x = 'trip_dropoff_hour',y='tip_amount',data=restricted_tip_amount_data,ax=ax)
+# ax.set_title('box plot of tip_amount wrt hour of the day')
+# sns.set()
+# plt.show()
+Executing code: # fig,ax = plt.subplots(figsize=(25,7))
+# sns.boxplot(x = 'trip_pickup_hour',y='total_taxes',data=restricted_total_taxes_data,ax=ax)
+# ax.set_title('box plot of total_taxes wrt hour of the day')
+# sns.set()
+# plt.show()
+Executing code: # fig,ax = plt.subplots(figsize=(25,7))
+# sns.boxplot(x = 'trip_dropoff_hour',y='total_taxes',data=restricted_total_taxes_data,ax=ax)
+# ax.set_title('box plot of total_taxes wrt hour of the day')
+# sns.set()
+# plt.show()
+Executing code: # # plot of trip_day with fare_amount
+# fig,ax = plt.subplots(figsize=(7,7))
+# # changes in sns.boxplot x and y
+# sns.boxplot(x = 'trip_day',y='fare_amount',data=restricted_fare_amount_data,ax=ax)
+# ax.set_title('box plot of fare_amount wrt the day of the week')
+# sns.set()
+# plt.show()
+Executing code: # fig,ax = plt.subplots(figsize=(7,7))
+# sns.boxplot(x = 'trip_day',y='total_amount',data=restricted_total_amount_data,ax=ax)
+# ax.set_title('box plot of total_amount wrt the day of the week')
+# sns.set()
+# plt.show()
+Executing code: # fig,ax = plt.subplots(figsize=(7,7))
+# sns.boxplot(x = 'trip_day',y='tip_amount',data=restricted_tip_amount_data,ax=ax)
+# ax.set_title('box plot of tip_amount wrt the day of the week')
+# sns.set()
+# plt.show()
+Executing code: # fig,ax = plt.subplots(figsize=(7,7))
+# sns.boxplot(x = 'trip_day',y='total_taxes',data=restricted_total_taxes_data,ax=ax)
+# ax.set_title('box plot of total_taxes wrt the day of the week')
+# sns.set()
+# plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 33 ###
+
+# create a new series using value_counts() on 'PULocationID'
+pickup_location_value_counts = trip_data['PULocationID'].value_counts()
+# show the series
+pickup_location_value_counts.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 34 ###
+
+# top 10 frequent pickup locations using .nlargest(10).index
+top_10_frequent_pickup_locations = pickup_location_value_counts.nlargest(10).index
+top_10_frequent_pickup_locations
+Executing code: # # for loop for plotting box plot of each of the top 10 frequent pickup locations
+# for top_pickup_locID in top_10_frequent_pickup_locations:
+#     # create the new dataframe for each location using .loc on 'PULocationID' - pickup_locID_dataframe
+#     pickup_locID_dataframe = trip_data.loc[trip_data['PULocationID'] == top_pickup_locID]
+#     # print the median fare_amount for the top_pickup_locID
+#     print('The median fare_amount of trips taken from '+str(top_pickup_locID)+' is '+str(pickup_locID_dataframe['fare_amount'].median()))
+#     # fig,ax object
+#     fig,ax = plt.subplots(figsize=(6,6))
+#     # sns.boxplot of fare_amount from the dataframe pickup_locID_dataframe
+#     sns.boxplot(pickup_locID_dataframe['fare_amount'],ax=ax)
+#     # set_title
+#     ax.set_title('box plot of fare_amount for pickup location '+ str(top_pickup_locID))
+#     sns.set()
+#     plt.show()
+Executing code: # # plot box plot for duration for different hours of day
+# fig,ax = plt.subplots(figsize=(20,7))
+# # box plot using sns.boxplot x is 'trip_pickup_hour' and y is 'duration'
+# sns.boxplot(x = 'trip_pickup_hour', y='duration',data = trip_data,ax=ax)
+# ax.set_title('Box plot of trip_pickup hour with respect to trip duration')
+# sns.set()
+# plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 35 ###
+
+# create restricted_duration dataframe with .loc on 'duration' column
+restricted_duration= trip_data.loc[trip_data['duration']<50]
+restricted_duration.shape
+Executing code: # fig,ax = plt.subplots(figsize=(20,7))
+# sns.boxplot(x = 'trip_pickup_hour', y='duration',data = restricted_duration,ax=ax)
+# ax.set_title('Box plot of trip_pickup hour with respect to trip duration')
+# sns.set()
+# plt.show()
+Executing code: # # plot box plots of duration for top 10 frequent pickup locations
+# for top_pickup_locID in top_10_frequent_pickup_locations:
+#     # create the new dataframe for each location using .loc on 'PULocationID' - pickup_locID_dataframe
+#     pickup_locID_dataframe = trip_data.loc[trip_data['PULocationID'] == top_pickup_locID]
+#     # print the median duration for the top_pickup_locID
+#     print('The median trip duration of trips taken from '+str(top_pickup_locID)+' is '+str(pickup_locID_dataframe['duration'].median()))
+#     fig,ax = plt.subplots(figsize=(6,6))
+#     # sns.boxplot of duration from the dataframe pickup_locID_dataframe
+#     sns.boxplot(pickup_locID_dataframe['duration'],ax=ax)
+#     # set_title
+#     ax.set_title('box plot of duration for pickup location '+ str(top_pickup_locID))
+#     sns.set()
+#     plt.show()
+Executing code: %PrintCellInfo cell_exec_info
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Ran small notebook to get cell exec info in 28.818931341171265 seconds
+Annotated notebook saved to new_notebooks/nyc-taxi/cpu_to_gpu_cost_model_inputs.ipynb
+Executing code: import sys, os
+sys.path.insert(0, os.path.abspath('/home/ElasticNotebook'))
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df
+import pickle
+import cudf
+Executing code: # %load_ext cudf.pandas
+# import important libraries - matplotlib, seaborn and pandas
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+import time
+Executing code: %%time
+### cell 0 ###
+
+file_loc = '/home/dias-benchmarks/new_notebooks/nyc-taxi/yellow_tripdata.csv'
+
+# read file
+trip_data = pd.read_csv(file_loc)
+trip_data = trip_data[:100000]
+trip_data.shape, trip_data.head()
+Executing code: %%time
+### cell 1 ###
+
+# print data tail
+trip_data.tail()
+Executing code: %%time
+### cell 2 ###
+
+# print data info
+trip_data.info()
+Executing code: %%time
+### cell 3 ###
+
+# remove following columns - 'VendorID','RatecodeID','store_and_fwd_flag'
+trip_data.drop(['VendorID','RatecodeID','store_and_fwd_flag'],axis=1,inplace=True)
+# print data head
+trip_data.head()
+Executing code: %%time
+### cell 4 ###
+
+# convert 'tpep_pickup_datetime' and 'tpep_dropoff_datetime' to datetime format
+trip_data['tpep_pickup_datetime'] = pd.to_datetime(trip_data['tpep_pickup_datetime'],errors='coerce' )
+trip_data['tpep_dropoff_datetime'] = pd.to_datetime(trip_data['tpep_dropoff_datetime'], errors='coerce' )
+# print data info
+print(trip_data.info())
+# print data head
+trip_data.head()
+Executing code: %%time
+### cell 5 ###
+
+# create 'duration' column using pd.Timedelta(minutes=1)
+trip_data['duration'] = (trip_data['tpep_dropoff_datetime'] - trip_data['tpep_pickup_datetime'])/ pd.Timedelta(minutes=1)
+# create 'trip_pickup_hour' column using 'tpep_pickup_datetime' column
+trip_data['trip_pickup_hour'] = trip_data['tpep_pickup_datetime'].dt.hour
+# create 'trip_dropoff_hour' column using 'tpep_dropoff_datetime' column
+trip_data['trip_dropoff_hour'] = trip_data['tpep_dropoff_datetime'].dt.hour
+# create 'trip_day' column using 'tpep_pickup_datetime' column - use day_name()
+trip_data['trip_day'] = trip_data['tpep_pickup_datetime'].dt.day_name()
+# print data info
+print(trip_data.info())
+# print data head
+trip_data.head()
+Executing code: %%time
+### cell 6 ###
+
+# print missing values for each column - use .isnull().sum
+trip_data.isnull().sum(axis=0).reset_index()
+Executing code: %%time
+### cell 7 ###
+
+# value_counts for 'payment_type' column
+trip_data['payment_type'].value_counts()
+Executing code: %%time
+### cell 8 ###
+
+# function for mapping numerical payment_type to actual payment
+def map_payment_type(x):
+    if x==1:
+        return 'Credit_card'
+    elif x==2:
+        return 'Cash'
+    elif x==3:
+        return 'No_charge'
+    elif x==4:
+        return 'Dispute'
+    elif x==5:
+        return 'Unknown'
+    else:
+        return 'Voided_trip'
+
+# use .apply and lambda on payment_type column to change 'payment_type' column
+trip_data['payment_type'] = trip_data.payment_type.apply(lambda x:map_payment_type(x))
+# print data head
+trip_data.head()
+Executing code: %%time
+### cell 9 ###
+
+# print data info to show that payment_type data type has changed
+trip_data.info()
+Executing code: %%time
+### cell 10 ###
+
+# create 'total_taxes' column from summing 'extra','mta_tax', 'improvement_surcharge'
+trip_data['total_taxes'] = trip_data['extra']+trip_data['mta_tax']+trip_data['improvement_surcharge']
+# drop 'extra','mta_tax','improvement_surcharge' columns
+trip_data.drop(['extra','mta_tax','improvement_surcharge'],axis=1,inplace=True)
+# print data head
+trip_data.head()
+Executing code: %%time
+### cell 11 ###
+
+# continuous_columns list
+continuous_columns = ['fare_amount','tip_amount','total_taxes','total_amount','duration','trip_distance','tolls_amount']
+Executing code: %%time
+### cell 12 ###
+
+# use .describe() for showing the statistics for continuous columns
+trip_data[continuous_columns].describe()
+Executing code: %%time
+### cell 13 ###
+
+# using .loc to show negative values in fare_amount
+trip_data.loc[trip_data['fare_amount']<0]
+Executing code: %%time
+### cell 14 ###
+
+# using .loc to show negative values in tip_amount
+trip_data.loc[trip_data['tip_amount']<0]
+Executing code: %%time
+### cell 15 ###
+
+# using .loc to show negative values in tolls_amount
+trip_data.loc[trip_data['tolls_amount']<0]
+Executing code: %%time
+### cell 16 ###
+
+# using .loc to show negative values in total_taxes
+trip_data.loc[trip_data['total_taxes']<0]
+Executing code: %%time
+### cell 17 ###
+
+# using .loc to show negative values in total_amount
+trip_data.loc[trip_data['total_amount']<0]
+Executing code: %%time
+### cell 18 ###
+
+# data shape before filtering negative fare_amount rows
+print(trip_data.shape)
+# using .loc to filter only those rows where fare_amount is positive
+trip_data = trip_data.loc[trip_data['fare_amount']>=0]
+trip_data.shape, trip_data.head()
+Executing code: %%time
+### cell 19 ###
+
+# using .loc to show negative values in duration
+trip_data.loc[trip_data['duration']<0]
+Executing code: %%time
+### cell 20 ###
+
+# using .loc to filter only those rows where duration is positive
+trip_data = trip_data.loc[trip_data['duration']>=0]
+trip_data.shape
+Executing code: %%time
+### cell 21 ###
+
+# use .describe() again to show the statistics for these continuous variables
+trip_data[continuous_columns].describe()
+Executing code: %%time
+### cell 22 ###
+
+# list of categorical_variables
+categorical_variables = ['payment_type','trip_pickup_hour','trip_dropoff_hour','trip_day','PULocationID','DOLocationID']
+Executing code: %%time
+### cell 23 ###
+
+# start exploration with payment_type using .value_counts()
+trip_data['payment_type'].value_counts()
+Executing code: %%time
+### cell 24 ###
+
+# but this is a series for ease of plotting we need to use dataframe using .reset_index() on value_counts()
+payment_type_category_count = trip_data['payment_type'].value_counts().reset_index()
+payment_type_category_count.columns = ["payment_type", "count"]
+# print the above dataframe
+payment_type_category_count
+Executing code: %%time
+### cell 25 ###
+
+# we are shown the count under each category but it is better to have count% for comparison - create count_percent col
+payment_type_category_count['count_percent'] = (payment_type_category_count['count']/trip_data.shape[0])*100
+# print the data frame
+payment_type_category_count
+Executing code: %%time
+### cell 26 ###
+
+# let's see the number of categories available in both pickup and dropoff location - PULocationID and DOLocationID
+trip_data['PULocationID'].value_counts().shape, trip_data['DOLocationID'].value_counts().shape
+Executing code: %%time
+### cell 27 ###
+
+# create routes column using PULocationID and DOLocationID with lambda function
+trip_data['routes'] = trip_data.apply(lambda x: str(x['PULocationID'])+'-'+str(x['DOLocationID']),axis=1)
+Executing code: %%time
+### cell 28 ###
+
+trip_data.head()
+Executing code: %%time
+### cell 29 ###
+
+# look into value_counts of 'passenger_count'
+trip_data['passenger_count'].value_counts()
+Executing code: %%time
+### cell 30 ###
+
+# restricted_fare_amount_data dataframe formation by filtering fare_amount less than 50 dollars
+restricted_fare_amount_data = trip_data.loc[trip_data['fare_amount']<=50]
+restricted_fare_amount_data.shape
+Executing code: %%time
+### cell 31 ###
+
+# restricted_total_amount_data for filtering total_amount data to less than 50 dollars
+restricted_total_amount_data = trip_data.loc[trip_data['total_amount']<=50]
+restricted_total_amount_data.shape
+Executing code: %%time
+### cell 32 ###
+
+restricted_tip_amount_data = trip_data.loc[trip_data['tip_amount']<10]
+restricted_total_taxes_data = trip_data.loc[trip_data['total_taxes']<10]
+restricted_tip_amount_data.shape, restricted_total_taxes_data.shape
+Executing code: %%time
+### cell 33 ###
+
+# create a new series using value_counts() on 'PULocationID'
+pickup_location_value_counts = trip_data['PULocationID'].value_counts()
+# show the series
+pickup_location_value_counts.head()
+Executing code: %%time
+### cell 34 ###
+
+# top 10 frequent pickup locations using .nlargest(10).index
+top_10_frequent_pickup_locations = pickup_location_value_counts.nlargest(10).index
+top_10_frequent_pickup_locations
+Executing code: %%time
+### cell 35 ###
+
+# create restricted_duration dataframe with .loc on 'duration' column
+restricted_duration= trip_data.loc[trip_data['duration']<50]
+restricted_duration.shape
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Annotated notebook saved to new_notebooks/nyc-taxi/gpu_to_cpu_cost_model_inputs.ipynb
+Executing code: %load_ext cudf.pandas
+Executing code: import sys, os
+sys.path.insert(0, os.path.abspath('/home/ElasticNotebook'))
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df
+import pickle
+import cudf
+Executing code: # %load_ext cudf.pandas
+# import important libraries - matplotlib, seaborn and pandas
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+import time
+Executing code: %%time
+### cell 0 ###
+
+file_loc = '/home/dias-benchmarks/new_notebooks/nyc-taxi/yellow_tripdata.csv'
+
+# read file
+trip_data = pd.read_csv(file_loc)
+trip_data = trip_data[:100000]
+trip_data.shape, trip_data.head()
+Executing code: %%time
+### cell 1 ###
+
+# print data tail
+trip_data.tail()
+Executing code: %%time
+### cell 2 ###
+
+# print data info
+trip_data.info()
+Executing code: %%time
+### cell 3 ###
+
+# remove following columns - 'VendorID','RatecodeID','store_and_fwd_flag'
+trip_data.drop(['VendorID','RatecodeID','store_and_fwd_flag'],axis=1,inplace=True)
+# print data head
+trip_data.head()
+Executing code: %%time
+### cell 4 ###
+
+# convert 'tpep_pickup_datetime' and 'tpep_dropoff_datetime' to datetime format
+trip_data['tpep_pickup_datetime'] = pd.to_datetime(trip_data['tpep_pickup_datetime'],errors='coerce' )
+trip_data['tpep_dropoff_datetime'] = pd.to_datetime(trip_data['tpep_dropoff_datetime'], errors='coerce' )
+# print data info
+print(trip_data.info())
+# print data head
+trip_data.head()
+Executing code: %%time
+### cell 5 ###
+
+# create 'duration' column using pd.Timedelta(minutes=1)
+trip_data['duration'] = (trip_data['tpep_dropoff_datetime'] - trip_data['tpep_pickup_datetime'])/ pd.Timedelta(minutes=1)
+# create 'trip_pickup_hour' column using 'tpep_pickup_datetime' column
+trip_data['trip_pickup_hour'] = trip_data['tpep_pickup_datetime'].dt.hour
+# create 'trip_dropoff_hour' column using 'tpep_dropoff_datetime' column
+trip_data['trip_dropoff_hour'] = trip_data['tpep_dropoff_datetime'].dt.hour
+# create 'trip_day' column using 'tpep_pickup_datetime' column - use day_name()
+trip_data['trip_day'] = trip_data['tpep_pickup_datetime'].dt.day_name()
+# print data info
+print(trip_data.info())
+# print data head
+trip_data.head()
+Executing code: %%time
+### cell 6 ###
+
+# print missing values for each column - use .isnull().sum
+trip_data.isnull().sum(axis=0).reset_index()
+Executing code: %%time
+### cell 7 ###
+
+# value_counts for 'payment_type' column
+trip_data['payment_type'].value_counts()
+Executing code: %%time
+### cell 8 ###
+
+# function for mapping numerical payment_type to actual payment
+def map_payment_type(x):
+    if x==1:
+        return 'Credit_card'
+    elif x==2:
+        return 'Cash'
+    elif x==3:
+        return 'No_charge'
+    elif x==4:
+        return 'Dispute'
+    elif x==5:
+        return 'Unknown'
+    else:
+        return 'Voided_trip'
+
+# use .apply and lambda on payment_type column to change 'payment_type' column
+trip_data['payment_type'] = trip_data.payment_type.apply(lambda x:map_payment_type(x))
+# print data head
+trip_data.head()
+Executing code: %%time
+### cell 9 ###
+
+# print data info to show that payment_type data type has changed
+trip_data.info()
+Executing code: %%time
+### cell 10 ###
+
+# create 'total_taxes' column from summing 'extra','mta_tax', 'improvement_surcharge'
+trip_data['total_taxes'] = trip_data['extra']+trip_data['mta_tax']+trip_data['improvement_surcharge']
+# drop 'extra','mta_tax','improvement_surcharge' columns
+trip_data.drop(['extra','mta_tax','improvement_surcharge'],axis=1,inplace=True)
+# print data head
+trip_data.head()
+Executing code: %%time
+### cell 11 ###
+
+# continuous_columns list
+continuous_columns = ['fare_amount','tip_amount','total_taxes','total_amount','duration','trip_distance','tolls_amount']
+Executing code: %%time
+### cell 12 ###
+
+# use .describe() for showing the statistics for continuous columns
+trip_data[continuous_columns].describe()
+Executing code: %%time
+### cell 13 ###
+
+# using .loc to show negative values in fare_amount
+trip_data.loc[trip_data['fare_amount']<0]
+Executing code: %%time
+### cell 14 ###
+
+# using .loc to show negative values in tip_amount
+trip_data.loc[trip_data['tip_amount']<0]
+Executing code: %%time
+### cell 15 ###
+
+# using .loc to show negative values in tolls_amount
+trip_data.loc[trip_data['tolls_amount']<0]
+Executing code: %%time
+### cell 16 ###
+
+# using .loc to show negative values in total_taxes
+trip_data.loc[trip_data['total_taxes']<0]
+Executing code: %%time
+### cell 17 ###
+
+# using .loc to show negative values in total_amount
+trip_data.loc[trip_data['total_amount']<0]
+Executing code: %%time
+### cell 18 ###
+
+# data shape before filtering negative fare_amount rows
+print(trip_data.shape)
+# using .loc to filter only those rows where fare_amount is positive
+trip_data = trip_data.loc[trip_data['fare_amount']>=0]
+trip_data.shape, trip_data.head()
+Executing code: %%time
+### cell 19 ###
+
+# using .loc to show negative values in duration
+trip_data.loc[trip_data['duration']<0]
+Executing code: %%time
+### cell 20 ###
+
+# using .loc to filter only those rows where duration is positive
+trip_data = trip_data.loc[trip_data['duration']>=0]
+trip_data.shape
+Executing code: %%time
+### cell 21 ###
+
+# use .describe() again to show the statistics for these continuous variables
+trip_data[continuous_columns].describe()
+Executing code: %%time
+### cell 22 ###
+
+# list of categorical_variables
+categorical_variables = ['payment_type','trip_pickup_hour','trip_dropoff_hour','trip_day','PULocationID','DOLocationID']
+Executing code: %%time
+### cell 23 ###
+
+# start exploration with payment_type using .value_counts()
+trip_data['payment_type'].value_counts()
+Executing code: %%time
+### cell 24 ###
+
+# but this is a series for ease of plotting we need to use dataframe using .reset_index() on value_counts()
+payment_type_category_count = trip_data['payment_type'].value_counts().reset_index()
+payment_type_category_count.columns = ["payment_type", "count"]
+# print the above dataframe
+payment_type_category_count
+Executing code: %%time
+### cell 25 ###
+
+# we are shown the count under each category but it is better to have count% for comparison - create count_percent col
+payment_type_category_count['count_percent'] = (payment_type_category_count['count']/trip_data.shape[0])*100
+# print the data frame
+payment_type_category_count
+Executing code: %%time
+### cell 26 ###
+
+# let's see the number of categories available in both pickup and dropoff location - PULocationID and DOLocationID
+trip_data['PULocationID'].value_counts().shape, trip_data['DOLocationID'].value_counts().shape
+Executing code: %%time
+### cell 27 ###
+
+# create routes column using PULocationID and DOLocationID with lambda function
+trip_data['routes'] = trip_data.apply(lambda x: str(x['PULocationID'])+'-'+str(x['DOLocationID']),axis=1)
+Executing code: %%time
+### cell 28 ###
+
+trip_data.head()
+Executing code: %%time
+### cell 29 ###
+
+# look into value_counts of 'passenger_count'
+trip_data['passenger_count'].value_counts()
+Executing code: %%time
+### cell 30 ###
+
+# restricted_fare_amount_data dataframe formation by filtering fare_amount less than 50 dollars
+restricted_fare_amount_data = trip_data.loc[trip_data['fare_amount']<=50]
+restricted_fare_amount_data.shape
+Executing code: %%time
+### cell 31 ###
+
+# restricted_total_amount_data for filtering total_amount data to less than 50 dollars
+restricted_total_amount_data = trip_data.loc[trip_data['total_amount']<=50]
+restricted_total_amount_data.shape
+Executing code: %%time
+### cell 32 ###
+
+restricted_tip_amount_data = trip_data.loc[trip_data['tip_amount']<10]
+restricted_total_taxes_data = trip_data.loc[trip_data['total_taxes']<10]
+restricted_tip_amount_data.shape, restricted_total_taxes_data.shape
+Executing code: %%time
+### cell 33 ###
+
+# create a new series using value_counts() on 'PULocationID'
+pickup_location_value_counts = trip_data['PULocationID'].value_counts()
+# show the series
+pickup_location_value_counts.head()
+Executing code: %%time
+### cell 34 ###
+
+# top 10 frequent pickup locations using .nlargest(10).index
+top_10_frequent_pickup_locations = pickup_location_value_counts.nlargest(10).index
+top_10_frequent_pickup_locations
+Executing code: %%time
+### cell 35 ###
+
+# create restricted_duration dataframe with .loc on 'duration' column
+restricted_duration= trip_data.loc[trip_data['duration']<50]
+restricted_duration.shape
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Getting CPU to GPU transfer times
+Annotated notebook saved to new_notebooks/nyc-taxi/cpu_to_gpu_transfer_times.ipynb
+Finished getting CPU to GPU transfer times
+Getting GPU to CPU transfer times
+Annotated notebook saved to new_notebooks/nyc-taxi/gpu_to_cpu_transfer_times.ipynb
+Finished getting GPU to CPU transfer times
+cell index 0
+input transfer inputs []
+output transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.NUMBER: 'number'>, rows=100000, cols=17, is_series=False, col_data={'VendorID': (<DFType.NUMBER: 'number'>, 800128, 800000), 'tpep_pickup_datetime': (<DFType.OBJECT: 'object'>, 7600128, 2300004), 'tpep_dropoff_datetime': (<DFType.OBJECT: 'object'>, 7600128, 2300004), 'passenger_count': (<DFType.NUMBER: 'number'>, 800128, 800000), 'trip_distance': (<DFType.FLOAT: 'float'>, 800128, 800000), 'RatecodeID': (<DFType.NUMBER: 'number'>, 800128, 800000), 'store_and_fwd_flag': (<DFType.OBJECT: 'object'>, 5800128, 500004), 'PULocationID': (<DFType.NUMBER: 'number'>, 800128, 800000), 'DOLocationID': (<DFType.NUMBER: 'number'>, 800128, 800000), 'payment_type': (<DFType.NUMBER: 'number'>, 800128, 800000), 'fare_amount': (<DFType.FLOAT: 'float'>, 800128, 800000), 'extra': (<DFType.FLOAT: 'float'>, 800128, 800000), 'mta_tax': (<DFType.FLOAT: 'float'>, 800128, 800000), 'tip_amount': (<DFType.FLOAT: 'float'>, 800128, 800000), 'tolls_amount': (<DFType.FLOAT: 'float'>, 800128, 800000), 'improvement_surcharge': (<DFType.FLOAT: 'float'>, 800128, 800000), 'total_amount': (<DFType.FLOAT: 'float'>, 800128, 800000)}, col_names=['VendorID', 'tpep_pickup_datetime', 'tpep_dropoff_datetime', 'passenger_count', 'trip_distance', 'RatecodeID', 'store_and_fwd_flag', 'PULocationID', 'DOLocationID', 'payment_type', 'fare_amount', 'extra', 'mta_tax', 'tip_amount', 'tolls_amount', 'improvement_surcharge', 'total_amount'], cpu_to_gpu_col_transfer_times={'VendorID': 1.3, 'tpep_pickup_datetime': 17.1, 'tpep_dropoff_datetime': 9.57, 'passenger_count': 1.34, 'trip_distance': 2.56, 'RatecodeID': 1.67, 'store_and_fwd_flag': 8.25, 'PULocationID': 1.24, 'DOLocationID': 1.65, 'payment_type': 1.58, 'fare_amount': 2.06, 'extra': 1.85, 'mta_tax': 1.87, 'tip_amount': 2.17, 'tolls_amount': 1.84, 'improvement_surcharge': 2.31, 'total_amount': 2.17}, gpu_to_cpu_col_transfer_times={'VendorID': 183.0, 'tpep_pickup_datetime': 160.0, 'tpep_dropoff_datetime': 176.0, 'passenger_count': 6.5, 'trip_distance': 9.1, 'RatecodeID': 7.38, 'store_and_fwd_flag': 39.7, 'PULocationID': 5.42, 'DOLocationID': 6.11, 'payment_type': 6.05, 'fare_amount': 4.99, 'extra': 5.29, 'mta_tax': 5.78, 'tip_amount': 5.09, 'tolls_amount': 5.43, 'improvement_surcharge': 5.46, 'total_amount': 6.14}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+cell index 1
+input transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.NUMBER: 'number'>, rows=100000, cols=17, is_series=False, col_data={'VendorID': (<DFType.NUMBER: 'number'>, 800128, 800000), 'tpep_pickup_datetime': (<DFType.OBJECT: 'object'>, 7600128, 2300004), 'tpep_dropoff_datetime': (<DFType.OBJECT: 'object'>, 7600128, 2300004), 'passenger_count': (<DFType.NUMBER: 'number'>, 800128, 800000), 'trip_distance': (<DFType.FLOAT: 'float'>, 800128, 800000), 'RatecodeID': (<DFType.NUMBER: 'number'>, 800128, 800000), 'store_and_fwd_flag': (<DFType.OBJECT: 'object'>, 5800128, 500004), 'PULocationID': (<DFType.NUMBER: 'number'>, 800128, 800000), 'DOLocationID': (<DFType.NUMBER: 'number'>, 800128, 800000), 'payment_type': (<DFType.NUMBER: 'number'>, 800128, 800000), 'fare_amount': (<DFType.FLOAT: 'float'>, 800128, 800000), 'extra': (<DFType.FLOAT: 'float'>, 800128, 800000), 'mta_tax': (<DFType.FLOAT: 'float'>, 800128, 800000), 'tip_amount': (<DFType.FLOAT: 'float'>, 800128, 800000), 'tolls_amount': (<DFType.FLOAT: 'float'>, 800128, 800000), 'improvement_surcharge': (<DFType.FLOAT: 'float'>, 800128, 800000), 'total_amount': (<DFType.FLOAT: 'float'>, 800128, 800000)}, col_names=['VendorID', 'tpep_pickup_datetime', 'tpep_dropoff_datetime', 'passenger_count', 'trip_distance', 'RatecodeID', 'store_and_fwd_flag', 'PULocationID', 'DOLocationID', 'payment_type', 'fare_amount', 'extra', 'mta_tax', 'tip_amount', 'tolls_amount', 'improvement_surcharge', 'total_amount'], cpu_to_gpu_col_transfer_times={'VendorID': 1.15, 'tpep_pickup_datetime': 18.2, 'tpep_dropoff_datetime': 12.9, 'passenger_count': 1.35, 'trip_distance': 2.17, 'RatecodeID': 1.14, 'store_and_fwd_flag': 8.15, 'PULocationID': 0.845, 'DOLocationID': 1.37, 'payment_type': 1.14, 'fare_amount': 2.09, 'extra': 2.21, 'mta_tax': 2.11, 'tip_amount': 2.16, 'tolls_amount': 2.09, 'improvement_surcharge': 1.77, 'total_amount': 1.63}, gpu_to_cpu_col_transfer_times={'VendorID': 6.67, 'tpep_pickup_datetime': 130.0, 'tpep_dropoff_datetime': 133.0, 'passenger_count': 7.13, 'trip_distance': 6.63, 'RatecodeID': 5.56, 'store_and_fwd_flag': 37.2, 'PULocationID': 5.64, 'DOLocationID': 5.22, 'payment_type': 5.27, 'fare_amount': 6.75, 'extra': 6.78, 'mta_tax': 4.69, 'tip_amount': 5.54, 'tolls_amount': 5.68, 'improvement_surcharge': 5.31, 'total_amount': 4.94}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 2
+input transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.NUMBER: 'number'>, rows=100000, cols=17, is_series=False, col_data={'VendorID': (<DFType.NUMBER: 'number'>, 800128, 800000), 'tpep_pickup_datetime': (<DFType.OBJECT: 'object'>, 7600128, 2300004), 'tpep_dropoff_datetime': (<DFType.OBJECT: 'object'>, 7600128, 2300004), 'passenger_count': (<DFType.NUMBER: 'number'>, 800128, 800000), 'trip_distance': (<DFType.FLOAT: 'float'>, 800128, 800000), 'RatecodeID': (<DFType.NUMBER: 'number'>, 800128, 800000), 'store_and_fwd_flag': (<DFType.OBJECT: 'object'>, 5800128, 500004), 'PULocationID': (<DFType.NUMBER: 'number'>, 800128, 800000), 'DOLocationID': (<DFType.NUMBER: 'number'>, 800128, 800000), 'payment_type': (<DFType.NUMBER: 'number'>, 800128, 800000), 'fare_amount': (<DFType.FLOAT: 'float'>, 800128, 800000), 'extra': (<DFType.FLOAT: 'float'>, 800128, 800000), 'mta_tax': (<DFType.FLOAT: 'float'>, 800128, 800000), 'tip_amount': (<DFType.FLOAT: 'float'>, 800128, 800000), 'tolls_amount': (<DFType.FLOAT: 'float'>, 800128, 800000), 'improvement_surcharge': (<DFType.FLOAT: 'float'>, 800128, 800000), 'total_amount': (<DFType.FLOAT: 'float'>, 800128, 800000)}, col_names=['VendorID', 'tpep_pickup_datetime', 'tpep_dropoff_datetime', 'passenger_count', 'trip_distance', 'RatecodeID', 'store_and_fwd_flag', 'PULocationID', 'DOLocationID', 'payment_type', 'fare_amount', 'extra', 'mta_tax', 'tip_amount', 'tolls_amount', 'improvement_surcharge', 'total_amount'], cpu_to_gpu_col_transfer_times={'VendorID': 0.856, 'tpep_pickup_datetime': 10.2, 'tpep_dropoff_datetime': 9.45, 'passenger_count': 1.39, 'trip_distance': 1.9, 'RatecodeID': 1.39, 'store_and_fwd_flag': 8.54, 'PULocationID': 1.33, 'DOLocationID': 1.34, 'payment_type': 1.16, 'fare_amount': 2.4, 'extra': 2.39, 'mta_tax': 2.2, 'tip_amount': 2.34, 'tolls_amount': 2.22, 'improvement_surcharge': 1.74, 'total_amount': 1.91}, gpu_to_cpu_col_transfer_times={'VendorID': 5.35, 'tpep_pickup_datetime': 126.0, 'tpep_dropoff_datetime': 131.0, 'passenger_count': 6.26, 'trip_distance': 5.5, 'RatecodeID': 5.38, 'store_and_fwd_flag': 37.0, 'PULocationID': 5.53, 'DOLocationID': 5.25, 'payment_type': 6.19, 'fare_amount': 5.07, 'extra': 5.61, 'mta_tax': 5.61, 'tip_amount': 5.47, 'tolls_amount': 5.21, 'improvement_surcharge': 5.14, 'total_amount': 5.41}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 3
+input transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.NUMBER: 'number'>, rows=100000, cols=17, is_series=False, col_data={'tolls_amount': (<DFType.FLOAT: 'float'>, 800128, 800000), 'extra': (<DFType.FLOAT: 'float'>, 800128, 800000), 'DOLocationID': (<DFType.NUMBER: 'number'>, 800128, 800000), 'PULocationID': (<DFType.NUMBER: 'number'>, 800128, 800000), 'VendorID': (<DFType.NUMBER: 'number'>, 800128, 800000), 'trip_distance': (<DFType.FLOAT: 'float'>, 800128, 800000), 'fare_amount': (<DFType.FLOAT: 'float'>, 800128, 800000), 'tpep_dropoff_datetime': (<DFType.OBJECT: 'object'>, 7600128, 2300004), 'total_amount': (<DFType.FLOAT: 'float'>, 800128, 800000), 'RatecodeID': (<DFType.NUMBER: 'number'>, 800128, 800000), 'passenger_count': (<DFType.NUMBER: 'number'>, 800128, 800000), 'tip_amount': (<DFType.FLOAT: 'float'>, 800128, 800000), 'improvement_surcharge': (<DFType.FLOAT: 'float'>, 800128, 800000), 'store_and_fwd_flag': (<DFType.OBJECT: 'object'>, 5800128, 500004), 'mta_tax': (<DFType.FLOAT: 'float'>, 800128, 800000), 'tpep_pickup_datetime': (<DFType.OBJECT: 'object'>, 7600128, 2300004), 'payment_type': (<DFType.NUMBER: 'number'>, 800128, 800000)}, col_names=['tolls_amount', 'extra', 'DOLocationID', 'PULocationID', 'VendorID', 'trip_distance', 'fare_amount', 'tpep_dropoff_datetime', 'total_amount', 'RatecodeID', 'passenger_count', 'tip_amount', 'improvement_surcharge', 'store_and_fwd_flag', 'mta_tax', 'tpep_pickup_datetime', 'payment_type'], cpu_to_gpu_col_transfer_times={'tolls_amount': 2.37, 'extra': 2.49, 'DOLocationID': 1.57, 'PULocationID': 1.42, 'VendorID': 1.45, 'trip_distance': 2.24, 'fare_amount': 2.28, 'tpep_dropoff_datetime': 17.1, 'total_amount': 2.01, 'RatecodeID': 1.16, 'passenger_count': 1.12, 'tip_amount': 2.28, 'improvement_surcharge': 2.07, 'store_and_fwd_flag': 9.74, 'mta_tax': 1.97, 'tpep_pickup_datetime': 9.75, 'payment_type': 1.43}, gpu_to_cpu_col_transfer_times={'tolls_amount': 5.33, 'extra': 5.44, 'DOLocationID': 7.07, 'PULocationID': 7.47, 'VendorID': 6.85, 'trip_distance': 6.7, 'fare_amount': 6.85, 'tpep_dropoff_datetime': 125.0, 'total_amount': 5.74, 'RatecodeID': 5.11, 'passenger_count': 5.09, 'tip_amount': 4.9, 'improvement_surcharge': 4.95, 'store_and_fwd_flag': 39.7, 'mta_tax': 6.67, 'tpep_pickup_datetime': 128.0, 'payment_type': 6.14}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.NUMBER: 'number'>, rows=100000, cols=14, is_series=False, col_data={'tolls_amount': (<DFType.FLOAT: 'float'>, 800128, 800000), 'extra': (<DFType.FLOAT: 'float'>, 800128, 800000), 'DOLocationID': (<DFType.NUMBER: 'number'>, 800128, 800000), 'PULocationID': (<DFType.NUMBER: 'number'>, 800128, 800000), 'fare_amount': (<DFType.FLOAT: 'float'>, 800128, 800000), 'trip_distance': (<DFType.FLOAT: 'float'>, 800128, 800000), 'mta_tax': (<DFType.FLOAT: 'float'>, 800128, 800000), 'tpep_dropoff_datetime': (<DFType.OBJECT: 'object'>, 7600128, 2300004), 'total_amount': (<DFType.FLOAT: 'float'>, 800128, 800000), 'passenger_count': (<DFType.NUMBER: 'number'>, 800128, 800000), 'improvement_surcharge': (<DFType.FLOAT: 'float'>, 800128, 800000), 'tip_amount': (<DFType.FLOAT: 'float'>, 800128, 800000), 'tpep_pickup_datetime': (<DFType.OBJECT: 'object'>, 7600128, 2300004), 'payment_type': (<DFType.NUMBER: 'number'>, 800128, 800000)}, col_names=['tolls_amount', 'extra', 'DOLocationID', 'PULocationID', 'fare_amount', 'trip_distance', 'mta_tax', 'tpep_dropoff_datetime', 'total_amount', 'passenger_count', 'improvement_surcharge', 'tip_amount', 'tpep_pickup_datetime', 'payment_type'], cpu_to_gpu_col_transfer_times={'tolls_amount': 2.21, 'extra': 2.3, 'DOLocationID': 1.18, 'PULocationID': 1.21, 'fare_amount': 2.34, 'trip_distance': 2.05, 'mta_tax': 2.3, 'tpep_dropoff_datetime': 17.4, 'total_amount': 2.74, 'passenger_count': 1.4, 'improvement_surcharge': 2.71, 'tip_amount': 2.01, 'tpep_pickup_datetime': 10.7, 'payment_type': 1.27}, gpu_to_cpu_col_transfer_times={'tolls_amount': 6.23, 'extra': 6.02, 'DOLocationID': 5.64, 'PULocationID': 6.12, 'fare_amount': 5.67, 'trip_distance': 5.05, 'mta_tax': 5.29, 'tpep_dropoff_datetime': 126.0, 'total_amount': 6.59, 'passenger_count': 5.89, 'improvement_surcharge': 6.04, 'tip_amount': 7.11, 'tpep_pickup_datetime': 125.0, 'payment_type': 6.34}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+cell index 4
+input transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.OBJECT: 'object'>, rows=100000, cols=2, is_series=False, col_data={'tpep_pickup_datetime': (<DFType.OBJECT: 'object'>, 7600128, 2300004), 'tpep_dropoff_datetime': (<DFType.OBJECT: 'object'>, 7600128, 2300004)}, col_names=['tpep_pickup_datetime', 'tpep_dropoff_datetime'], cpu_to_gpu_col_transfer_times={'tpep_pickup_datetime': 15.3, 'tpep_dropoff_datetime': 10.4}, gpu_to_cpu_col_transfer_times={'tpep_pickup_datetime': 123.0, 'tpep_dropoff_datetime': 130.0}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.STRING: 'string'>, rows=100000, cols=14, is_series=False, col_data={'tpep_pickup_datetime': (<DFType.STRING: 'string'>, 800128, 800000), 'tpep_dropoff_datetime': (<DFType.STRING: 'string'>, 800128, 800000)}, col_names=['tpep_pickup_datetime', 'tpep_dropoff_datetime'], cpu_to_gpu_col_transfer_times={'tpep_pickup_datetime': 1.19, 'tpep_dropoff_datetime': 1.2}, gpu_to_cpu_col_transfer_times={'tpep_pickup_datetime': 7.07, 'tpep_dropoff_datetime': 5.65}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+cell index 5
+input transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.STRING: 'string'>, rows=100000, cols=2, is_series=False, col_data={'tpep_pickup_datetime': (<DFType.STRING: 'string'>, 800128, 800000), 'tpep_dropoff_datetime': (<DFType.STRING: 'string'>, 800128, 800000)}, col_names=['tpep_pickup_datetime', 'tpep_dropoff_datetime'], cpu_to_gpu_col_transfer_times={'tpep_pickup_datetime': 0.877, 'tpep_dropoff_datetime': 1.11}, gpu_to_cpu_col_transfer_times={'tpep_pickup_datetime': 5.76, 'tpep_dropoff_datetime': 5.2}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.MIXED: 'mixed'>, rows=100000, cols=18, is_series=False, col_data={'trip_day': (<DFType.OBJECT: 'object'>, 6300129, 1000005), 'trip_dropoff_hour': (<DFType.NUMBER: 'number'>, 400128, 200000), 'duration': (<DFType.FLOAT: 'float'>, 800128, 800000), 'tpep_dropoff_datetime': (<DFType.STRING: 'string'>, 800128, 800000), 'trip_pickup_hour': (<DFType.NUMBER: 'number'>, 400128, 200000), 'tpep_pickup_datetime': (<DFType.STRING: 'string'>, 800128, 800000)}, col_names=['trip_day', 'trip_dropoff_hour', 'duration', 'tpep_dropoff_datetime', 'trip_pickup_hour', 'tpep_pickup_datetime'], cpu_to_gpu_col_transfer_times={'trip_day': 8.51, 'trip_dropoff_hour': 1.04, 'duration': 2.06, 'tpep_dropoff_datetime': 1.15, 'trip_pickup_hour': 1.02, 'tpep_pickup_datetime': 1.59}, gpu_to_cpu_col_transfer_times={'trip_day': 38.2, 'trip_dropoff_hour': 224.0, 'duration': 6.02, 'tpep_dropoff_datetime': 5.49, 'trip_pickup_hour': 5.65, 'tpep_pickup_datetime': 5.12}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+cell index 6
+input transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.MIXED: 'mixed'>, rows=100000, cols=18, is_series=False, col_data={'tpep_pickup_datetime': (<DFType.STRING: 'string'>, 800128, 800000), 'tpep_dropoff_datetime': (<DFType.STRING: 'string'>, 800128, 800000), 'passenger_count': (<DFType.NUMBER: 'number'>, 800128, 800000), 'trip_distance': (<DFType.FLOAT: 'float'>, 800128, 800000), 'PULocationID': (<DFType.NUMBER: 'number'>, 800128, 800000), 'DOLocationID': (<DFType.NUMBER: 'number'>, 800128, 800000), 'payment_type': (<DFType.NUMBER: 'number'>, 800128, 800000), 'fare_amount': (<DFType.FLOAT: 'float'>, 800128, 800000), 'extra': (<DFType.FLOAT: 'float'>, 800128, 800000), 'mta_tax': (<DFType.FLOAT: 'float'>, 800128, 800000), 'tip_amount': (<DFType.FLOAT: 'float'>, 800128, 800000), 'tolls_amount': (<DFType.FLOAT: 'float'>, 800128, 800000), 'improvement_surcharge': (<DFType.FLOAT: 'float'>, 800128, 800000), 'total_amount': (<DFType.FLOAT: 'float'>, 800128, 800000), 'duration': (<DFType.FLOAT: 'float'>, 800128, 800000), 'trip_pickup_hour': (<DFType.NUMBER: 'number'>, 400128, 200000), 'trip_dropoff_hour': (<DFType.NUMBER: 'number'>, 400128, 200000), 'trip_day': (<DFType.OBJECT: 'object'>, 6300129, 1000005)}, col_names=['tpep_pickup_datetime', 'tpep_dropoff_datetime', 'passenger_count', 'trip_distance', 'PULocationID', 'DOLocationID', 'payment_type', 'fare_amount', 'extra', 'mta_tax', 'tip_amount', 'tolls_amount', 'improvement_surcharge', 'total_amount', 'duration', 'trip_pickup_hour', 'trip_dropoff_hour', 'trip_day'], cpu_to_gpu_col_transfer_times={'tpep_pickup_datetime': 1.34, 'tpep_dropoff_datetime': 1.24, 'passenger_count': 1.14, 'trip_distance': 1.99, 'PULocationID': 1.1, 'DOLocationID': 0.9460000000000001, 'payment_type': 1.05, 'fare_amount': 1.8, 'extra': 2.05, 'mta_tax': 2.1, 'tip_amount': 1.64, 'tolls_amount': 1.72, 'improvement_surcharge': 1.71, 'total_amount': 1.94, 'duration': 1.59, 'trip_pickup_hour': 1.12, 'trip_dropoff_hour': 0.8250000000000001, 'trip_day': 8.81}, gpu_to_cpu_col_transfer_times={'tpep_pickup_datetime': 5.78, 'tpep_dropoff_datetime': 6.18, 'passenger_count': 5.93, 'trip_distance': 5.69, 'PULocationID': 6.06, 'DOLocationID': 6.29, 'payment_type': 5.15, 'fare_amount': 5.4, 'extra': 7.12, 'mta_tax': 5.64, 'tip_amount': 5.49, 'tolls_amount': 5.48, 'improvement_surcharge': 7.76, 'total_amount': 6.5, 'duration': 5.45, 'trip_pickup_hour': 4.96, 'trip_dropoff_hour': 5.0, 'trip_day': 36.9}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 7
+input transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.NUMBER: 'number'>, rows=100000, cols=1, is_series=False, col_data={'payment_type': (<DFType.NUMBER: 'number'>, 800128, 800000)}, col_names=['payment_type'], cpu_to_gpu_col_transfer_times={'payment_type': 1.4}, gpu_to_cpu_col_transfer_times={'payment_type': 5.74}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 8
+input transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.MIXED: 'mixed'>, rows=100000, cols=3, is_series=False, col_data={'payment_type': (<DFType.NUMBER: 'number'>, 800128, 800000), 'tpep_pickup_datetime': (<DFType.STRING: 'string'>, 800128, 800000), 'tpep_dropoff_datetime': (<DFType.STRING: 'string'>, 800128, 800000)}, col_names=['payment_type', 'tpep_pickup_datetime', 'tpep_dropoff_datetime'], cpu_to_gpu_col_transfer_times={'payment_type': 1.5, 'tpep_pickup_datetime': 1.31, 'tpep_dropoff_datetime': 1.59}, gpu_to_cpu_col_transfer_times={'payment_type': 5.95, 'tpep_pickup_datetime': 7.51, 'tpep_dropoff_datetime': 5.62}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.OBJECT: 'object'>, rows=100000, cols=18, is_series=False, col_data={'tpep_pickup_datetime': (<DFType.STRING: 'string'>, 800128, 800000), 'tpep_dropoff_datetime': (<DFType.STRING: 'string'>, 800128, 800000), 'payment_type': (<DFType.OBJECT: 'object'>, 6517850, 1217726)}, col_names=['tpep_pickup_datetime', 'tpep_dropoff_datetime', 'payment_type'], cpu_to_gpu_col_transfer_times={'tpep_pickup_datetime': 1.18, 'tpep_dropoff_datetime': 1.49, 'payment_type': 15.7}, gpu_to_cpu_col_transfer_times={'tpep_pickup_datetime': 5.8, 'tpep_dropoff_datetime': 5.18, 'payment_type': 52.6}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+cell index 9
+input transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.MIXED: 'mixed'>, rows=100000, cols=18, is_series=False, col_data={'tpep_pickup_datetime': (<DFType.STRING: 'string'>, 800128, 800000), 'tpep_dropoff_datetime': (<DFType.STRING: 'string'>, 800128, 800000), 'passenger_count': (<DFType.NUMBER: 'number'>, 800128, 800000), 'trip_distance': (<DFType.FLOAT: 'float'>, 800128, 800000), 'PULocationID': (<DFType.NUMBER: 'number'>, 800128, 800000), 'DOLocationID': (<DFType.NUMBER: 'number'>, 800128, 800000), 'payment_type': (<DFType.OBJECT: 'object'>, 6517850, 1217726), 'fare_amount': (<DFType.FLOAT: 'float'>, 800128, 800000), 'extra': (<DFType.FLOAT: 'float'>, 800128, 800000), 'mta_tax': (<DFType.FLOAT: 'float'>, 800128, 800000), 'tip_amount': (<DFType.FLOAT: 'float'>, 800128, 800000), 'tolls_amount': (<DFType.FLOAT: 'float'>, 800128, 800000), 'improvement_surcharge': (<DFType.FLOAT: 'float'>, 800128, 800000), 'total_amount': (<DFType.FLOAT: 'float'>, 800128, 800000), 'duration': (<DFType.FLOAT: 'float'>, 800128, 800000), 'trip_pickup_hour': (<DFType.NUMBER: 'number'>, 400128, 200000), 'trip_dropoff_hour': (<DFType.NUMBER: 'number'>, 400128, 200000), 'trip_day': (<DFType.OBJECT: 'object'>, 6300129, 1000005)}, col_names=['tpep_pickup_datetime', 'tpep_dropoff_datetime', 'passenger_count', 'trip_distance', 'PULocationID', 'DOLocationID', 'payment_type', 'fare_amount', 'extra', 'mta_tax', 'tip_amount', 'tolls_amount', 'improvement_surcharge', 'total_amount', 'duration', 'trip_pickup_hour', 'trip_dropoff_hour', 'trip_day'], cpu_to_gpu_col_transfer_times={'tpep_pickup_datetime': 0.8180000000000001, 'tpep_dropoff_datetime': 1.37, 'passenger_count': 1.4, 'trip_distance': 2.3, 'PULocationID': 1.47, 'DOLocationID': 1.71, 'payment_type': 8.87, 'fare_amount': 2.19, 'extra': 2.18, 'mta_tax': 2.36, 'tip_amount': 2.0, 'tolls_amount': 2.21, 'improvement_surcharge': 1.56, 'total_amount': 1.86, 'duration': 1.95, 'trip_pickup_hour': 0.903, 'trip_dropoff_hour': 0.774, 'trip_day': 8.48}, gpu_to_cpu_col_transfer_times={'tpep_pickup_datetime': 10.8, 'tpep_dropoff_datetime': 6.44, 'passenger_count': 6.4, 'trip_distance': 7.1, 'PULocationID': 6.93, 'DOLocationID': 6.1, 'payment_type': 40.6, 'fare_amount': 8.91, 'extra': 6.89, 'mta_tax': 6.17, 'tip_amount': 6.93, 'tolls_amount': 7.76, 'improvement_surcharge': 5.41, 'total_amount': 6.04, 'duration': 5.69, 'trip_pickup_hour': 5.35, 'trip_dropoff_hour': 4.52, 'trip_day': 51.2}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 10
+input transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.FLOAT: 'float'>, rows=100000, cols=3, is_series=False, col_data={'mta_tax': (<DFType.FLOAT: 'float'>, 800128, 800000), 'extra': (<DFType.FLOAT: 'float'>, 800128, 800000), 'improvement_surcharge': (<DFType.FLOAT: 'float'>, 800128, 800000)}, col_names=['mta_tax', 'extra', 'improvement_surcharge'], cpu_to_gpu_col_transfer_times={'mta_tax': 2.4, 'extra': 2.07, 'improvement_surcharge': 2.31}, gpu_to_cpu_col_transfer_times={'mta_tax': 5.53, 'extra': 5.9, 'improvement_surcharge': 7.66}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.FLOAT: 'float'>, rows=100000, cols=16, is_series=False, col_data={'total_taxes': (<DFType.FLOAT: 'float'>, 800128, 800000)}, col_names=['total_taxes'], cpu_to_gpu_col_transfer_times={'total_taxes': 2.16}, gpu_to_cpu_col_transfer_times={'total_taxes': 6.65}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+cell index 11
+input transfer inputs []
+output transfer inputs []
+cell index 12
+input transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.FLOAT: 'float'>, rows=100000, cols=7, is_series=False, col_data={'tolls_amount': (<DFType.FLOAT: 'float'>, 800128, 800000), 'total_taxes': (<DFType.FLOAT: 'float'>, 800128, 800000), 'duration': (<DFType.FLOAT: 'float'>, 800128, 800000), 'fare_amount': (<DFType.FLOAT: 'float'>, 800128, 800000), 'trip_distance': (<DFType.FLOAT: 'float'>, 800128, 800000), 'total_amount': (<DFType.FLOAT: 'float'>, 800128, 800000), 'tip_amount': (<DFType.FLOAT: 'float'>, 800128, 800000)}, col_names=['tolls_amount', 'total_taxes', 'duration', 'fare_amount', 'trip_distance', 'total_amount', 'tip_amount'], cpu_to_gpu_col_transfer_times={'tolls_amount': 2.13, 'total_taxes': 2.21, 'duration': 2.46, 'fare_amount': 2.12, 'trip_distance': 1.98, 'total_amount': 2.6, 'tip_amount': 2.34}, gpu_to_cpu_col_transfer_times={'tolls_amount': 5.49, 'total_taxes': 7.06, 'duration': 7.42, 'fare_amount': 7.18, 'trip_distance': 6.83, 'total_amount': 6.73, 'tip_amount': 7.25}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 13
+input transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.FLOAT: 'float'>, rows=100000, cols=1, is_series=False, col_data={'fare_amount': (<DFType.FLOAT: 'float'>, 800128, 800000)}, col_names=['fare_amount'], cpu_to_gpu_col_transfer_times={'fare_amount': 2.29}, gpu_to_cpu_col_transfer_times={'fare_amount': 5.63}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 14
+input transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.FLOAT: 'float'>, rows=100000, cols=1, is_series=False, col_data={'tip_amount': (<DFType.FLOAT: 'float'>, 800128, 800000)}, col_names=['tip_amount'], cpu_to_gpu_col_transfer_times={'tip_amount': 2.29}, gpu_to_cpu_col_transfer_times={'tip_amount': 5.3}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 15
+input transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.FLOAT: 'float'>, rows=100000, cols=1, is_series=False, col_data={'tolls_amount': (<DFType.FLOAT: 'float'>, 800128, 800000)}, col_names=['tolls_amount'], cpu_to_gpu_col_transfer_times={'tolls_amount': 1.97}, gpu_to_cpu_col_transfer_times={'tolls_amount': 4.97}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 16
+input transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.FLOAT: 'float'>, rows=100000, cols=1, is_series=False, col_data={'total_taxes': (<DFType.FLOAT: 'float'>, 800128, 800000)}, col_names=['total_taxes'], cpu_to_gpu_col_transfer_times={'total_taxes': 2.57}, gpu_to_cpu_col_transfer_times={'total_taxes': 7.22}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 17
+input transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.FLOAT: 'float'>, rows=100000, cols=1, is_series=False, col_data={'total_amount': (<DFType.FLOAT: 'float'>, 800128, 800000)}, col_names=['total_amount'], cpu_to_gpu_col_transfer_times={'total_amount': 2.16}, gpu_to_cpu_col_transfer_times={'total_amount': 6.08}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 18
+input transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.MIXED: 'mixed'>, rows=100000, cols=16, is_series=False, col_data={'tolls_amount': (<DFType.FLOAT: 'float'>, 800128, 800000), 'trip_day': (<DFType.OBJECT: 'object'>, 6300129, 1000005), 'total_taxes': (<DFType.FLOAT: 'float'>, 800128, 800000), 'DOLocationID': (<DFType.NUMBER: 'number'>, 800128, 800000), 'trip_dropoff_hour': (<DFType.NUMBER: 'number'>, 400128, 200000), 'PULocationID': (<DFType.NUMBER: 'number'>, 800128, 800000), 'fare_amount': (<DFType.FLOAT: 'float'>, 800128, 800000), 'trip_distance': (<DFType.FLOAT: 'float'>, 800128, 800000), 'duration': (<DFType.FLOAT: 'float'>, 800128, 800000), 'tpep_dropoff_datetime': (<DFType.STRING: 'string'>, 800128, 800000), 'total_amount': (<DFType.FLOAT: 'float'>, 800128, 800000), 'passenger_count': (<DFType.NUMBER: 'number'>, 800128, 800000), 'tip_amount': (<DFType.FLOAT: 'float'>, 800128, 800000), 'trip_pickup_hour': (<DFType.NUMBER: 'number'>, 400128, 200000), 'tpep_pickup_datetime': (<DFType.STRING: 'string'>, 800128, 800000), 'payment_type': (<DFType.OBJECT: 'object'>, 6517850, 1217726)}, col_names=['tolls_amount', 'trip_day', 'total_taxes', 'DOLocationID', 'trip_dropoff_hour', 'PULocationID', 'fare_amount', 'trip_distance', 'duration', 'tpep_dropoff_datetime', 'total_amount', 'passenger_count', 'tip_amount', 'trip_pickup_hour', 'tpep_pickup_datetime', 'payment_type'], cpu_to_gpu_col_transfer_times={'tolls_amount': 1.95, 'trip_day': 10.9, 'total_taxes': 2.51, 'DOLocationID': 1.44, 'trip_dropoff_hour': 1.28, 'PULocationID': 1.55, 'fare_amount': 2.11, 'trip_distance': 2.03, 'duration': 2.21, 'tpep_dropoff_datetime': 1.73, 'total_amount': 2.02, 'passenger_count': 1.54, 'tip_amount': 1.96, 'trip_pickup_hour': 0.9440000000000001, 'tpep_pickup_datetime': 1.53, 'payment_type': 9.17}, gpu_to_cpu_col_transfer_times={'tolls_amount': 5.96, 'trip_day': 41.1, 'total_taxes': 8.36, 'DOLocationID': 6.43, 'trip_dropoff_hour': 4.85, 'PULocationID': 5.69, 'fare_amount': 7.17, 'trip_distance': 5.92, 'duration': 5.71, 'tpep_dropoff_datetime': 7.79, 'total_amount': 7.76, 'passenger_count': 5.71, 'tip_amount': 6.83, 'trip_pickup_hour': 4.92, 'tpep_pickup_datetime': 6.88, 'payment_type': 39.7}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 19
+input transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.FLOAT: 'float'>, rows=99920, cols=1, is_series=False, col_data={'duration': (<DFType.FLOAT: 'float'>, 1598720, 1598720)}, col_names=['duration'], cpu_to_gpu_col_transfer_times={'duration': 2.3}, gpu_to_cpu_col_transfer_times={'duration': 9.13}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 20
+input transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.MIXED: 'mixed'>, rows=99920, cols=16, is_series=False, col_data={'tolls_amount': (<DFType.FLOAT: 'float'>, 1598720, 1598720), 'trip_day': (<DFType.OBJECT: 'object'>, 7094321, 1798565), 'total_taxes': (<DFType.FLOAT: 'float'>, 1598720, 1598720), 'DOLocationID': (<DFType.NUMBER: 'number'>, 1598720, 1598720), 'trip_dropoff_hour': (<DFType.NUMBER: 'number'>, 1199040, 999200), 'PULocationID': (<DFType.NUMBER: 'number'>, 1598720, 1598720), 'fare_amount': (<DFType.FLOAT: 'float'>, 1598720, 1598720), 'trip_distance': (<DFType.FLOAT: 'float'>, 1598720, 1598720), 'duration': (<DFType.FLOAT: 'float'>, 1598720, 1598720), 'tpep_dropoff_datetime': (<DFType.STRING: 'string'>, 1598720, 1598720), 'total_amount': (<DFType.FLOAT: 'float'>, 1598720, 1598720), 'passenger_count': (<DFType.NUMBER: 'number'>, 1598720, 1598720), 'tip_amount': (<DFType.FLOAT: 'float'>, 1598720, 1598720), 'trip_pickup_hour': (<DFType.NUMBER: 'number'>, 1199040, 999200), 'tpep_pickup_datetime': (<DFType.STRING: 'string'>, 1598720, 1598720), 'payment_type': (<DFType.OBJECT: 'object'>, 7311865, 2016109)}, col_names=['tolls_amount', 'trip_day', 'total_taxes', 'DOLocationID', 'trip_dropoff_hour', 'PULocationID', 'fare_amount', 'trip_distance', 'duration', 'tpep_dropoff_datetime', 'total_amount', 'passenger_count', 'tip_amount', 'trip_pickup_hour', 'tpep_pickup_datetime', 'payment_type'], cpu_to_gpu_col_transfer_times={'tolls_amount': 2.24, 'trip_day': 14.7, 'total_taxes': 3.19, 'DOLocationID': 2.81, 'trip_dropoff_hour': 2.72, 'PULocationID': 2.64, 'fare_amount': 3.42, 'trip_distance': 3.29, 'duration': 3.21, 'tpep_dropoff_datetime': 2.74, 'total_amount': 3.22, 'passenger_count': 2.78, 'tip_amount': 3.87, 'trip_pickup_hour': 3.16, 'tpep_pickup_datetime': 3.43, 'payment_type': 10.2}, gpu_to_cpu_col_transfer_times={'tolls_amount': 9.59, 'trip_day': 48.7, 'total_taxes': 11.3, 'DOLocationID': 11.5, 'trip_dropoff_hour': 10.7, 'PULocationID': 8.84, 'fare_amount': 9.29, 'trip_distance': 9.67, 'duration': 11.5, 'tpep_dropoff_datetime': 12.7, 'total_amount': 9.25, 'passenger_count': 8.02, 'tip_amount': 10.9, 'trip_pickup_hour': 8.36, 'tpep_pickup_datetime': 10.5, 'payment_type': 56.8}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 21
+input transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.FLOAT: 'float'>, rows=99920, cols=7, is_series=False, col_data={'tolls_amount': (<DFType.FLOAT: 'float'>, 1598720, 1598720), 'total_taxes': (<DFType.FLOAT: 'float'>, 1598720, 1598720), 'duration': (<DFType.FLOAT: 'float'>, 1598720, 1598720), 'fare_amount': (<DFType.FLOAT: 'float'>, 1598720, 1598720), 'trip_distance': (<DFType.FLOAT: 'float'>, 1598720, 1598720), 'total_amount': (<DFType.FLOAT: 'float'>, 1598720, 1598720), 'tip_amount': (<DFType.FLOAT: 'float'>, 1598720, 1598720)}, col_names=['tolls_amount', 'total_taxes', 'duration', 'fare_amount', 'trip_distance', 'total_amount', 'tip_amount'], cpu_to_gpu_col_transfer_times={'tolls_amount': 2.47, 'total_taxes': 3.07, 'duration': 2.92, 'fare_amount': 2.59, 'trip_distance': 3.78, 'total_amount': 3.67, 'tip_amount': 3.08}, gpu_to_cpu_col_transfer_times={'tolls_amount': 8.87, 'total_taxes': 10.1, 'duration': 10.5, 'fare_amount': 12.4, 'trip_distance': 8.13, 'total_amount': 7.92, 'tip_amount': 8.26}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 22
+input transfer inputs []
+output transfer inputs []
+cell index 23
+input transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.OBJECT: 'object'>, rows=99920, cols=1, is_series=False, col_data={'payment_type': (<DFType.OBJECT: 'object'>, 7311865, 2016109)}, col_names=['payment_type'], cpu_to_gpu_col_transfer_times={'payment_type': 9.45}, gpu_to_cpu_col_transfer_times={'payment_type': 40.7}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 24
+input transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.OBJECT: 'object'>, rows=99920, cols=1, is_series=False, col_data={'payment_type': (<DFType.OBJECT: 'object'>, 7311865, 2016109)}, col_names=['payment_type'], cpu_to_gpu_col_transfer_times={'payment_type': 9.24}, gpu_to_cpu_col_transfer_times={'payment_type': 41.3}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs [CostModelInput(df_name='payment_type_category_count', df_type=<DFType.NUMBER: 'number'>, rows=4, cols=2, is_series=False, col_data={'payment_type': (<DFType.OBJECT: 'object'>, 387, 51), 'count': (<DFType.NUMBER: 'number'>, 160, 32)}, col_names=['payment_type', 'count'], cpu_to_gpu_col_transfer_times={'payment_type': 1.06, 'count': 0.687}, gpu_to_cpu_col_transfer_times={'payment_type': 5.92, 'count': 4.82}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+cell index 25
+input transfer inputs [CostModelInput(df_name='payment_type_category_count', df_type=<DFType.NUMBER: 'number'>, rows=4, cols=2, is_series=False, col_data={'count': (<DFType.NUMBER: 'number'>, 160, 32), 'payment_type': (<DFType.OBJECT: 'object'>, 387, 51)}, col_names=['count', 'payment_type'], cpu_to_gpu_col_transfer_times={'count': 0.994, 'payment_type': 1.01}, gpu_to_cpu_col_transfer_times={'count': 5.67, 'payment_type': 5.33}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None), CostModelInput(df_name='trip_data', df_type=<DFType.MIXED: 'mixed'>, rows=99920, cols=16, is_series=False, col_data={'tpep_pickup_datetime': (<DFType.STRING: 'string'>, 1598720, 1598720), 'tpep_dropoff_datetime': (<DFType.STRING: 'string'>, 1598720, 1598720), 'passenger_count': (<DFType.NUMBER: 'number'>, 1598720, 1598720), 'trip_distance': (<DFType.FLOAT: 'float'>, 1598720, 1598720), 'PULocationID': (<DFType.NUMBER: 'number'>, 1598720, 1598720), 'DOLocationID': (<DFType.NUMBER: 'number'>, 1598720, 1598720), 'payment_type': (<DFType.OBJECT: 'object'>, 7311865, 2016109), 'fare_amount': (<DFType.FLOAT: 'float'>, 1598720, 1598720), 'tip_amount': (<DFType.FLOAT: 'float'>, 1598720, 1598720), 'tolls_amount': (<DFType.FLOAT: 'float'>, 1598720, 1598720), 'total_amount': (<DFType.FLOAT: 'float'>, 1598720, 1598720), 'duration': (<DFType.FLOAT: 'float'>, 1598720, 1598720), 'trip_pickup_hour': (<DFType.NUMBER: 'number'>, 1199040, 999200), 'trip_dropoff_hour': (<DFType.NUMBER: 'number'>, 1199040, 999200), 'trip_day': (<DFType.OBJECT: 'object'>, 7094321, 1798565), 'total_taxes': (<DFType.FLOAT: 'float'>, 1598720, 1598720)}, col_names=['tpep_pickup_datetime', 'tpep_dropoff_datetime', 'passenger_count', 'trip_distance', 'PULocationID', 'DOLocationID', 'payment_type', 'fare_amount', 'tip_amount', 'tolls_amount', 'total_amount', 'duration', 'trip_pickup_hour', 'trip_dropoff_hour', 'trip_day', 'total_taxes'], cpu_to_gpu_col_transfer_times={'tpep_pickup_datetime': 1.43, 'tpep_dropoff_datetime': 2.15, 'passenger_count': 2.47, 'trip_distance': 3.12, 'PULocationID': 2.75, 'DOLocationID': 2.34, 'payment_type': 11.0, 'fare_amount': 2.65, 'tip_amount': 3.88, 'tolls_amount': 3.66, 'total_amount': 3.87, 'duration': 2.75, 'trip_pickup_hour': 2.55, 'trip_dropoff_hour': 3.0, 'trip_day': 17.2, 'total_taxes': 2.71}, gpu_to_cpu_col_transfer_times={'tpep_pickup_datetime': 12.8, 'tpep_dropoff_datetime': 9.61, 'passenger_count': 9.71, 'trip_distance': 8.2, 'PULocationID': 8.46, 'DOLocationID': 8.48, 'payment_type': 56.9, 'fare_amount': 9.33, 'tip_amount': 12.7, 'tolls_amount': 11.4, 'total_amount': 8.13, 'duration': 7.74, 'trip_pickup_hour': 8.26, 'trip_dropoff_hour': 7.35, 'trip_day': 39.8, 'total_taxes': 9.79}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs [CostModelInput(df_name='payment_type_category_count', df_type=<DFType.FLOAT: 'float'>, rows=4, cols=3, is_series=False, col_data={'count_percent': (<DFType.FLOAT: 'float'>, 160, 32)}, col_names=['count_percent'], cpu_to_gpu_col_transfer_times={'count_percent': 1.52}, gpu_to_cpu_col_transfer_times={'count_percent': 4.19}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+cell index 26
+input transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.NUMBER: 'number'>, rows=99920, cols=2, is_series=False, col_data={'DOLocationID': (<DFType.NUMBER: 'number'>, 1598720, 1598720), 'PULocationID': (<DFType.NUMBER: 'number'>, 1598720, 1598720)}, col_names=['DOLocationID', 'PULocationID'], cpu_to_gpu_col_transfer_times={'DOLocationID': 1.33, 'PULocationID': 2.09}, gpu_to_cpu_col_transfer_times={'DOLocationID': 8.83, 'PULocationID': 8.98}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 27
+input transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.NUMBER: 'number'>, rows=99920, cols=2, is_series=False, col_data={'DOLocationID': (<DFType.NUMBER: 'number'>, 1598720, 1598720), 'PULocationID': (<DFType.NUMBER: 'number'>, 1598720, 1598720)}, col_names=['DOLocationID', 'PULocationID'], cpu_to_gpu_col_transfer_times={'DOLocationID': 1.74, 'PULocationID': 2.21}, gpu_to_cpu_col_transfer_times={'DOLocationID': 9.87, 'PULocationID': 10.1}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.OBJECT: 'object'>, rows=99920, cols=17, is_series=False, col_data={'routes': (<DFType.OBJECT: 'object'>, 7136839, 1841083)}, col_names=['routes'], cpu_to_gpu_col_transfer_times={'routes': 9.43}, gpu_to_cpu_col_transfer_times={'routes': 53.7}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+cell index 28
+input transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.MIXED: 'mixed'>, rows=99920, cols=17, is_series=False, col_data={'tpep_pickup_datetime': (<DFType.STRING: 'string'>, 1598720, 1598720), 'tpep_dropoff_datetime': (<DFType.STRING: 'string'>, 1598720, 1598720), 'passenger_count': (<DFType.NUMBER: 'number'>, 1598720, 1598720), 'trip_distance': (<DFType.FLOAT: 'float'>, 1598720, 1598720), 'PULocationID': (<DFType.NUMBER: 'number'>, 1598720, 1598720), 'DOLocationID': (<DFType.NUMBER: 'number'>, 1598720, 1598720), 'payment_type': (<DFType.OBJECT: 'object'>, 7311865, 2016109), 'fare_amount': (<DFType.FLOAT: 'float'>, 1598720, 1598720), 'tip_amount': (<DFType.FLOAT: 'float'>, 1598720, 1598720), 'tolls_amount': (<DFType.FLOAT: 'float'>, 1598720, 1598720), 'total_amount': (<DFType.FLOAT: 'float'>, 1598720, 1598720), 'duration': (<DFType.FLOAT: 'float'>, 1598720, 1598720), 'trip_pickup_hour': (<DFType.NUMBER: 'number'>, 1199040, 999200), 'trip_dropoff_hour': (<DFType.NUMBER: 'number'>, 1199040, 999200), 'trip_day': (<DFType.OBJECT: 'object'>, 7094321, 1798565), 'total_taxes': (<DFType.FLOAT: 'float'>, 1598720, 1598720), 'routes': (<DFType.OBJECT: 'object'>, 7136839, 1841083)}, col_names=['tpep_pickup_datetime', 'tpep_dropoff_datetime', 'passenger_count', 'trip_distance', 'PULocationID', 'DOLocationID', 'payment_type', 'fare_amount', 'tip_amount', 'tolls_amount', 'total_amount', 'duration', 'trip_pickup_hour', 'trip_dropoff_hour', 'trip_day', 'total_taxes', 'routes'], cpu_to_gpu_col_transfer_times={'tpep_pickup_datetime': 2.53, 'tpep_dropoff_datetime': 3.25, 'passenger_count': 3.47, 'trip_distance': 4.2, 'PULocationID': 3.15, 'DOLocationID': 2.86, 'payment_type': 11.9, 'fare_amount': 3.55, 'tip_amount': 4.38, 'tolls_amount': 3.93, 'total_amount': 3.76, 'duration': 3.68, 'trip_pickup_hour': 3.04, 'trip_dropoff_hour': 2.92, 'trip_day': 11.8, 'total_taxes': 2.87, 'routes': 10.1}, gpu_to_cpu_col_transfer_times={'tpep_pickup_datetime': 11.3, 'tpep_dropoff_datetime': 8.98, 'passenger_count': 8.38, 'trip_distance': 8.97, 'PULocationID': 10.1, 'DOLocationID': 11.1, 'payment_type': 42.6, 'fare_amount': 8.82, 'tip_amount': 9.81, 'tolls_amount': 9.21, 'total_amount': 8.1, 'duration': 8.91, 'trip_pickup_hour': 7.8, 'trip_dropoff_hour': 7.54, 'trip_day': 41.7, 'total_taxes': 11.0, 'routes': 44.2}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 29
+input transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.NUMBER: 'number'>, rows=99920, cols=1, is_series=False, col_data={'passenger_count': (<DFType.NUMBER: 'number'>, 1598720, 1598720)}, col_names=['passenger_count'], cpu_to_gpu_col_transfer_times={'passenger_count': 2.25}, gpu_to_cpu_col_transfer_times={'passenger_count': 8.23}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 30
+input transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.FLOAT: 'float'>, rows=99920, cols=1, is_series=False, col_data={'fare_amount': (<DFType.FLOAT: 'float'>, 1598720, 1598720)}, col_names=['fare_amount'], cpu_to_gpu_col_transfer_times={'fare_amount': 2.4}, gpu_to_cpu_col_transfer_times={'fare_amount': 8.59}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 31
+input transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.FLOAT: 'float'>, rows=99920, cols=1, is_series=False, col_data={'total_amount': (<DFType.FLOAT: 'float'>, 1598720, 1598720)}, col_names=['total_amount'], cpu_to_gpu_col_transfer_times={'total_amount': 2.73}, gpu_to_cpu_col_transfer_times={'total_amount': 8.91}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 32
+input transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.FLOAT: 'float'>, rows=99920, cols=2, is_series=False, col_data={'tip_amount': (<DFType.FLOAT: 'float'>, 1598720, 1598720), 'total_taxes': (<DFType.FLOAT: 'float'>, 1598720, 1598720)}, col_names=['tip_amount', 'total_taxes'], cpu_to_gpu_col_transfer_times={'tip_amount': 2.55, 'total_taxes': 3.34}, gpu_to_cpu_col_transfer_times={'tip_amount': 8.03, 'total_taxes': 8.39}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+cell index 33
+input transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.NUMBER: 'number'>, rows=99920, cols=1, is_series=False, col_data={'PULocationID': (<DFType.NUMBER: 'number'>, 1598720, 1598720)}, col_names=['PULocationID'], cpu_to_gpu_col_transfer_times={'PULocationID': 1.61}, gpu_to_cpu_col_transfer_times={'PULocationID': 8.69}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs [CostModelInput(df_name='pickup_location_value_counts', df_type=<DFType.NUMBER: 'number'>, rows=213, cols=1, is_series=True, col_data={'': (<DFType.NUMBER: 'number'>, 3408, 3408)}, col_names=None, cpu_to_gpu_col_transfer_times=None, gpu_to_cpu_col_transfer_times=None, cpu_to_gpu_transfer_time=1.6, gpu_to_cpu_transfer_time=0.006200000000000001)]
+cell index 34
+input transfer inputs [CostModelInput(df_name='pickup_location_value_counts', df_type=<DFType.NUMBER: 'number'>, rows=213, cols=1, is_series=True, col_data={'': (<DFType.NUMBER: 'number'>, 3408, 3408)}, col_names=None, cpu_to_gpu_col_transfer_times=None, gpu_to_cpu_col_transfer_times=None, cpu_to_gpu_transfer_time=1.67, gpu_to_cpu_transfer_time=0.00596)]
+output transfer inputs []
+cell index 35
+input transfer inputs [CostModelInput(df_name='trip_data', df_type=<DFType.FLOAT: 'float'>, rows=99920, cols=1, is_series=False, col_data={'duration': (<DFType.FLOAT: 'float'>, 1598720, 1598720)}, col_names=['duration'], cpu_to_gpu_col_transfer_times={'duration': 2.58}, gpu_to_cpu_col_transfer_times={'duration': 8.85}, cpu_to_gpu_transfer_time=None, gpu_to_cpu_transfer_time=None)]
+output transfer inputs []
+{'cpu->gpu': 1.3, 'gpu->cpu': 183.0, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 17.1, 'gpu->cpu': 160.0, 'cost-cpu->gpu': 9.0042297995264, 'cost-gpu->cpu': 56.671817739880005}
+{'cpu->gpu': 9.57, 'gpu->cpu': 176.0, 'cost-cpu->gpu': 9.0042297995264, 'cost-gpu->cpu': 56.671817739880005}
+{'cpu->gpu': 1.34, 'gpu->cpu': 6.5, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 2.56, 'gpu->cpu': 9.1, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 1.67, 'gpu->cpu': 7.38, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 8.25, 'gpu->cpu': 39.7, 'cost-cpu->gpu': 7.1350489595264, 'cost-gpu->cpu': 17.63887173988}
+{'cpu->gpu': 1.24, 'gpu->cpu': 5.42, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 1.65, 'gpu->cpu': 6.11, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 1.58, 'gpu->cpu': 6.05, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 2.06, 'gpu->cpu': 4.99, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 1.85, 'gpu->cpu': 5.29, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 1.87, 'gpu->cpu': 5.78, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.17, 'gpu->cpu': 5.09, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 1.84, 'gpu->cpu': 5.43, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.31, 'gpu->cpu': 5.46, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.17, 'gpu->cpu': 6.14, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 1.15, 'gpu->cpu': 6.67, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 18.2, 'gpu->cpu': 130.0, 'cost-cpu->gpu': 9.0042297995264, 'cost-gpu->cpu': 56.671817739880005}
+{'cpu->gpu': 12.9, 'gpu->cpu': 133.0, 'cost-cpu->gpu': 9.0042297995264, 'cost-gpu->cpu': 56.671817739880005}
+{'cpu->gpu': 1.35, 'gpu->cpu': 7.13, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 2.17, 'gpu->cpu': 6.63, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 1.14, 'gpu->cpu': 5.56, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 8.15, 'gpu->cpu': 37.2, 'cost-cpu->gpu': 7.1350489595264, 'cost-gpu->cpu': 17.63887173988}
+{'cpu->gpu': 0.845, 'gpu->cpu': 5.64, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 1.37, 'gpu->cpu': 5.22, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 1.14, 'gpu->cpu': 5.27, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 2.09, 'gpu->cpu': 6.75, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.21, 'gpu->cpu': 6.78, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.11, 'gpu->cpu': 4.69, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.16, 'gpu->cpu': 5.54, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.09, 'gpu->cpu': 5.68, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 1.77, 'gpu->cpu': 5.31, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 1.63, 'gpu->cpu': 4.94, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 0.856, 'gpu->cpu': 5.35, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 10.2, 'gpu->cpu': 126.0, 'cost-cpu->gpu': 9.0042297995264, 'cost-gpu->cpu': 56.671817739880005}
+{'cpu->gpu': 9.45, 'gpu->cpu': 131.0, 'cost-cpu->gpu': 9.0042297995264, 'cost-gpu->cpu': 56.671817739880005}
+{'cpu->gpu': 1.39, 'gpu->cpu': 6.26, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 1.9, 'gpu->cpu': 5.5, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 1.39, 'gpu->cpu': 5.38, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 8.54, 'gpu->cpu': 37.0, 'cost-cpu->gpu': 7.1350489595264, 'cost-gpu->cpu': 17.63887173988}
+{'cpu->gpu': 1.33, 'gpu->cpu': 5.53, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 1.34, 'gpu->cpu': 5.25, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 1.16, 'gpu->cpu': 6.19, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 2.4, 'gpu->cpu': 5.07, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.39, 'gpu->cpu': 5.61, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.2, 'gpu->cpu': 5.61, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.34, 'gpu->cpu': 5.47, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.22, 'gpu->cpu': 5.21, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 1.74, 'gpu->cpu': 5.14, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 1.91, 'gpu->cpu': 5.41, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.21, 'gpu->cpu': 6.23, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.3, 'gpu->cpu': 6.02, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 1.18, 'gpu->cpu': 5.64, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 1.21, 'gpu->cpu': 6.12, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 1.45, 'gpu->cpu': 6.85, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 2.05, 'gpu->cpu': 5.05, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.34, 'gpu->cpu': 5.67, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 17.4, 'gpu->cpu': 126.0, 'cost-cpu->gpu': 9.0042297995264, 'cost-gpu->cpu': 56.671817739880005}
+{'cpu->gpu': 2.74, 'gpu->cpu': 6.59, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 1.16, 'gpu->cpu': 5.11, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 1.4, 'gpu->cpu': 5.89, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 2.01, 'gpu->cpu': 7.11, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.71, 'gpu->cpu': 6.04, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 9.74, 'gpu->cpu': 39.7, 'cost-cpu->gpu': 7.1350489595264, 'cost-gpu->cpu': 17.63887173988}
+{'cpu->gpu': 2.3, 'gpu->cpu': 5.29, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 10.7, 'gpu->cpu': 125.0, 'cost-cpu->gpu': 9.0042297995264, 'cost-gpu->cpu': 56.671817739880005}
+{'cpu->gpu': 1.27, 'gpu->cpu': 6.34, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 1.19, 'gpu->cpu': 7.07, 'cost-cpu->gpu': 1.4218257757312, 'cost-gpu->cpu': 23.3539836}
+{'cpu->gpu': 1.2, 'gpu->cpu': 5.65, 'cost-cpu->gpu': 1.4218257757312, 'cost-gpu->cpu': 23.3539836}
+{'cpu->gpu': 1.59, 'gpu->cpu': 5.12, 'cost-cpu->gpu': 1.4218257757312, 'cost-gpu->cpu': 23.3539836}
+{'cpu->gpu': 1.15, 'gpu->cpu': 5.49, 'cost-cpu->gpu': 1.4218257757312, 'cost-gpu->cpu': 23.3539836}
+{'cpu->gpu': 8.51, 'gpu->cpu': 38.2, 'cost-cpu->gpu': 7.6542668979602, 'cost-gpu->cpu': 28.48137842485}
+{'cpu->gpu': 1.04, 'gpu->cpu': 224.0, 'cost-cpu->gpu': 0.7026305197824, 'cost-gpu->cpu': 3.22289516}
+{'cpu->gpu': 2.06, 'gpu->cpu': 6.02, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 1.02, 'gpu->cpu': 5.65, 'cost-cpu->gpu': 0.7026305197824, 'cost-gpu->cpu': 3.22289516}
+{'cpu->gpu': 1.34, 'gpu->cpu': 5.78, 'cost-cpu->gpu': 1.4218257757312, 'cost-gpu->cpu': 23.3539836}
+{'cpu->gpu': 1.24, 'gpu->cpu': 6.18, 'cost-cpu->gpu': 1.4218257757312, 'cost-gpu->cpu': 23.3539836}
+{'cpu->gpu': 1.14, 'gpu->cpu': 5.93, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 1.99, 'gpu->cpu': 5.69, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 1.1, 'gpu->cpu': 6.06, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 0.9460000000000001, 'gpu->cpu': 6.29, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 1.05, 'gpu->cpu': 5.15, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 1.8, 'gpu->cpu': 5.4, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.05, 'gpu->cpu': 7.12, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.1, 'gpu->cpu': 5.64, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 1.64, 'gpu->cpu': 5.49, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 1.72, 'gpu->cpu': 5.48, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 1.71, 'gpu->cpu': 7.76, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 1.94, 'gpu->cpu': 6.5, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 1.59, 'gpu->cpu': 5.45, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 1.12, 'gpu->cpu': 4.96, 'cost-cpu->gpu': 0.7026305197824, 'cost-gpu->cpu': 3.22289516}
+{'cpu->gpu': 0.8250000000000001, 'gpu->cpu': 5.0, 'cost-cpu->gpu': 0.7026305197824, 'cost-gpu->cpu': 3.22289516}
+{'cpu->gpu': 8.81, 'gpu->cpu': 36.9, 'cost-cpu->gpu': 7.6542668979602, 'cost-gpu->cpu': 28.48137842485}
+{'cpu->gpu': 1.4, 'gpu->cpu': 5.74, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 15.7, 'gpu->cpu': 52.6, 'cost-cpu->gpu': 7.880355743330001, 'cost-gpu->cpu': 33.20265177822}
+{'cpu->gpu': 1.18, 'gpu->cpu': 5.8, 'cost-cpu->gpu': 1.4218257757312, 'cost-gpu->cpu': 23.3539836}
+{'cpu->gpu': 1.49, 'gpu->cpu': 5.18, 'cost-cpu->gpu': 1.4218257757312, 'cost-gpu->cpu': 23.3539836}
+{'cpu->gpu': 0.8180000000000001, 'gpu->cpu': 10.8, 'cost-cpu->gpu': 1.4218257757312, 'cost-gpu->cpu': 23.3539836}
+{'cpu->gpu': 1.37, 'gpu->cpu': 6.44, 'cost-cpu->gpu': 1.4218257757312, 'cost-gpu->cpu': 23.3539836}
+{'cpu->gpu': 1.4, 'gpu->cpu': 6.4, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 2.3, 'gpu->cpu': 7.1, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 1.47, 'gpu->cpu': 6.93, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 1.71, 'gpu->cpu': 6.1, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 8.87, 'gpu->cpu': 40.6, 'cost-cpu->gpu': 7.880355743330001, 'cost-gpu->cpu': 33.20265177822}
+{'cpu->gpu': 2.19, 'gpu->cpu': 8.91, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.18, 'gpu->cpu': 6.89, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.36, 'gpu->cpu': 6.17, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.0, 'gpu->cpu': 6.93, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.21, 'gpu->cpu': 7.76, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 1.56, 'gpu->cpu': 5.41, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 1.86, 'gpu->cpu': 6.04, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 1.95, 'gpu->cpu': 5.69, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 0.903, 'gpu->cpu': 5.35, 'cost-cpu->gpu': 0.7026305197824, 'cost-gpu->cpu': 3.22289516}
+{'cpu->gpu': 0.774, 'gpu->cpu': 4.52, 'cost-cpu->gpu': 0.7026305197824, 'cost-gpu->cpu': 3.22289516}
+{'cpu->gpu': 8.48, 'gpu->cpu': 51.2, 'cost-cpu->gpu': 7.6542668979602, 'cost-gpu->cpu': 28.48137842485}
+{'cpu->gpu': 2.4, 'gpu->cpu': 5.53, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.07, 'gpu->cpu': 5.9, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.31, 'gpu->cpu': 7.66, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.16, 'gpu->cpu': 6.65, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.13, 'gpu->cpu': 5.49, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.21, 'gpu->cpu': 7.06, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.46, 'gpu->cpu': 7.42, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.12, 'gpu->cpu': 7.18, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 1.98, 'gpu->cpu': 6.83, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.6, 'gpu->cpu': 6.73, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.34, 'gpu->cpu': 7.25, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.29, 'gpu->cpu': 5.63, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.29, 'gpu->cpu': 5.3, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 1.97, 'gpu->cpu': 4.97, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.57, 'gpu->cpu': 7.22, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.16, 'gpu->cpu': 6.08, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 1.95, 'gpu->cpu': 5.96, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 10.9, 'gpu->cpu': 41.1, 'cost-cpu->gpu': 7.6542668979602, 'cost-gpu->cpu': 28.48137842485}
+{'cpu->gpu': 2.51, 'gpu->cpu': 8.36, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 1.44, 'gpu->cpu': 6.43, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 1.28, 'gpu->cpu': 4.85, 'cost-cpu->gpu': 0.7026305197824, 'cost-gpu->cpu': 3.22289516}
+{'cpu->gpu': 1.55, 'gpu->cpu': 5.69, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 2.11, 'gpu->cpu': 7.17, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.03, 'gpu->cpu': 5.92, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 2.21, 'gpu->cpu': 5.71, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 1.73, 'gpu->cpu': 7.79, 'cost-cpu->gpu': 1.4218257757312, 'cost-gpu->cpu': 23.3539836}
+{'cpu->gpu': 2.02, 'gpu->cpu': 7.76, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 1.54, 'gpu->cpu': 5.71, 'cost-cpu->gpu': 0.8001298397823999, 'cost-gpu->cpu': 5.523880640000001}
+{'cpu->gpu': 1.96, 'gpu->cpu': 6.83, 'cost-cpu->gpu': 1.4998119785472, 'cost-gpu->cpu': 6.4181892000000005}
+{'cpu->gpu': 0.9440000000000001, 'gpu->cpu': 4.92, 'cost-cpu->gpu': 0.7026305197824, 'cost-gpu->cpu': 3.22289516}
+{'cpu->gpu': 1.53, 'gpu->cpu': 6.88, 'cost-cpu->gpu': 1.4218257757312, 'cost-gpu->cpu': 23.3539836}
+{'cpu->gpu': 9.17, 'gpu->cpu': 39.7, 'cost-cpu->gpu': 7.880355743330001, 'cost-gpu->cpu': 33.20265177822}
+{'cpu->gpu': 2.3, 'gpu->cpu': 9.13, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 2.24, 'gpu->cpu': 9.59, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 14.7, 'gpu->cpu': 48.7, 'cost-cpu->gpu': 8.4789827144498, 'cost-gpu->cpu': 45.798128068050005}
+{'cpu->gpu': 3.19, 'gpu->cpu': 11.3, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 2.81, 'gpu->cpu': 11.5, 'cost-cpu->gpu': 0.9947852821759999, 'cost-gpu->cpu': 8.586952510976001}
+{'cpu->gpu': 2.72, 'gpu->cpu': 10.7, 'cost-cpu->gpu': 0.8973639616319999, 'cost-gpu->cpu': 6.28780781936}
+{'cpu->gpu': 2.64, 'gpu->cpu': 8.84, 'cost-cpu->gpu': 0.9947852821759999, 'cost-gpu->cpu': 8.586952510976001}
+{'cpu->gpu': 3.42, 'gpu->cpu': 9.29, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 3.29, 'gpu->cpu': 9.67, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 3.21, 'gpu->cpu': 11.5, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 2.74, 'gpu->cpu': 12.7, 'cost-cpu->gpu': 2.8409220826880004, 'cost-gpu->cpu': 39.89455986624001}
+{'cpu->gpu': 3.22, 'gpu->cpu': 9.25, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 2.78, 'gpu->cpu': 8.02, 'cost-cpu->gpu': 0.9947852821759999, 'cost-gpu->cpu': 8.586952510976001}
+{'cpu->gpu': 3.87, 'gpu->cpu': 10.9, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 3.16, 'gpu->cpu': 8.36, 'cost-cpu->gpu': 0.8973639616319999, 'cost-gpu->cpu': 6.28780781936}
+{'cpu->gpu': 3.43, 'gpu->cpu': 10.5, 'cost-cpu->gpu': 2.8409220826880004, 'cost-gpu->cpu': 39.89455986624001}
+{'cpu->gpu': 10.2, 'gpu->cpu': 56.8, 'cost-cpu->gpu': 8.704887757037, 'cost-gpu->cpu': 50.51556318173}
+{'cpu->gpu': 2.47, 'gpu->cpu': 8.87, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 3.07, 'gpu->cpu': 10.1, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 2.92, 'gpu->cpu': 10.5, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 2.59, 'gpu->cpu': 12.4, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 3.78, 'gpu->cpu': 8.13, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 3.67, 'gpu->cpu': 7.92, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 3.08, 'gpu->cpu': 8.26, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 9.45, 'gpu->cpu': 40.7, 'cost-cpu->gpu': 8.704887757037, 'cost-gpu->cpu': 50.51556318173}
+{'cpu->gpu': 9.24, 'gpu->cpu': 41.3, 'cost-cpu->gpu': 8.704887757037, 'cost-gpu->cpu': 50.51556318173}
+{'cpu->gpu': 1.06, 'gpu->cpu': 5.92, 'cost-cpu->gpu': 1.1124018738806, 'cost-gpu->cpu': 6.797405933469999}
+{'cpu->gpu': 0.687, 'gpu->cpu': 4.82, 'cost-cpu->gpu': 0.605138999728, 'cost-gpu->cpu': 2.4560227192256003}
+{'cpu->gpu': 0.994, 'gpu->cpu': 5.67, 'cost-cpu->gpu': 0.605138999728, 'cost-gpu->cpu': 2.4560227192256003}
+{'cpu->gpu': 1.01, 'gpu->cpu': 5.33, 'cost-cpu->gpu': 1.1124018738806, 'cost-gpu->cpu': 6.797405933469999}
+{'cpu->gpu': 1.43, 'gpu->cpu': 12.8, 'cost-cpu->gpu': 2.8409220826880004, 'cost-gpu->cpu': 39.89455986624001}
+{'cpu->gpu': 2.15, 'gpu->cpu': 9.61, 'cost-cpu->gpu': 2.8409220826880004, 'cost-gpu->cpu': 39.89455986624001}
+{'cpu->gpu': 2.47, 'gpu->cpu': 9.71, 'cost-cpu->gpu': 0.9947852821759999, 'cost-gpu->cpu': 8.586952510976001}
+{'cpu->gpu': 3.12, 'gpu->cpu': 8.2, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 2.75, 'gpu->cpu': 8.46, 'cost-cpu->gpu': 0.9947852821759999, 'cost-gpu->cpu': 8.586952510976001}
+{'cpu->gpu': 2.34, 'gpu->cpu': 8.48, 'cost-cpu->gpu': 0.9947852821759999, 'cost-gpu->cpu': 8.586952510976001}
+{'cpu->gpu': 11.0, 'gpu->cpu': 56.9, 'cost-cpu->gpu': 8.704887757037, 'cost-gpu->cpu': 50.51556318173}
+{'cpu->gpu': 2.65, 'gpu->cpu': 9.33, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 3.88, 'gpu->cpu': 12.7, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 3.66, 'gpu->cpu': 11.4, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 3.87, 'gpu->cpu': 8.13, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 2.75, 'gpu->cpu': 7.74, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 2.55, 'gpu->cpu': 8.26, 'cost-cpu->gpu': 0.8973639616319999, 'cost-gpu->cpu': 6.28780781936}
+{'cpu->gpu': 3.0, 'gpu->cpu': 7.35, 'cost-cpu->gpu': 0.8973639616319999, 'cost-gpu->cpu': 6.28780781936}
+{'cpu->gpu': 17.2, 'gpu->cpu': 39.8, 'cost-cpu->gpu': 8.4789827144498, 'cost-gpu->cpu': 45.798128068050005}
+{'cpu->gpu': 2.71, 'gpu->cpu': 9.79, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 1.52, 'gpu->cpu': 4.19, 'cost-cpu->gpu': 1.211957573184, 'cost-gpu->cpu': 3.488917175568}
+{'cpu->gpu': 1.33, 'gpu->cpu': 8.83, 'cost-cpu->gpu': 0.9947852821759999, 'cost-gpu->cpu': 8.586952510976001}
+{'cpu->gpu': 2.09, 'gpu->cpu': 8.98, 'cost-cpu->gpu': 0.9947852821759999, 'cost-gpu->cpu': 8.586952510976001}
+{'cpu->gpu': 1.74, 'gpu->cpu': 9.87, 'cost-cpu->gpu': 0.9947852821759999, 'cost-gpu->cpu': 8.586952510976001}
+{'cpu->gpu': 2.21, 'gpu->cpu': 10.1, 'cost-cpu->gpu': 0.9947852821759999, 'cost-gpu->cpu': 8.586952510976001}
+{'cpu->gpu': 9.43, 'gpu->cpu': 53.7, 'cost-cpu->gpu': 8.5231348427582, 'cost-gpu->cpu': 46.72012962251001}
+{'cpu->gpu': 2.53, 'gpu->cpu': 11.3, 'cost-cpu->gpu': 2.8409220826880004, 'cost-gpu->cpu': 39.89455986624001}
+{'cpu->gpu': 3.25, 'gpu->cpu': 8.98, 'cost-cpu->gpu': 2.8409220826880004, 'cost-gpu->cpu': 39.89455986624001}
+{'cpu->gpu': 3.47, 'gpu->cpu': 8.38, 'cost-cpu->gpu': 0.9947852821759999, 'cost-gpu->cpu': 8.586952510976001}
+{'cpu->gpu': 4.2, 'gpu->cpu': 8.97, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 3.15, 'gpu->cpu': 10.1, 'cost-cpu->gpu': 0.9947852821759999, 'cost-gpu->cpu': 8.586952510976001}
+{'cpu->gpu': 2.86, 'gpu->cpu': 11.1, 'cost-cpu->gpu': 0.9947852821759999, 'cost-gpu->cpu': 8.586952510976001}
+{'cpu->gpu': 11.9, 'gpu->cpu': 42.6, 'cost-cpu->gpu': 8.704887757037, 'cost-gpu->cpu': 50.51556318173}
+{'cpu->gpu': 3.55, 'gpu->cpu': 8.82, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 4.38, 'gpu->cpu': 9.81, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 3.93, 'gpu->cpu': 9.21, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 3.76, 'gpu->cpu': 8.1, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 3.68, 'gpu->cpu': 8.91, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 3.04, 'gpu->cpu': 7.8, 'cost-cpu->gpu': 0.8973639616319999, 'cost-gpu->cpu': 6.28780781936}
+{'cpu->gpu': 2.92, 'gpu->cpu': 7.54, 'cost-cpu->gpu': 0.8973639616319999, 'cost-gpu->cpu': 6.28780781936}
+{'cpu->gpu': 11.8, 'gpu->cpu': 41.7, 'cost-cpu->gpu': 8.4789827144498, 'cost-gpu->cpu': 45.798128068050005}
+{'cpu->gpu': 2.87, 'gpu->cpu': 11.0, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 10.1, 'gpu->cpu': 44.2, 'cost-cpu->gpu': 8.5231348427582, 'cost-gpu->cpu': 46.72012962251001}
+{'cpu->gpu': 2.25, 'gpu->cpu': 8.23, 'cost-cpu->gpu': 0.9947852821759999, 'cost-gpu->cpu': 8.586952510976001}
+{'cpu->gpu': 2.4, 'gpu->cpu': 8.59, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 2.73, 'gpu->cpu': 8.91, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 2.55, 'gpu->cpu': 8.03, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 3.34, 'gpu->cpu': 8.39, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}
+{'cpu->gpu': 1.61, 'gpu->cpu': 8.69, 'cost-cpu->gpu': 0.9947852821759999, 'cost-gpu->cpu': 8.586952510976001}
+{'cpu->gpu': 1.6, 'gpu->cpu': 0.006200000000000001, 'cost-cpu->gpu': 0, 'cost-gpu->cpu': 0}
+{'cpu->gpu': 1.67, 'gpu->cpu': 0.00596, 'cost-cpu->gpu': 0, 'cost-gpu->cpu': 0}
+{'cpu->gpu': 2.58, 'gpu->cpu': 8.85, 'cost-cpu->gpu': 1.787171254528, 'cost-gpu->cpu': 9.34289137728}

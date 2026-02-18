@@ -1,0 +1,486 @@
+Annotated notebook saved to /home/dias-benchmarks/notebooks/kkhandekar/environmental-vs-ai-startups-india-eda/src/cell_exec_info.ipynb
+Executing code: import sys, os
+sys.path.insert(0, os.path.abspath('/home/ElasticNotebook'))
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df
+import pickle
+import cudf
+Executing code: %%RecordEventWithColumnInfo
+import numpy as np # linear algebra
+import os
+# STEFANOS: Conditionally import Modin Pandas
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    # STEFANOS: Import Modin Pandas
+    import os
+    os.environ["MODIN_ENGINE"] = "ray"
+    import ray
+    ray.init(num_cpus=int(os.environ['MODIN_CPUS']), runtime_env={'env_vars': {'__MODIN_AUTOIMPORT_PANDAS__': '1'}})
+    import modin.pandas as pd
+else:
+    # STEFANOS: Import regular Pandas
+    import pandas as pd
+
+# Visualisation
+import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+import time
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+# load & cleanup
+file = '/home/dias-benchmarks/notebooks/kkhandekar/environmental-vs-ai-startups-india-eda/input/indian-startup-recognized-by-dpiit/Startup_Counts_Across_India.csv'
+df = pd.read_csv(file)
+Executing code: %%RecordEventWithColumnInfo
+### cell 1 ###
+
+factor = 30
+df = pd.concat([df]*factor)
+df.info()
+Executing code: %%RecordEventWithColumnInfo
+### cell 2 ###
+
+df.drop('S No.',axis=1,inplace=True)
+df.dropna(inplace=True)
+df.reset_index(inplace=True,drop=True)
+
+#view
+df.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 3 ###
+
+# Industry sub-categories for environmental & AI startups
+env = ['Agriculture','Green Technology','Renewable Energy','Waste Management']
+ai = ['AI','Robotics','Computer Vision']
+
+# combined df - environmental & AI startups only
+df_ea = df.loc[(df['Industry'].isin(env)) | (df['Industry'].isin(ai))].reset_index(drop=True,inplace=False)
+
+# custom function to set Main Industry
+def set_MainIndustry(ind):
+    if ind in env:
+        return 'ENV'
+    else:
+        return 'AI'
+
+# adding a new column
+df_ea['MainIndustry'] = df_ea.Industry.apply(lambda x: set_MainIndustry(x))
+
+# basic stats
+print(f"A total of {df_ea.shape[0]} startups were started in India between 2016 & 2022, out of which {df_ea.groupby('MainIndustry').size()['ENV']} are environmental related & {df_ea.groupby('MainIndustry').size()['AI']} are AI startups.")
+Executing code: %PrintCellInfo cell_exec_info
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Ran small notebook to get cell exec info in 5.355474948883057 seconds
+Getting cudf profile information...
+Annotated notebook saved to /home/dias-benchmarks/notebooks/kkhandekar/environmental-vs-ai-startups-india-eda/src/cudf_profile.ipynb
+Done getting cudf profile information.
+Ran small notebook to get cudf profile info in 18.294869661331177 seconds
+Annotated notebook saved to /home/dias-benchmarks/notebooks/kkhandekar/environmental-vs-ai-startups-india-eda/src/annotated.ipynb
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Executing code: %load_ext cudf.pandas
+Executing code: import sys, os
+sys.path.insert(0, os.path.abspath('/home/ElasticNotebook'))
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df
+import pickle
+import cudf
+Executing code: %%RecordEvent
+# %load_ext cudf.pandas
+import numpy as np # linear algebra
+import os
+# STEFANOS: Conditionally import Modin Pandas
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    # STEFANOS: Import Modin Pandas
+    import os
+    os.environ["MODIN_ENGINE"] = "ray"
+    import ray
+    ray.init(num_cpus=int(os.environ['MODIN_CPUS']), runtime_env={'env_vars': {'__MODIN_AUTOIMPORT_PANDAS__': '1'}})
+    import modin.pandas as pd
+else:
+    # STEFANOS: Import regular Pandas
+    import pandas as pd
+
+# Visualisation
+import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+import time
+Executing code: %%RecordEvent
+%%time
+### cell 0 ###
+
+# load & cleanup
+file = '/home/dias-benchmarks/notebooks/kkhandekar/environmental-vs-ai-startups-india-eda/input/indian-startup-recognized-by-dpiit/Startup_Counts_Across_India.csv'
+df = pd.read_csv(file)
+Executing code: %%RecordEvent
+%%time
+### cell 1 ###
+
+factor = 3000
+df = pd.concat([df]*factor)
+df.info()
+Executing code: %Checkpoint /home/dias-benchmarks/notebooks/kkhandekar/environmental-vs-ai-startups-india-eda/src/annotated/checkpoints/pre_cell_2.pickle
+Checkpointing took 0.0008225440979003906 seconds.
+========================================================
+Cell  2
+Rewritten pre-checkpoint path: /home/dias-benchmarks/notebooks/kkhandekar/environmental-vs-ai-startups-india-eda/src/annotated/checkpoints/pre_cell_2.pickle
+Pre-checkpoint path: /home/dias-benchmarks/notebooks/kkhandekar/environmental-vs-ai-startups-india-eda/src/annotated/checkpoints/pre_cell_2.pickle
+========================================================
+Getting original timing for cell 2
+HAHA original checkpoint path:  /home/dias-benchmarks/notebooks/kkhandekar/environmental-vs-ai-startups-india-eda/src/annotated/checkpoints/pre_cell_2.pickle
+HAHA setting initially best_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/kkhandekar/environmental-vs-ai-startups-india-eda/src/annotated/checkpoints/post_cell_2.pickle
+========================================================
+Rewriting cell 2... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 2 ###
+
+df.drop('S No.',axis=1,inplace=True)
+df.dropna(inplace=True)
+df.reset_index(inplace=True,drop=True)
+
+#view
+df.head()
+        <Profiling data>:
+                        Function  GPU calls  CPU calls
+0         DataFrame.drop          1          0
+1       DataFrame.dropna          1          0
+2  DataFrame.reset_index          1          0
+3           NDFrame.head          1          0
+4     DataFrame.__repr__          1          0
+
+        <Execution time>: 16.4
+        <Active vars>: ['df']
+
+        <Future vars>: []
+
+        <Iteration>: 0/3
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: There is no rewritten code provided, so we should attempt to optimize the original code to generate a new version.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 2 ###
+
+df.drop('S No.',axis=1,inplace=True)
+df.dropna(inplace=True)
+df.reset_index(inplace=True,drop=True)
+
+#view
+df.head()
+        <Profiling data>:
+                        Function  GPU calls  CPU calls
+0         DataFrame.drop          1          0
+1       DataFrame.dropna          1          0
+2  DataFrame.reset_index          1          0
+3           NDFrame.head          1          0
+4     DataFrame.__repr__          1          0
+
+        <Execution time>: 16.4
+        <Active vars>: ['df']
+
+        <Future vars>: []
+
+        <Iteration>: 0/3
+
+Code: done
+Reason: All operations (drop, dropna, reset_index, head) are already executed on the GPU with no CPU involvement. No further optimization is necessary.
+No Modifications made to the original code
+Try 0: calling rewrite agent for cell 2 took 8.10115361213684 seconds.
+There is no need to rewrite the cell.
+Could not rewrite the cell. Continuing to next cell...
+========================================================
+After rewriting cell  2
+Rewritten pre-checkpoint path: /home/dias-benchmarks/notebooks/kkhandekar/environmental-vs-ai-startups-india-eda/src/annotated/checkpoints/post_cell_2.pickle
+Pre-checkpoint path: /home/dias-benchmarks/notebooks/kkhandekar/environmental-vs-ai-startups-india-eda/src/annotated/checkpoints/post_cell_2.pickle
+========================================================
+Cell 2 rewriting took 49.48563051223755 seconds.
+Getting original timing for cell 3
+HAHA original checkpoint path:  /home/dias-benchmarks/notebooks/kkhandekar/environmental-vs-ai-startups-india-eda/src/annotated/checkpoints/post_cell_2.pickle
+HAHA setting initially best_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/kkhandekar/environmental-vs-ai-startups-india-eda/src/annotated/checkpoints/post_cell_3.pickle
+========================================================
+Rewriting cell 3... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 3 ###
+
+# Industry sub-categories for environmental & AI startups
+env = ['Agriculture','Green Technology','Renewable Energy','Waste Management']
+ai = ['AI','Robotics','Computer Vision']
+
+# combined df - environmental & AI startups only
+df_ea = df.loc[(df['Industry'].isin(env)) | (df['Industry'].isin(ai))].reset_index(drop=True,inplace=False)
+
+# custom function to set Main Industry
+def set_MainIndustry(ind):
+    if ind in env:
+        return 'ENV'
+    else:
+        return 'AI'
+
+# adding a new column
+df_ea['MainIndustry'] = df_ea.Industry.apply(lambda x: set_MainIndustry(x))
+
+# basic stats
+print(f"A total of {df_ea.shape[0]} startups were started in India between 2016 & 2022, out of which {df_ea.groupby('MainIndustry').size()['ENV']} are environmental related & {df_ea.groupby('MainIndustry').size()['AI']} are AI startups.")
+        <Profiling data>:
+                                Function  GPU calls  CPU calls
+0          DataFrame.__getitem__          2          0
+1                    Series.isin          2          0
+2                OpsMixin.__or__          1          0
+3   _LocationIndexer.__getitem__          1          0
+4          DataFrame.reset_index          1          0
+5            NDFrame.__getattr__          1          0
+6                   Series.apply          0          1
+7          DataFrame.__setitem__          1          0
+8                      DataFrame          1          0
+9              DataFrame.groupby          2          0
+10                  GroupBy.size          2          0
+11            Series.__getitem__          2          0
+
+        <Execution time>: 1630.0
+        <Active vars>: []
+
+        <Future vars>: []
+
+        <Iteration>: 0/3
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: There is no rewritten code provided, so we should attempt to optimize the original code to reduce execution time by leveraging GPU-enhanced libraries like cudf more effectively.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 3 ###
+
+# Industry sub-categories for environmental & AI startups
+env = ['Agriculture','Green Technology','Renewable Energy','Waste Management']
+ai = ['AI','Robotics','Computer Vision']
+
+# combined df - environmental & AI startups only
+df_ea = df.loc[(df['Industry'].isin(env)) | (df['Industry'].isin(ai))].reset_index(drop=True,inplace=False)
+
+# custom function to set Main Industry
+def set_MainIndustry(ind):
+    if ind in env:
+        return 'ENV'
+    else:
+        return 'AI'
+
+# adding a new column
+df_ea['MainIndustry'] = df_ea.Industry.apply(lambda x: set_MainIndustry(x))
+
+# basic stats
+print(f"A total of {df_ea.shape[0]} startups were started in India between 2016 & 2022, out of which {df_ea.groupby('MainIndustry').size()['ENV']} are environmental related & {df_ea.groupby('MainIndustry').size()['AI']} are AI startups.")
+        <Profiling data>:
+                                Function  GPU calls  CPU calls
+0          DataFrame.__getitem__          2          0
+1                    Series.isin          2          0
+2                OpsMixin.__or__          1          0
+3   _LocationIndexer.__getitem__          1          0
+4          DataFrame.reset_index          1          0
+5            NDFrame.__getattr__          1          0
+6                   Series.apply          0          1
+7          DataFrame.__setitem__          1          0
+8                      DataFrame          1          0
+9              DataFrame.groupby          2          0
+10                  GroupBy.size          2          0
+11            Series.__getitem__          2          0
+
+        <Execution time>: 1630.0
+        <Active vars>: []
+
+        <Future vars>: []
+
+        <Iteration>: 0/3
+
+Code: # Industry sub-categories for environmental & AI startups
+env = ['Agriculture', 'Green Technology', 'Renewable Energy', 'Waste Management']
+ai = ['AI', 'Robotics', 'Computer Vision']
+
+# combined df - environmental & AI startups only (all on GPU)
+mask = df['Industry'].isin(env) | df['Industry'].isin(ai)
+df_ea = df[mask].reset_index(drop=True)
+
+# map each Industry to its MainIndustry without CPU-side apply
+map_dict = {cat: 'ENV' for cat in env}
+map_dict.update({cat: 'AI' for cat in ai})
+df_ea['MainIndustry'] = df_ea['Industry'].map(map_dict)
+
+# compute stats with a single groupby
+total = len(df_ea)
+counts = df_ea.groupby('MainIndustry').size()
+env_count = int(counts.get('ENV', 0))
+ai_count = int(counts.get('AI', 0))
+
+print(
+    f"A total of {total} startups were started in India between 2016 & 2022, "
+    f"out of which {env_count} are environmental related & {ai_count} are AI startups."
+)
+Reason: Replaced the Python-level apply (CPU-bound) with a GPU-side map using a dict, eliminated the custom function and lambda, and consolidated two groupby calls into one to reduce overhead and keep all operations on the GPU.
+Parsed response: # Industry sub-categories for environmental & AI startups
+env = ['Agriculture', 'Green Technology', 'Renewable Energy', 'Waste Management']
+ai = ['AI', 'Robotics', 'Computer Vision']
+
+# combined df - environmental & AI startups only (all on GPU)
+mask = df['Industry'].isin(env) | df['Industry'].isin(ai)
+df_ea = df[mask].reset_index(drop=True)
+
+# map each Industry to its MainIndustry without CPU-side apply
+map_dict = {cat: 'ENV' for cat in env}
+map_dict.update({cat: 'AI' for cat in ai})
+df_ea['MainIndustry'] = df_ea['Industry'].map(map_dict)
+
+# compute stats with a single groupby
+total = len(df_ea)
+counts = df_ea.groupby('MainIndustry').size()
+env_count = int(counts.get('ENV', 0))
+ai_count = int(counts.get('AI', 0))
+
+print(
+    f"A total of {total} startups were started in India between 2016 & 2022, "
+    f"out of which {env_count} are environmental related & {ai_count} are AI startups."
+)
+Try 0: calling rewrite agent for cell 3 took 18.399381637573242 seconds.
+Executing rewritten code... ### cell 3 ###
+
+# Industry sub-categories for environmental & AI startups
+env = ['Agriculture', 'Green Technology', 'Renewable Energy', 'Waste Management']
+ai = ['AI', 'Robotics', 'Computer Vision']
+
+# combined df - environmental & AI startups only (all on GPU)
+mask = df['Industry'].isin(env) | df['Industry'].isin(ai)
+df_ea = df[mask].reset_index(drop=True)
+
+# map each Industry to its MainIndustry without CPU-side apply
+map_dict = {cat: 'ENV' for cat in env}
+map_dict.update({cat: 'AI' for cat in ai})
+df_ea['MainIndustry'] = df_ea['Industry'].map(map_dict)
+
+# compute stats with a single groupby
+total = len(df_ea)
+counts = df_ea.groupby('MainIndustry').size()
+env_count = int(counts.get('ENV', 0))
+ai_count = int(counts.get('AI', 0))
+
+print(
+    f"A total of {total} startups were started in India between 2016 & 2022, "
+    f"out of which {env_count} are environmental related & {ai_count} are AI startups."
+)
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/notebooks/kkhandekar/environmental-vs-ai-startups-india-eda/src/annotated/checkpoints/post_cell_2.pickle
+Finished executing the rewritten code.
+Try 0: executing the rewritten code for cell 3 took 30.782133102416992 seconds.
+Rewritten time: 144.0 ms
+The rewritten code is correct. Profiling cudf...
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/notebooks/kkhandekar/environmental-vs-ai-startups-india-eda/src/annotated/checkpoints/post_cell_2.pickle
+Try 0: cudf profiling the rewritten code for cell 3 took 8.467629432678223 seconds.
+gpu_calls_orig_perc: 0.9411764705882353, gpu_calls_opt_perc: 0.8666666666666667
+orig_time: 1630.0, opt_time: 144.0
+Ratio drops.
+Speedup makes up for the drop in call ratio.
+Rewritten code took 144.0ms. The previous fastest solution took 1630.0ms.
+Previous best solution num GPU and CPU calls:  16 1
+New solution num GPU and CPU calls:  13 2
+Accepted the rewritten code.
+Setting best_rewritten_post_checkpoint_path to  /home/dias-benchmarks/notebooks/kkhandekar/environmental-vs-ai-startups-india-eda/src/rewritten/o4_mini_high/checkpoints/post_cell_3.pickle
+========================================================
+Rewriting cell 3... Try 1...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 3 ###
+
+# Industry sub-categories for environmental & AI startups
+env = ['Agriculture','Green Technology','Renewable Energy','Waste Management']
+ai = ['AI','Robotics','Computer Vision']
+
+# combined df - environmental & AI startups only
+df_ea = df.loc[(df['Industry'].isin(env)) | (df['Industry'].isin(ai))].reset_index(drop=True,inplace=False)
+
+# custom function to set Main Industry
+def set_MainIndustry(ind):
+    if ind in env:
+        return 'ENV'
+    else:
+        return 'AI'
+
+# adding a new column
+df_ea['MainIndustry'] = df_ea.Industry.apply(lambda x: set_MainIndustry(x))
+
+# basic stats
+print(f"A total of {df_ea.shape[0]} startups were started in India between 2016 & 2022, out of which {df_ea.groupby('MainIndustry').size()['ENV']} are environmental related & {df_ea.groupby('MainIndustry').size()['AI']} are AI startups.")
+        <Profiling data>:
+                                Function  GPU calls  CPU calls
+0          DataFrame.__getitem__          2          0
+1                    Series.isin          2          0
+2                OpsMixin.__or__          1          0
+3   _LocationIndexer.__getitem__          1          0
+4          DataFrame.reset_index          1          0
+5            NDFrame.__getattr__          1          0
+6                   Series.apply          0          1
+7          DataFrame.__setitem__          1          0
+8                      DataFrame          1          0
+9              DataFrame.groupby          2          0
+10                  GroupBy.size          2          0
+11            Series.__getitem__          2          0
+        <Execution time>: 1630.0
+        <Active Vars>: []
+        <Future Vars>: []
+        <Rewritten Code>:
+        ### cell 3 ###
+
+# Industry sub-categories for environmental & AI startups
+env = ['Agriculture', 'Green Technology', 'Renewable Energy', 'Waste Management']
+ai = ['AI', 'Robotics', 'Computer Vision']
+
+# combined df - environmental & AI startups only (all on GPU)
+mask = df['Industry'].isin(env) | df['Industry'].isin(ai)
+df_ea = df[mask].reset_index(drop=True)
+
+# map each Industry to its MainIndustry without CPU-side apply
+map_dict = {cat: 'ENV' for cat in env}
+map_dict.update({cat: 'AI' for cat in ai})
+df_ea['MainIndustry'] = df_ea['Industry'].map(map_dict)
+
+# compute stats with a single groupby
+total = len(df_ea)
+counts = df_ea.groupby('MainIndustry').size()
+env_count = int(counts.get('ENV', 0))
+ai_count = int(counts.get('AI', 0))
+
+print(
+    f"A total of {total} startups were started in India between 2016 & 2022, "
+    f"out of which {env_count} are environmental related & {ai_count} are AI startups."
+)
+        <Profiling data>:
+                        Function  GPU calls  CPU calls
+0  DataFrame.__getitem__          4          0
+1            Series.isin          2          0
+2        OpsMixin.__or__          1          0
+3  DataFrame.reset_index          1          0
+4             Series.map          1          0
+5  DataFrame.__setitem__          1          0
+6      DataFrame.__len__          1          0
+7      DataFrame.groupby          1          0
+8           GroupBy.size          1          0
+9            NDFrame.get          0          2
+        <Execution time>: 144.0
+        <Execution output>: Rewritten time: 144.0 ms
+Original time: 1630.0 ms
+        <Iteration>: 1/1
+
+==========Running the manager agent to decide the next step==========
+Choice: done
+Reason: The rewritten code has been significantly optimized, reducing the execution time from 1630 ms to 144 ms. It efficiently uses dictionary mapping and GPU operations without using CPU-side functions like `apply`. No further iterations are left, and the code is performing well.
+Code is already optimized
+Try 1: calling rewrite agent for cell 3 took 1.111365556716919 seconds.
+========================================================
+After rewriting cell  3
+Rewritten pre-checkpoint path: /home/dias-benchmarks/notebooks/kkhandekar/environmental-vs-ai-startups-india-eda/src/rewritten/o4_mini_high/checkpoints/post_cell_3.pickle
+Pre-checkpoint path: /home/dias-benchmarks/notebooks/kkhandekar/environmental-vs-ai-startups-india-eda/src/annotated/checkpoints/post_cell_3.pickle
+========================================================
+Cell 3 rewriting took 94.34096050262451 seconds.
+Rewrote notebook in 164.07390022277832 seconds

@@ -1,0 +1,128 @@
+---------------------------------------
+processing notebooks/aieducation/what-course-are-you-going-to-take/src/bench.ipynb
+Execution time: 38.02078676223755 seconds
+38.622641801834106 38.02078676223755
+Average execution time: 38.32171428203583 seconds
+---------------------------------------
+processing notebooks/ampiiere/animal-crossing-villager-popularity-analysis/src/bench.ipynb
+Error processing notebooks/ampiiere/animal-crossing-villager-popularity-analysis/src/bench.ipynb Kernel died
+---------------------------------------
+processing notebooks/dataranch/supermarket-sales-prediction-xgboost-fastai/src/bench.ipynb
+Execution time: 26.117064476013184 seconds
+26.77338409423828 26.117064476013184
+Average execution time: 26.445224285125732 seconds
+---------------------------------------
+processing notebooks/erikbruin/nlp-on-student-writing-eda/src/bench.ipynb
+---------------------------------------
+processing notebooks/gksriharsha/eda-speedtests/src/bench.ipynb
+Execution time: 17.191190004348755 seconds
+17.231996297836304 17.191190004348755
+Average execution time: 17.21159315109253 seconds
+---------------------------------------
+processing notebooks/ibtesama/getting-started-with-a-movie-recommendation-system/src/bench.ipynb
+Execution time: 940.7964038848877 seconds
+926.0585741996765 940.7964038848877
+Average execution time: 933.4274890422821 seconds
+---------------------------------------
+processing notebooks/josecode1/billionaires-statistics-2023/src/bench.ipynb
+Execution time: 10.48583722114563 seconds
+10.849462270736694 10.48583722114563
+Average execution time: 10.667649745941162 seconds
+---------------------------------------
+processing notebooks/joshuaswords/netflix-data-visualization/src/bench.ipynb
+column_view::get_data: Unsupported type: 24
+column_view::get_data: Unsupported type: 24
+column_view::get_data: Unsupported type: 24
+column_view::get_data: Unsupported type: 24
+column_view::get_data: Unsupported type: 24
+column_view::get_data: Unsupported type: 24
+column_view::get_data: Unsupported type: 24
+column_view::get_data: Unsupported type: 24
+column_view::get_data: Unsupported type: 24
+column_view::get_data: Unsupported type: 24
+Execution time: 322.64133405685425 seconds
+322.18039751052856 322.64133405685425
+Average execution time: 322.4108657836914 seconds
+---------------------------------------
+processing notebooks/kkhandekar/environmental-vs-ai-startups-india-eda/src/bench.ipynb
+Execution time: 4.023566961288452 seconds
+3.9771623611450195 4.023566961288452
+Average execution time: 4.000364661216736 seconds
+---------------------------------------
+processing notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/src/bench.ipynb
+Execution time: 47.169156312942505 seconds
+46.724188804626465 47.169156312942505
+Average execution time: 46.946672558784485 seconds
+---------------------------------------
+processing notebooks/madhurpant/beautiful-kaggle-2022-analysis/src/bench.ipynb
+Execution time: 1.763826847076416 seconds
+1.6996495723724365 1.763826847076416
+Average execution time: 1.7317382097244263 seconds
+---------------------------------------
+processing notebooks/mpwolke/just-you-wait-rishi-sunak/src/bench.ipynb
+Execution time: 114.29878687858582 seconds
+115.97829103469849 114.29878687858582
+Average execution time: 115.13853895664215 seconds
+---------------------------------------
+processing notebooks/nickwan/creating-player-stats-using-tracking-data/src/bench.ipynb
+Execution time: 1.4626505374908447 seconds
+2.08797550201416 1.4626505374908447
+Average execution time: 1.7753130197525024 seconds
+---------------------------------------
+processing notebooks/paultimothymooney/kaggle-survey-2022-all-results/src/bench.ipynb
+Execution time: 35.7668890953064 seconds
+36.404170989990234 35.7668890953064
+Average execution time: 36.085530042648315 seconds
+---------------------------------------
+processing notebooks/pmarcelino/comprehensive-data-exploration-with-python/src/bench.ipynb
+Execution time: 11.383641242980957 seconds
+11.322351455688477 11.383641242980957
+Average execution time: 11.352996349334717 seconds
+---------------------------------------
+processing notebooks/roopacalistus/retail-supermarket-store-analysis/src/bench.ipynb
+Execution time: 23.298484325408936 seconds
+22.891210794448853 23.298484325408936
+Average execution time: 23.094847559928894 seconds
+---------------------------------------
+processing notebooks/saisandeepjallepalli/adidas-retail-eda-data-visualization/src/bench.ipynb
+Execution time: 33.55238223075867 seconds
+33.77529335021973 33.55238223075867
+Average execution time: 33.6638377904892 seconds
+---------------------------------------
+processing notebooks/sandhyakrishnan02/indian-startup-growth-analysis/src/bench.ipynb
+Execution time: 1.2848145961761475 seconds
+1.2768921852111816 1.2848145961761475
+Average execution time: 1.2808533906936646 seconds
+---------------------------------------
+processing notebooks/sanket7994/imdb-dataset-eda-project/src/bench.ipynb
+Execution time: 1.7292509078979492 seconds
+4.02002477645874 1.7292509078979492
+Average execution time: 2.8746378421783447 seconds
+---------------------------------------
+processing notebooks/spscientist/student-performance-in-exams/src/bench.ipynb
+Execution time: 30.86541485786438 seconds
+31.10252332687378 30.86541485786438
+Average execution time: 30.98396909236908 seconds
+---------------------------------------
+processing new_notebooks/nyc-flight/bench.ipynb
+Execution time: 192.73457407951355 seconds
+192.36374759674072 192.73457407951355
+Average execution time: 192.54916083812714 seconds
+---------------------------------------
+processing new_notebooks/imdb/bench.ipynb
+Execution time: 12.235985040664673 seconds
+12.077662467956543 12.235985040664673
+Average execution time: 12.156823754310608 seconds
+---------------------------------------
+processing new_notebooks/us-birth/bench.ipynb
+Execution time: 16.94416356086731 seconds
+17.203551292419434 16.94416356086731
+Average execution time: 17.07385742664337 seconds
+---------------------------------------
+processing new_notebooks/nyc-taxi/bench.ipynb
+Execution time: 114.57397317886353 seconds
+116.13344860076904 114.57397317886353
+Average execution time: 115.35371088981628 seconds
+---------------------------------------
+processing new_notebooks/nyc-airbnb/bench.ipynb
+Failed paths: [PosixPath('notebooks/ampiiere/animal-crossing-villager-popularity-analysis/src/bench.ipynb')]

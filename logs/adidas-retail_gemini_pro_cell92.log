@@ -1,0 +1,1986 @@
+Annotated notebook saved to /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/cell_exec_info.ipynb
+Executing code: import sys, os
+sys.path.insert(0, os.path.abspath('/home/ElasticNotebook'))
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df
+import pickle
+import cudf
+Executing code: %%RecordEventWithColumnInfo
+# This Python 3 environment comes with many helpful analytics libraries installed
+# It is defined by the kaggle/python Docker image: https://github.com/kaggle/docker-python
+# For example, here's several helpful packages to load
+
+import numpy as np # linear algebra
+import os
+# STEFANOS: Conditionally import Modin Pandas
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    # STEFANOS: Import Modin Pandas
+    import os
+    os.environ["MODIN_ENGINE"] = "ray"
+    import ray
+    ray.init(num_cpus=int(os.environ['MODIN_CPUS']), runtime_env={'env_vars': {'__MODIN_AUTOIMPORT_PANDAS__': '1'}})
+    import modin.pandas as pd
+else:
+    # STEFANOS: Import regular Pandas
+    import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import time
+sns.set()
+
+# Input data files are available in the read-only "../input/" directory
+# For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory
+
+import os
+for dirname, _, filenames in os.walk('/kaggle/input'):
+    for filename in filenames:
+        print(os.path.join(dirname, filename))
+
+# You can write up to 20GB to the current directory (/kaggle/working/) that gets preserved as output when you create a version using "Save & Run All"
+# You can also write temporary files to /kaggle/temp/, but they won't be saved outside of the current session
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+df = pd.read_csv("/home/dias-benchmarks/notebooks/saisandeepjallepalli/adidas-retail-eda-data-visualization/input/adidas-us-retail-products-dataset/adidas.csv")
+Executing code: %%RecordEventWithColumnInfo
+### cell 1 ###
+
+factor = 10
+df = pd.concat([df]*factor)
+df.info()
+Executing code: %%RecordEventWithColumnInfo
+### cell 2 ###
+
+# First 5 records in the DataFrame
+
+df.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 3 ###
+
+# Checking for Null Values in the DataFrame
+
+df.isna().sum()
+
+# There 16 Null Values for Original_price Column
+Executing code: %%RecordEventWithColumnInfo
+### cell 4 ###
+
+# Shape of the DataFrame
+
+df.shape
+Executing code: %%RecordEventWithColumnInfo
+### cell 5 ###
+
+# Information about the DataFrame
+
+df.info()
+Executing code: %%RecordEventWithColumnInfo
+### cell 6 ###
+
+# Correlation Between Columns
+
+df.corr(numeric_only=True)
+Executing code: %%RecordEventWithColumnInfo
+### cell 7 ###
+
+# Statistical informtion about the DataFrame
+
+df.describe().T
+Executing code: %%RecordEventWithColumnInfo
+### cell 8 ###
+
+# The Percentage of Missing Values in the 'original_price' Column
+
+100 * (df['original_price'].isna().sum() / len(df))
+
+# As the percntage of Null Records is less than 5%, hence dropping the Null record Rows
+Executing code: %%RecordEventWithColumnInfo
+### cell 9 ###
+
+# Dropping Null Values in the DataFrame
+
+df.dropna(inplace=True, axis=0)
+Executing code: %%RecordEventWithColumnInfo
+### cell 10 ###
+
+# Checking for Null Values in the DataFrame
+
+df.isna().sum()
+Executing code: %%RecordEventWithColumnInfo
+### cell 11 ###
+
+# Dropping 'currency' column as all records have 'USD' as currency
+# Dropping 'source' column as all records have 'adidas United States' as value
+# Dropping 'brand', 'country', 'language' columns as all records have same value
+
+df.drop([ 'brand', 'country', 'language', 'source_website', 'images', 'crawled_at', 'url', 'sku', 'currency','source', 'description'], axis=1, inplace=True)
+Executing code: %%RecordEventWithColumnInfo
+### cell 12 ###
+
+# First 5 records in the DataFrame
+
+df.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 13 ###
+
+# Removing '$' from the DataFrame
+
+df['original_price'] = df['original_price'].str.split('$')
+df['original_price'] = df['original_price'].str[1]
+Executing code: %%RecordEventWithColumnInfo
+### cell 14 ###
+
+# First 5 records in the DataFrame
+
+df.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 15 ###
+
+# Shape of the DataFrame
+
+df.shape
+Executing code: %%RecordEventWithColumnInfo
+### cell 16 ###
+
+# Checking the Data Types for the columns
+
+df.dtypes
+Executing code: %%RecordEventWithColumnInfo
+### cell 17 ###
+
+# Creating 'Category' Column
+
+df['Category'] = df['breadcrumbs'].str.split("/")
+df['Category'] = df['Category'].str[0]
+Executing code: %%RecordEventWithColumnInfo
+### cell 18 ###
+
+# Creating 'Product Type' Column
+
+df['Product_Type'] = df['breadcrumbs'].str.split("/")
+df['Product_Type'] = df['Product_Type'].str[1]
+Executing code: %%RecordEventWithColumnInfo
+### cell 19 ###
+
+# Droping 'breadcrumbs' Column
+
+df.drop(['breadcrumbs', 'category'], axis=1, inplace=True)
+Executing code: %%RecordEventWithColumnInfo
+### cell 20 ###
+
+# Changing the DataType of 'original_price' from object to int64
+
+df['original_price'] = df['original_price'].astype('int64')
+Executing code: %%RecordEventWithColumnInfo
+### cell 21 ###
+
+# Checking the Data Types for the columns
+
+df.dtypes
+Executing code: # STEFANOS: Disable plotting
+# sns.heatmap(df.corr(), annot=True, cmap='magma')
+# plt.show();
+Executing code: # Distribution Plot for selling price
+
+# STEFANOS: Disable plotting
+# sns.displot(df['selling_price'], kde=True);
+
+# The Below Graph is 'Right Skewed' with Majority of Data falling between 10-70.
+Executing code: # Distribution Plot for origial price
+
+# STEFANOS: Disable plotting
+# sns.displot(df['original_price'], kde=True);
+
+# The Below Graph is 'Right Skewed' with Majority of Data falling between 10-90.
+Executing code: # Distribution Plot for average rating
+
+# STEFANOS: Disable plotting
+# sns.displot(df['average_rating'], kde=True);
+
+# The Below Graph is 'Left Skewed' with Majority of Data falling between 4.2-5.0.
+Executing code: # Distribution Plot for reviews count
+
+# STEFANOS: Disable plotting
+# sns.displot(df['reviews_count'], kde=True);
+
+# The Below Graph is 'Right Skewed' with Majority of Data falling below 600.
+Executing code: %%RecordEventWithColumnInfo
+### cell 22 ###
+
+# No.of Unique Products in the DataFrame
+
+df['name'].nunique()
+Executing code: %%RecordEventWithColumnInfo
+### cell 23 ###
+
+# Top 10 - Products sold in the DataFrame
+
+df['name'].value_counts()[:10]
+Executing code: %%RecordEventWithColumnInfo
+### cell 24 ###
+
+# Top 5 - Products sold in the DataFrame
+
+
+# STEFANOS: Disable plotting
+# plt.figure(figsize=(12,4))
+# df['name'].value_counts()[:5].plot(kind='barh', color={'#864879','#2D4263','#C84B31', '#ECDBBA', '#B3541E'})
+# plt.ylabel("Product Name")
+# plt.xlabel("No.of Units Sold")
+# plt.title("Product Name Vs. No.of Units Sold")
+# plt.show();
+df['name'].value_counts()[:5]
+Executing code: %%RecordEventWithColumnInfo
+### cell 25 ###
+
+# No.of Unique selling price in the DataFrame
+
+df['selling_price'].nunique()
+Executing code: %%RecordEventWithColumnInfo
+### cell 26 ###
+
+# Top 15 - Products interms of similar selling price in the DataFrame
+
+df['selling_price'].value_counts()[:15]
+Executing code: %%RecordEventWithColumnInfo
+### cell 27 ###
+
+# Top 5 - Products interms of similar selling price in the DataFrame
+
+# STEFANOS: Disable plotting
+# plt.figure(figsize=(12,4))
+# df['selling_price'].value_counts()[:5].plot(kind='barh', color={'#864879','#2D4263','#C84B31', '#ECDBBA', '#B3541E'})
+# plt.ylabel("Product Selling Price ($USD)")
+# plt.xlabel("No.of Products")
+# plt.title("Product Selling Price ($USD) Vs. No.of Products")
+# plt.show();
+df['selling_price'].value_counts()[:5]
+Executing code: # Top 15 - Products interms of similar selling price in the DataFrame
+
+# STEFANOS: Disable plotting
+# labels = df['selling_price'].value_counts().head(15).index
+# pie, ax = plt.subplots(figsize=[20,8])
+# plt.pie(x=df['selling_price'].value_counts().head(15).values, autopct="%.1f%%", explode=[0.06]*15, labels=labels, pctdistance=0.5)
+# plt.title("Top 15 - Products interms of similar selling price ($USD)", fontsize=14);
+Executing code: %%RecordEventWithColumnInfo
+### cell 28 ###
+
+# Maximum Selling Price
+
+print("The Maximun Selling Price is:",df['selling_price'].max(),"USD")
+Executing code: %%RecordEventWithColumnInfo
+### cell 29 ###
+
+# Minimum Selling Price
+
+print("The Minimum Selling Price is:",df['selling_price'].min(),"USD")
+Executing code: %%RecordEventWithColumnInfo
+### cell 30 ###
+
+# Average Selling Price
+
+print("The Average Selling Price is:",round(df['selling_price'].mean(),2),"USD")
+Executing code: %%RecordEventWithColumnInfo
+### cell 31 ###
+
+# Top 10 - Highest Selling Prices in USD
+
+set(df['selling_price'].sort_values(ascending=False)[:30].values)
+Executing code: %%RecordEventWithColumnInfo
+### cell 32 ###
+
+# Top 10 - Least Selling Prices in USD
+
+set(df['selling_price'].sort_values()[:40].values)
+Executing code: %%RecordEventWithColumnInfo
+### cell 33 ###
+
+# No.of Unique original price in the DataFrame
+
+df['original_price'].nunique()
+Executing code: %%RecordEventWithColumnInfo
+### cell 34 ###
+
+# Top 15 - Products interms of similar original price in the DataFrame
+
+df['original_price'].value_counts()[:15]
+Executing code: %%RecordEventWithColumnInfo
+### cell 35 ###
+
+# Top 5 - Products interms of similar origial price in the DataFrame
+
+# STEFANOS: Disable plotting
+# plt.figure(figsize=(12,4))
+# df['original_price'].value_counts()[:5].plot(kind='barh', color={'#864879','#2D4263','#C84B31', '#ECDBBA', '#B3541E'})
+# plt.ylabel("Original Product Price ($USD)")
+# plt.xlabel("No.of Products")
+# plt.title("Original Product Price ($USD) Vs. No.of Products")
+# plt.show();
+df['original_price'].value_counts()[:5]
+Executing code: # Top 15 - Products interms of similar Original price in the DataFrame
+
+# STEFANOS: Disable plotting
+# labels = df['original_price'].value_counts().head(15).index
+# pie, ax = plt.subplots(figsize=[20,8])
+# plt.pie(x=df['original_price'].value_counts().head(15).values, autopct="%.1f%%", explode=[0.06]*15, labels=labels, pctdistance=0.5)
+# plt.title("Top 15 - Products interms of similar original price ($USD)", fontsize=14);
+Executing code: %%RecordEventWithColumnInfo
+### cell 36 ###
+
+# Maximum Original Price
+
+print("The Maximun Original Price is:",df['original_price'].max(),"USD")
+Executing code: %%RecordEventWithColumnInfo
+### cell 37 ###
+
+# Minimum Original Price
+
+print("The Minimum Original Price is:",df['original_price'].min(),"USD")
+Executing code: %%RecordEventWithColumnInfo
+### cell 38 ###
+
+# Average Original Price
+
+print("The Average Original Price is:",round(df['original_price'].mean(),2),"USD")
+Executing code: %%RecordEventWithColumnInfo
+### cell 39 ###
+
+# Top 10 - Highest Original Prices in USD
+
+set(df['original_price'].sort_values(ascending=False)[:80].values)
+Executing code: %%RecordEventWithColumnInfo
+### cell 40 ###
+
+# Top 10 - Least Original Prices in USD
+
+set(df['original_price'].sort_values().values[:100])
+Executing code: %%RecordEventWithColumnInfo
+### cell 41 ###
+
+# Calculating Discount
+
+df['Discount'] = df['original_price'] - df['selling_price']
+Executing code: %%RecordEventWithColumnInfo
+### cell 42 ###
+
+# No.of Unique Discount in the DataFrame
+
+df['Discount'].nunique()
+Executing code: %%RecordEventWithColumnInfo
+### cell 43 ###
+
+# Top 15 - Highest Discount Amount in the DataFrame
+
+list(set(df['Discount'].unique()))[-15::]
+Executing code: %%RecordEventWithColumnInfo
+### cell 44 ###
+
+# Top 15 - Least Discount Amount in the DataFrame
+
+list(set(df['Discount'].unique()))[:15]
+Executing code: %%RecordEventWithColumnInfo
+### cell 45 ###
+
+# Top 15 - Most Given Discount Amount in the DataFrame
+
+df['Discount'].value_counts()[:15]
+Executing code: %%RecordEventWithColumnInfo
+### cell 46 ###
+
+# Top 5 - Most Given Discount Amount in the DataFrame
+
+# STEFANOS: Disable plotting
+# plt.figure(figsize=(12,4))
+# df['Discount'].value_counts()[:5].plot(kind='barh', color={'#864879','#2D4263','#C84B31', '#ECDBBA', '#B3541E'})
+# plt.ylabel("Discount Amount")
+# plt.xlabel("No.of times Particular Disount Amount Given")
+# plt.title("Discount Amount Vs. No.of times Particular Disount Amount Given")
+# plt.show();
+df['Discount'].value_counts()[:5]
+Executing code: %%RecordEventWithColumnInfo
+### cell 47 ###
+
+# Top 15 - Most Given Discount Amount in the DataFrame
+
+labels = df['Discount'].value_counts().head(15).index
+# STEFANOS: Disable plotting
+# pie, ax = plt.subplots(figsize=[20,8])
+# plt.pie(x=df['Discount'].value_counts().head(15).values, autopct="%.1f%%", explode=[0.06]*15, labels=labels, pctdistance=0.5)
+# plt.title("Top 15 - Most Given Discount Amount in the DataFrame", fontsize=14);
+_ = df['Discount'].value_counts().head(15).values
+Executing code: %%RecordEventWithColumnInfo
+### cell 48 ###
+
+# Calculating Discount percentage(%)
+
+df['Discount(%)'] = round(((df['original_price'] - df['selling_price']) / (df['original_price']))*100,2)
+Executing code: %%RecordEventWithColumnInfo
+### cell 49 ###
+
+# No.of Unique Discount Percentage(%) in the DataFrame
+
+df['Discount(%)'].nunique()
+Executing code: %%RecordEventWithColumnInfo
+### cell 50 ###
+
+# Top 15 - Highest Discount Percentage(%) in the DataFrame
+
+top_discount_percnet = list(set(df['Discount(%)'].unique()))
+top_discount_percnet.sort(reverse=True)
+print(top_discount_percnet[:15])
+Executing code: %%RecordEventWithColumnInfo
+### cell 51 ###
+
+# Top 15 - Least Discount Percentage(%) in the DataFrame
+
+least_discount_percnet = list(set(df['Discount(%)'].unique()))
+least_discount_percnet.sort(reverse=False)
+print(least_discount_percnet[:15])
+Executing code: %%RecordEventWithColumnInfo
+### cell 52 ###
+
+# Top 15 - Most Given Discount Percentage(%) in the DataFrame
+
+df['Discount(%)'].value_counts().head(15)
+Executing code: %%RecordEventWithColumnInfo
+### cell 53 ###
+
+# Top 5 - Most Given Discount Percentage in the DataFrame
+
+# STEFANOS: Disable plotting
+# plt.figure(figsize=(12,4))
+# df['Discount(%)'].value_counts().head(5).plot(kind='barh', color={'#864879','#2D4263','#C84B31', '#ECDBBA', '#B3541E'})
+# plt.ylabel("Discount Percentage")
+# plt.xlabel("No.of times Particular Disount Percentage Given")
+# plt.title("Discount Percentage Vs. No.of times Particular Disount Percentage Given")
+# plt.show();
+df['Discount(%)'].value_counts().head(5)
+Executing code: %%RecordEventWithColumnInfo
+### cell 54 ###
+
+# Top 15 - Most Given Discount Percentage in the DataFrame
+
+labels = df['Discount(%)'].value_counts().head(15).index
+# STEFANOS: Disable plotting
+# pie, ax = plt.subplots(figsize=[20,15])
+# plt.pie(x=df['Discount(%)'].value_counts().head(15).values, autopct="%.1f%%", explode=[0.06]*15, labels=labels, pctdistance=0.5)
+# plt.title("Top 15 - Most Given Discount Percenatage in the DataFrame", fontsize=14);
+# plt.tight_layout();
+_=df['Discount(%)'].value_counts().head(15).values
+Executing code: %%RecordEventWithColumnInfo
+### cell 55 ###
+
+# Unique colors in the DataFrame
+
+df['color'].unique()
+Executing code: %%RecordEventWithColumnInfo
+### cell 56 ###
+
+# No.of Unique colors in the DataFrame
+
+df['color'].nunique()
+Executing code: %%RecordEventWithColumnInfo
+### cell 57 ###
+
+# No.of Products for each Color
+
+df['color'].value_counts()
+Executing code: %%RecordEventWithColumnInfo
+### cell 58 ###
+
+# No.of Products for each Color
+
+labels = df['color'].value_counts().index
+# STEFANOS: Disable plotting
+# pie, ax = plt.subplots(figsize=[20,15])
+# plt.pie(x=df['color'].value_counts().values, autopct="%.1f%%", explode=[0.03]*18, labels=labels, pctdistance=0.5)
+# plt.title("No.of Products for each Color in the DataFrame", fontsize=14);
+# plt.tight_layout();
+_ = x=df['color'].value_counts().values
+Executing code: %%RecordEventWithColumnInfo
+### cell 59 ###
+
+# Popular Color in Kids Category
+
+df.groupby(['Category','color']).size()['Kids']
+Executing code: %%RecordEventWithColumnInfo
+### cell 60 ###
+
+# Popular Color in Womens Category
+
+df.groupby(['Category','color']).size()['Women']
+Executing code: %%RecordEventWithColumnInfo
+### cell 61 ###
+
+# Popular Color in Mens Category
+
+df.groupby(['Category','color']).size()['Men']
+Executing code: %%RecordEventWithColumnInfo
+### cell 62 ###
+
+# Unique Availability values in the DataFrame
+
+df['availability'].unique()
+Executing code: %%RecordEventWithColumnInfo
+### cell 63 ###
+
+# No.of Unique Availability values in the DataFrame
+
+df['availability'].nunique()
+Executing code: %%RecordEventWithColumnInfo
+### cell 64 ###
+
+# No.of Products according to Avaialability
+
+df['availability'].value_counts()
+Executing code: %%RecordEventWithColumnInfo
+### cell 65 ###
+
+# Unique Product Type values in the DataFrame
+
+df['Product_Type'].unique()
+Executing code: %%RecordEventWithColumnInfo
+### cell 66 ###
+
+# No.of Unique Product Type values in the DataFrame
+
+df['Product_Type'].nunique()
+Executing code: %%RecordEventWithColumnInfo
+### cell 67 ###
+
+# No.of Products according to Product Type
+
+df['Product_Type'].value_counts()
+Executing code: %%RecordEventWithColumnInfo
+### cell 68 ###
+
+# No.of Products according to Product Type
+
+# STEFANOS: Disable plotting
+# plt.figure(figsize=(12,4))
+# df['Product_Type'].value_counts().plot(kind='barh', color={'#864879','#2D4263','#C84B31'})
+# plt.ylabel("Product Type")
+# plt.xlabel("No.of Products Sold According to Particular - Product Type")
+# plt.title("Product Type Vs. No.of Products Sold According to Particular - Product Type")
+# plt.show();
+df['Product_Type'].value_counts()
+Executing code: %%RecordEventWithColumnInfo
+### cell 69 ###
+
+# No.of Products according to Product Type
+
+labels = df['Product_Type'].value_counts().index
+# STEFANOS: Disable plotting
+# pie, ax = plt.subplots(figsize=[10,4])
+# plt.pie(x=df['Product_Type'].value_counts().values, autopct="%.1f%%", explode=[0.05]*3, labels=labels, pctdistance=0.5)
+# plt.title("No.of Products according to Product Type in the DataFrame", fontsize=14);
+# plt.tight_layout();
+_ = df['Product_Type'].value_counts().values
+Executing code: %%RecordEventWithColumnInfo
+### cell 70 ###
+
+df.groupby(['Product_Type', 'Category']).max()['selling_price']
+Executing code: %%RecordEventWithColumnInfo
+### cell 71 ###
+
+df.groupby(['Product_Type', 'Category']).min()['selling_price']
+Executing code: %%RecordEventWithColumnInfo
+### cell 72 ###
+
+df.groupby(['Product_Type', 'Category']).mean(numeric_only=True)['selling_price']
+Executing code: %%RecordEventWithColumnInfo
+### cell 73 ###
+
+# Unique Category values in the DataFrame
+
+df['Category'].unique()
+Executing code: %%RecordEventWithColumnInfo
+### cell 74 ###
+
+# No.of Unique Category values in the DataFrame
+
+df['Category'].nunique()
+Executing code: %%RecordEventWithColumnInfo
+### cell 75 ###
+
+# No.of Products according to Category
+
+df['Category'].value_counts()
+Executing code: %%RecordEventWithColumnInfo
+### cell 76 ###
+
+# Top-5 Products according to Category
+
+# STEFANOS: Disable plotting
+# plt.figure(figsize=(12,4))
+# df['Category'].value_counts().head(5).plot(kind='barh', color={'#864879','#2D4263','#C84B31', '#ECDBBA', '#B3541E'})
+# plt.ylabel("Category")
+# plt.xlabel("No.of Products Sold According to Particular - Category")
+# plt.title("Top 5 - Products Sold according to Category in the DataFrame")
+# plt.show();
+df['Category'].value_counts().head(5)
+Executing code: %%RecordEventWithColumnInfo
+### cell 77 ###
+
+# Top-5 Products according to Category
+
+labels = df['Category'].value_counts().head(5).index
+# STEFANOS: Disable plotting
+# pie, ax = plt.subplots(figsize=[10,4])
+# plt.pie(x=df['Category'].value_counts().head(5).values, autopct="%.1f%%", explode=[0.05]*5, labels=labels, pctdistance=0.5)
+# plt.title("Top 5 - Products Sold according to Category in the DataFrame", fontsize=14);
+# plt.tight_layout();
+_ = df['Category'].value_counts().head(5).values
+Executing code: %%RecordEventWithColumnInfo
+### cell 78 ###
+
+# Unique 'Average Rating'in the DataFrame
+
+df['average_rating'].unique()
+Executing code: %%RecordEventWithColumnInfo
+### cell 79 ###
+
+# No.of Unique 'Average Rating'in the DataFrame
+
+df['average_rating'].nunique()
+Executing code: %%RecordEventWithColumnInfo
+### cell 80 ###
+
+# No.of time particular Average Rating Provided
+
+df['average_rating'].value_counts()
+Executing code: %%RecordEventWithColumnInfo
+### cell 81 ###
+
+# Top 5 - Average Rating Provided
+
+# STEFANOS: Disable plotting
+# plt.figure(figsize=(12,4))
+# df['average_rating'].value_counts().head(5).plot(kind='barh', color={'#864879','#2D4263','#C84B31', '#ECDBBA', '#B3541E'})
+# plt.ylabel("Average Rating")
+# plt.xlabel("No.of times particular rating provided")
+# plt.title("Top 5 - Average Rating Provided in the DataFrame")
+# plt.show();
+df['average_rating'].value_counts().head(5)
+Executing code: %%RecordEventWithColumnInfo
+### cell 82 ###
+
+# Top 5 - Average Rating Provided
+
+labels = df['average_rating'].value_counts().head(5).index
+# STEFANOS: Disable plotting
+# pie, ax = plt.subplots(figsize=[10,4])
+# plt.pie(x=df['average_rating'].value_counts().head(5).values, autopct="%.1f%%", explode=[0.05]*5, labels=labels, pctdistance=0.5)
+# plt.title("# Top 5 - Average Rating Provided in the DataFrame", fontsize=14);
+# plt.tight_layout();
+_ = df['average_rating'].value_counts().head(5).values
+Executing code: %%RecordEventWithColumnInfo
+### cell 83 ###
+
+# Maxmimum Average Rating
+
+df['average_rating'].max()
+Executing code: %%RecordEventWithColumnInfo
+### cell 84 ###
+
+# Minimum Average Rating
+
+df['average_rating'].min()
+Executing code: %%RecordEventWithColumnInfo
+### cell 85 ###
+
+# Mean Average Rating
+
+round(df['average_rating'].mean(),2)
+Executing code: %%RecordEventWithColumnInfo
+### cell 86 ###
+
+# Maximum Average Rating across 'Product Type' and 'Category'
+
+df.groupby(['Product_Type', 'Category']).max()['average_rating']
+Executing code: %%RecordEventWithColumnInfo
+### cell 87 ###
+
+# Minimum Average Rating across 'Product Type' and 'Category'
+
+df.groupby(['Product_Type', 'Category']).min()['average_rating']
+Executing code: %%RecordEventWithColumnInfo
+### cell 88 ###
+
+# No.of Unique 'Reviews Count' in the DataFrame
+
+df['reviews_count'].nunique()
+Executing code: %%RecordEventWithColumnInfo
+### cell 89 ###
+
+# Top 10 - 'Reviews Count' and no.of particular 'Reviews Count' occurances
+
+df['reviews_count'].value_counts().head(10)
+Executing code: %%RecordEventWithColumnInfo
+### cell 90 ###
+
+# Top 5 - 'Reviews Count' and no.of particular 'Reviews Count' occurances
+
+# STEFANOS: Disable plotting
+# plt.figure(figsize=(12,4))
+# df['average_rating'].value_counts().head(5).plot(kind='barh', color={'#864879','#2D4263','#C84B31', '#ECDBBA', '#B3541E'})
+# plt.ylabel('Reviews Count')
+# plt.xlabel('no.of particular Reviews Count occurances')
+# plt.title("Top 5 - 'Reviews Count' and no.of particular 'Reviews Count' occurances")
+# plt.show();
+df['average_rating'].value_counts().head(5)
+Executing code: %%RecordEventWithColumnInfo
+### cell 91 ###
+
+# Maxmimum 'Reviews Count'
+
+df['reviews_count'].max()
+Executing code: %%RecordEventWithColumnInfo
+### cell 92 ###
+
+# Minimum 'Reviews Count'
+
+df['reviews_count'].min()
+Executing code: %%RecordEventWithColumnInfo
+### cell 93 ###
+
+# Mean 'Reviews Count'
+
+round(df['reviews_count'].mean(),2)
+Executing code: %%RecordEventWithColumnInfo
+### cell 94 ###
+
+# Maximum 'Reviews Count' across 'Product Type' and 'Category'
+
+df.groupby(['Product_Type', 'Category']).max()['reviews_count']
+Executing code: %%RecordEventWithColumnInfo
+### cell 95 ###
+
+# Minimum Reviews Count' across 'Product Type' and 'Category'
+
+df.groupby(['Product_Type', 'Category']).min()['reviews_count']
+Executing code: # STEFANOS: Disable plotting
+# sns.scatterplot(data=df, x='average_rating', y='reviews_count')
+Executing code: %%RecordEventWithColumnInfo
+### cell 96 ###
+
+df.shape
+Executing code: %PrintCellInfo cell_exec_info
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Ran small notebook to get cell exec info in 6.12247633934021 seconds
+Getting cudf profile information...
+Annotated notebook saved to /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/cudf_profile.ipynb
+Done getting cudf profile information.
+Ran small notebook to get cudf profile info in 236.77284502983093 seconds
+Annotated notebook saved to /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/annotated.ipynb
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Executing code: %load_ext cudf.pandas
+Executing code: import sys, os
+sys.path.insert(0, os.path.abspath('/home/ElasticNotebook'))
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df
+import pickle
+import cudf
+Executing code: %%RecordEvent
+# This Python 3 environment comes with many helpful analytics libraries installed
+# It is defined by the kaggle/python Docker image: https://github.com/kaggle/docker-python
+# For example, here's several helpful packages to load
+
+import numpy as np # linear algebra
+import os
+# STEFANOS: Conditionally import Modin Pandas
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    # STEFANOS: Import Modin Pandas
+    import os
+    os.environ["MODIN_ENGINE"] = "ray"
+    import ray
+    ray.init(num_cpus=int(os.environ['MODIN_CPUS']), runtime_env={'env_vars': {'__MODIN_AUTOIMPORT_PANDAS__': '1'}})
+    import modin.pandas as pd
+else:
+    # STEFANOS: Import regular Pandas
+    import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import time
+sns.set()
+
+# Input data files are available in the read-only "../input/" directory
+# For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory
+
+import os
+for dirname, _, filenames in os.walk('/kaggle/input'):
+    for filename in filenames:
+        print(os.path.join(dirname, filename))
+
+# You can write up to 20GB to the current directory (/kaggle/working/) that gets preserved as output when you create a version using "Save & Run All"
+# You can also write temporary files to /kaggle/temp/, but they won't be saved outside of the current session
+Executing code: %%RecordEvent
+%%time
+### cell 0 ###
+
+df = pd.read_csv("/home/dias-benchmarks/notebooks/saisandeepjallepalli/adidas-retail-eda-data-visualization/input/adidas-us-retail-products-dataset/adidas.csv")
+Executing code: %%RecordEvent
+%%time
+### cell 1 ###
+
+factor = 1000
+df = pd.concat([df]*factor)
+df.info()
+Executing code: %%RecordEvent
+%%time
+### cell 2 ###
+
+# First 5 records in the DataFrame
+
+df.head()
+Executing code: %%RecordEvent
+%%time
+### cell 3 ###
+
+# Checking for Null Values in the DataFrame
+
+df.isna().sum()
+
+# There 16 Null Values for Original_price Column
+Executing code: %%RecordEvent
+%%time
+### cell 4 ###
+
+# Shape of the DataFrame
+
+df.shape
+Executing code: %%RecordEvent
+%%time
+### cell 5 ###
+
+# Information about the DataFrame
+
+df.info()
+Executing code: %%RecordEvent
+%%time
+### cell 6 ###
+
+# Correlation Between Columns
+
+df.corr(numeric_only=True)
+Executing code: %%RecordEvent
+%%time
+### cell 7 ###
+
+# Statistical informtion about the DataFrame
+
+df.describe().T
+Executing code: %%RecordEvent
+%%time
+### cell 8 ###
+
+# The Percentage of Missing Values in the 'original_price' Column
+
+100 * (df['original_price'].isna().sum() / len(df))
+
+# As the percntage of Null Records is less than 5%, hence dropping the Null record Rows
+Executing code: %%RecordEvent
+%%time
+### cell 9 ###
+
+# Dropping Null Values in the DataFrame
+
+df.dropna(inplace=True, axis=0)
+Executing code: %%RecordEvent
+%%time
+### cell 10 ###
+
+# Checking for Null Values in the DataFrame
+
+df.isna().sum()
+Executing code: %%RecordEvent
+%%time
+### cell 11 ###
+
+# Dropping 'currency' column as all records have 'USD' as currency
+# Dropping 'source' column as all records have 'adidas United States' as value
+# Dropping 'brand', 'country', 'language' columns as all records have same value
+
+df.drop([ 'brand', 'country', 'language', 'source_website', 'images', 'crawled_at', 'url', 'sku', 'currency','source', 'description'], axis=1, inplace=True)
+Executing code: %%RecordEvent
+%%time
+### cell 12 ###
+
+# First 5 records in the DataFrame
+
+df.head()
+Executing code: %%RecordEvent
+%%time
+### cell 13 ###
+
+# Removing '$' from the DataFrame
+
+df['original_price'] = df['original_price'].str.split('$')
+df['original_price'] = df['original_price'].str[1]
+Executing code: %%RecordEvent
+%%time
+### cell 14 ###
+
+# First 5 records in the DataFrame
+
+df.head()
+Executing code: %%RecordEvent
+%%time
+### cell 15 ###
+
+# Shape of the DataFrame
+
+df.shape
+Executing code: %%RecordEvent
+%%time
+### cell 16 ###
+
+# Checking the Data Types for the columns
+
+df.dtypes
+Executing code: %%RecordEvent
+%%time
+### cell 17 ###
+
+# Creating 'Category' Column
+
+df['Category'] = df['breadcrumbs'].str.split("/")
+df['Category'] = df['Category'].str[0]
+Executing code: %%RecordEvent
+%%time
+### cell 18 ###
+
+# Creating 'Product Type' Column
+
+df['Product_Type'] = df['breadcrumbs'].str.split("/")
+df['Product_Type'] = df['Product_Type'].str[1]
+Executing code: %%RecordEvent
+%%time
+### cell 19 ###
+
+# Droping 'breadcrumbs' Column
+
+df.drop(['breadcrumbs', 'category'], axis=1, inplace=True)
+Executing code: %%RecordEvent
+%%time
+### cell 20 ###
+
+# Changing the DataType of 'original_price' from object to int64
+
+df['original_price'] = df['original_price'].astype('int64')
+Executing code: %%RecordEvent
+%%time
+### cell 21 ###
+
+# Checking the Data Types for the columns
+
+df.dtypes
+Executing code: # STEFANOS: Disable plotting
+# sns.heatmap(df.corr(), annot=True, cmap='magma')
+# plt.show();
+Executing code: # Distribution Plot for selling price
+
+# STEFANOS: Disable plotting
+# sns.displot(df['selling_price'], kde=True);
+
+# The Below Graph is 'Right Skewed' with Majority of Data falling between 10-70.
+Executing code: # Distribution Plot for origial price
+
+# STEFANOS: Disable plotting
+# sns.displot(df['original_price'], kde=True);
+
+# The Below Graph is 'Right Skewed' with Majority of Data falling between 10-90.
+Executing code: # Distribution Plot for average rating
+
+# STEFANOS: Disable plotting
+# sns.displot(df['average_rating'], kde=True);
+
+# The Below Graph is 'Left Skewed' with Majority of Data falling between 4.2-5.0.
+Executing code: # Distribution Plot for reviews count
+
+# STEFANOS: Disable plotting
+# sns.displot(df['reviews_count'], kde=True);
+
+# The Below Graph is 'Right Skewed' with Majority of Data falling below 600.
+Executing code: %%RecordEvent
+%%time
+### cell 22 ###
+
+# No.of Unique Products in the DataFrame
+
+df['name'].nunique()
+Executing code: %%RecordEvent
+%%time
+### cell 23 ###
+
+# Top 10 - Products sold in the DataFrame
+
+df['name'].value_counts()[:10]
+Executing code: %%RecordEvent
+%%time
+### cell 24 ###
+
+# Top 5 - Products sold in the DataFrame
+
+
+# STEFANOS: Disable plotting
+# plt.figure(figsize=(12,4))
+# df['name'].value_counts()[:5].plot(kind='barh', color={'#864879','#2D4263','#C84B31', '#ECDBBA', '#B3541E'})
+# plt.ylabel("Product Name")
+# plt.xlabel("No.of Units Sold")
+# plt.title("Product Name Vs. No.of Units Sold")
+# plt.show();
+df['name'].value_counts()[:5]
+Executing code: %%RecordEvent
+%%time
+### cell 25 ###
+
+# No.of Unique selling price in the DataFrame
+
+df['selling_price'].nunique()
+Executing code: %%RecordEvent
+%%time
+### cell 26 ###
+
+# Top 15 - Products interms of similar selling price in the DataFrame
+
+df['selling_price'].value_counts()[:15]
+Executing code: %%RecordEvent
+%%time
+### cell 27 ###
+
+# Top 5 - Products interms of similar selling price in the DataFrame
+
+# STEFANOS: Disable plotting
+# plt.figure(figsize=(12,4))
+# df['selling_price'].value_counts()[:5].plot(kind='barh', color={'#864879','#2D4263','#C84B31', '#ECDBBA', '#B3541E'})
+# plt.ylabel("Product Selling Price ($USD)")
+# plt.xlabel("No.of Products")
+# plt.title("Product Selling Price ($USD) Vs. No.of Products")
+# plt.show();
+df['selling_price'].value_counts()[:5]
+Executing code: # Top 15 - Products interms of similar selling price in the DataFrame
+
+# STEFANOS: Disable plotting
+# labels = df['selling_price'].value_counts().head(15).index
+# pie, ax = plt.subplots(figsize=[20,8])
+# plt.pie(x=df['selling_price'].value_counts().head(15).values, autopct="%.1f%%", explode=[0.06]*15, labels=labels, pctdistance=0.5)
+# plt.title("Top 15 - Products interms of similar selling price ($USD)", fontsize=14);
+Executing code: %%RecordEvent
+%%time
+### cell 28 ###
+
+# Maximum Selling Price
+
+print("The Maximun Selling Price is:",df['selling_price'].max(),"USD")
+Executing code: %%RecordEvent
+%%time
+### cell 29 ###
+
+# Minimum Selling Price
+
+print("The Minimum Selling Price is:",df['selling_price'].min(),"USD")
+Executing code: %%RecordEvent
+%%time
+### cell 30 ###
+
+# Average Selling Price
+
+print("The Average Selling Price is:",round(df['selling_price'].mean(),2),"USD")
+Executing code: %%RecordEvent
+%%time
+### cell 31 ###
+
+# Top 10 - Highest Selling Prices in USD
+
+set(df['selling_price'].sort_values(ascending=False)[:30].values)
+Executing code: %%RecordEvent
+%%time
+### cell 32 ###
+
+# Top 10 - Least Selling Prices in USD
+
+set(df['selling_price'].sort_values()[:40].values)
+Executing code: %%RecordEvent
+%%time
+### cell 33 ###
+
+# No.of Unique original price in the DataFrame
+
+df['original_price'].nunique()
+Executing code: %%RecordEvent
+%%time
+### cell 34 ###
+
+# Top 15 - Products interms of similar original price in the DataFrame
+
+df['original_price'].value_counts()[:15]
+Executing code: %%RecordEvent
+%%time
+### cell 35 ###
+
+# Top 5 - Products interms of similar origial price in the DataFrame
+
+# STEFANOS: Disable plotting
+# plt.figure(figsize=(12,4))
+# df['original_price'].value_counts()[:5].plot(kind='barh', color={'#864879','#2D4263','#C84B31', '#ECDBBA', '#B3541E'})
+# plt.ylabel("Original Product Price ($USD)")
+# plt.xlabel("No.of Products")
+# plt.title("Original Product Price ($USD) Vs. No.of Products")
+# plt.show();
+df['original_price'].value_counts()[:5]
+Executing code: # Top 15 - Products interms of similar Original price in the DataFrame
+
+# STEFANOS: Disable plotting
+# labels = df['original_price'].value_counts().head(15).index
+# pie, ax = plt.subplots(figsize=[20,8])
+# plt.pie(x=df['original_price'].value_counts().head(15).values, autopct="%.1f%%", explode=[0.06]*15, labels=labels, pctdistance=0.5)
+# plt.title("Top 15 - Products interms of similar original price ($USD)", fontsize=14);
+Executing code: %%RecordEvent
+%%time
+### cell 36 ###
+
+# Maximum Original Price
+
+print("The Maximun Original Price is:",df['original_price'].max(),"USD")
+Executing code: %%RecordEvent
+%%time
+### cell 37 ###
+
+# Minimum Original Price
+
+print("The Minimum Original Price is:",df['original_price'].min(),"USD")
+Executing code: %%RecordEvent
+%%time
+### cell 38 ###
+
+# Average Original Price
+
+print("The Average Original Price is:",round(df['original_price'].mean(),2),"USD")
+Executing code: %%RecordEvent
+%%time
+### cell 39 ###
+
+# Top 10 - Highest Original Prices in USD
+
+set(df['original_price'].sort_values(ascending=False)[:80].values)
+Executing code: %%RecordEvent
+%%time
+### cell 40 ###
+
+# Top 10 - Least Original Prices in USD
+
+set(df['original_price'].sort_values().values[:100])
+Executing code: %%RecordEvent
+%%time
+### cell 41 ###
+
+# Calculating Discount
+
+df['Discount'] = df['original_price'] - df['selling_price']
+Executing code: %%RecordEvent
+%%time
+### cell 42 ###
+
+# No.of Unique Discount in the DataFrame
+
+df['Discount'].nunique()
+Executing code: %%RecordEvent
+%%time
+### cell 43 ###
+
+# Top 15 - Highest Discount Amount in the DataFrame
+
+list(set(df['Discount'].unique()))[-15::]
+Executing code: %%RecordEvent
+%%time
+### cell 44 ###
+
+# Top 15 - Least Discount Amount in the DataFrame
+
+list(set(df['Discount'].unique()))[:15]
+Executing code: %%RecordEvent
+%%time
+### cell 45 ###
+
+# Top 15 - Most Given Discount Amount in the DataFrame
+
+df['Discount'].value_counts()[:15]
+Executing code: %%RecordEvent
+%%time
+### cell 46 ###
+
+# Top 5 - Most Given Discount Amount in the DataFrame
+
+# STEFANOS: Disable plotting
+# plt.figure(figsize=(12,4))
+# df['Discount'].value_counts()[:5].plot(kind='barh', color={'#864879','#2D4263','#C84B31', '#ECDBBA', '#B3541E'})
+# plt.ylabel("Discount Amount")
+# plt.xlabel("No.of times Particular Disount Amount Given")
+# plt.title("Discount Amount Vs. No.of times Particular Disount Amount Given")
+# plt.show();
+df['Discount'].value_counts()[:5]
+Executing code: %%RecordEvent
+%%time
+### cell 47 ###
+
+# Top 15 - Most Given Discount Amount in the DataFrame
+
+labels = df['Discount'].value_counts().head(15).index
+# STEFANOS: Disable plotting
+# pie, ax = plt.subplots(figsize=[20,8])
+# plt.pie(x=df['Discount'].value_counts().head(15).values, autopct="%.1f%%", explode=[0.06]*15, labels=labels, pctdistance=0.5)
+# plt.title("Top 15 - Most Given Discount Amount in the DataFrame", fontsize=14);
+_ = df['Discount'].value_counts().head(15).values
+Executing code: %%RecordEvent
+%%time
+### cell 48 ###
+
+# Calculating Discount percentage(%)
+
+df['Discount(%)'] = round(((df['original_price'] - df['selling_price']) / (df['original_price']))*100,2)
+Executing code: %%RecordEvent
+%%time
+### cell 49 ###
+
+# No.of Unique Discount Percentage(%) in the DataFrame
+
+df['Discount(%)'].nunique()
+Executing code: %%RecordEvent
+%%time
+### cell 50 ###
+
+# Top 15 - Highest Discount Percentage(%) in the DataFrame
+
+top_discount_percnet = list(set(df['Discount(%)'].unique()))
+top_discount_percnet.sort(reverse=True)
+print(top_discount_percnet[:15])
+Executing code: %%RecordEvent
+%%time
+### cell 51 ###
+
+# Top 15 - Least Discount Percentage(%) in the DataFrame
+
+least_discount_percnet = list(set(df['Discount(%)'].unique()))
+least_discount_percnet.sort(reverse=False)
+print(least_discount_percnet[:15])
+Executing code: %%RecordEvent
+%%time
+### cell 52 ###
+
+# Top 15 - Most Given Discount Percentage(%) in the DataFrame
+
+df['Discount(%)'].value_counts().head(15)
+Executing code: %%RecordEvent
+%%time
+### cell 53 ###
+
+# Top 5 - Most Given Discount Percentage in the DataFrame
+
+# STEFANOS: Disable plotting
+# plt.figure(figsize=(12,4))
+# df['Discount(%)'].value_counts().head(5).plot(kind='barh', color={'#864879','#2D4263','#C84B31', '#ECDBBA', '#B3541E'})
+# plt.ylabel("Discount Percentage")
+# plt.xlabel("No.of times Particular Disount Percentage Given")
+# plt.title("Discount Percentage Vs. No.of times Particular Disount Percentage Given")
+# plt.show();
+df['Discount(%)'].value_counts().head(5)
+Executing code: %%RecordEvent
+%%time
+### cell 54 ###
+
+# Top 15 - Most Given Discount Percentage in the DataFrame
+
+labels = df['Discount(%)'].value_counts().head(15).index
+# STEFANOS: Disable plotting
+# pie, ax = plt.subplots(figsize=[20,15])
+# plt.pie(x=df['Discount(%)'].value_counts().head(15).values, autopct="%.1f%%", explode=[0.06]*15, labels=labels, pctdistance=0.5)
+# plt.title("Top 15 - Most Given Discount Percenatage in the DataFrame", fontsize=14);
+# plt.tight_layout();
+_=df['Discount(%)'].value_counts().head(15).values
+Executing code: %%RecordEvent
+%%time
+### cell 55 ###
+
+# Unique colors in the DataFrame
+
+df['color'].unique()
+Executing code: %%RecordEvent
+%%time
+### cell 56 ###
+
+# No.of Unique colors in the DataFrame
+
+df['color'].nunique()
+Executing code: %%RecordEvent
+%%time
+### cell 57 ###
+
+# No.of Products for each Color
+
+df['color'].value_counts()
+Executing code: %%RecordEvent
+%%time
+### cell 58 ###
+
+# No.of Products for each Color
+
+labels = df['color'].value_counts().index
+# STEFANOS: Disable plotting
+# pie, ax = plt.subplots(figsize=[20,15])
+# plt.pie(x=df['color'].value_counts().values, autopct="%.1f%%", explode=[0.03]*18, labels=labels, pctdistance=0.5)
+# plt.title("No.of Products for each Color in the DataFrame", fontsize=14);
+# plt.tight_layout();
+_ = x=df['color'].value_counts().values
+Executing code: %%RecordEvent
+%%time
+### cell 59 ###
+
+# Popular Color in Kids Category
+
+df.groupby(['Category','color']).size()['Kids']
+Executing code: %%RecordEvent
+%%time
+### cell 60 ###
+
+# Popular Color in Womens Category
+
+df.groupby(['Category','color']).size()['Women']
+Executing code: %%RecordEvent
+%%time
+### cell 61 ###
+
+# Popular Color in Mens Category
+
+df.groupby(['Category','color']).size()['Men']
+Executing code: %%RecordEvent
+%%time
+### cell 62 ###
+
+# Unique Availability values in the DataFrame
+
+df['availability'].unique()
+Executing code: %%RecordEvent
+%%time
+### cell 63 ###
+
+# No.of Unique Availability values in the DataFrame
+
+df['availability'].nunique()
+Executing code: %%RecordEvent
+%%time
+### cell 64 ###
+
+# No.of Products according to Avaialability
+
+df['availability'].value_counts()
+Executing code: %%RecordEvent
+%%time
+### cell 65 ###
+
+# Unique Product Type values in the DataFrame
+
+df['Product_Type'].unique()
+Executing code: %%RecordEvent
+%%time
+### cell 66 ###
+
+# No.of Unique Product Type values in the DataFrame
+
+df['Product_Type'].nunique()
+Executing code: %%RecordEvent
+%%time
+### cell 67 ###
+
+# No.of Products according to Product Type
+
+df['Product_Type'].value_counts()
+Executing code: %%RecordEvent
+%%time
+### cell 68 ###
+
+# No.of Products according to Product Type
+
+# STEFANOS: Disable plotting
+# plt.figure(figsize=(12,4))
+# df['Product_Type'].value_counts().plot(kind='barh', color={'#864879','#2D4263','#C84B31'})
+# plt.ylabel("Product Type")
+# plt.xlabel("No.of Products Sold According to Particular - Product Type")
+# plt.title("Product Type Vs. No.of Products Sold According to Particular - Product Type")
+# plt.show();
+df['Product_Type'].value_counts()
+Executing code: %%RecordEvent
+%%time
+### cell 69 ###
+
+# No.of Products according to Product Type
+
+labels = df['Product_Type'].value_counts().index
+# STEFANOS: Disable plotting
+# pie, ax = plt.subplots(figsize=[10,4])
+# plt.pie(x=df['Product_Type'].value_counts().values, autopct="%.1f%%", explode=[0.05]*3, labels=labels, pctdistance=0.5)
+# plt.title("No.of Products according to Product Type in the DataFrame", fontsize=14);
+# plt.tight_layout();
+_ = df['Product_Type'].value_counts().values
+Executing code: %%RecordEvent
+%%time
+### cell 70 ###
+
+df.groupby(['Product_Type', 'Category']).max()['selling_price']
+Executing code: %%RecordEvent
+%%time
+### cell 71 ###
+
+df.groupby(['Product_Type', 'Category']).min()['selling_price']
+Executing code: %%RecordEvent
+%%time
+### cell 72 ###
+
+df.groupby(['Product_Type', 'Category']).mean(numeric_only=True)['selling_price']
+Executing code: %%RecordEvent
+%%time
+### cell 73 ###
+
+# Unique Category values in the DataFrame
+
+df['Category'].unique()
+Executing code: %%RecordEvent
+%%time
+### cell 74 ###
+
+# No.of Unique Category values in the DataFrame
+
+df['Category'].nunique()
+Executing code: %%RecordEvent
+%%time
+### cell 75 ###
+
+# No.of Products according to Category
+
+df['Category'].value_counts()
+Executing code: %%RecordEvent
+%%time
+### cell 76 ###
+
+# Top-5 Products according to Category
+
+# STEFANOS: Disable plotting
+# plt.figure(figsize=(12,4))
+# df['Category'].value_counts().head(5).plot(kind='barh', color={'#864879','#2D4263','#C84B31', '#ECDBBA', '#B3541E'})
+# plt.ylabel("Category")
+# plt.xlabel("No.of Products Sold According to Particular - Category")
+# plt.title("Top 5 - Products Sold according to Category in the DataFrame")
+# plt.show();
+df['Category'].value_counts().head(5)
+Executing code: %%RecordEvent
+%%time
+### cell 77 ###
+
+# Top-5 Products according to Category
+
+labels = df['Category'].value_counts().head(5).index
+# STEFANOS: Disable plotting
+# pie, ax = plt.subplots(figsize=[10,4])
+# plt.pie(x=df['Category'].value_counts().head(5).values, autopct="%.1f%%", explode=[0.05]*5, labels=labels, pctdistance=0.5)
+# plt.title("Top 5 - Products Sold according to Category in the DataFrame", fontsize=14);
+# plt.tight_layout();
+_ = df['Category'].value_counts().head(5).values
+Executing code: %%RecordEvent
+%%time
+### cell 78 ###
+
+# Unique 'Average Rating'in the DataFrame
+
+df['average_rating'].unique()
+Executing code: %%RecordEvent
+%%time
+### cell 79 ###
+
+# No.of Unique 'Average Rating'in the DataFrame
+
+df['average_rating'].nunique()
+Executing code: %%RecordEvent
+%%time
+### cell 80 ###
+
+# No.of time particular Average Rating Provided
+
+df['average_rating'].value_counts()
+Executing code: %%RecordEvent
+%%time
+### cell 81 ###
+
+# Top 5 - Average Rating Provided
+
+# STEFANOS: Disable plotting
+# plt.figure(figsize=(12,4))
+# df['average_rating'].value_counts().head(5).plot(kind='barh', color={'#864879','#2D4263','#C84B31', '#ECDBBA', '#B3541E'})
+# plt.ylabel("Average Rating")
+# plt.xlabel("No.of times particular rating provided")
+# plt.title("Top 5 - Average Rating Provided in the DataFrame")
+# plt.show();
+df['average_rating'].value_counts().head(5)
+Executing code: %%RecordEvent
+%%time
+### cell 82 ###
+
+# Top 5 - Average Rating Provided
+
+labels = df['average_rating'].value_counts().head(5).index
+# STEFANOS: Disable plotting
+# pie, ax = plt.subplots(figsize=[10,4])
+# plt.pie(x=df['average_rating'].value_counts().head(5).values, autopct="%.1f%%", explode=[0.05]*5, labels=labels, pctdistance=0.5)
+# plt.title("# Top 5 - Average Rating Provided in the DataFrame", fontsize=14);
+# plt.tight_layout();
+_ = df['average_rating'].value_counts().head(5).values
+Executing code: %%RecordEvent
+%%time
+### cell 83 ###
+
+# Maxmimum Average Rating
+
+df['average_rating'].max()
+Executing code: %%RecordEvent
+%%time
+### cell 84 ###
+
+# Minimum Average Rating
+
+df['average_rating'].min()
+Executing code: %%RecordEvent
+%%time
+### cell 85 ###
+
+# Mean Average Rating
+
+round(df['average_rating'].mean(),2)
+Executing code: %%RecordEvent
+%%time
+### cell 86 ###
+
+# Maximum Average Rating across 'Product Type' and 'Category'
+
+df.groupby(['Product_Type', 'Category']).max()['average_rating']
+Executing code: %%RecordEvent
+%%time
+### cell 87 ###
+
+# Minimum Average Rating across 'Product Type' and 'Category'
+
+df.groupby(['Product_Type', 'Category']).min()['average_rating']
+Executing code: %%RecordEvent
+%%time
+### cell 88 ###
+
+# No.of Unique 'Reviews Count' in the DataFrame
+
+df['reviews_count'].nunique()
+Executing code: %%RecordEvent
+%%time
+### cell 89 ###
+
+# Top 10 - 'Reviews Count' and no.of particular 'Reviews Count' occurances
+
+df['reviews_count'].value_counts().head(10)
+Executing code: %%RecordEvent
+%%time
+### cell 90 ###
+
+# Top 5 - 'Reviews Count' and no.of particular 'Reviews Count' occurances
+
+# STEFANOS: Disable plotting
+# plt.figure(figsize=(12,4))
+# df['average_rating'].value_counts().head(5).plot(kind='barh', color={'#864879','#2D4263','#C84B31', '#ECDBBA', '#B3541E'})
+# plt.ylabel('Reviews Count')
+# plt.xlabel('no.of particular Reviews Count occurances')
+# plt.title("Top 5 - 'Reviews Count' and no.of particular 'Reviews Count' occurances")
+# plt.show();
+df['average_rating'].value_counts().head(5)
+Executing code: %%RecordEvent
+%%time
+### cell 91 ###
+
+# Maxmimum 'Reviews Count'
+
+df['reviews_count'].max()
+Executing code: %Checkpoint /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/annotated/checkpoints/pre_cell_92.pickle
+Checkpointing took 0.0006797313690185547 seconds.
+========================================================
+Cell  92
+Rewritten pre-checkpoint path: /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/annotated/checkpoints/pre_cell_92.pickle
+Pre-checkpoint path: /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/annotated/checkpoints/pre_cell_92.pickle
+Small rewritten pre-checkpoint path: /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/small_bench/checkpoints/pre_cell_92.pickle
+========================================================
+Getting original timing for cell 92
+HAHA original checkpoint path:  /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/annotated/checkpoints/pre_cell_92.pickle
+Setting initially best_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/annotated/checkpoints/post_cell_92.pickle
+Setting initially best_small_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/small_bench/checkpoints/pre_cell_93.pickle
+========================================================
+Rewriting cell 92... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 92 ###
+
+# Minimum 'Reviews Count'
+
+df['reviews_count'].min()
+        <Profiling data>:
+                        Function  GPU calls  CPU calls
+0  DataFrame.__getitem__          1          0
+1             Series.min          1          0
+
+        <Execution time>: 11.6
+        <Active vars>: []
+
+        <Future vars>: ['df']
+
+        <Iteration>: 0/5
+
+==========Running the manager agent to decide the next step==========
+Choice: done
+Reason: The code is already using cuDF to perform a highly optimized `min` reduction on the GPU. This is the most efficient way to perform this operation, and no further optimization is possible.
+Code is already optimized
+Try 0: calling rewrite agent for cell 92 took 6.548208475112915 seconds.
+There is no need to rewrite the cell.
+Could not rewrite the cell. Continuing to next cell...
+========================================================
+After rewriting cell  92
+Rewritten pre-checkpoint path: /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/annotated/checkpoints/post_cell_92.pickle
+Pre-checkpoint path: /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/annotated/checkpoints/post_cell_92.pickle
+========================================================
+Cell 92 rewriting took 17.371228218078613 seconds.
+Getting original timing for cell 93
+HAHA original checkpoint path:  /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/annotated/checkpoints/post_cell_92.pickle
+Setting initially best_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/annotated/checkpoints/post_cell_93.pickle
+Setting initially best_small_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/small_bench/checkpoints/pre_cell_94.pickle
+========================================================
+Rewriting cell 93... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 93 ###
+
+# Mean 'Reviews Count'
+
+round(df['reviews_count'].mean(),2)
+        <Profiling data>:
+                        Function  GPU calls  CPU calls
+0  DataFrame.__getitem__          1          0
+1            Series.mean          1          0
+
+        <Execution time>: 8.73
+        <Active vars>: []
+
+        <Future vars>: ['df']
+
+        <Iteration>: 0/5
+
+==========Running the manager agent to decide the next step==========
+Choice: done
+Reason: The code is already utilizing GPU-accelerated cuDF functions to compute the mean of a column. There is no more efficient alternative available for this specific operation.
+Code is already optimized
+Try 0: calling rewrite agent for cell 93 took 9.681576251983643 seconds.
+There is no need to rewrite the cell.
+Could not rewrite the cell. Continuing to next cell...
+========================================================
+After rewriting cell  93
+Rewritten pre-checkpoint path: /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/annotated/checkpoints/post_cell_93.pickle
+Pre-checkpoint path: /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/annotated/checkpoints/post_cell_93.pickle
+========================================================
+Cell 93 rewriting took 20.44267463684082 seconds.
+Getting original timing for cell 94
+HAHA original checkpoint path:  /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/annotated/checkpoints/post_cell_93.pickle
+Setting initially best_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/annotated/checkpoints/post_cell_94.pickle
+Setting initially best_small_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/small_bench/checkpoints/pre_cell_95.pickle
+========================================================
+Rewriting cell 94... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 94 ###
+
+# Maximum 'Reviews Count' across 'Product Type' and 'Category'
+
+df.groupby(['Product_Type', 'Category']).max()['reviews_count']
+        <Profiling data>:
+                        Function  GPU calls  CPU calls
+0      DataFrame.groupby          1          0
+1            GroupBy.max          1          0
+2  DataFrame.__getitem__          1          0
+3        Series.__repr__          1          0
+4   NDFrame._repr_latex_          0          1
+
+        <Execution time>: 62.7
+        <Active vars>: []
+
+        <Future vars>: ['df']
+
+        <Iteration>: 0/5
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: The current code computes the maximum for all columns within each group and then selects the 'reviews_count' column. A more efficient approach is to first select the 'reviews_count' column and then apply the `max` aggregation. This reduces the amount of data processed by the aggregation, which can lead to a significant performance improvement, especially if the DataFrame has many columns.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 94 ###
+
+# Maximum 'Reviews Count' across 'Product Type' and 'Category'
+
+df.groupby(['Product_Type', 'Category']).max()['reviews_count']
+        <Profiling data>:
+                        Function  GPU calls  CPU calls
+0      DataFrame.groupby          1          0
+1            GroupBy.max          1          0
+2  DataFrame.__getitem__          1          0
+3        Series.__repr__          1          0
+4   NDFrame._repr_latex_          0          1
+
+        <Execution time>: 62.7
+        <Active vars>: []
+
+        <Future vars>: ['df']
+
+        <Iteration>: 0/5
+
+Code: df.groupby(['Product_Type', 'Category'])['reviews_count'].max()
+Reason: The original code computes the maximum for all columns within each group and then selects the 'reviews_count' column. This approach is inefficient because it performs unnecessary calculations on columns that are subsequently discarded. A more optimal way is to first select the 'reviews_count' column from the grouped object and then apply the `max` aggregation. This reduces the computational load by only calculating the maximum for the specified column.
+Parsed response: df.groupby(['Product_Type', 'Category'])['reviews_count'].max()
+Try 0: calling rewrite agent for cell 94 took 17.18575382232666 seconds.
+Executing rewritten code... ### cell 94 ###
+
+df.groupby(['Product_Type', 'Category'])['reviews_count'].max()
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/annotated/checkpoints/post_cell_93.pickle
+Running rewritten cell notebook
+Finished executing the rewritten code.
+Try 0: executing the rewritten code for cell 94 took 10.363192558288574 seconds.
+Rewritten time: 20.6 ms
+Checkpointing the rewritten cell for small notebook...
+The rewritten code is correct. Profiling cudf...
+HAHA small rewritten pre-checkpoint path:  /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/small_bench/checkpoints/pre_cell_94.pickle
+Try 0: cudf profiling the rewritten code for cell 94 took 7.302688360214233 seconds.
+gpu_calls_orig_perc: 0.8, gpu_calls_opt_perc: 0.8
+orig_time: 62.7, opt_time: 20.6
+Both the call ratio and the time are better.
+Rewritten code took 20.6ms. The previous fastest solution took 62.7ms.
+Previous best solution num GPU and CPU calls:  4 1
+New solution num GPU and CPU calls:  4 1
+Accepted the rewritten code.
+Setting best_rewritten_post_checkpoint_path to  /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/rewritten/o4_mini_high/checkpoints/post_cell_94_try_0.pickle
+Setting best_small_rewritten_post_checkpoint_path to  /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/rewritten/o4_mini_high_small/checkpoints/post_cell_94_try_0.pickle
+========================================================
+Rewriting cell 94... Try 1...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 94 ###
+
+# Maximum 'Reviews Count' across 'Product Type' and 'Category'
+
+df.groupby(['Product_Type', 'Category']).max()['reviews_count']
+        <Profiling data>:
+                        Function  GPU calls  CPU calls
+0      DataFrame.groupby          1          0
+1            GroupBy.max          1          0
+2  DataFrame.__getitem__          1          0
+3        Series.__repr__          1          0
+4   NDFrame._repr_latex_          0          1
+        <Execution time>: 62.7
+        <Active Vars>: []
+        <Future Vars>: ['df']
+        <Rewritten Code>:
+        ### cell 94 ###
+
+df.groupby(['Product_Type', 'Category'])['reviews_count'].max()
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0             DataFrame.groupby          1          0
+1  DataFrameGroupBy.__getitem__          1          0
+2                   GroupBy.max          1          0
+3               Series.__repr__          1          0
+4          NDFrame._repr_latex_          0          1
+        <Execution time>: 20.6
+        <Execution output>: Rewritten time: 20.6 ms
+Original time: 62.7 ms
+        <Iteration>: 1/5
+
+==========Running the manager agent to decide the next step==========
+Choice: done
+Reason: The rewritten code is significantly more efficient than the original. It correctly applies the standard optimization of selecting the column for aggregation before performing the aggregation itself (`.max()`). This avoids unnecessary computation on other columns. The performance improvement from 62.7 ms to 20.6 ms confirms the effectiveness of this change. There are no further obvious optimizations for this specific operation.
+Code is already optimized
+Try 1: calling rewrite agent for cell 94 took 7.189592599868774 seconds.
+========================================================
+After rewriting cell  94
+Rewritten pre-checkpoint path: /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/rewritten/o4_mini_high/checkpoints/post_cell_94_try_0.pickle
+Pre-checkpoint path: /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/annotated/checkpoints/post_cell_94.pickle
+========================================================
+Cell 94 rewriting took 61.49836039543152 seconds.
+Getting original timing for cell 95
+HAHA original checkpoint path:  /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/annotated/checkpoints/post_cell_94.pickle
+Setting initially best_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/annotated/checkpoints/post_cell_95.pickle
+Setting initially best_small_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/small_bench/checkpoints/pre_cell_96.pickle
+========================================================
+Rewriting cell 95... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 95 ###
+
+# Minimum Reviews Count' across 'Product Type' and 'Category'
+
+df.groupby(['Product_Type', 'Category']).min()['reviews_count']
+        <Profiling data>:
+                        Function  GPU calls  CPU calls
+0      DataFrame.groupby          1          0
+1            GroupBy.min          1          0
+2  DataFrame.__getitem__          1          0
+3        Series.__repr__          1          0
+4   NDFrame._repr_latex_          0          1
+
+        <Execution time>: 51.3
+        <Active vars>: []
+
+        <Future vars>: ['df']
+
+        <Iteration>: 0/5
+
+==========Running the manager agent to decide the next step==========
+Choice: new
+Reason: The current code computes the minimum for all numeric columns within each group before selecting the 'reviews_count' column. A more efficient approach is to select the target column before the aggregation. This reduces the amount of data processed by the `min` function, leading to better performance and memory usage, especially on DataFrames with many columns.
+Generating new code from the original code
+Prompt:
+        <Original Code>:
+        ### cell 95 ###
+
+# Minimum Reviews Count' across 'Product Type' and 'Category'
+
+df.groupby(['Product_Type', 'Category']).min()['reviews_count']
+        <Profiling data>:
+                        Function  GPU calls  CPU calls
+0      DataFrame.groupby          1          0
+1            GroupBy.min          1          0
+2  DataFrame.__getitem__          1          0
+3        Series.__repr__          1          0
+4   NDFrame._repr_latex_          0          1
+
+        <Execution time>: 51.3
+        <Active vars>: []
+
+        <Future vars>: ['df']
+
+        <Iteration>: 0/5
+
+Code: # Minimum Reviews Count' across 'Product Type' and 'Category'
+
+df.groupby(['Product_Type', 'Category'])['reviews_count'].min()
+Reason: The original code computes the minimum for all columns in the grouped data and then selects the 'reviews_count' column. By selecting the column before the aggregation, we avoid unnecessary computations on other columns, making the operation more efficient.
+Parsed response: # Minimum Reviews Count' across 'Product Type' and 'Category'
+
+df.groupby(['Product_Type', 'Category'])['reviews_count'].min()
+Try 0: calling rewrite agent for cell 95 took 19.142231464385986 seconds.
+Executing rewritten code... ### cell 95 ###
+
+# Minimum Reviews Count' across 'Product Type' and 'Category'
+
+df.groupby(['Product_Type', 'Category'])['reviews_count'].min()
+HAHA rewritten pre-checkpoint path:  /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/rewritten/o4_mini_high/checkpoints/post_cell_94_try_0.pickle
+Running rewritten cell notebook
+Finished executing the rewritten code.
+Try 0: executing the rewritten code for cell 95 took 10.318063735961914 seconds.
+Rewritten time: 21.1 ms
+Checkpointing the rewritten cell for small notebook...
+The rewritten code is correct. Profiling cudf...
+HAHA small rewritten pre-checkpoint path:  /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/rewritten/o4_mini_high_small/checkpoints/post_cell_94_try_0.pickle
+Try 0: cudf profiling the rewritten code for cell 95 took 7.1513354778289795 seconds.
+gpu_calls_orig_perc: 0.8, gpu_calls_opt_perc: 0.8
+orig_time: 51.3, opt_time: 21.1
+Both the call ratio and the time are better.
+Rewritten code took 21.1ms. The previous fastest solution took 51.3ms.
+Previous best solution num GPU and CPU calls:  4 1
+New solution num GPU and CPU calls:  4 1
+Accepted the rewritten code.
+Setting best_rewritten_post_checkpoint_path to  /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/rewritten/o4_mini_high/checkpoints/post_cell_95_try_0.pickle
+Setting best_small_rewritten_post_checkpoint_path to  /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/rewritten/o4_mini_high_small/checkpoints/post_cell_95_try_0.pickle
+========================================================
+Rewriting cell 95... Try 1...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 95 ###
+
+# Minimum Reviews Count' across 'Product Type' and 'Category'
+
+df.groupby(['Product_Type', 'Category']).min()['reviews_count']
+        <Profiling data>:
+                        Function  GPU calls  CPU calls
+0      DataFrame.groupby          1          0
+1            GroupBy.min          1          0
+2  DataFrame.__getitem__          1          0
+3        Series.__repr__          1          0
+4   NDFrame._repr_latex_          0          1
+        <Execution time>: 51.3
+        <Active Vars>: []
+        <Future Vars>: ['df']
+        <Rewritten Code>:
+        ### cell 95 ###
+
+# Minimum Reviews Count' across 'Product Type' and 'Category'
+
+df.groupby(['Product_Type', 'Category'])['reviews_count'].min()
+        <Profiling data>:
+                               Function  GPU calls  CPU calls
+0             DataFrame.groupby          1          0
+1  DataFrameGroupBy.__getitem__          1          0
+2                   GroupBy.min          1          0
+3               Series.__repr__          1          0
+4          NDFrame._repr_latex_          0          1
+        <Execution time>: 21.1
+        <Execution output>: Rewritten time: 21.1 ms
+Original time: 51.3 ms
+        <Iteration>: 1/5
+
+==========Running the manager agent to decide the next step==========
+Choice: done
+Reason: The rewritten code is already the most optimal way to perform this operation. By selecting the 'reviews_count' column before the aggregation, we avoid unnecessary computations on other columns, leading to a significant performance improvement. No further optimization is possible for this specific task.
+Code is already optimized
+Try 1: calling rewrite agent for cell 95 took 7.044867277145386 seconds.
+========================================================
+After rewriting cell  95
+Rewritten pre-checkpoint path: /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/rewritten/o4_mini_high/checkpoints/post_cell_95_try_0.pickle
+Pre-checkpoint path: /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/annotated/checkpoints/post_cell_95.pickle
+========================================================
+Cell 95 rewriting took 63.13095307350159 seconds.
+Getting original timing for cell 96
+HAHA original checkpoint path:  /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/annotated/checkpoints/post_cell_95.pickle
+Setting initially best_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/annotated/checkpoints/post_cell_96.pickle
+Setting initially best_small_rewritten_post_checkpoint_path:  /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/small_bench/checkpoints/pre_cell_97.pickle
+========================================================
+Rewriting cell 96... Try 0...
+Manager agent prompt:
+        <Original Code>:
+        ### cell 96 ###
+
+df.shape
+        <Profiling data>:
+        Empty DataFrame
+Columns: []
+Index: []
+
+        <Execution time>: 0.269
+        <Active vars>: []
+
+        <Future vars>: []
+
+        <Iteration>: 0/5
+
+==========Running the manager agent to decide the next step==========
+Choice: done
+Reason: The code uses the `.shape` attribute for inspecting the DataFrame's dimensions. This is an O(1) operation and cannot be optimized further.
+Code is already optimized
+Try 0: calling rewrite agent for cell 96 took 6.308964014053345 seconds.
+There is no need to rewrite the cell.
+Could not rewrite the cell. Continuing to next cell...
+========================================================
+After rewriting cell  96
+Rewritten pre-checkpoint path: /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/annotated/checkpoints/post_cell_96.pickle
+Pre-checkpoint path: /home/dias-benchmarks/notebooks/saisandeepjallepalli_google/adidas-retail-eda-data-visualization/src/annotated/checkpoints/post_cell_96.pickle
+========================================================
+Cell 96 rewriting took 17.03781533241272 seconds.
+Rewrote notebook in 399.6159873008728 seconds
