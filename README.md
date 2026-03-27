@@ -25,6 +25,11 @@ python scripts/process/process_csv.py dias_notebooks
 python scripts/process/process_csv.py ds_notebooks
 ```
 
+Then verify the benchmarks for rewriting (small_bench.ipynb) and the actual benchmark (bench.ipynb) are the same besides for factors. 
+```python
+python scripts/verification/verify_bench.py --mode input 
+```
+
 This repository contains the code for **PandaX**.
 
 🚧 **Status:** Code will be released soon.  

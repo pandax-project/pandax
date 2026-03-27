@@ -150,7 +150,6 @@ def main():
                 print("  ✖ Bench factor does not match ideal factor")
                 print(f"    ideal factor: {ideal_factor}")
                 print(f"    bench factors: {factors_bench}")
-                import pdb; pdb.set_trace()
             else:
                 print("  ✅ Bench factor matches ideal factor")
                 print(f"    ideal factor: {ideal_factor}")
