@@ -9,7 +9,7 @@ cd dias-datasets
 cd ../
 rm -rf dias_datasets.zip dias-datasets
 
-wget "https://drive.google.com/file/d/1cg89VLnr0bpB4w-xul-CirXj30MpdMEU/view?usp=drive_link" -O ds_datasets.zip
+gdown 1h-jS2X7SmDw6i5zMYtqhR1-e0YGeyBF3
 unzip ds_datasets.zip
 cd ds_datasets
 ./copier.sh ../ds_notebooks

@@ -16,8 +16,7 @@ pip install gdown # TODO: move this inside recreate.sh
 
 Then, copy the datasets:
 ```
-pip install gdown
-gdown 1cg89VLnr0bpB4w-xul-CirXj30MpdMEU
+./setup_everything.sh
 ```
 
 This repository contains the code for **PandaX**.
