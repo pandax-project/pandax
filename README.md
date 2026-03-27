@@ -19,6 +19,12 @@ Then, copy the datasets:
 ./setup_everything.sh
 ```
 
+Then process the CSV (optional, only run if your workflows fail)
+```python
+python scripts/process/process_csv.py dias_notebooks
+python scripts/process/process_csv.py ds_notebooks
+```
+
 This repository contains the code for **PandaX**.
 
 🚧 **Status:** Code will be released soon.  

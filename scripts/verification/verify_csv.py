@@ -11,79 +11,25 @@ Scan only bench.ipynb & small_bench.ipynb for pd.read_csv / read_parquet / read_
 """
 
 import argparse
-import ast
 import json
 import os
+import sys
+from pathlib import Path
 
 import cudf
 import pandas as pd
 
-TARGET_NOTEBOOKS = {"bench.ipynb", "small_bench.ipynb"}
 LOADERS = {
-    "read_csv": ("csv", pd.read_csv, cudf.read_csv),
-    "read_parquet": ("parquet", pd.read_parquet, cudf.read_parquet),
-    "read_table": ("table", pd.read_table, pd.read_table),
+    "csv": ("read_csv", pd.read_csv, cudf.read_csv),
+    "parquet": ("read_parquet", pd.read_parquet, cudf.read_parquet),
+    "table": ("read_table", pd.read_table, pd.read_table),
 }
 
+SCRIPT_ROOT = Path(__file__).resolve().parents[1]
+if str(SCRIPT_ROOT) not in sys.path:
+    sys.path.append(str(SCRIPT_ROOT))
 
-def find_data_calls_in_notebook(nb_path):
-    """
-    Parse code cells with ast and return a list of:
-      (loader_key, rel_path, extra_args, kwargs)
-    """
-    calls = []
-    with open(nb_path, "r", encoding="utf-8") as f:
-        nb = json.load(f)
-    for cell in nb.get("cells", []):
-        if cell.get("cell_type") != "code":
-            continue
-        src = "".join(cell.get("source", []))
-        try:
-            tree = ast.parse(src)
-        except SyntaxError:
-            continue
-        for node in ast.walk(tree):
-            if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
-                val = node.func.value
-                if isinstance(val, ast.Name) and val.id == "pd":
-                    fn = node.func.attr
-                    if (
-                        fn in LOADERS
-                        and node.args
-                        and isinstance(node.args[0], ast.Str)
-                    ):
-                        rel_path = node.args[0].s
-                        # collect extra positional args
-                        extra_args = [ast.literal_eval(arg) for arg in node.args[1:]]
-                        # collect keyword args
-                        kw = {
-                            kw.arg: ast.literal_eval(kw.value)
-                            for kw in node.keywords
-                            if kw.arg
-                        }
-                        kw_json = json.dumps(kw, sort_keys=True)
-                        calls.append((fn, rel_path, extra_args, kw_json))
-    return calls
-
-
-def gather_files(base_dir):
-    """
-    Walk base_dir, inspect only bench notebooks, and return a set of:
-      (absolute_path, loader_key, args, frozenset(kwargs.items()))
-    """
-    files = set()
-    for root, _, fnames in os.walk(base_dir):
-        for fname in fnames:
-            if fname in TARGET_NOTEBOOKS:
-                nb_path = os.path.join(root, fname)
-                for fn, rel_path, args, kw_json in find_data_calls_in_notebook(nb_path):
-                    abs_path = (
-                        rel_path
-                        if os.path.isabs(rel_path)
-                        else os.path.normpath(os.path.join(root, rel_path))
-                    )
-                    files.add((abs_path, fn, tuple(args), kw_json))
-    return files
+from utils.notebook_data_calls import gather_data_files
 
 
 def compare_dtypes(path, loader_key, args, kw_json):
@@ -134,7 +80,7 @@ def main():
     )
     args = p.parse_args()
 
-    files = gather_files(args.base_dir)
+    files = gather_data_files(args.base_dir)
     if not files:
         print("No data-loading calls found in bench.ipynb or small_bench.ipynb.")
         return
@@ -142,7 +88,9 @@ def main():
     print(f"Found {len(files)} files. Comparing dtypes:\n")
     for path, fn_key, args, kw_json in sorted(files):
         print(f"File: {path}")
-        print(f"  Loader: pd.{fn_key}( ..., args={args}, kwargs={json.loads(kw_json)})")
+        print(
+            f"  Loader: pd.{LOADERS[fn_key][0]}( ..., args={args}, kwargs={json.loads(kw_json)})"
+        )
         if not os.path.exists(path):
             print("  ⚠️  File not found, skipping.\n")
             continue

@@ -22,7 +22,12 @@ Usage:
 import argparse
 import difflib
 import os
+import sys
 from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.append(str(PROJECT_ROOT))
 
 from utils.benchmarks import FACTOR_MAP
 from utils.notebook import load_notebook
@@ -45,37 +50,49 @@ def main():
         default=".",
         help="Base directory to search (default: current directory)",
     )
+    p.add_argument(
+        "--mode",
+        choices=["input", "all"],
+        default="all",
+        help="Comparison scope: 'input' checks only bench/small_bench, 'all' checks all 4 notebooks",
+    )
     args = p.parse_args()
 
-    for root, dirs, files in os.walk(args.base_dir):
-        if "google" in root:
-            continue
+    for root, _, files in os.walk(args.base_dir):
         if "bench.ipynb" not in files:
             continue
 
+        print(f"\nDirectory: {root}")
+
         bench_nb = os.path.join(root, "bench.ipynb")
         small_nb = os.path.join(root, "small_bench.ipynb")
-        cpu_nb = os.path.join(root, "rewritten_cpu", "o4_mini_high.ipynb")
-        gpu_nb = os.path.join(root, "rewritten", "o4_mini_high.ipynb")
-        loaded_bench_nb = load_notebook(Path(bench_nb))
-        loaded_small_nb = load_notebook(Path(small_nb))
-        loaded_cpu_nb = load_notebook(Path(cpu_nb))
-        loaded_gpu_nb = load_notebook(Path(gpu_nb))
-        largest_cell_idx_bench = get_largest_cell(loaded_bench_nb)
-        largest_cell_idx_small = get_largest_cell(loaded_small_nb)
-        largest_cell_idx_cpu = get_largest_cell(loaded_cpu_nb)
-        largest_cell_idx_gpu = get_largest_cell(loaded_gpu_nb)
+        notebook_paths = {
+            "bench.ipynb": bench_nb,
+            "small_bench.ipynb": small_nb,
+        }
+        if args.mode == "all":
+            notebook_paths["rewritten_cpu/o4_mini_high.ipynb"] = os.path.join(
+                root, "rewritten_cpu", "o4_mini_high.ipynb"
+            )
+            notebook_paths["rewritten/o4_mini_high.ipynb"] = os.path.join(
+                root, "rewritten", "o4_mini_high.ipynb"
+            )
 
-        if (
-            largest_cell_idx_bench != largest_cell_idx_small
-            or largest_cell_idx_bench != largest_cell_idx_cpu
-            or largest_cell_idx_bench != largest_cell_idx_gpu
-        ):
-            print("  ✖ Largest cell index mismatch between bench, cpu, and gpu")
-            print(f"    bench largest cell index: {largest_cell_idx_bench}")
-            print(f"    small largest cell index: {largest_cell_idx_small}")
-            print(f"    cpu largest cell index: {largest_cell_idx_cpu}")
-            print(f"    gpu largest cell index: {largest_cell_idx_gpu}")
+        missing = [name for name, path in notebook_paths.items() if not os.path.exists(path)]
+        if missing:
+            for name in missing:
+                print(f"  ✖ Missing {name}")
+            continue
+
+        loaded = {name: load_notebook(Path(path)) for name, path in notebook_paths.items()}
+        largest_cell_idx = {
+            name: get_largest_cell(nb_obj) for name, nb_obj in loaded.items()
+        }
+        unique_largest = set(largest_cell_idx.values())
+        if len(unique_largest) != 1:
+            print("  ✖ Largest cell index mismatch")
+            for name, idx in largest_cell_idx.items():
+                print(f"    {name} largest cell index: {idx}")
             continue
 
         if Path(root).name == "src":
@@ -84,25 +101,9 @@ def main():
             name = Path(root).name
 
         ideal_factor = [f"{FACTOR_MAP[name]}"]
-
-        print(f"\nDirectory: {root}")
-
-        # 1) Check existence of small_bench.ipynb
-        if not os.path.exists(small_nb):
-            print("  ✖ Missing small_bench.ipynb")
-            continue
-        if not os.path.exists(cpu_nb):
-            print("  ✖ Missing rewritten_cpu/o4_mini_high.ipynb")
-            continue
-        if not os.path.exists(gpu_nb):
-            print("  ✖ Missing rewritten/o4_mini_high.ipynb")
-            continue
-
-        # 2) Load code lines
-        bench_lines = load_code_lines(bench_nb)
-        small_lines = load_code_lines(small_nb)
-        cpu_lines = load_code_lines(cpu_nb)
-        gpu_lines = load_code_lines(gpu_nb)
+        code_lines = {name: load_code_lines(path) for name, path in notebook_paths.items()}
+        bench_lines = code_lines["bench.ipynb"]
+        small_lines = code_lines["small_bench.ipynb"]
 
         # 3) Check diffs
         if only_factor_diff(bench_lines, small_lines):
@@ -123,51 +124,52 @@ def main():
             for line in diff:
                 print("    " + line)
 
-        # Check cpu and gpu and bench must have the same factor
+        # Check factors
         factors_bench = extract_factors(bench_lines)
-        factors_cpu = extract_factors(cpu_lines)
-        factors_gpu = extract_factors(gpu_lines)
-        if (
-            factors_bench != factors_cpu
-            or factors_bench != factors_gpu
-            or factors_bench != ideal_factor
-        ):
-            print("  ✖ Factors mismatch between bench, cpu, and gpu")
-            print(f"    ideal factor: {ideal_factor}")
-            print(f"    bench factors: {factors_bench}")
-            print(f"    cpu factors: {factors_cpu}")
-            print(f"    gpu factors: {factors_gpu}")
+        if args.mode == "all":
+            factors_cpu = extract_factors(code_lines["rewritten_cpu/o4_mini_high.ipynb"])
+            factors_gpu = extract_factors(code_lines["rewritten/o4_mini_high.ipynb"])
+            if (
+                factors_bench != factors_cpu
+                or factors_bench != factors_gpu
+                or factors_bench != ideal_factor
+            ):
+                print("  ✖ Factors mismatch between bench, cpu, and gpu")
+                print(f"    ideal factor: {ideal_factor}")
+                print(f"    bench factors: {factors_bench}")
+                print(f"    cpu factors: {factors_cpu}")
+                print(f"    gpu factors: {factors_gpu}")
+            else:
+                print("  ✅ Factors match between bench, cpu, and gpu")
+                print(f"    ideal factor: {ideal_factor}")
+                print(f"    bench factors: {factors_bench}")
+                print(f"    cpu factors: {factors_cpu}")
+                print(f"    gpu factors: {factors_gpu}")
         else:
-            print("  ✅ Factors match between bench, cpu, and gpu")
-            print(f"    ideal factor: {ideal_factor}")
-            print(f"    bench factors: {factors_bench}")
-            print(f"    cpu factors: {factors_cpu}")
-            print(f"    gpu factors: {factors_gpu}")
+            if factors_bench != ideal_factor:
+                print("  ✖ Bench factor does not match ideal factor")
+                print(f"    ideal factor: {ideal_factor}")
+                print(f"    bench factors: {factors_bench}")
+                import pdb; pdb.set_trace()
+            else:
+                print("  ✅ Bench factor matches ideal factor")
+                print(f"    ideal factor: {ideal_factor}")
+                print(f"    bench factors: {factors_bench}")
 
-        # 4) Check forbidden patterns in both notebooks
-        for code_lines, name in [
-            (bench_lines, "bench.ipynb"),
-            (small_lines, "small_bench.ipynb"),
-            (cpu_lines, "rewritten_cpu/o4_mini_high.ipynb"),
-            (gpu_lines, "rewritten/o4_mini_high.ipynb"),
-        ]:
-            offenders = check_forbidden(code_lines)
+        # 4) Check forbidden patterns
+        for nb_name, nb_lines in code_lines.items():
+            offenders = check_forbidden(nb_lines)
             if offenders:
-                print(f"  ✖ Forbidden usage in {name}:")
+                print(f"  ✖ Forbidden usage in {nb_name}:")
                 for lineno, content in offenders:
                     print(f"    line {lineno}: {content.strip()}")
 
-        # 5) Check if they all have the same number of cells
-        if (
-            len(loaded_bench_nb.cells) != len(loaded_small_nb.cells)
-            or len(loaded_bench_nb.cells) != len(loaded_cpu_nb.cells)
-            or len(loaded_bench_nb.cells) != len(loaded_gpu_nb.cells)
-        ):
-            print("  ✖ Number of cells mismatch between bench, cpu, and gpu")
-            print(f"    bench number of cells: {len(loaded_bench_nb.cells)}")
-            print(f"    small number of cells: {len(loaded_small_nb.cells)}")
-            print(f"    cpu number of cells: {len(loaded_cpu_nb.cells)}")
-            print(f"    gpu number of cells: {len(loaded_gpu_nb.cells)}")
+        # 5) Check cell counts match across selected notebooks
+        cell_counts = {nb_name: len(nb_obj.cells) for nb_name, nb_obj in loaded.items()}
+        if len(set(cell_counts.values())) != 1:
+            print("  ✖ Number of cells mismatch")
+            for nb_name, count in cell_counts.items():
+                print(f"    {nb_name} number of cells: {count}")
 
 
 if __name__ == "__main__":
