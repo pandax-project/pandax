@@ -1,27 +1,19 @@
 #!/bin/bash
 
-# sudo apt-get update
-# sudo apt install python3.10 python3-pip python3.10-venv -y
-
-# python3 -m venv env
-# source env/bin/activate
-
-# export DIAS_ROOT=$(pwd)/../dias
-
-# cd runner
-# pip install -r requirements.txt
-# # It's now in dias-benchmarks root
-# cd ../
-
 wget https://uofi.box.com/shared/static/9r1fgjdpoz113ed2al7k1biwxgnn9fpa -O dias_datasets.zip
 # This should create a directory named dias-datasets
 unzip dias_datasets.zip
 
 cd dias-datasets
-./copier.sh ../notebooks
+./copier.sh ../dias_notebooks
 cd ../
-./verify_datasets_are_copied.sh
+rm -rf dias_datasets.zip dias-datasets
 
-# cd runner
-# ./quiesce.sh
-# ./pre_run.sh
+wget "https://drive.google.com/file/d/1cg89VLnr0bpB4w-xul-CirXj30MpdMEU/view?usp=drive_link" -O ds_datasets.zip
+unzip ds_datasets.zip
+cd ds_datasets
+./copier.sh ../ds_notebooks
+cd ../
+rm -rf ds_datasets.zip ds_datasets
+
+./verify_datasets_are_copied.sh

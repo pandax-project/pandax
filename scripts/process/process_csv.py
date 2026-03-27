@@ -21,6 +21,67 @@ TARGET_NOTEBOOKS = {"bench.ipynb", "small_bench.ipynb"}
 LOADERS = {"read_csv": "csv", "read_parquet": "parquet", "read_table": "table"}
 
 
+def _path_file_parent_levels(node):
+    """
+    Return number of trailing `.parent` accesses for expressions like:
+      Path(__file__).parent
+      Path(__file__).parent.parent
+    Returns None if node is not that shape.
+    """
+    levels = 0
+    cur = node
+    while isinstance(cur, ast.Attribute) and cur.attr == "parent":
+        levels += 1
+        cur = cur.value
+
+    if (
+        levels > 0
+        and isinstance(cur, ast.Call)
+        and isinstance(cur.func, ast.Name)
+        and cur.func.id == "Path"
+        and len(cur.args) == 1
+        and isinstance(cur.args[0], ast.Name)
+        and cur.args[0].id == "__file__"
+    ):
+        return levels
+    return None
+
+
+def _resolve_path_arg(arg_node, nb_path):
+    """
+    Resolve file path arg from ast node.
+    Supports:
+      - string literals: "data.csv"
+      - f-strings like: f"{Path(__file__).parent}/data.csv"
+    Returns path string or None if unsupported dynamic expression.
+    """
+    if isinstance(arg_node, ast.Constant) and isinstance(arg_node.value, str):
+        return arg_node.value
+
+    if isinstance(arg_node, ast.JoinedStr):
+        parts = []
+        for v in arg_node.values:
+            if isinstance(v, ast.Constant) and isinstance(v.value, str):
+                parts.append(v.value)
+                continue
+
+            if isinstance(v, ast.FormattedValue):
+                parent_levels = _path_file_parent_levels(v.value)
+                if parent_levels is None:
+                    return None
+
+                base = os.path.dirname(nb_path)
+                for _ in range(parent_levels - 1):
+                    base = os.path.dirname(base)
+                parts.append(base)
+                continue
+
+            return None
+        return "".join(parts)
+
+    return None
+
+
 def find_data_calls_in_notebook(nb_path):
     """
     Parses each code cell with ast, returns a list of tuples:
@@ -28,6 +89,7 @@ def find_data_calls_in_notebook(nb_path):
     where loader is 'csv'|'parquet'|'table'.
     """
     calls = []
+    print(f"Processing notebook: {nb_path}")
     with open(nb_path, "r", encoding="utf-8") as f:
         nb = json.load(f)
     for cell in nb.get("cells", []):
@@ -44,9 +106,12 @@ def find_data_calls_in_notebook(nb_path):
                     fn = node.func.attr
                     if fn in LOADERS:
                         # must have at least one positional arg for filepath
-                        if not node.args or not isinstance(node.args[0], ast.Str):
+                        if not node.args:
                             continue
-                        rel_path = node.args[0].s
+
+                        rel_path = _resolve_path_arg(node.args[0], nb_path)
+                        if not rel_path:
+                            continue
                         # capture extra positional args (after path)
                         extra_args = []
                         for arg in node.args[1:]:
@@ -73,7 +138,7 @@ def gather_data_files(base_dir):
         for fname in fnames:
             if fname not in TARGET_NOTEBOOKS:
                 continue
-            nb_path = os.path.join(root, fname)
+            nb_path = os.path.abspath(os.path.join(root, fname))
             for loader, rel_path, args, kw_json in find_data_calls_in_notebook(nb_path):
                 abs_path = (
                     rel_path
@@ -133,42 +198,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    import pandas as pd
-
-    path = "/home/dias-benchmarks/notebooks/mpwolke/just-you-wait-rishi-sunak/input/latest-elected-uk-prime-minister-rishi-sunak/uk_pm.parquet"
-
-    # 1) load normally
-    df = pd.read_parquet(path)
-
-    # 2) cast all string columns from pandas' new StringDtype to plain object
-    string_cols = [
-        "text",
-        "username",
-        "hashtags",
-        "language",
-        "quotedtweet",
-        "inReplyToUser",
-        "mentionedUsers",
-    ]
-    for c in string_cols:
-        df[c] = df[c].astype("object")
-
-    # 3) strip off the timezone so dtype becomes naive datetime64[ns]
-    if df["created_at"].dt.tz is not None:
-        df["created_at"] = df["created_at"].dt.tz_localize(None)
-
-    # 4) now df.dtypes should match what cudf.read_parquet produces:
-    print(df.dtypes)
-
-    # 5) (optional) overwrite the original parquet if you like
-    df.to_parquet(path, index=False)
-
-    import pandas as pd
-
-    path = "/home/dias-benchmarks/notebooks/josecode1/billionaires-statistics-2023/input/Billionaires Statistics Dataset.csv"
-
-    # load with 'rank' as the DataFrame index
-    data = pd.read_csv(path, index_col="rank")
-
-    # overwrite (or write to a new file) and preserve the index column
-    data.to_csv(path, index_label="rank")

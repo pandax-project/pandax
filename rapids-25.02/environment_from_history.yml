@@ -1,0 +1,9 @@
+name: rapids-25.02
+channels:
+  - conda-forge
+dependencies:
+  - cuda-version[version='>=11.4,<=11.8']
+  - cudf=25.02
+  - cuml=25.02
+  - python=3.10
+prefix: /opt/conda/envs/rapids-25.02
