@@ -1,0 +1,4 @@
+ground_truth_schedule,ground_truth_total_cost,cost_model_schedule,cost_model_total_cost,actual_time_for_cost_model_schedule,predicted_schedule,predicted_total_cost,actual_time_for_predicted_schedule,predicted_cost_model_schedule,predicted_cost_model_total_cost,actual_time_for_predicted_cost_model_schedule
+gpu,2293.8,gpu,2293.8,2293.8,gpu,2423.6079999999997,2293.8,gpu,2423.6079999999997,2293.8
+gpu,2293.8,gpu,2293.8,2293.8,gpu,2423.6079999999997,2293.8,gpu,2423.6079999999997,2293.8
+gpu,2293.8,gpu,2293.8,2293.8,gpu,2423.6079999999997,2293.8,gpu,2423.6079999999997,2293.8
