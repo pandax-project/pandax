@@ -39,6 +39,16 @@ export root repo:
 ```
 export PANDAX_ROOT=/scratch/jieq/pandax
 ```
+
+clone elastic notebook repo:
+```
+git clone git@github.com:jieqiu0630/elastic-notebook.git
+cd elastic-notebook
+pip install -e .
+```
+
+Add both pandax repo and elastic-notebook repo to your `$PATH` env variable.
+
 This repository contains the code for **PandaX**.
 
 🚧 **Status:** Code will be released soon.  
