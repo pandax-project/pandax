@@ -13,38 +13,73 @@ all its args), then for each referenced file:
 import argparse
 import json
 import os
-import sys
-from pathlib import Path
-
 import pandas as pd
 
-SCRIPT_ROOT = Path(__file__).resolve().parents[1]
-if str(SCRIPT_ROOT) not in sys.path:
-    sys.path.append(str(SCRIPT_ROOT))
+from scripts.utils.notebook_data_calls import gather_data_files
 
-from utils.notebook_data_calls import gather_data_files
+def apply_loader_overrides(path, loader, kwargs):
+    """Apply file-specific read kwargs to align downstream dtype behavior."""
+    if loader == "csv" and os.path.basename(path) == "title-metadata.csv":
+        dtype = kwargs.get("dtype")
+        if not isinstance(dtype, dict):
+            dtype = {}
+        dtype["genres"] = "str"
+        kwargs["dtype"] = dtype
+    elif loader == "csv" and os.path.basename(path) == "Billionaires Statistics Dataset.csv":
+        dtype = kwargs.get("dtype")
+        if not isinstance(dtype, dict):
+            dtype = {}
+        dtype["selfMade"] = "object"
+        for col in ["age", "birthYear", "birthMonth", "birthDay", "population_country"]:
+            dtype[col] = "float64"
+        kwargs["dtype"] = dtype
+    return kwargs
+
+
+def normalize_uk_pm_parquet(df):
+    """Normalize known parquet columns to align pandas/cuDF dtype behavior."""
+    text_cols = [
+        "text",
+        "username",
+        "hashtags",
+        "language",
+        "quotedtweet",
+        "inReplyToUser",
+        "mentionedUsers",
+    ]
+    for col in text_cols:
+        if col in df.columns:
+            df[col] = df[col].astype("object")
+
+    if "created_at" in df.columns:
+        dt = pd.to_datetime(df["created_at"], utc=True, errors="coerce")
+        df["created_at"] = dt.dt.tz_convert(None).astype("datetime64[ns]")
+
+    return df
 
 
 def reload_and_dump(path, loader, args, kw_json):
     """Re-run pd.read_* with the same args/kwargs, then overwrite file."""
     kwargs = json.loads(kw_json)
+    kwargs = apply_loader_overrides(path, loader, kwargs)
     if not os.path.exists(path):
         print(f"  ⚠️  File not found: {path}")
         return
-    try:
-        if loader == "csv":
-            df = pd.read_csv(path, *args, **kwargs)
-            df.to_csv(path, index=False)
-        elif loader == "parquet":
-            df = pd.read_parquet(path, *args, **kwargs)
-            df.to_parquet(path, index=False)
-        elif loader == "table":
-            df = pd.read_table(path, *args, **kwargs)
-            df.to_csv(path, sep=kwargs.get("sep", "\t"), index=False)
-        print(f"  ✔ Reloaded & dumped ({loader}) → {path}")
-    except Exception as e:
-        print(f"  ✖ Error processing {path} with args={args} kw={kwargs}: {e}")
-
+    if loader == "csv":
+        df = pd.read_csv(path, *args, **kwargs)
+        df.to_csv(path, index=False)
+    elif loader == "parquet":
+        df = pd.read_parquet(path, *args, **kwargs)
+        if os.path.basename(path) == "uk_pm.parquet":
+            df = normalize_uk_pm_parquet(df)
+        df.to_parquet(path, index=False)
+    elif loader == "table":
+        df = pd.read_table(path, *args, **kwargs)
+        df.to_csv(path, sep=kwargs.get("sep", "\t"), index=False)
+    else:
+        print(f"  ⚠️  Unsupported loader {loader!r}, skipping: {path}")
+        return
+    print(f"  ✔ Reloaded & dumped ({loader}) → {path}")
 
 def main():
     p = argparse.ArgumentParser(
@@ -66,8 +101,6 @@ def main():
 
     print(f"Found {len(files)} unique data files. Processing:\n")
     for path, loader, args, kw_json in sorted(files):
-        if "Billionaires Statistics Dataset.csv" in path or "uk_pm.parquet" in path:
-            continue
         reload_and_dump(path, loader, args, kw_json)
 
 

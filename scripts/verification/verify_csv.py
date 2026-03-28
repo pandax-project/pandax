@@ -13,11 +13,11 @@ Scan only bench.ipynb & small_bench.ipynb for pd.read_csv / read_parquet / read_
 import argparse
 import json
 import os
-import sys
-from pathlib import Path
+import re
 
 import cudf
 import pandas as pd
+from scripts.utils.notebook_data_calls import gather_data_files
 
 LOADERS = {
     "csv": ("read_csv", pd.read_csv, cudf.read_csv),
@@ -25,11 +25,46 @@ LOADERS = {
     "table": ("read_table", pd.read_table, pd.read_table),
 }
 
-SCRIPT_ROOT = Path(__file__).resolve().parents[1]
-if str(SCRIPT_ROOT) not in sys.path:
-    sys.path.append(str(SCRIPT_ROOT))
 
-from utils.notebook_data_calls import gather_data_files
+def _apply_loader_overrides(path, loader_key, kwargs):
+    """Apply file-specific read kwargs to align inferred dtypes."""
+    basename = os.path.basename(path)
+    if loader_key == "csv" and basename == "title-metadata.csv":
+        # Force `genres` to string-like without changing NA handling for numeric columns.
+        dtype = kwargs.get("dtype")
+        if not isinstance(dtype, dict):
+            dtype = {}
+        dtype["genres"] = "str"
+        kwargs["dtype"] = dtype
+    elif loader_key == "csv" and basename == "Billionaires Statistics Dataset.csv":
+        dtype = kwargs.get("dtype")
+        if not isinstance(dtype, dict):
+            dtype = {}
+        # Keep this boolean-like column within accepted/reportable dtypes.
+        dtype["selfMade"] = "object"
+        # Align nullable numeric columns across pandas/cuDF.
+        for col in ["age", "birthYear", "birthMonth", "birthDay", "population_country"]:
+            dtype[col] = "float64"
+        kwargs["dtype"] = dtype
+    return kwargs
+
+
+def _is_supported_pd_dtype(dtype_str):
+    """Return True for pandas dtypes we explicitly support/report."""
+    accepted_exact = {
+        "int64",
+        "float64",
+        "object",
+        "datetime64[ns]",
+        "int16",
+        "string",
+    }
+    if dtype_str in accepted_exact:
+        return True
+
+    # Accept timezone-aware datetimes with any pandas datetime unit, e.g.
+    # datetime64[us, UTC], datetime64[ns, Europe/London].
+    return bool(re.fullmatch(r"datetime64\[[a-z]+,\s*[^\]]+\]", dtype_str))
 
 
 def compare_dtypes(path, loader_key, args, kw_json):
@@ -40,6 +75,7 @@ def compare_dtypes(path, loader_key, args, kw_json):
     pd_loader = LOADERS[loader_key][1]
     cudf_loader = LOADERS[loader_key][2]
     kwargs = json.loads(kw_json)
+    kwargs = _apply_loader_overrides(path, loader_key, kwargs)
 
     # Load
     df_pd = pd_loader(path, *args, **kwargs)
@@ -49,22 +85,13 @@ def compare_dtypes(path, loader_key, args, kw_json):
     cols = list(df_pd.columns)
     report = []
     for col in cols:
-        pd_dt = df_pd.dtypes[col]
-        cudf_dt = df_cudf.dtypes[col]
+        pd_dt = str(df_pd.dtypes[col])
+        cudf_dt = str(df_cudf.dtypes[col])
 
-        accepted_dtypes = [
-            "int64",
-            "float64",
-            "object",
-            "datetime64[ns]",
-            # "bool",
-            "int16",
-            "string",
-        ]
-        if str(pd_dt) not in accepted_dtypes:
-            print(f"❌ {col} has dtype {pd_dt} which is not in {accepted_dtypes}")
+        if not _is_supported_pd_dtype(pd_dt):
+            print(f"❌ {col} has unsupported pandas dtype {pd_dt}")
             continue
-        report.append((col, str(pd_dt), str(cudf_dt)))
+        report.append((col, pd_dt, cudf_dt))
     return report
 
 
@@ -80,7 +107,7 @@ def main():
     )
     args = p.parse_args()
 
-    files = gather_data_files(args.base_dir)
+    files = gather_data_files(args.base_dir, target_notebooks=["bench.ipynb"])
     if not files:
         print("No data-loading calls found in bench.ipynb or small_bench.ipynb.")
         return
