@@ -91,6 +91,10 @@ def maybe_annotate_code_with_record_event(
         record_event_magic_command = "%%RecordEventWithColumnInfo"
     else:
         record_event_magic_command = "%%RecordEvent"
+    # Keep annotation idempotent across repeated annotation passes.
+    first_non_empty_line = next((ln.strip() for ln in code.splitlines() if ln.strip()), "")
+    if first_non_empty_line in {"%%RecordEvent", "%%RecordEventWithColumnInfo"}:
+        return code
     return "\n".join([record_event_magic_command, code])
 
 
@@ -349,10 +353,6 @@ def annotate_notebook(
                 code = maybe_annotate_code_with_record_event(code, track_column_info)
             if add_cpu_profile:
                 code = maybe_annotate_code_with_cpu_profile(code)
-
-            # TODO(jie): remove this
-            if add_record_events:
-                code = maybe_annotate_code_with_record_event(code, track_column_info)
             cell = make_code_cell(code)
             new_notebook_cells.append(cell)
         elif cell_idx >= first_pandas_cell_idx:

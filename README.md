@@ -35,6 +35,10 @@ python scripts/process/process_csv.py dias_notebooks
 python scripts/process/process_csv.py ds_notebooks
 ```
 
+export root repo:
+```
+export PANDAX_ROOT=/scratch/jieq/pandax
+```
 This repository contains the code for **PandaX**.
 
 🚧 **Status:** Code will be released soon.  

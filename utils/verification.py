@@ -22,7 +22,8 @@ def get_largest_cell(nb):
 
 # Regexes
 FACTOR_RE = re.compile(r"^\s*factor\s*=\s*(.+)$")
-MAGIC_RE = re.compile(r"^\s*%%?")
+# Match only real IPython magics (%name / %%name), not Python `% (...)` formatting.
+MAGIC_RE = re.compile(r"^\s*%%?[A-Za-z_]\w*")
 START_TIME_RE = re.compile(r"^\s*start_time\s*=\s*time\.time\(\)")
 # Filter out %load_ext cudf.pandas
 LOAD_CUDF_EXTENSION = re.compile(r"^\s*%load_ext\s+cudf\.pandas$")
@@ -70,7 +71,12 @@ def only_factor_diff(a_lines, b_lines):
 
 def extract_factors(lines):
     """Extract all RHS values from lines matching FACTOR_RE."""
-    return [FACTOR_RE.match(ln).group(1).strip() for ln in lines if FACTOR_RE.match(ln)]
+    factors = []
+    for ln in lines:
+        match = FACTOR_RE.match(ln)
+        if match:
+            factors.append(match.group(1).strip())
+    return factors
 
 
 def check_forbidden(lines):

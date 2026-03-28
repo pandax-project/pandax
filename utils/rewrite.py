@@ -41,6 +41,7 @@ from utils.notebook import (
     remove_magic_commands,
     save_notebook,
 )
+from utils.logging_utils import log_rewrite_timing
 from utils.testing import get_test_code_from_cell_exec_info
 
 
@@ -81,6 +82,7 @@ def checkpoint_and_get_cudf_profile_info(nb_path: Path) -> dict[int, CudfProfile
 
 
 async def rewrite_notebook(
+    benchmark_name: str,
     nb_path: Path,
     small_nb_path: Path,
     cudf_profile_infos: dict[int, CudfProfileInfo],
@@ -170,9 +172,6 @@ async def rewrite_notebook(
                 annotated_cell_idx=annotated_cell_idx,
                 executed_cells=small_executed_cells,
             )
-            print(
-                f"Executing {len(small_executed_cells)} cells up to cell {annotated_cell_idx}."
-            )
 
             print("========================================================")
             print("Cell ", annotated_cell_idx)
@@ -213,6 +212,7 @@ async def rewrite_notebook(
             small_rewritten_post_checkpoint_path,
             post_checkpoint_path,
         ) = await _rewrite_cell(
+            benchmark_name=benchmark_name,
             cell=cell,
             cell_exec_info=cell_exec_infos[annotated_cell_idx],
             cudf_profile_info=cudf_profile_infos[annotated_cell_idx],
@@ -342,6 +342,7 @@ def _checkpoint_after_cell(
 
 # TODO(jie): figure out the type.
 async def _rewrite_cell(
+    benchmark_name: str,
     cell: NotebookNode,
     cell_exec_info: CellExecInfo,
     cudf_profile_info: CudfProfileInfo,
@@ -370,6 +371,7 @@ async def _rewrite_cell(
 
     # Get the original time.
     print("Getting original timing for cell", annotated_cell_idx)
+    original_start_time = time.time()
     # cell 0: load the ElasticNotebook extension.
     load_elastic_notebook_cell = get_load_elastic_notebook_cell()
     # cell 1: load the cudf extension.
@@ -410,7 +412,17 @@ async def _rewrite_cell(
     )
     if original_time is None:
         raise ValueError(f"Original time is None for cell {annotated_cell_idx}")
-
+    original_end_time = time.time()
+    print(f"Original time for cell {annotated_cell_idx} took {original_end_time - original_start_time} seconds.")
+    log_rewrite_timing(
+        nb_path=nb_path,
+        benchmark_name=benchmark_name,
+        cell_idx=annotated_cell_idx,
+        try_num=None,
+        category="original_execution",
+        elapsed_seconds=original_end_time - original_start_time,
+    )
+    
     # We want to keep track of some info for the best solution. By default, they are the original solution
     # at the beginning.
     best_rewritten_time = original_time
@@ -431,6 +443,7 @@ async def _rewrite_cell(
 
     # TODO(jie): move this to before running the original cell.
     while num_tries < NUM_TRIES_PER_CELL:
+        try_start_time = time.time()
         print("========================================================")
         print(f"Rewriting cell {annotated_cell_idx}... Try {num_tries}... ")
         active_vars = [var.name for var in cell_exec_info.active_vars]
@@ -450,11 +463,24 @@ async def _rewrite_cell(
         # FIXME(sahil): once the bug is fixed, remove the hardcoded code.
         rewrite_agent_start_time = time.time()
         rewritten_code = await call_rewrite_agent(
-            num_tries, original_code_info, rewritten_code_info
+            num_tries=num_tries,
+            original_code_info=original_code_info,
+            rewritten_code_info=rewritten_code_info,
+            benchmark_name=benchmark_name,
+            cell_index=annotated_cell_idx,
+            output_dir=nb_path.parent,
         )
         rewrite_agent_end_time = time.time()
         print(
             f"Try {num_tries}: calling rewrite agent for cell {annotated_cell_idx} took {rewrite_agent_end_time - rewrite_agent_start_time} seconds."
+        )
+        log_rewrite_timing(
+            nb_path=nb_path,
+            benchmark_name=benchmark_name,
+            cell_idx=annotated_cell_idx,
+            try_num=num_tries,
+            category="agent_call",
+            elapsed_seconds=rewrite_agent_end_time - rewrite_agent_start_time,
         )
         if num_tries == 0 and rewritten_code is None:
             print("There is no need to rewrite the cell.")
@@ -582,6 +608,14 @@ with open("{opt_cell_exec_info_pkl_path}", "wb") as f:
             print(
                 f"Try {num_tries}: executing the rewritten code for cell {annotated_cell_idx} took {rewrite_execution_end_time - rewrite_execution_start_time} seconds."
             )
+            log_rewrite_timing(
+                nb_path=nb_path,
+                benchmark_name=benchmark_name,
+                cell_idx=annotated_cell_idx,
+                try_num=num_tries,
+                category="rewrite_execution",
+                elapsed_seconds=rewrite_execution_end_time - rewrite_execution_start_time,
+            )
         except Exception as e:
             if "AssertionError" in str(e):
                 execution_output = (
@@ -671,6 +705,14 @@ with open("{opt_cell_exec_info_pkl_path}", "wb") as f:
             print(
                 f"Try {num_tries}: cudf profiling the rewritten code for cell {annotated_cell_idx} took {cudf_profile_end_time - cudf_profile_start_time} seconds."
             )
+            log_rewrite_timing(
+                nb_path=nb_path,
+                benchmark_name=benchmark_name,
+                cell_idx=annotated_cell_idx,
+                try_num=num_tries,
+                category="cudf_profiling",
+                elapsed_seconds=cudf_profile_end_time - cudf_profile_start_time,
+            )
 
             rewritten_cell_cudf_profile_info = parse_cudf_profile_info_from_all_outputs(
                 rewritten_cell_profile_notebook.cells[-1].outputs
@@ -733,6 +775,15 @@ with open("{opt_cell_exec_info_pkl_path}", "wb") as f:
             execution_output=execution_output,
         )
         all_rewritten_code_info.append(rewritten_code_info)
+        try_end_time = time.time()
+        log_rewrite_timing(
+            nb_path=nb_path,
+            benchmark_name=benchmark_name,
+            cell_idx=annotated_cell_idx,
+            try_num=num_tries,
+            category="total",
+            elapsed_seconds=try_end_time - try_start_time,
+        )
         num_tries += 1
 
     if best_rewritten_code is None:

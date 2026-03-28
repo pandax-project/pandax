@@ -1,8 +1,10 @@
 import logging
+from pathlib import Path
 
 from agents import Agent, Runner
 from agents.model_settings import ModelSettings
 from pydantic import BaseModel
+from utils.logging_utils import log_agent_token_usage
 
 NUM_TRIES_PER_CELL = 5
 
@@ -158,12 +160,43 @@ manager_agent = Agent(
 
 
 async def call_rewrite_agent(
-    num_tries: int, original_code_info: CodeInfo, rewritten_code_info: CodeInfo | None
+    num_tries: int,
+    original_code_info: CodeInfo,
+    rewritten_code_info: CodeInfo | None,
+    benchmark_name: str,
+    cell_index: int,
+    output_dir: Path,
 ) -> str | None:
+    """Run manager + rewrite agents and return rewritten code when available.
+
+    Besides orchestrating agent calls, this function records token usage for
+    each model invocation into `rewrite_agent_token_usage.csv` so we can analyze
+    prompt/response costs by benchmark, cell, and try.
+
+    Args:
+        num_tries: Current rewrite attempt number for the target cell.
+        original_code_info: Context for the original cell code/profile.
+        rewritten_code_info: Context from the previous rewrite attempt, if any.
+        benchmark_name: Stable benchmark identifier used in CSV logs.
+        cell_index: Annotated cell index being rewritten.
+        output_dir: Directory where token-usage CSV is stored.
+
+    Returns:
+        Parsed rewritten code string, or None when manager chooses "done" (or
+        when the optimizer returns "done").
+    """
     prompt = generate_prompt(num_tries, original_code_info, rewritten_code_info)
     print("Manager agent prompt: ", prompt)
     print("==========Running the manager agent to decide the next step==========")
     result = await Runner.run(manager_agent, prompt)
+    log_agent_token_usage(
+        output_dir=output_dir,
+        benchmark_name=benchmark_name,
+        cell_index=cell_index,
+        try_number=num_tries,
+        category="manager_decision",
+        result=result,
+    )
     choice = result.final_output.name
     print(f"Choice: {choice}")
     print(f"Reason: {result.final_output.reason}")
@@ -182,6 +215,14 @@ async def call_rewrite_agent(
         print("Code optimizer prompt: ", prompt_agent)
         print("Optimizing the last generated code")
         result = await Runner.run(code_optimizer, prompt_agent)
+        log_agent_token_usage(
+            output_dir=output_dir,
+            benchmark_name=benchmark_name,
+            cell_index=cell_index,
+            try_number=num_tries,
+            category="optimizer_call",
+            result=result,
+        )
 
     elif choice == "repair":
         prompt_agent = generate_prompt(
@@ -190,6 +231,14 @@ async def call_rewrite_agent(
         print("Code fixer prompt: ", prompt_agent)
         print("Repairing the last generated code")
         result = await Runner.run(code_fixer, prompt_agent)
+        log_agent_token_usage(
+            output_dir=output_dir,
+            benchmark_name=benchmark_name,
+            cell_index=cell_index,
+            try_number=num_tries,
+            category="repair_call",
+            result=result,
+        )
         print(f"Code: {result.final_output.code}")
         print(f"Reason: {result.final_output.reason}")
         logging.info(f"Code: {result.final_output.code}")
@@ -200,6 +249,14 @@ async def call_rewrite_agent(
         print("Generating new code from the original code")
         print(f"Prompt: {prompt_agent}")
         result = await Runner.run(code_optimizer, prompt_agent)
+        log_agent_token_usage(
+            output_dir=output_dir,
+            benchmark_name=benchmark_name,
+            cell_index=cell_index,
+            try_number=num_tries,
+            category="new_code_call",
+            result=result,
+        )
         logging.info(f"output from agent: {result}")
         print(f"Code: {result.final_output.code}")
         print(f"Reason: {result.final_output.reason}")

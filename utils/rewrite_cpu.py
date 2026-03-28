@@ -400,7 +400,6 @@ async def _rewrite_cell_cpu(
         # cell 0: load the ElasticNotebook extension.
         load_elastic_notebook_cell = get_load_elastic_notebook_cell()
         # cell 2: load the checkpoint before the annotated cell.
-        print("HAHA rewritten pre-checkpoint path: ", rewritten_pre_checkpoint_path)
         load_checkpoint_cell = get_load_checkpoint_cell(rewritten_pre_checkpoint_path)
         # cell 3: the rewritten cell.
         rewritten_cell = make_code_cell(
@@ -564,10 +563,6 @@ with open("{opt_cell_exec_info_pkl_path}", "wb") as f:
             # cell 0: load the ElasticNotebook extension.
             load_elastic_notebook_cell = get_load_elastic_notebook_cell()
             # cell 2: load the checkpoint before the annotated cell. Note this is the checkpoint for the small notebook.
-            print(
-                "HAHA small rewritten pre-checkpoint path: ",
-                small_rewritten_pre_checkpoint_path,
-            )
             load_checkpoint_cell = get_load_checkpoint_cell(
                 small_rewritten_pre_checkpoint_path
             )

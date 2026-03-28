@@ -82,6 +82,7 @@ async def main():
 
     rewrite_start_time = time.time()
     await rewrite_notebook(
+        benchmark_name=args.name,
         nb_path=original_notebook_path,
         small_nb_path=small_notebook_path,
         cudf_profile_infos=cudf_profile_infos,
