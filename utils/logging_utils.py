@@ -3,25 +3,29 @@
 import csv
 from pathlib import Path
 from typing import Any
+from utils.benchmarks import BENCHMARKS_TO_PATHS
+
 
 def log_rewrite_timing(
     *,
-    nb_path: Path,
     benchmark_name: str,
+    run_id: str,
     cell_idx: int,
-    try_num: int,
+    try_num: int | None,
     category: str,
     elapsed_seconds: float,
 ) -> None:
     """Append one wall-time measurement for rewrite flow to CSV.
 
     CSV output path:
-        <nb_path.parent>/rewrite_wall_time_timings.csv
+        <benchmark_path>/stats/rewrite_wall_time_timings.csv
 
     Row schema:
-        benchmark_name, cell_index, try_number, category, elapsed_seconds
+        benchmark_name, run_id, cell_index, try_number, category, elapsed_seconds
     """
-    csv_path = nb_path.parent / "rewrite_wall_time_timings.csv"
+    benchmark_path = BENCHMARKS_TO_PATHS[benchmark_name]
+    csv_path = Path(benchmark_path).parent.parent / "stats" / "rewrite_wall_time_timings.csv"
+    csv_path.parent.mkdir(parents=True, exist_ok=True)
     file_exists = csv_path.exists()
     with csv_path.open("a", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
@@ -29,6 +33,7 @@ def log_rewrite_timing(
             writer.writerow(
                 [
                     "benchmark_name",
+                    "run_id",
                     "cell_index",
                     "try_number",
                     "category",
@@ -38,9 +43,53 @@ def log_rewrite_timing(
         writer.writerow(
             [
                 benchmark_name,
+                run_id,
                 cell_idx,
                 try_num,
                 category,
+                f"{elapsed_seconds:.6f}",
+            ]
+        )
+
+
+def log_precompute_timing(
+    *,
+    benchmark_name: str,
+    run_id: str,
+    stage: str,
+    source: str,
+    elapsed_seconds: float,
+) -> None:
+    """Append one precompute timing measurement to CSV.
+
+    CSV output path:
+        <benchmark_path>/stats/precompute_timings.csv
+
+    Row schema:
+        benchmark_name, run_id, stage, source, elapsed_seconds
+    """
+    benchmark_path = BENCHMARKS_TO_PATHS[benchmark_name]
+    csv_path = Path(benchmark_path).parent.parent / "stats" / "precompute_timings.csv"
+    csv_path.parent.mkdir(parents=True, exist_ok=True)
+    file_exists = csv_path.exists()
+    with csv_path.open("a", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        if not file_exists:
+            writer.writerow(
+                [
+                    "benchmark_name",
+                    "run_id",
+                    "stage",
+                    "source",
+                    "elapsed_seconds",
+                ]
+            )
+        writer.writerow(
+            [
+                benchmark_name,
+                run_id,
+                stage,
+                source,
                 f"{elapsed_seconds:.6f}",
             ]
         )
@@ -90,15 +139,17 @@ def extract_token_usage(result: Any) -> tuple[int | None, int | None, int | None
 
 def log_agent_token_usage(
     *,
-    output_dir: Path,
     benchmark_name: str,
+    run_id: str,
     cell_index: int,
     try_number: int,
     category: str,
     result: Any,
 ) -> None:
     """Append agent token usage for one invocation to CSV."""
-    csv_path = output_dir / "rewrite_agent_token_usage.csv"
+    benchmark_path = BENCHMARKS_TO_PATHS[benchmark_name]
+    csv_path = Path(benchmark_path).parent.parent / "stats" / "rewrite_agent_token_usage.csv"
+    csv_path.parent.mkdir(parents=True, exist_ok=True)
     file_exists = csv_path.exists()
     prompt_tokens, response_tokens, total_tokens = extract_token_usage(result)
     with csv_path.open("a", newline="", encoding="utf-8") as f:
@@ -107,6 +158,7 @@ def log_agent_token_usage(
             writer.writerow(
                 [
                     "benchmark_name",
+                    "run_id",
                     "cell_index",
                     "try_number",
                     "category",
@@ -118,6 +170,7 @@ def log_agent_token_usage(
         writer.writerow(
             [
                 benchmark_name,
+                run_id,
                 cell_index,
                 try_number,
                 category,

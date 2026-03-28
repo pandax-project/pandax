@@ -164,8 +164,8 @@ async def call_rewrite_agent(
     original_code_info: CodeInfo,
     rewritten_code_info: CodeInfo | None,
     benchmark_name: str,
+    run_id: str,
     cell_index: int,
-    output_dir: Path,
 ) -> str | None:
     """Run manager + rewrite agents and return rewritten code when available.
 
@@ -179,7 +179,6 @@ async def call_rewrite_agent(
         rewritten_code_info: Context from the previous rewrite attempt, if any.
         benchmark_name: Stable benchmark identifier used in CSV logs.
         cell_index: Annotated cell index being rewritten.
-        output_dir: Directory where token-usage CSV is stored.
 
     Returns:
         Parsed rewritten code string, or None when manager chooses "done" (or
@@ -190,8 +189,8 @@ async def call_rewrite_agent(
     print("==========Running the manager agent to decide the next step==========")
     result = await Runner.run(manager_agent, prompt)
     log_agent_token_usage(
-        output_dir=output_dir,
         benchmark_name=benchmark_name,
+        run_id=run_id,
         cell_index=cell_index,
         try_number=num_tries,
         category="manager_decision",
@@ -216,8 +215,8 @@ async def call_rewrite_agent(
         print("Optimizing the last generated code")
         result = await Runner.run(code_optimizer, prompt_agent)
         log_agent_token_usage(
-            output_dir=output_dir,
             benchmark_name=benchmark_name,
+            run_id=run_id,
             cell_index=cell_index,
             try_number=num_tries,
             category="optimizer_call",
@@ -232,8 +231,8 @@ async def call_rewrite_agent(
         print("Repairing the last generated code")
         result = await Runner.run(code_fixer, prompt_agent)
         log_agent_token_usage(
-            output_dir=output_dir,
             benchmark_name=benchmark_name,
+            run_id=run_id,
             cell_index=cell_index,
             try_number=num_tries,
             category="repair_call",
@@ -250,8 +249,8 @@ async def call_rewrite_agent(
         print(f"Prompt: {prompt_agent}")
         result = await Runner.run(code_optimizer, prompt_agent)
         log_agent_token_usage(
-            output_dir=output_dir,
             benchmark_name=benchmark_name,
+            run_id=run_id,
             cell_index=cell_index,
             try_number=num_tries,
             category="new_code_call",

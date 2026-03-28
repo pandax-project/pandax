@@ -83,6 +83,7 @@ def checkpoint_and_get_cudf_profile_info(nb_path: Path) -> dict[int, CudfProfile
 
 async def rewrite_notebook(
     benchmark_name: str,
+    run_id: str,
     nb_path: Path,
     small_nb_path: Path,
     cudf_profile_infos: dict[int, CudfProfileInfo],
@@ -213,6 +214,7 @@ async def rewrite_notebook(
             post_checkpoint_path,
         ) = await _rewrite_cell(
             benchmark_name=benchmark_name,
+            run_id=run_id,
             cell=cell,
             cell_exec_info=cell_exec_infos[annotated_cell_idx],
             cudf_profile_info=cudf_profile_infos[annotated_cell_idx],
@@ -343,6 +345,7 @@ def _checkpoint_after_cell(
 # TODO(jie): figure out the type.
 async def _rewrite_cell(
     benchmark_name: str,
+    run_id: str,
     cell: NotebookNode,
     cell_exec_info: CellExecInfo,
     cudf_profile_info: CudfProfileInfo,
@@ -415,8 +418,8 @@ async def _rewrite_cell(
     original_end_time = time.time()
     print(f"Original time for cell {annotated_cell_idx} took {original_end_time - original_start_time} seconds.")
     log_rewrite_timing(
-        nb_path=nb_path,
         benchmark_name=benchmark_name,
+        run_id=run_id,
         cell_idx=annotated_cell_idx,
         try_num=None,
         category="original_execution",
@@ -467,16 +470,16 @@ async def _rewrite_cell(
             original_code_info=original_code_info,
             rewritten_code_info=rewritten_code_info,
             benchmark_name=benchmark_name,
+            run_id=run_id,
             cell_index=annotated_cell_idx,
-            output_dir=nb_path.parent,
         )
         rewrite_agent_end_time = time.time()
         print(
             f"Try {num_tries}: calling rewrite agent for cell {annotated_cell_idx} took {rewrite_agent_end_time - rewrite_agent_start_time} seconds."
         )
         log_rewrite_timing(
-            nb_path=nb_path,
             benchmark_name=benchmark_name,
+            run_id=run_id,
             cell_idx=annotated_cell_idx,
             try_num=num_tries,
             category="agent_call",
@@ -609,8 +612,8 @@ with open("{opt_cell_exec_info_pkl_path}", "wb") as f:
                 f"Try {num_tries}: executing the rewritten code for cell {annotated_cell_idx} took {rewrite_execution_end_time - rewrite_execution_start_time} seconds."
             )
             log_rewrite_timing(
-                nb_path=nb_path,
                 benchmark_name=benchmark_name,
+                run_id=run_id,
                 cell_idx=annotated_cell_idx,
                 try_num=num_tries,
                 category="rewrite_execution",
@@ -706,8 +709,8 @@ with open("{opt_cell_exec_info_pkl_path}", "wb") as f:
                 f"Try {num_tries}: cudf profiling the rewritten code for cell {annotated_cell_idx} took {cudf_profile_end_time - cudf_profile_start_time} seconds."
             )
             log_rewrite_timing(
-                nb_path=nb_path,
                 benchmark_name=benchmark_name,
+                run_id=run_id,
                 cell_idx=annotated_cell_idx,
                 try_num=num_tries,
                 category="cudf_profiling",
@@ -777,8 +780,8 @@ with open("{opt_cell_exec_info_pkl_path}", "wb") as f:
         all_rewritten_code_info.append(rewritten_code_info)
         try_end_time = time.time()
         log_rewrite_timing(
-            nb_path=nb_path,
             benchmark_name=benchmark_name,
+            run_id=run_id,
             cell_idx=annotated_cell_idx,
             try_num=num_tries,
             category="total",

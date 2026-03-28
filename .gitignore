@@ -38,3 +38,5 @@ tpch/data/
 !requirements.txt
 .DS_Store
 *.zip
+
+!stats/

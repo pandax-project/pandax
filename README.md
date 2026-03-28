@@ -36,12 +36,12 @@ python scripts/process/process_csv.py ds_notebooks
 ```
 
 export root repo:
-```
+```bash
 export PANDAX_ROOT=/scratch/jieq/pandax
 ```
 
 clone elastic notebook repo:
-```
+```bash
 git clone git@github.com:jieqiu0630/elastic-notebook.git
 cd elastic-notebook
 pip install -e .

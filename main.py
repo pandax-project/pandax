@@ -3,6 +3,7 @@ import logging
 import pickle
 import time
 from pathlib import Path
+from uuid import uuid4
 
 import pandas as pd
 from IPython.core.interactiveshell import InteractiveShell
@@ -16,6 +17,7 @@ from utils.notebook import (
 )
 from utils.prediction import predict_cell_times_for_nb
 from utils.rewrite import checkpoint_and_get_cudf_profile_info, rewrite_notebook
+from utils.logging_utils import log_precompute_timing
 from utils.schedule import (
     get_cell_exec_info,
     get_cost_model_inputs,
@@ -45,37 +47,110 @@ async def main():
         action="store_true",
         help="Disable scheduling (default: False)"
     )
+    parser.add_argument(
+        "--cell_exec_info_path",
+        type=str,
+        default=None,
+        help="Optional path to precomputed cell execution info pickle.",
+    )
+    parser.add_argument(
+        "--cudf_profile_info_path",
+        type=str,
+        default=None,
+        help="Optional path to precomputed cuDF profile info pickle.",
+    )
+    parser.add_argument(
+        "--run_id",
+        type=str,
+        default=None,
+        help="Optional run ID for CSV logging. Auto-generated when not provided.",
+    )
     args = parser.parse_args()
+    run_id = args.run_id if args.run_id is not None else f"{int(time.time())}-{uuid4().hex[:8]}"
     original_notebook_path = Path(args.notebook)
     small_notebook_path = Path(args.small_notebook)
     notebook_base_dir = original_notebook_path.parent
     disable_scheduling = args.disable_scheduling
+    intermediate_dir = notebook_base_dir / "intermediate"
+    intermediate_dir.mkdir(parents=True, exist_ok=True)
 
     # Mapping from annotated cell to inputs to cost model.
     cost_model_inputs: dict[int, tuple[list[CostModelInput], list[CostModelInput]]] = {}
 
     # First annotate the notebook to add checkpoints and timing code.
-    cell_exec_start_time = time.time()
-    cell_exec_info = get_cell_exec_info(small_notebook_path, shell)
-    cell_exec_end_time = time.time()
-    with open(notebook_base_dir / "cell_exec_info.pkl", "wb") as f:
-        pickle.dump(cell_exec_info, f)
-    print(
-        f"Ran small notebook to get cell exec info in {cell_exec_end_time - cell_exec_start_time} seconds"
+    cell_exec_info_path = (
+        Path(args.cell_exec_info_path)
+        if args.cell_exec_info_path is not None
+        else intermediate_dir / "cell_exec_info.pkl"
     )
+    cell_exec_start_time = time.time()
+    if cell_exec_info_path.exists():
+        with open(cell_exec_info_path, "rb") as f:
+            cell_exec_info = pickle.load(f)
+        cell_exec_elapsed_seconds = time.time() - cell_exec_start_time
+        log_precompute_timing(
+            benchmark_name=args.name,
+            run_id=run_id,
+            stage="cell_exec_info",
+            source="cache",
+            elapsed_seconds=cell_exec_elapsed_seconds,
+        )
+        print(f"Loaded cell exec info from {cell_exec_info_path}")
+    else:
+        cell_exec_info = get_cell_exec_info(small_notebook_path, shell)
+        cell_exec_elapsed_seconds = time.time() - cell_exec_start_time
+        cell_exec_info_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(cell_exec_info_path, "wb") as f:
+            pickle.dump(cell_exec_info, f)
+        log_precompute_timing(
+            benchmark_name=args.name,
+            run_id=run_id,
+            stage="cell_exec_info",
+            source="compute",
+            elapsed_seconds=cell_exec_elapsed_seconds,
+        )
+        print(
+            f"Ran small notebook to get cell exec info in {cell_exec_elapsed_seconds} seconds"
+        )
 
     # Now we can rewrite the notebook.
     # Get cudf profile information.
     # Use the small notebook to get the cudf profile information.
     try:
-        cudf_profile_start_time = time.time()
-        cudf_profile_infos = checkpoint_and_get_cudf_profile_info(small_notebook_path)
-        cudf_profile_end_time = time.time()
-        with open(notebook_base_dir / "cudf_profile_info.pkl", "wb") as f:
-            pickle.dump(cudf_profile_infos, f)
-        print(
-            f"Ran small notebook to get cudf profile info in {cudf_profile_end_time - cudf_profile_start_time} seconds"
+        cudf_profile_info_path = (
+            Path(args.cudf_profile_info_path)
+            if args.cudf_profile_info_path is not None
+            else intermediate_dir / "cudf_profile_info.pkl"
         )
+        cudf_profile_start_time = time.time()
+        if cudf_profile_info_path.exists():
+            with open(cudf_profile_info_path, "rb") as f:
+                cudf_profile_infos = pickle.load(f)
+            cudf_profile_elapsed_seconds = time.time() - cudf_profile_start_time
+            log_precompute_timing(
+                benchmark_name=args.name,
+                run_id=run_id,
+                stage="cudf_profile_info",
+                source="cache",
+                elapsed_seconds=cudf_profile_elapsed_seconds,
+            )
+            print(f"Loaded cuDF profile info from {cudf_profile_info_path}")
+        else:
+            cudf_profile_infos = checkpoint_and_get_cudf_profile_info(small_notebook_path)
+            cudf_profile_elapsed_seconds = time.time() - cudf_profile_start_time
+            cudf_profile_info_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(cudf_profile_info_path, "wb") as f:
+                pickle.dump(cudf_profile_infos, f)
+            log_precompute_timing(
+                benchmark_name=args.name,
+                run_id=run_id,
+                stage="cudf_profile_info",
+                source="compute",
+                elapsed_seconds=cudf_profile_elapsed_seconds,
+            )
+            print(
+                f"Ran small notebook to get cudf profile info in {cudf_profile_elapsed_seconds} seconds"
+            )
     except Exception as e:
         print(f"Error getting cudf profile info: {e}")
         exit(1)
@@ -83,6 +158,7 @@ async def main():
     rewrite_start_time = time.time()
     await rewrite_notebook(
         benchmark_name=args.name,
+        run_id=run_id,
         nb_path=original_notebook_path,
         small_nb_path=small_notebook_path,
         cudf_profile_infos=cudf_profile_infos,
