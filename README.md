@@ -19,15 +19,20 @@ Then, copy the datasets:
 ./setup_everything.sh
 ```
 
+Then verify the benchmarks for rewriting (small_bench.ipynb) and the actual benchmark (bench.ipynb) are the same besides for factors. 
+```python
+python scripts/verification/verify_bench.py --mode input 
+```
+
+Verify the CSV files through:
+```python
+python scripts/verification/verify_csv.py
+```
+
 Then process the CSV (optional, only run if your workflows fail)
 ```python
 python scripts/process/process_csv.py dias_notebooks
 python scripts/process/process_csv.py ds_notebooks
-```
-
-Then verify the benchmarks for rewriting (small_bench.ipynb) and the actual benchmark (bench.ipynb) are the same besides for factors. 
-```python
-python scripts/verification/verify_bench.py --mode input 
 ```
 
 This repository contains the code for **PandaX**.
