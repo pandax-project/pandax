@@ -1,0 +1,229 @@
+Command: python -u main.py supermarket-sales-prediction-xgboost-fastai
+Started: Sat Mar 28 10:45:13 PM PDT 2026
+Annotated notebook saved to /scratch/jieq/pandax/dias_notebooks/dataranch/supermarket-sales-prediction-xgboost-fastai/src/cell_exec_info.ipynb
+Executing code: import sys, os
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df, convert_col
+import pickle
+Executing code: %%RecordEventWithColumnInfo
+from pathlib import Path
+import warnings
+from utils.benchmarks import BENCHMARKS_TO_PATHS
+warnings.filterwarnings('ignore')
+Executing code: %%RecordEventWithColumnInfo
+#A program that takes a csv and trains models on it. Streamlined model selection.
+#==============================================================================
+
+import os
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    import os
+    os.environ["MODIN_ENGINE"] = "ray"
+    import ray
+    ray.init(num_cpus=int(os.environ['MODIN_CPUS']), runtime_env={'env_vars': {'__MODIN_AUTOIMPORT_PANDAS__': '1'}})
+    import modin.pandas as pd
+else:
+    import pandas as pd
+# import pandas_profiling
+import numpy as np
+import os
+import sys
+import traceback
+#Fit an xgboost model
+import random
+
+#TabNet
+# from fast_tabnet.core import *
+
+import shutil
+Executing code: %%RecordEventWithColumnInfo
+#Project Variables
+#===================================================================================================
+PROJECT_NAME = 'superstore'
+VARIABLE_FILES = False
+#Maximum amount of rows to take
+
+## -- STEFANOS -- Remove sample
+
+# SAMPLE_COUNT = 4000
+FASTAI_LEARNING_RATE = 1e-1
+AUTO_ADJUST_LEARNING_RATE = False
+#Set to True automatically infer if variables are categorical or continuous
+ENABLE_BREAKPOINT = True
+#When trying to declare a column a continuous variable, if it fails, convert it to a categorical variable
+CONVERT_TO_CAT = False
+REGRESSOR = True
+SEP_DOLLAR = False
+SEP_COMMA = True
+SHUFFLE_DATA = True
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+benchmark_name = "supermarket-sales-prediction-xgboost-fastai"
+PARAM_DIR = Path(BENCHMARKS_TO_PATHS[benchmark_name]).parent / "input" / "superstore"
+df = pd.read_csv(Path(BENCHMARKS_TO_PATHS[benchmark_name]).parent / "input" / "superstore" / "SampleSuperstore.csv")
+factor = 1
+df = pd.concat([df]*factor)
+df.info()
+Executing code: %%RecordEventWithColumnInfo
+### cell 1 ###
+
+if SEP_DOLLAR:
+    #For every column in df_copy, if the column contains a $, make a new column with the value without the $
+    for col in df_copy.columns:
+        if '$' in df[col].to_string():
+            df[col + '_no_dollar'] = df[col].str.replace('$', '').str.replace(',', '')
+            #Try to convert this new column to a numeric type
+            try:
+                df[col + '_no_dollar'] = df[col + '_no_dollar'].apply(pd.to_numeric, errors='coerce').dropna()
+            except Exception:
+                print(f'{col} can not be converted to a float!')
+
+
+if SEP_COMMA:
+    #For every column in df_copy, if the column contains a %, make a new column with the value without the %
+    for col in df.columns:
+        if '%' in df[col].to_string() or ',' in df[col].to_string():
+            df[col + '_processed'] = df[col].apply(str).str.replace('%', '').str.replace(',', '')
+            #Try to convert this new column to a numeric type
+            try:
+                df[col + '_processed'] = df[col + '_processed'].apply(pd.to_numeric, errors='coerce').dropna()
+            except Exception:
+                print(f'{col} can not be converted to a float!')
+Executing code: %%RecordEventWithColumnInfo
+### cell 2 ###
+
+df
+Executing code: %%RecordEventWithColumnInfo
+### cell 3 ###
+
+df.isna().sum()
+Executing code: %%RecordEventWithColumnInfo
+### cell 4 ###
+
+_ = df.select_dtypes(include=['number']).corr()
+Executing code: %%RecordEventWithColumnInfo
+### cell 5 ###
+
+df.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 6 ###
+
+df.describe().T
+Executing code: %%RecordEventWithColumnInfo
+### cell 7 ###
+
+df.columns
+Executing code: %%RecordEventWithColumnInfo
+### cell 8 ###
+
+target = ''
+target_str = ''
+targets = []
+
+#Loop through every possible target column (Continuous)
+for i in range(len(df.columns)-1, 0, -1):
+    try:
+        df[df.columns[i]] = df[df.columns[i]].apply(pd.to_numeric, errors='coerce').dropna()
+        target = df.columns[i]
+        target_str = target.replace('/', '-')
+    except:
+        continue
+    print(f'Target Variable: {target}')
+
+    #===================================================================================================
+
+    #Create project config files if they don't exist.
+    if not os.path.exists(PARAM_DIR):
+        #create param_dir
+        os.makedirs(PARAM_DIR)
+    if not os.path.exists(f'{PARAM_DIR}/cats.txt'):
+        #create param_dir
+        with open(f'{PARAM_DIR}/cats.txt', 'w') as f:
+            f.write('')
+    if not os.path.exists(f'{PARAM_DIR}/conts.txt'):
+        #create param_dir
+        with open(f'{PARAM_DIR}/conts.txt', 'w') as f:
+            f.write('')
+    if not os.path.exists(f'{PARAM_DIR}/cols_to_delete.txt'):
+        with open(f'{PARAM_DIR}/cols_to_delete.txt', 'w') as f:
+            f.write('')
+
+    df = df.drop_duplicates()
+    if SHUFFLE_DATA:
+        df = df.sample(frac=1).reset_index(drop=True)
+
+    # workaround for fastai/pytorch bug where bool is treated as object and thus erroring out.
+    for n in df:
+        if pd.api.types.is_bool_dtype(df[n]):
+            df[n] = df[n].astype('uint8')
+
+    with open(f'{PARAM_DIR}/cols_to_delete.txt', 'r') as f:
+        cols_to_delete = f.read().splitlines()
+    for col in cols_to_delete:
+        try:
+            del(df[col])
+        except:
+            pass
+
+    try:
+        df = df.fillna(0)
+    except:
+        pass
+
+
+    #Auto detect categorical and continuous variables
+    #==============================================================================
+    likely_cat = {}
+    for var in df.columns:
+        likely_cat[var] = 1.*df[var].nunique()/df[var].count() < 0.05 #or some other threshold
+
+    cats = [var for var in df.columns if likely_cat[var]]
+    conts = [var for var in df.columns if not likely_cat[var]]
+
+    #remove target from lists
+    try:
+        conts.remove(target)
+        cats.remove(target)
+    except:
+        pass
+    #Convert target to float
+    df[target] = df[target].apply(pd.to_numeric, errors='coerce').dropna()
+
+    if VARIABLE_FILES == True:
+        with open(f'{PARAM_DIR}/cats.txt', 'r') as f:
+            cats = f.read().splitlines()
+
+        with open(f'{PARAM_DIR}/conts.txt', 'r') as f:
+            conts = f.read().splitlines()
+
+    for var in conts:
+        try:
+            df[var] = df[var].apply(pd.to_numeric, errors='coerce').dropna()
+        except:
+            print(f'Could not convert {var} to float.')
+            pass
+
+    if ENABLE_BREAKPOINT == True:
+        cont_list = []
+        for cont in conts:
+            focus_cont = cont
+            cont_list.append(cont)
+        for var in cont_list:
+            try:
+                df[var] = df[var].apply(pd.to_numeric, errors='coerce').dropna()
+            except:
+                print(f'Could not convert {var} to float.')
+                cont_list.remove(var)
+                if CONVERT_TO_CAT == True:
+                    cats.append(var)
+                pass
+Executing code: %%RecordEventWithColumnInfo
+### cell 9 ###
+
+df.isna().sum()
+Executing code: %PrintCellInfo cell_exec_info
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Ran small notebook to get cell exec info in 5.516042232513428 seconds
+Getting cudf profile information...
+Annotated notebook saved to /scratch/jieq/pandax/dias_notebooks/dataranch/supermarket-sales-prediction-xgboost-fastai/src/cudf_profile.ipynb
