@@ -1,4 +1,4 @@
-name: /scratch/jieq/conda-envs/rapids-25.02
+name: rapids-25.02
 channels:
   - defaults
 dependencies:
@@ -230,4 +230,3 @@ dependencies:
   - cudf=25.02.02
   - ca-certificates=2025.6.15
   - libraft=25.02.00
-prefix: /scratch/jieq/conda-envs/rapids-25.02

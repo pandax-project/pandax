@@ -40,7 +40,6 @@ fastprogress==1.0.3
 fasttransform==0.0.2
 fonttools==4.58.4
 fqdn==1.5.1
-gensim==4.3.3
 griffe==1.7.3
 h11==0.16.0
 httpcore==1.0.9

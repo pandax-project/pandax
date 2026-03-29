@@ -1,4 +1,4 @@
-name: /scratch/jieq/conda-envs/rapids-26.02
+name: rapids-26.02
 channels:
   - defaults
 dependencies:
@@ -83,4 +83,3 @@ dependencies:
   - wheel=0.45.1
   - xyzservices=2025.4.0
   - zstandard=0.23.0
-prefix: /scratch/jieq/conda-envs/rapids-26.02
