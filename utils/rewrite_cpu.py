@@ -163,7 +163,7 @@ async def rewrite_notebook_cpu(
                 small_nb_path, annotated_cell_idx
             )
             print("========================================================")
-            print("Cell ", annotated_cell_idx)
+            print("Cell", annotated_cell_idx)
             print(f"Rewritten pre-checkpoint path: {rewritten_pre_checkpoint_path}")
             print(f"Pre-checkpoint path: {pre_checkpoint_path}")
             print(
@@ -310,7 +310,7 @@ async def _rewrite_cell_cpu(
     rewritten_nb_path: Path,
     small_rewritten_nb_path: Path,
     num_tries_per_cell: int,
-) -> tuple[float, str | None, Path, Path, Path]:
+) -> tuple[float, float, str | None, Path, Path, Path]:
     # Now we will try to rewrite the cell.
     rewritten_cell: NotebookNode | None = None
     rewritten_execution_time: float = 0.0

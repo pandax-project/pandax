@@ -3,14 +3,14 @@
 ## Setup
 To create the conda environment, run:
 ```bash
-cd rapids-25.02
-./recreate.sh "" /scratch/jieq/conda-envs/rapids-25.02 # with prefix.
-./recreate.sh rapids-25.02 # without prefix.
+cd rapids-26.02
+./recreate.sh "" /scratch/jieq/conda-envs/rapids-26.02 # with prefix.
+./recreate.sh rapids-26.02 # without prefix.
 ```
 
 Then, activate the environment:
 ```bash
-conda activate rapids-25.02
+conda activate /scratch/jieq/conda-envs/rapids-26.02
 pip install gdown # TODO: move this inside recreate.sh
 ```
 

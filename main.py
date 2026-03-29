@@ -63,6 +63,18 @@ async def main():
         default=None,
         help="Optional run ID for CSV logging. Auto-generated when not provided.",
     )
+    parser.add_argument(
+        "--start_cell_index",
+        type=int,
+        default=0,
+        help="Annotated cell index to start rewriting from (default: 0).",
+    )
+    parser.add_argument(
+        "--end_cell_index",
+        type=int,
+        default=None,
+        help="Annotated cell index to end rewriting at (default: None).",
+    )
     args = parser.parse_args()
     run_id = args.run_id if args.run_id is not None else f"{int(time.time())}-{uuid4().hex[:8]}"
     benchmark_base_path = BENCHMARKS_TO_PATHS.get(args.name)
@@ -166,12 +178,12 @@ async def main():
     await rewrite_notebook(
         benchmark_name=args.name,
         run_id=run_id,
-        nb_path=original_notebook_path,
         small_nb_path=small_notebook_path,
         cudf_profile_infos=cudf_profile_infos,
         cell_exec_infos=cell_exec_info,
         shell=shell,
-        start_cell_index=0,
+        start_cell_index=args.start_cell_index,
+        end_cell_index=args.end_cell_index,
     )
     rewrite_end_time = time.time()
     print(f"Rewrote notebook in {rewrite_end_time - rewrite_start_time} seconds")

@@ -10,6 +10,7 @@ from nbclient import NotebookClient
 from nbformat import NotebookNode
 
 from utils.agent_flow import NUM_TRIES_PER_CELL, CodeInfo, call_rewrite_agent
+from utils.benchmarks import FACTOR_MAP
 from utils.execution import (
     CudfProfileInfo,
     execute_cell,
@@ -39,6 +40,7 @@ from utils.notebook import (
     maybe_annotate_code_with_record_event,
     maybe_annotate_code_with_time,
     remove_magic_commands,
+    replace_factor,
     save_notebook,
 )
 from utils.logging_utils import log_rewrite_timing
@@ -84,13 +86,13 @@ def checkpoint_and_get_cudf_profile_info(nb_path: Path) -> dict[int, CudfProfile
 async def rewrite_notebook(
     benchmark_name: str,
     run_id: str,
-    nb_path: Path,
     small_nb_path: Path,
     cudf_profile_infos: dict[int, CudfProfileInfo],
     cell_exec_infos: dict[int, CellExecInfo],
     shell: InteractiveShell,
     # The index of the first annotated cell to rewrite. This is for debugging purposes only.
     start_cell_index: int = 0,
+    end_cell_index: int | None = None,
 ) -> tuple[NotebookNode, dict[int, float]]:
     # Now, we will rewrite the notebook. Note that `nb_path` should not be the original notebook.'
 
@@ -99,20 +101,9 @@ async def rewrite_notebook(
     small_executed_cells: list[NotebookNode] = []
     rewritten_times: dict[int, float] = {}
 
-    # Get the annotated notebook for rewriting.
-    annotated_nb_path = nb_path.parent / Path("annotated.ipynb")
-    annotated_cell_idx_to_cell_data: dict[int, CellData] = annotate_notebook(
-        original_notebook_path=nb_path,
-        annotated_notebook_path=annotated_nb_path,
-        add_timing_code=True,
-        add_record_events=True,
-        add_checkpoints=False,
-        track_column_info=False,
-        use_gpu=True,
-    )
     # Get the small annotated notebook.
-    small_annotated_nb_path = nb_path.parent / Path("small_annotated.ipynb")
-    annotate_notebook(
+    small_annotated_nb_path = small_nb_path.parent / Path("small_annotated.ipynb")
+    annotated_cell_idx_to_cell_data: dict[int, CellData] = annotate_notebook(
         original_notebook_path=small_nb_path,
         annotated_notebook_path=small_annotated_nb_path,
         add_timing_code=True,
@@ -121,16 +112,11 @@ async def rewrite_notebook(
         track_column_info=False,
         use_gpu=True,
     )
-    annotated_nb = load_notebook(annotated_nb_path)
     small_annotated_nb = load_notebook(small_annotated_nb_path)
-    rewritten_nb_path = nb_path.parent / Path("rewritten") / Path("o4_mini_high.ipynb")
     small_rewritten_nb_path = (
-        nb_path.parent / Path("rewritten") / Path("o4_mini_high_small.ipynb")
+        small_nb_path.parent / Path("rewritten") / Path("o4_mini_high_small.ipynb")
     )
-    rewritten_nb_cells: list[NotebookNode] = copy.deepcopy(annotated_nb.cells)
-    small_rewritten_nb_cells: list[NotebookNode] = copy.deepcopy(
-        small_annotated_nb.cells
-    )
+    small_rewritten_nb_cells: list[NotebookNode] = copy.deepcopy(small_annotated_nb.cells)
 
     # Make sure we are starting with a fresh shell.
     reset_shell(shell)
@@ -138,7 +124,6 @@ async def rewrite_notebook(
     # Set the pre-checkpoint paths.
     pre_checkpoint_path = None
     rewritten_pre_checkpoint_path = None
-    small_rewritten_pre_checkpoint_path = None
 
     # Set up the post-checkpoint paths.
     post_checkpoint_path = None
@@ -149,47 +134,39 @@ async def rewrite_notebook(
     for annotated_cell_idx, cell_data in sorted(
         annotated_cell_idx_to_cell_data.items(), key=lambda x: x[0]
     ):
+        if end_cell_index is not None and annotated_cell_idx > end_cell_index:
+            break
         if annotated_cell_idx < start_cell_index:
             continue
 
         if annotated_cell_idx == start_cell_index:
-            for cell in annotated_nb.cells[: cell_data.cell_idx_in_annotated_notebook]:
-                executed_cells.append(cell)
+            for cell in small_annotated_nb.cells[: cell_data.cell_idx_in_annotated_notebook]:
                 small_executed_cells.append(cell)
 
             # Make the pre_checkpoint_path for this cell.
             print(
                 f"Executing {len(executed_cells)} cells up to cell {annotated_cell_idx}."
             )
+            
             pre_checkpoint_path = _checkpoint_before_cell(
-                annotated_nb_path=annotated_nb_path,
-                annotated_cell_idx=annotated_cell_idx,
-                executed_cells=executed_cells,
-            )
-            rewritten_pre_checkpoint_path = pre_checkpoint_path
-
-            small_rewritten_pre_checkpoint_path = _checkpoint_before_cell(
                 annotated_nb_path=small_annotated_nb_path,
                 annotated_cell_idx=annotated_cell_idx,
                 executed_cells=small_executed_cells,
             )
+            rewritten_pre_checkpoint_path = pre_checkpoint_path 
 
             print("========================================================")
-            print("Cell ", annotated_cell_idx)
-            print(f"Rewritten pre-checkpoint path: {rewritten_pre_checkpoint_path}")
-            print(f"Pre-checkpoint path: {pre_checkpoint_path}")
-            print(
-                f"Small rewritten pre-checkpoint path: {small_rewritten_pre_checkpoint_path}"
-            )
+            print("Cell", annotated_cell_idx)
+            print(f"Small pre-checkpoint path: {pre_checkpoint_path}")
+            print(f"Small rewritten pre-checkpoint path: {rewritten_pre_checkpoint_path}")
             print("========================================================")
 
         else:
             # not the first cell to rewrite.
             pre_checkpoint_path = post_checkpoint_path
-            rewritten_pre_checkpoint_path = rewritten_post_checkpoint_path
-            small_rewritten_pre_checkpoint_path = small_rewritten_post_checkpoint_path
+            rewritten_pre_checkpoint_path = small_rewritten_post_checkpoint_path
 
-        cell = annotated_nb.cells[cell_data.cell_idx_in_annotated_notebook]
+        cell = small_annotated_nb.cells[cell_data.cell_idx_in_annotated_notebook]
 
         # Now we will try to rewrite the cell.
         rewrite_start_time = time.time()
@@ -199,10 +176,6 @@ async def rewrite_notebook(
                 f"Pre-checkpoint path is None for cell {annotated_cell_idx}"
             )
         if rewritten_pre_checkpoint_path is None:
-            raise ValueError(
-                f"Rewritten pre-checkpoint path is None for cell {annotated_cell_idx}"
-            )
-        if small_rewritten_pre_checkpoint_path is None:
             raise ValueError(
                 f"Small rewritten pre-checkpoint path is None for cell {annotated_cell_idx}"
             )
@@ -221,11 +194,8 @@ async def rewrite_notebook(
             annotated_cell_idx=annotated_cell_idx,
             pre_checkpoint_path=pre_checkpoint_path,
             rewritten_pre_checkpoint_path=rewritten_pre_checkpoint_path,
-            small_rewritten_pre_checkpoint_path=small_rewritten_pre_checkpoint_path,
-            nb_path=annotated_nb_path,
-            small_nb_path=small_nb_path,
-            rewritten_nb_path=rewritten_nb_path,
-            small_rewritten_nb_path=small_rewritten_nb_path,
+            nb_path=small_nb_path,
+            rewritten_nb_path=small_rewritten_nb_path,
         )
         print("========================================================")
         print("After rewriting cell ", annotated_cell_idx)
@@ -243,25 +213,21 @@ async def rewrite_notebook(
         cell_index = cell_data.cell_idx_in_annotated_notebook
         if rewritten_code is not None:
             # This means we couldn't rewrite anything.
-            rewritten_nb_cells[cell_index] = make_code_cell(rewritten_code)
             small_rewritten_nb_cells[cell_index] = make_code_cell(rewritten_code)
         else:
-            rewritten_nb_cells[cell_index] = make_code_cell(
-                remove_magic_commands(cell.source)
-            )
             small_rewritten_nb_cells[cell_index] = make_code_cell(
                 remove_magic_commands(cell.source)
             )
 
     # Clear all the checkpoints we made.
-    clear_all_checkpoints(annotated_nb_path)
     clear_all_checkpoints(small_nb_path)
-    rewritten_nb = make_notebook(rewritten_nb_cells)
     small_rewritten_nb = make_notebook(small_rewritten_nb_cells)
-    save_notebook(rewritten_nb, rewritten_nb_path)
     save_notebook(small_rewritten_nb, small_rewritten_nb_path)
-    print(f"Rewritten notebook saved to {rewritten_nb_path}")
     print(f"Small rewritten notebook saved to {small_rewritten_nb_path}")
+    rewritten_nb = replace_factor(small_rewritten_nb, FACTOR_MAP[benchmark_name])
+    rewritten_nb_path = small_nb_path.parent / "rewritten" / "o4_mini_high.ipynb"
+    save_notebook(rewritten_nb, rewritten_nb_path)
+    print(f"Rewritten notebook saved to {rewritten_nb_path}")
     return rewritten_nb, rewritten_times
 
 
@@ -297,51 +263,6 @@ def _checkpoint_before_cell(
     return pre_checkpoint_path
 
 
-def _run_cell(
-    *,
-    annotated_nb: NotebookNode,
-    annotated_cell_idx: int,
-    cell_data: CellData,
-    executed_cells: list[NotebookNode],
-    shell: InteractiveShell,
-) -> None:
-    # Run this annotated cell in the original notebook.
-    print("========================================================")
-    print(f"Running cell {annotated_cell_idx} in the original notebook.")
-
-    cell = annotated_nb.cells[cell_data.cell_idx_in_annotated_notebook]
-    executed_cells.append(cell)
-    execute_code("Out.clear()", shell)
-    execute_code(cell.source, shell)
-
-    # We need to save the output of the cell for testing purposes.
-    save_output_code = "orig_output = Out.get(1)"
-    save_output_code = maybe_annotate_code_with_record_event(save_output_code)
-    executed_cells.append(make_code_cell(save_output_code))
-    execute_code(save_output_code, shell)
-
-
-def _checkpoint_after_cell(
-    annotated_nb_path: Path,
-    annotated_cell_idx: int,
-    executed_cells: list[NotebookNode],
-    shell: InteractiveShell,
-) -> Path:
-    # Checkpoint the post execution state.
-    print("========================================================")
-    print(f"Checkpointing after running cell {annotated_cell_idx}.")
-    checkpoint_start_time = time.time()
-    post_checkpoint_path = get_post_checkpoint_path(
-        annotated_nb_path, annotated_cell_idx
-    )
-    post_checkpoint_cell = get_save_checkpoint_cell(post_checkpoint_path)
-    executed_cells.append(post_checkpoint_cell)
-    execute_cell(post_checkpoint_cell, shell)
-    checkpoint_end_time = time.time()
-    print(f"Checkpointing took {checkpoint_end_time - checkpoint_start_time} seconds.")
-    return post_checkpoint_path
-
-
 # TODO(jie): figure out the type.
 async def _rewrite_cell(
     benchmark_name: str,
@@ -352,11 +273,8 @@ async def _rewrite_cell(
     annotated_cell_idx: int,
     pre_checkpoint_path: Path,
     rewritten_pre_checkpoint_path: Path,
-    small_rewritten_pre_checkpoint_path: Path,
     nb_path: Path,
-    small_nb_path: Path,
     rewritten_nb_path: Path,
-    small_rewritten_nb_path: Path,
 ) -> tuple[float, str | None, Path, Path, Path]:
     # Now we will try to rewrite the cell.
     rewritten_cell: NotebookNode | None = None
@@ -365,7 +283,6 @@ async def _rewrite_cell(
     best_rewritten_post_checkpoint_path: Path | None = None
 
     num_tries = 0
-    # last_attempt_exec_states_equal = True
     is_correct = False
     rewritten_cell_notebook_save_path = None
     all_rewritten_code_info: list[CodeInfo] = []
@@ -433,7 +350,7 @@ async def _rewrite_cell(
 
     best_rewritten_post_checkpoint_path = post_checkpoint_path
     best_small_rewritten_post_checkpoint_path = get_pre_checkpoint_path(
-        small_nb_path, annotated_cell_idx + 1
+        nb_path, annotated_cell_idx + 1
     )
     print(
         "Setting initially best_rewritten_post_checkpoint_path: ",
@@ -533,11 +450,6 @@ with open("{opt_cell_exec_info_pkl_path}", "wb") as f:
         # cell 7: save the output of the rewritten cell.
         save_output_cell = make_code_cell("opt_output = Out.get(4)")
 
-        # Save the rewritten cell notebook.
-        rewritten_cell_notebook_save_path = (
-            nb_path.parent
-            / f"new_rewrite_cell_{annotated_cell_idx}_try_{num_tries}.ipynb"
-        )
         rewritten_cell_notebook = make_notebook(
             [
                 load_elastic_notebook_cell,
@@ -550,9 +462,6 @@ with open("{opt_cell_exec_info_pkl_path}", "wb") as f:
                 save_output_cell,
             ]
         )
-        # TODO(jie): this is for debugging. We can remove it later.
-        save_notebook(rewritten_cell_notebook, rewritten_cell_notebook_save_path)
-
         # Run the new notebook.
         new_nb_client = NotebookClient(rewritten_cell_notebook, allow_errors=False)
         rewritten_time = float("inf")
@@ -583,9 +492,6 @@ with open("{opt_cell_exec_info_pkl_path}", "wb") as f:
                         )
                         test_cell = make_code_cell(test_code)
                         rewritten_cell_notebook.cells.append(test_cell)
-                        save_notebook(
-                            rewritten_cell_notebook, rewritten_cell_notebook_save_path
-                        )
                     index += 1
 
                     # Check if the outputs have any errors.
@@ -642,35 +548,35 @@ with open("{opt_cell_exec_info_pkl_path}", "wb") as f:
         print(f"Rewritten time: {rewritten_time} ms")
 
         print("Checkpointing the rewritten cell for small notebook...")
-        small_rewritten_post_checkpoint_path = get_post_checkpoint_path(
-            small_rewritten_nb_path, annotated_cell_idx, try_num=num_tries
+        rewritten_post_checkpoint_path = get_post_checkpoint_path(
+            rewritten_nb_path, annotated_cell_idx, try_num=num_tries
         )
-        load_small_checkpoint_cell = get_load_checkpoint_cell(
-            small_rewritten_pre_checkpoint_path
+        load_checkpoint_cell = get_load_checkpoint_cell(
+            rewritten_pre_checkpoint_path
         )
-        small_rewritten_post_checkpoint_cell = get_save_checkpoint_cell(
-            small_rewritten_post_checkpoint_path
+        rewritten_post_checkpoint_cell = get_save_checkpoint_cell(
+            rewritten_post_checkpoint_path
         )
-        small_rewritten_cell_notebook = make_notebook(
+        rewritten_cell_notebook = make_notebook(
             [
                 load_elastic_notebook_cell,
                 load_cudf_extension_cell,
-                load_small_checkpoint_cell,
+                load_checkpoint_cell,
                 rewritten_cell,
-                small_rewritten_post_checkpoint_cell,
+                rewritten_post_checkpoint_cell,
             ]
         )
 
         if is_correct:
             # Save the small rewritten cell notebook.
             small_rewritten_cell_notebook_save_path = (
-                small_nb_path.parent
+                nb_path.parent
                 / f"small_rewrite_cell_{annotated_cell_idx}_try_{num_tries}.ipynb"
             )
             save_notebook(
-                small_rewritten_cell_notebook, small_rewritten_cell_notebook_save_path
+                rewritten_cell_notebook, small_rewritten_cell_notebook_save_path
             )
-            execute_notebook(small_rewritten_cell_notebook)
+            execute_notebook(rewritten_cell_notebook)
 
             print("The rewritten code is correct. Profiling cudf...")
             # cell 0: load the ElasticNotebook extension.
@@ -679,7 +585,7 @@ with open("{opt_cell_exec_info_pkl_path}", "wb") as f:
             load_cudf_extension_cell = get_load_cudf_ext_cell()
             # cell 2: load the checkpoint before the annotated cell. Note this is the checkpoint for the small notebook.
             load_checkpoint_cell = get_load_checkpoint_cell(
-                small_rewritten_pre_checkpoint_path
+                rewritten_pre_checkpoint_path
             )
             # cell 3: cudf profile the rewritten code.
             cudf_cell = make_code_cell(
@@ -756,10 +662,10 @@ with open("{opt_cell_exec_info_pkl_path}", "wb") as f:
                 best_rewritten_post_checkpoint_path = rewritten_post_checkpoint_path
                 print(
                     "Setting best_small_rewritten_post_checkpoint_path to ",
-                    small_rewritten_post_checkpoint_path,
+                    rewritten_post_checkpoint_path,
                 )
                 best_small_rewritten_post_checkpoint_path = (
-                    small_rewritten_post_checkpoint_path
+                    rewritten_post_checkpoint_path
                 )
                 best_rewritten_time = rewritten_time
                 best_rewritten_cudf_profile_info = rewritten_cell_cudf_profile_info
