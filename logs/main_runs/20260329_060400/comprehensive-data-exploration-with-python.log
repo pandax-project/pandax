@@ -1,0 +1,67 @@
+Command: python -u main.py comprehensive-data-exploration-with-python
+Started: Sun Mar 29 06:56:05 UTC 2026
+Annotated notebook saved to /home/sahilbhatia/pandax/dias_notebooks/pmarcelino/comprehensive-data-exploration-with-python/src/cell_exec_info.ipynb
+Executing code: import sys, os
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df, convert_col
+import pickle
+import cudf
+Executing code: %%RecordEventWithColumnInfo
+from pathlib import Path
+#invite people for the Kaggle party
+import os
+from utils.benchmarks import BENCHMARKS_TO_PATHS
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    import os
+    os.environ["MODIN_ENGINE"] = "ray"
+    import ray
+    ray.init(num_cpus=int(os.environ['MODIN_CPUS']), runtime_env={'env_vars': {'__MODIN_AUTOIMPORT_PANDAS__': '1'}})
+    import modin.pandas as pd
+else:
+    import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+# from scipy import stats
+import warnings
+import time
+warnings.filterwarnings('ignore')
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+#bring in the six packs
+df_train = pd.read_csv(Path(BENCHMARKS_TO_PATHS[benchmark_name]).parent / "input" / "train.csv")
+factor = 3
+df_train = pd.concat([df_train]*factor, ignore_index=True)
+df_train.info()
+Traceback (most recent call last):
+  File "/home/sahilbhatia/pandax/main.py", line 315, in <module>
+    asyncio.run(main())
+  File "/opt/conda/envs/rapids-25.02/lib/python3.10/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "/opt/conda/envs/rapids-25.02/lib/python3.10/asyncio/base_events.py", line 649, in run_until_complete
+    return future.result()
+  File "/home/sahilbhatia/pandax/main.py", line 119, in main
+    cell_exec_info = get_cell_exec_info(small_notebook_path, shell)
+  File "/home/sahilbhatia/pandax/utils/schedule.py", line 67, in get_cell_exec_info
+    execute_cell(cell, shell)
+  File "/home/sahilbhatia/pandax/utils/execution.py", line 193, in execute_cell
+    return execute_code(cell.source, shell)
+  File "/home/sahilbhatia/pandax/utils/execution.py", line 187, in execute_code
+    raise Exception(f"Error in code execution: {captured_output}")
+Exception: Error in code execution: [0;31m---------------------------------------------------------------------------[0m
+[0;31mNameError[0m                                 Traceback (most recent call last)
+Cell [0;32mIn[1], line 4[0m
+[1;32m      1[0m [38;5;66;03m### cell 0 ###[39;00m
+[1;32m      2[0m 
+[1;32m      3[0m [38;5;66;03m#bring in the six packs[39;00m
+[0;32m----> 4[0m df_train [38;5;241m=[39m pd[38;5;241m.[39mread_csv(Path(BENCHMARKS_TO_PATHS[[43mbenchmark_name[49m])[38;5;241m.[39mparent [38;5;241m/[39m [38;5;124m"[39m[38;5;124minput[39m[38;5;124m"[39m [38;5;241m/[39m [38;5;124m"[39m[38;5;124mtrain.csv[39m[38;5;124m"[39m)
+[1;32m      5[0m factor [38;5;241m=[39m [38;5;241m3[39m
+[1;32m      6[0m df_train [38;5;241m=[39m pd[38;5;241m.[39mconcat([df_train][38;5;241m*[39mfactor, ignore_index[38;5;241m=[39m[38;5;28;01mTrue[39;00m)
+
+[0;31mNameError[0m: name 'benchmark_name' is not defined
+
+Status: FAILED (exit 1)
+Finished: Sun Mar 29 06:56:13 UTC 2026
+

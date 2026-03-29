@@ -1,0 +1,197 @@
+Command: python -u main.py imdb-dataset-eda-project
+Started: Sun Mar 29 06:56:36 UTC 2026
+Annotated notebook saved to /home/sahilbhatia/pandax/dias_notebooks/sanket7994/imdb-dataset-eda-project/src/cell_exec_info.ipynb
+Executing code: import sys, os
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df, convert_col
+import pickle
+import cudf
+Executing code: %%RecordEventWithColumnInfo
+benchmark_name = "imdb-dataset-eda-project"
+from pathlib import Path
+# 
+# This Python 3 environment comes with many helpful analytics libraries installed
+# It is defined by the kaggle/python Docker image: https://github.com/kaggle/docker-python
+# For example, here's several helpful packages to load
+import numpy as np # linear algebra
+import os
+from utils.benchmarks import BENCHMARKS_TO_PATHS
+# STEFANOS: Conditionally import Modin Pandas
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    # STEFANOS: Import Modin Pandas
+    import os
+    os.environ["MODIN_ENGINE"] = "ray"
+    import ray
+    ray.init(num_cpus=int(os.environ['MODIN_CPUS']), runtime_env={'env_vars': {'__MODIN_AUTOIMPORT_PANDAS__': '1'}})
+    import modin.pandas as pd
+else:
+    # STEFANOS: Import regular Pandas
+    import pandas as pd
+import matplotlib.pyplot as plt # ploting graphs and chart 
+from datetime import timedelta # for time formatting
+import time
+# Input data files are available in the read-only "../input/" directory
+# For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory
+
+import os
+for dirname, _, filenames in os.walk(Path(BENCHMARKS_TO_PATHS[benchmark_name]).parent / "input"):
+    for filename in filenames:
+        print(os.path.join(dirname, filename))
+
+import cudf
+cudf.set_option("copy_on_write", True)
+
+# You can write up to 20GB to the current directory (/kaggle/working/) that gets preserved as output when you create a version using "Save & Run All" 
+# You can also write temporary files to /kaggle/temp/, but they won't be saved outside of the current session
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+df  = pd.read_csv(Path(BENCHMARKS_TO_PATHS[benchmark_name]).parent / "input" / "imdb-official-movies-dataset" / "title-ratings.csv")
+df2 = pd.read_csv(Path(BENCHMARKS_TO_PATHS[benchmark_name]).parent / "input" / "imdb-official-movies-dataset" / "title-metadata.csv")
+factor = 0.1
+
+# Merging Rating and MetaData datsets into single dataframe w.r.t common column
+main_df = pd.merge(df,df2,on='tconst')
+main_df = main_df.sample(frac=factor, random_state=0)
+main_df.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 1 ###
+
+# creating a copy 
+imdb_df = main_df.copy()
+Executing code: %%RecordEventWithColumnInfo
+### cell 2 ###
+
+imdb_df['runtimeMinutes'].value_counts()
+Executing code: %%RecordEventWithColumnInfo
+### cell 3 ###
+
+imdb_df['runtime_delta'] = pd.to_numeric(imdb_df['runtimeMinutes'], errors='coerce', downcast="integer")
+Executing code: %%RecordEventWithColumnInfo
+### cell 4 ###
+
+# Using 'pd.to_timedelta' to convert minutes into desired format
+imdb_df['runtime_delta'] = pd.to_timedelta(imdb_df['runtime_delta'], unit='m')
+Executing code: %%RecordEventWithColumnInfo
+### cell 5 ###
+
+imdb_df['isAdult'].unique()
+Executing code: %%RecordEventWithColumnInfo
+### cell 6 ###
+
+# Replace string and int by boolean
+# we will leave out '2014' and '2020' as it is as there`s no way to confirm If they Adult or not not
+imdb_df['isAdult'] = imdb_df['isAdult'].map({'0': 'Non_Adult_Title', '1': 'Adult_Title'})
+/home/sahilbhatia/elastic-notebook/elastic/core/common/pandas.py:63: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  obj = obj.fillna(np.nan)
+/home/sahilbhatia/elastic-notebook/elastic/core/common/pandas.py:59: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  obj[col] = obj[col].fillna(np.nan)
+Executing code: %%RecordEventWithColumnInfo
+### cell 7 ###
+
+imdb_df.isAdult = imdb_df.isAdult.fillna('Unrated')
+imdb_df['isAdult'].unique()
+Executing code: %%RecordEventWithColumnInfo
+### cell 8 ###
+
+# Now joinning them
+# STEFANOS-DISABLE-FOR-MODIN
+### ORIGINAL ###
+# imdb_df['premiere_timeline'] = imdb_df[['startYear','endYear']].stack().groupby(level=0).agg('-'.join)
+### COMPATIBLE WITH MODIN ###
+# I tried a bunch of things, here's one:
+#   imdb_df['premiere_timeline'] = imdb_df[['startYear','endYear']].stack().groupby(level=0).apply('-'.join)
+# They don't seem to work. The problem seems to be with groupby(level=0). Generally, I'm not sure that Modin can
+# groupby MultiIndex's.
+# So, below I do the computation up to the stacking, just so that we can keep as much of it as possible (in case
+# Modin, or some other system that uses the same benchmarks, can optimize it; we don't want to deprive this
+# opportunity). Unfortunately, we cannot assign the result of stacking to premiere_timeline as they don't match.
+# I just assign a dumb value to premiere_timeline so that it exists in the DF. It's not used later.
+
+_ = imdb_df[['startYear','endYear']].stack()
+imdb_df['premiere_timeline'] = 0
+Executing code: %%RecordEventWithColumnInfo
+### cell 9 ###
+
+# Drop unneccessory columns from dataframe
+columns_to_keep = ['tconst','averageRating','numVotes', 'primaryTitle', 'titleType',
+                   'isAdult','premiere_timeline','runtime_delta']
+
+imdb_df = imdb_df[columns_to_keep]
+
+# Also renaming them with approriate name
+renamed_cols = {'tconst':'IMDB_ID','averageRating':'Avg_Rating','numVotes':'Total_Votes',
+                'titleType':'Title_Category', 'primaryTitle':'Title_Name', 'isAdult':'IN-18+'
+                ,'premiere_timeline':'Air_time','runtime_delta':'Title_Runtime_Length'}
+
+imdb_df.rename(columns = renamed_cols,inplace=True)
+imdb_df.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 10 ###
+
+top_10_highest = imdb_df.groupby(['Title_Name'])[
+    ['Avg_Rating','Total_Votes']].max().sort_values(by=['Avg_Rating','Total_Votes'
+                                                       ], ascending = False).reset_index().head(10)
+
+top_10_highest
+Executing code: %%RecordEventWithColumnInfo
+### cell 11 ###
+
+highest_rated_type = imdb_df.groupby(['Title_Category'])[['Avg_Rating','Total_Votes']].mean(
+).sort_values(by=['Avg_Rating','Total_Votes'], ascending = False).reset_index().round(decimals = 1)
+
+highest_rated_type
+Executing code: %%RecordEventWithColumnInfo
+### cell 12 ###
+
+longest_runtime = imdb_df.loc[imdb_df.groupby(['Title_Category'], 
+                                              sort=False)['Title_Runtime_Length'].idxmax()
+                             ][['Title_Category', 'Title_Name', 'Title_Runtime_Length']]
+
+longest_runtime.sort_values(by='Title_Runtime_Length', ascending = False).reset_index(drop=True)
+Executing code: %%RecordEventWithColumnInfo
+### cell 13 ###
+
+shortest_runtime = imdb_df.loc[imdb_df.groupby(['Title_Category'], 
+                                              sort=False)['Title_Runtime_Length'].idxmin()
+                             ][['Title_Category', 'Title_Name', 'Title_Runtime_Length']]
+
+shortest_runtime.reset_index(drop=True)
+Executing code: %%RecordEventWithColumnInfo
+### cell 14 ###
+
+wanna_adult_or_not = imdb_df.groupby(['Title_Category','IN-18+']
+                                    )['Avg_Rating'].agg('mean').round(1).unstack(fill_value= 0) 
+wanna_adult_or_not.reset_index(inplace = True)
+##### Visualise the chart in stack manner of bar type
+
+# STEFANOS: Disable plotting
+# plt.rcParams['figure.figsize'] = [15, 8]
+# wanna_adult_or_not.plot(x='Title_Category', kind='bar', stacked=True, 
+#                         title='Average Ratings of Non_Adult Rated Titles vs Adult Rated Titles')
+# plt.xlabel('Title Categories')
+# plt.ylabel('Average Ratings')
+# plt.show()
+Executing code: %%RecordEventWithColumnInfo
+### cell 15 ###
+
+imdb_df.groupby(['Title_Category','IN-18+']
+                                    )['Avg_Rating'].agg('mean').round(1).unstack(fill_value= 0)
+Executing code: %PrintCellInfo cell_exec_info
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Ran small notebook to get cell exec info in 316.39384055137634 seconds
+Getting cudf profile information...
+Annotated notebook saved to /home/sahilbhatia/pandax/dias_notebooks/sanket7994/imdb-dataset-eda-project/src/cudf_profile.ipynb
+Error getting cudf profile info: Execution failed in cell %%RecordEvent
+%%cudf.pandas.profile
+### cell 12 ###
+
+longest_runtime = imdb_df.loc[imdb_df.groupby(['Title_Category'], 
+                                              sort=False)['Title_Runtime_Length'].idxmax()
+                             ][['Title_Category', 'Title_Name', 'Title_Runtime_Length']]
+
+longest_runtime.sort_values(by='Title_Runtime_Length', ascending = False).reset_index(drop=True): "None of [Index([75440, 103367, 17897, 102921, 80647, 74510, 73828, 88324, 21145,\n       103506],\n      dtype='int64')] are in the [index]"
+Status: FAILED (exit 1)
+Finished: Sun Mar 29 07:14:08 UTC 2026
+
