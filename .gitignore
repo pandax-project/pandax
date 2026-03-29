@@ -40,4 +40,5 @@ tpch/data/
 .DS_Store
 *.zip
 
-!stats/
+!**/stats/
+!**/stats/*.csv

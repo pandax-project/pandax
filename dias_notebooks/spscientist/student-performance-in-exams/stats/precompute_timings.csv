@@ -1,0 +1,6 @@
+benchmark_name,stage,source,elapsed_seconds
+student-performance-in-exams,cell_exec_info,compute,1.887049
+student-performance-in-exams,run1,cell_exec_info,cache,0.000107
+student-performance-in-exams,run1,cudf_profile_info,compute,42.249618
+student-performance-in-exams,run1,cell_exec_info,cache,0.000113
+student-performance-in-exams,run1,cudf_profile_info,cache,0.001026
