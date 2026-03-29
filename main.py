@@ -8,7 +8,7 @@ from uuid import uuid4
 import pandas as pd
 from IPython.core.interactiveshell import InteractiveShell
 
-from utils.benchmarks import FACTOR_MAP, TRANSFER_COST_FACTOR_MAP
+from utils.benchmarks import BENCHMARKS_TO_PATHS, FACTOR_MAP, TRANSFER_COST_FACTOR_MAP
 from utils.execution import CostModelInput, merge_cpu_and_gpu_cost_model_inputs
 from utils.notebook import (
     load_notebook,
@@ -35,13 +35,11 @@ async def main():
     )
     shell = InteractiveShell.instance()
 
-    # Take in two arguments, the original notebook path and the small notebook path.
+    # Take in benchmark name and derive notebook paths from benchmark mapping.
     import argparse
 
     parser = argparse.ArgumentParser()
     parser.add_argument("name", type=str, help="Name of the notebook")
-    parser.add_argument("notebook", type=str, help="Path to the notebook")
-    parser.add_argument("small_notebook", type=str, help="Path to the small ntoebook.")
     parser.add_argument(
         "--disable_scheduling",
         action="store_true",
@@ -67,8 +65,17 @@ async def main():
     )
     args = parser.parse_args()
     run_id = args.run_id if args.run_id is not None else f"{int(time.time())}-{uuid4().hex[:8]}"
-    original_notebook_path = Path(args.notebook)
-    small_notebook_path = Path(args.small_notebook)
+    benchmark_base_path = BENCHMARKS_TO_PATHS.get(args.name)
+    if benchmark_base_path is None:
+        raise ValueError(f"Unknown benchmark name: {args.name}. ")
+    benchmark_base_path = Path(benchmark_base_path)
+
+    original_notebook_path = benchmark_base_path / "bench.ipynb"
+    small_notebook_path = benchmark_base_path / "small_bench.ipynb"
+    if not original_notebook_path.exists():
+        raise FileNotFoundError(f"Notebook not found: {original_notebook_path}")
+    if not small_notebook_path.exists():
+        raise FileNotFoundError(f"Small notebook not found: {small_notebook_path}")
     notebook_base_dir = original_notebook_path.parent
     disable_scheduling = args.disable_scheduling
     intermediate_dir = notebook_base_dir / "intermediate"

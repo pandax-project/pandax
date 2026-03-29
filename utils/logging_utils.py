@@ -1,9 +1,8 @@
 """Shared CSV logging helpers for rewrite and agent flows."""
 
 import csv
-from pathlib import Path
 from typing import Any
-from utils.benchmarks import BENCHMARKS_TO_PATHS
+from utils.benchmarks import get_stats_dir
 
 
 def log_rewrite_timing(
@@ -23,8 +22,7 @@ def log_rewrite_timing(
     Row schema:
         benchmark_name, run_id, cell_index, try_number, category, elapsed_seconds
     """
-    benchmark_path = BENCHMARKS_TO_PATHS[benchmark_name]
-    csv_path = Path(benchmark_path).parent.parent / "stats" / "rewrite_wall_time_timings.csv"
+    csv_path = get_stats_dir(benchmark_name) / "rewrite_wall_time_timings.csv"
     csv_path.parent.mkdir(parents=True, exist_ok=True)
     file_exists = csv_path.exists()
     with csv_path.open("a", newline="", encoding="utf-8") as f:
@@ -68,8 +66,7 @@ def log_precompute_timing(
     Row schema:
         benchmark_name, run_id, stage, source, elapsed_seconds
     """
-    benchmark_path = BENCHMARKS_TO_PATHS[benchmark_name]
-    csv_path = Path(benchmark_path).parent.parent / "stats" / "precompute_timings.csv"
+    csv_path = get_stats_dir(benchmark_name) / "precompute_timings.csv"
     csv_path.parent.mkdir(parents=True, exist_ok=True)
     file_exists = csv_path.exists()
     with csv_path.open("a", newline="", encoding="utf-8") as f:
@@ -147,8 +144,7 @@ def log_agent_token_usage(
     result: Any,
 ) -> None:
     """Append agent token usage for one invocation to CSV."""
-    benchmark_path = BENCHMARKS_TO_PATHS[benchmark_name]
-    csv_path = Path(benchmark_path).parent.parent / "stats" / "rewrite_agent_token_usage.csv"
+    csv_path = get_stats_dir(benchmark_name) / "rewrite_agent_token_usage.csv"
     csv_path.parent.mkdir(parents=True, exist_ok=True)
     file_exists = csv_path.exists()
     prompt_tokens, response_tokens, total_tokens = extract_token_usage(result)

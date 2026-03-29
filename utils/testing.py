@@ -56,9 +56,7 @@ def get_test_code_from_cell_exec_info(
     compare_vars_code: list[str] = []
     for var_info in original_active_vars:
         if is_type_df(var_info.type):
-            # FIXME(sahil): this is a hack.
-            # compare_vars_code.append(f"assert compare_df({var_info.name}_opt, {var_info.name})")
-            continue
+            compare_vars_code.append(f"assert compare_df({var_info.name}_opt, {var_info.name})")
         else:
             compare_vars_code.append(f"assert {var_info.name}_opt == {var_info.name}")
         # FIXME(jie): handle styler objects here as well.

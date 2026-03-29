@@ -1,4 +1,6 @@
 import os
+from pathlib import Path
+
 PANDAX_ROOT = os.getenv("PANDAX_ROOT")
 
 BENCHMARK_NAMES = [
@@ -201,3 +203,10 @@ TRANSFER_COST_FACTOR_MAP = {
     "q21": 5,
     "q22": 5,
 }
+
+
+def get_stats_dir(benchmark_name: str) -> Path:
+    benchmark_path = BENCHMARKS_TO_PATHS.get(benchmark_name)
+    if benchmark_path is None:
+        raise ValueError(f"Unknown benchmark_name='{benchmark_name}'")
+    return Path(benchmark_path).parent / "stats"
