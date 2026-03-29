@@ -7,8 +7,6 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
 # You listed 6 benchmarks; all are included here.
 BENCHMARKS=(
-  "beautiful-kaggle-2022-analysis"
-  "creating-player-stats-using-tracking-data"
   "comprehensive-data-exploration-with-python"
   "retail-supermarket-store-analysis"
   "adidas-retail-eda-data-visualization"
