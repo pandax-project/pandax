@@ -38,6 +38,7 @@ python scripts/process/process_csv.py ds_notebooks
 export root repo:
 ```bash
 export PANDAX_ROOT=/scratch/jieq/pandax
+export USE_GPU=True
 ```
 
 clone elastic notebook repo:

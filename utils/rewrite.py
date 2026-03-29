@@ -94,10 +94,7 @@ async def rewrite_notebook(
     start_cell_index: int = 0,
     end_cell_index: int | None = None,
 ) -> tuple[NotebookNode, dict[int, float]]:
-    # Now, we will rewrite the notebook. Note that `nb_path` should not be the original notebook.'
-
     # For debugging purposes, we will keep track of the cells that have been executed.
-    executed_cells: list[NotebookNode] = []
     small_executed_cells: list[NotebookNode] = []
     rewritten_times: dict[int, float] = {}
 
@@ -128,7 +125,6 @@ async def rewrite_notebook(
     # Set up the post-checkpoint paths.
     post_checkpoint_path = None
     rewritten_post_checkpoint_path = None
-    small_rewritten_post_checkpoint_path = None
 
     # Now we will iterate over the annotated cells and try to rewrite them.
     for annotated_cell_idx, cell_data in sorted(
@@ -145,7 +141,7 @@ async def rewrite_notebook(
 
             # Make the pre_checkpoint_path for this cell.
             print(
-                f"Executing {len(executed_cells)} cells up to cell {annotated_cell_idx}."
+                f"Executing {len(small_executed_cells)} cells up to cell {annotated_cell_idx}."
             )
             
             pre_checkpoint_path = _checkpoint_before_cell(
@@ -164,7 +160,7 @@ async def rewrite_notebook(
         else:
             # not the first cell to rewrite.
             pre_checkpoint_path = post_checkpoint_path
-            rewritten_pre_checkpoint_path = small_rewritten_post_checkpoint_path
+            rewritten_pre_checkpoint_path = rewritten_post_checkpoint_path
 
         cell = small_annotated_nb.cells[cell_data.cell_idx_in_annotated_notebook]
 
@@ -183,7 +179,6 @@ async def rewrite_notebook(
             rewritten_time,
             rewritten_code,
             rewritten_post_checkpoint_path,
-            small_rewritten_post_checkpoint_path,
             post_checkpoint_path,
         ) = await _rewrite_cell(
             benchmark_name=benchmark_name,
@@ -200,9 +195,6 @@ async def rewrite_notebook(
         print("========================================================")
         print("After rewriting cell ", annotated_cell_idx)
         print(f"Rewritten post-checkpoint path: {rewritten_post_checkpoint_path}")
-        print(
-            f"Small rewritten post-checkpoint path: {small_rewritten_post_checkpoint_path}"
-        )
         print("========================================================")
         rewritten_times[annotated_cell_idx] = rewritten_time
         rewrite_end_time = time.time()
@@ -275,7 +267,7 @@ async def _rewrite_cell(
     rewritten_pre_checkpoint_path: Path,
     nb_path: Path,
     rewritten_nb_path: Path,
-) -> tuple[float, str | None, Path, Path, Path]:
+) -> tuple[float, str | None, Path, Path]:
     # Now we will try to rewrite the cell.
     rewritten_cell: NotebookNode | None = None
     rewritten_time: float = 0.0
@@ -349,16 +341,9 @@ async def _rewrite_cell(
     best_rewritten_cudf_profile_info = cudf_profile_info
 
     best_rewritten_post_checkpoint_path = post_checkpoint_path
-    best_small_rewritten_post_checkpoint_path = get_pre_checkpoint_path(
-        nb_path, annotated_cell_idx + 1
-    )
     print(
         "Setting initially best_rewritten_post_checkpoint_path: ",
         best_rewritten_post_checkpoint_path,
-    )
-    print(
-        "Setting initially best_small_rewritten_post_checkpoint_path: ",
-        best_small_rewritten_post_checkpoint_path,
     )
 
     # TODO(jie): move this to before running the original cell.
@@ -660,13 +645,6 @@ with open("{opt_cell_exec_info_pkl_path}", "wb") as f:
                     rewritten_post_checkpoint_path,
                 )
                 best_rewritten_post_checkpoint_path = rewritten_post_checkpoint_path
-                print(
-                    "Setting best_small_rewritten_post_checkpoint_path to ",
-                    rewritten_post_checkpoint_path,
-                )
-                best_small_rewritten_post_checkpoint_path = (
-                    rewritten_post_checkpoint_path
-                )
                 best_rewritten_time = rewritten_time
                 best_rewritten_cudf_profile_info = rewritten_cell_cudf_profile_info
 
@@ -702,6 +680,5 @@ with open("{opt_cell_exec_info_pkl_path}", "wb") as f:
         best_rewritten_time,
         best_rewritten_code,
         best_rewritten_post_checkpoint_path,
-        best_small_rewritten_post_checkpoint_path,
         post_checkpoint_path,
     )
