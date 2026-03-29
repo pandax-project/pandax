@@ -48,7 +48,7 @@ cd elastic-notebook
 pip install -e .
 ```
 
-Add both pandax repo and elastic-notebook repo to your `$PATH` env variable.
+Add both pandax repo and elastic-notebook repo to your `$PYTHONPATH` env variable.
 
 This repository contains the code for **PandaX**.
 
