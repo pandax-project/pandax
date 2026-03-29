@@ -36,6 +36,7 @@ tpch/data/
 
 !notebooks/spscientist/student-performance-in-exams/input/StudentsPerformance.csv
 !requirements.txt
+!pip-requirements.txt
 .DS_Store
 *.zip
 
