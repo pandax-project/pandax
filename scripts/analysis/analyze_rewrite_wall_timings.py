@@ -21,8 +21,7 @@ def analyze_rewrite_wall_timings(df: pd.DataFrame, cell_window_size: int) -> tup
     if cell_window_size <= 0:
         raise ValueError("--cell-window-size must be a positive integer")
 
-    total_rows = df[df["category"] == "total"].copy()
-
+    total_rows = df.copy()
     # If run_id exists, only keep rows from the latest run_id per cell_index.
     # "Latest" is defined by row order in the CSV (last occurrence wins).
     if "run_id" in total_rows.columns:
@@ -55,7 +54,7 @@ def analyze_rewrite_wall_timings(df: pd.DataFrame, cell_window_size: int) -> tup
     return global_max, window_max_sum
 
 def analyze_category_totals(df: pd.DataFrame) -> pd.DataFrame:
-    category_rows = df[df["category"] != "total"].copy()
+    category_rows = df.copy()
 
     if category_rows.empty:
         return pd.DataFrame(columns=["category", "total_elapsed_seconds"])
@@ -141,6 +140,8 @@ def main() -> None:
         global_max, window_max_sum = analyze_rewrite_wall_timings(
             df, args.cell_window_size
         )
+        print(benchmark_name, global_max, window_max_sum)
+        continue
         # print(f"{benchmark_name}: {window_max_sum}")
         if args.category_totals:
             category_totals = analyze_category_totals(df)
