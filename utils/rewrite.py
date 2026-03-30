@@ -210,6 +210,13 @@ async def rewrite_notebook(
             small_rewritten_nb_cells[cell_index] = make_code_cell(
                 remove_magic_commands(cell.source)
             )
+        
+        # after the cell is rewritten, we can delete the pre-checkpoint path.
+        if pre_checkpoint_path is not None:
+            pre_checkpoint_path.unlink()
+        
+        if rewritten_pre_checkpoint_path is not None:
+            rewritten_pre_checkpoint_path.unlink()
 
     # Clear all the checkpoints we made.
     clear_all_checkpoints(small_nb_path)
@@ -532,37 +539,7 @@ with open("{opt_cell_exec_info_pkl_path}", "wb") as f:
 
         print(f"Rewritten time: {rewritten_time} ms")
 
-        print("Checkpointing the rewritten cell for small notebook...")
-        rewritten_post_checkpoint_path = get_post_checkpoint_path(
-            rewritten_nb_path, annotated_cell_idx, try_num=num_tries
-        )
-        load_checkpoint_cell = get_load_checkpoint_cell(
-            rewritten_pre_checkpoint_path
-        )
-        rewritten_post_checkpoint_cell = get_save_checkpoint_cell(
-            rewritten_post_checkpoint_path
-        )
-        rewritten_cell_notebook = make_notebook(
-            [
-                load_elastic_notebook_cell,
-                load_cudf_extension_cell,
-                load_checkpoint_cell,
-                rewritten_cell,
-                rewritten_post_checkpoint_cell,
-            ]
-        )
-
         if is_correct:
-            # Save the small rewritten cell notebook.
-            small_rewritten_cell_notebook_save_path = (
-                nb_path.parent
-                / f"small_rewrite_cell_{annotated_cell_idx}_try_{num_tries}.ipynb"
-            )
-            save_notebook(
-                rewritten_cell_notebook, small_rewritten_cell_notebook_save_path
-            )
-            execute_notebook(rewritten_cell_notebook)
-
             print("The rewritten code is correct. Profiling cudf...")
             # cell 0: load the ElasticNotebook extension.
             load_elastic_notebook_cell = get_load_elastic_notebook_cell()

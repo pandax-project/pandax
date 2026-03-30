@@ -1,3 +1,7 @@
 benchmark_name,run_id,stage,source,elapsed_seconds
+<<<<<<< HEAD
+adidas-retail-eda-data-visualization,1774804707-23012ebf,cell_exec_info,compute,7.095303
+=======
 adidas-retail-eda-data-visualization,1774832629-67338031,cell_exec_info,compute,3.860147
 adidas-retail-eda-data-visualization,1774832629-67338031,cudf_profile_info,compute,224.309468
+>>>>>>> d495373679d540b73ce8d85cdfe7b6c0e2ebc9a2
