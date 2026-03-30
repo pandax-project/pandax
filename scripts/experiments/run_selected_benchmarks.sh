@@ -7,13 +7,18 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
 # You listed 6 benchmarks; all are included here.
 BENCHMARKS=(
-  # "creating-player-stats-using-tracking-data"
-  # "netflix-data-visualization"
-  # "comprehensive-data-exploration-with-python"
-  # "retail-supermarket-store-analysis"
+  "nyc-airbnb"
+  "nyc-taxi"
+  "nyc-flight"
+  "imdb"
+  "us-birth"
+  # "supermarket-sales-prediction-xgboost-fastai"
+  # "eda-speedtests"
+  # "billionaires-statistics-2023"
+  "netflix-data-visualization"
+  # "environmental-vs-ai-startups-india-eda"
+  # "feedback3-eda-hf-custom-trainer-sift"
   # "adidas-retail-eda-data-visualization"
-  # "indian-startup-growth-analysis"
-  "imdb-dataset-eda-project"
 )
 
 TIMESTAMP="$(date +%Y%m%d_%H%M%S)"
