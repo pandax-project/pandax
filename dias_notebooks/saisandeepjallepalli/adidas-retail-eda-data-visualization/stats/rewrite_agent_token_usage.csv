@@ -1,0 +1,8 @@
+benchmark_name,run_id,cell_index,try_number,category,prompt_tokens,response_tokens,total_tokens
+adidas-retail-eda-data-visualization,1774832629-67338031,0,0,manager_decision,549,46,595
+adidas-retail-eda-data-visualization,1774832629-67338031,0,0,new_code_call,643,2015,2658
+adidas-retail-eda-data-visualization,1774832629-67338031,0,1,manager_decision,2637,40,2677
+adidas-retail-eda-data-visualization,1774832629-67338031,0,1,repair_call,2605,3654,6259
+adidas-retail-eda-data-visualization,1774832629-67338031,0,2,manager_decision,776,47,823
+adidas-retail-eda-data-visualization,1774832629-67338031,1,0,manager_decision,482,38,520
+adidas-retail-eda-data-visualization,1774832629-67338031,2,0,manager_decision,524,40,564

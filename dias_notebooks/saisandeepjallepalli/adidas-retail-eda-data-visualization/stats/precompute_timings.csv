@@ -1,0 +1,3 @@
+benchmark_name,run_id,stage,source,elapsed_seconds
+adidas-retail-eda-data-visualization,1774832629-67338031,cell_exec_info,compute,3.860147
+adidas-retail-eda-data-visualization,1774832629-67338031,cudf_profile_info,compute,224.309468

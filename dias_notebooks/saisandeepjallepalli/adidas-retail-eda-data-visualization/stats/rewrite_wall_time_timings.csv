@@ -1,0 +1,13 @@
+benchmark_name,run_id,cell_index,try_number,category,elapsed_seconds
+adidas-retail-eda-data-visualization,1774832629-67338031,0,,original_execution,15.981306
+adidas-retail-eda-data-visualization,1774832629-67338031,0,0,agent_call,16.775382
+adidas-retail-eda-data-visualization,1774832629-67338031,0,0,total,32.820709
+adidas-retail-eda-data-visualization,1774832629-67338031,0,1,agent_call,26.212363
+adidas-retail-eda-data-visualization,1774832629-67338031,0,1,rewrite_execution,16.039536
+adidas-retail-eda-data-visualization,1774832629-67338031,0,1,cudf_profiling,14.033824
+adidas-retail-eda-data-visualization,1774832629-67338031,0,1,total,72.349313
+adidas-retail-eda-data-visualization,1774832629-67338031,0,2,agent_call,0.882744
+adidas-retail-eda-data-visualization,1774832629-67338031,1,,original_execution,14.695863
+adidas-retail-eda-data-visualization,1774832629-67338031,1,0,agent_call,2.073327
+adidas-retail-eda-data-visualization,1774832629-67338031,2,,original_execution,15.015567
+adidas-retail-eda-data-visualization,1774832629-67338031,2,0,agent_call,0.997659
