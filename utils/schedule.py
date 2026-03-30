@@ -554,9 +554,11 @@ def get_schedule_and_cost(
     n = len(cpu_times)
     last_read: dict[DfCol, int] = _build_last_use(input_df_cols)
     parent = {}  # (i, sigma) → chosen device
+    max_sigma_size = -float("inf")
 
     @lru_cache(maxsize=None)
     def dp(i: int, sigma: frozenset[tuple[DfCol, Device]]) -> float:
+        nonlocal max_sigma_size
         if i == n:
             return 0.0
 
@@ -577,12 +579,10 @@ def get_schedule_and_cost(
                         real_key = f"{loc}->{dev}"
                         cost_model_time = transfer_times[i][col][cost_key]
                         xfer_cost += cost_model_time
-                        # print(f'Cell {i}, col {col}: {loc}->{dev}, cost_model={cost_model_time}, real={real_time}, total_xfer_cost={xfer_cost}')
                     else:
                         real_key = f"{loc}->{dev}"
                         real_time = transfer_times[i][col][real_key]
                         xfer_cost += real_time
-                        # print(f'Cell {i}, col {col}: {loc}->{dev}, real={real_time}, total_xfer_cost={xfer_cost}')
                     new_sigma[col] = dev
 
             # place outputs
@@ -606,7 +606,11 @@ def get_schedule_and_cost(
     # run DP from empty layout
     root = frozenset()
     total_cost = dp(0, root)
-
+    parent_keys_by_i = defaultdict(int)
+    for key in parent.keys():
+        parent_keys_by_i[key[0]] += 1
+    print(sum(parent_keys_by_i.values()))
+    
     # reconstruct schedule
     schedule, i, sigma = [], 0, root
     while i < n:
@@ -628,10 +632,8 @@ def get_schedule_and_cost(
         sigma = frozenset(sigma_dict.items())
         i += 1
 
-    print("Schedule:", schedule)
-    print("Total cost:", total_cost)
-    print("sigma size:", len(sigma))
-    print("parent size:", len(parent))
+    # print("Schedule:", schedule)
+    # print("Total cost:", total_cost)
     return schedule, total_cost
 
 

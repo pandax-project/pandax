@@ -1,12 +1,14 @@
 import pickle
 from pathlib import Path
-
+from pkgutil import extend_path
+import time
 import pandas as pd
 
 from utils.benchmarks import BENCHMARK_NAMES, BENCHMARKS_TO_PATHS
 from utils.schedule import get_actual_time_for_schedule, get_schedule_and_cost
 
 for name in BENCHMARK_NAMES:
+    print(name)
     path = Path(BENCHMARKS_TO_PATHS[name])
     with open(path / "transfer_times.pkl", "rb") as f:
         transfer_times = pickle.load(f)
@@ -33,6 +35,7 @@ for name in BENCHMARK_NAMES:
     ).predicted_times.tolist()
 
     # Ground truth schedule.
+    start_time = time.time()
     ground_truth_schedule, ground_truth_total_cost = get_schedule_and_cost(
         orig_cpu_times,
         orig_gpu_times,
@@ -41,6 +44,10 @@ for name in BENCHMARK_NAMES:
         transfer_times,
         use_cost_model=False,
     )
+    end_time = time.time()
+    print(f"Time taken: {end_time - start_time} seconds")
+    continue
+    exit()
     actual_time_for_ground_truth_schedule = get_actual_time_for_schedule(
         ground_truth_schedule,
         orig_cpu_times,
