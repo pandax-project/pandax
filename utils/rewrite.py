@@ -211,15 +211,17 @@ async def rewrite_notebook(
                 remove_magic_commands(cell.source)
             )
         
-        # after the cell is rewritten, we can delete the pre-checkpoint path.
-        if pre_checkpoint_path is not None:
-            pre_checkpoint_path.unlink()
-        
-        if rewritten_pre_checkpoint_path is not None:
-            rewritten_pre_checkpoint_path.unlink()
+        # After the cell is rewritten, we can delete pre-checkpoints.
+        # On the first cell these paths are often identical, so dedupe and delete safely.
+        checkpoint_paths_to_delete = {
+            p for p in (pre_checkpoint_path, rewritten_pre_checkpoint_path) if p is not None
+        }
+        for checkpoint_path in checkpoint_paths_to_delete:
+            checkpoint_path.unlink(missing_ok=True)
 
-    # Clear all the checkpoints we made.
+    # Clear all checkpoints we made for both original and rewritten notebook paths.
     clear_all_checkpoints(small_nb_path)
+    clear_all_checkpoints(small_rewritten_nb_path)
     small_rewritten_nb = make_notebook(small_rewritten_nb_cells)
     save_notebook(small_rewritten_nb, small_rewritten_nb_path)
     print(f"Small rewritten notebook saved to {small_rewritten_nb_path}")
