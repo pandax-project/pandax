@@ -1,0 +1,128 @@
+Command: python -u main.py billionaires-statistics-2023
+Started: Sat Mar 28 11:54:15 PM PDT 2026
+Annotated notebook saved to /scratch/jieq/pandax/dias_notebooks/josecode1/billionaires-statistics-2023/src/cell_exec_info.ipynb
+Executing code: import sys, os
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df, convert_col
+import pickle
+Executing code: %%RecordEventWithColumnInfo
+from pathlib import Path
+# This Python 3 environment comes with many helpful analytics libraries installed
+# It is defined by the kaggle/python Docker image: https://github.com/kaggle/docker-python
+# For example, here's several helpful packages to load
+#
+import os
+from utils.benchmarks import BENCHMARKS_TO_PATHS
+
+if "IREWR_WITH_MODIN" in os.environ and os.environ["IREWR_WITH_MODIN"] == "True":
+    import os
+
+    os.environ["MODIN_ENGINE"] = "ray"
+    import ray
+
+    ray.init(
+        num_cpus=int(os.environ["MODIN_CPUS"]),
+        runtime_env={"env_vars": {"__MODIN_AUTOIMPORT_PANDAS__": "1"}},
+    )
+    import modin.pandas as pd
+else:
+    import pandas as pd
+# You can write up to 20GB to the current directory (/kaggle/working/) that gets preserved as output when you create a version using "Save & Run All"
+# You can also write temporary files to /kaggle/temp/, but they won't be saved outside of the current session
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+benchmark_name = "billionaires-statistics-2023"
+data = pd.read_csv(
+    Path(BENCHMARKS_TO_PATHS[benchmark_name]).parent / "input" / "Billionaires Statistics Dataset.csv",
+    index_col="rank",
+)
+factor = 8
+data = pd.concat([data] * factor, ignore_index=True)
+data.info()
+Traceback (most recent call last):
+  File "/scratch/jieq/pandax/main.py", line 315, in <module>
+    asyncio.run(main())
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/asyncio/base_events.py", line 649, in run_until_complete
+    return future.result()
+  File "/scratch/jieq/pandax/main.py", line 119, in main
+    cell_exec_info = get_cell_exec_info(small_notebook_path, shell)
+  File "/scratch/jieq/pandax/utils/schedule.py", line 67, in get_cell_exec_info
+    execute_cell(cell, shell)
+  File "/scratch/jieq/pandax/utils/execution.py", line 193, in execute_cell
+    return execute_code(cell.source, shell)
+  File "/scratch/jieq/pandax/utils/execution.py", line 187, in execute_code
+    raise Exception(f"Error in code execution: {captured_output}")
+Exception: Error in code execution: [0;31m---------------------------------------------------------------------------[0m
+[0;31mValueError[0m                                Traceback (most recent call last)
+Cell [0;32mIn[1], line 4[0m
+[1;32m      1[0m [38;5;66;03m### cell 0 ###[39;00m
+[1;32m      3[0m benchmark_name [38;5;241m=[39m [38;5;124m"[39m[38;5;124mbillionaires-statistics-2023[39m[38;5;124m"[39m
+[0;32m----> 4[0m data [38;5;241m=[39m [43mpd[49m[38;5;241;43m.[39;49m[43mread_csv[49m[43m([49m
+[1;32m      5[0m [43m    [49m[43mPath[49m[43m([49m[43mBENCHMARKS_TO_PATHS[49m[43m[[49m[43mbenchmark_name[49m[43m][49m[43m)[49m[38;5;241;43m.[39;49m[43mparent[49m[43m [49m[38;5;241;43m/[39;49m[43m [49m[38;5;124;43m"[39;49m[38;5;124;43minput[39;49m[38;5;124;43m"[39;49m[43m [49m[38;5;241;43m/[39;49m[43m [49m[38;5;124;43m"[39;49m[38;5;124;43mBillionaires Statistics Dataset.csv[39;49m[38;5;124;43m"[39;49m[43m,[49m
+[1;32m      6[0m [43m    [49m[43mindex_col[49m[38;5;241;43m=[39;49m[38;5;124;43m"[39;49m[38;5;124;43mrank[39;49m[38;5;124;43m"[39;49m[43m,[49m
+[1;32m      7[0m [43m)[49m
+[1;32m      8[0m factor [38;5;241m=[39m [38;5;241m8[39m
+[1;32m      9[0m data [38;5;241m=[39m pd[38;5;241m.[39mconcat([data] [38;5;241m*[39m factor, ignore_index[38;5;241m=[39m[38;5;28;01mTrue[39;00m)
+
+File [0;32m/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/site-packages/pandas/io/parsers/readers.py:1026[0m, in [0;36mread_csv[0;34m(filepath_or_buffer, sep, delimiter, header, names, index_col, usecols, dtype, engine, converters, true_values, false_values, skipinitialspace, skiprows, skipfooter, nrows, na_values, keep_default_na, na_filter, verbose, skip_blank_lines, parse_dates, infer_datetime_format, keep_date_col, date_parser, date_format, dayfirst, cache_dates, iterator, chunksize, compression, thousands, decimal, lineterminator, quotechar, quoting, doublequote, escapechar, comment, encoding, encoding_errors, dialect, on_bad_lines, delim_whitespace, low_memory, memory_map, float_precision, storage_options, dtype_backend)[0m
+[1;32m   1013[0m kwds_defaults [38;5;241m=[39m _refine_defaults_read(
+[1;32m   1014[0m     dialect,
+[1;32m   1015[0m     delimiter,
+[0;32m   (...)[0m
+[1;32m   1022[0m     dtype_backend[38;5;241m=[39mdtype_backend,
+[1;32m   1023[0m )
+[1;32m   1024[0m kwds[38;5;241m.[39mupdate(kwds_defaults)
+[0;32m-> 1026[0m [38;5;28;01mreturn[39;00m [43m_read[49m[43m([49m[43mfilepath_or_buffer[49m[43m,[49m[43m [49m[43mkwds[49m[43m)[49m
+
+File [0;32m/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/site-packages/pandas/io/parsers/readers.py:626[0m, in [0;36m_read[0;34m(filepath_or_buffer, kwds)[0m
+[1;32m    623[0m     [38;5;28;01mreturn[39;00m parser
+[1;32m    625[0m [38;5;28;01mwith[39;00m parser:
+[0;32m--> 626[0m     [38;5;28;01mreturn[39;00m [43mparser[49m[38;5;241;43m.[39;49m[43mread[49m[43m([49m[43mnrows[49m[43m)[49m
+
+File [0;32m/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/site-packages/pandas/io/parsers/readers.py:1923[0m, in [0;36mTextFileReader.read[0;34m(self, nrows)[0m
+[1;32m   1916[0m nrows [38;5;241m=[39m validate_integer([38;5;124m"[39m[38;5;124mnrows[39m[38;5;124m"[39m, nrows)
+[1;32m   1917[0m [38;5;28;01mtry[39;00m:
+[1;32m   1918[0m     [38;5;66;03m# error: "ParserBase" has no attribute "read"[39;00m
+[1;32m   1919[0m     (
+[1;32m   1920[0m         index,
+[1;32m   1921[0m         columns,
+[1;32m   1922[0m         col_dict,
+[0;32m-> 1923[0m     ) [38;5;241m=[39m [38;5;28;43mself[39;49m[38;5;241;43m.[39;49m[43m_engine[49m[38;5;241;43m.[39;49m[43mread[49m[43m([49m[43m  [49m[38;5;66;43;03m# type: ignore[attr-defined][39;49;00m
+[1;32m   1924[0m [43m        [49m[43mnrows[49m
+[1;32m   1925[0m [43m    [49m[43m)[49m
+[1;32m   1926[0m [38;5;28;01mexcept[39;00m [38;5;167;01mException[39;00m:
+[1;32m   1927[0m     [38;5;28mself[39m[38;5;241m.[39mclose()
+
+File [0;32m/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/site-packages/pandas/io/parsers/c_parser_wrapper.py:333[0m, in [0;36mCParserWrapper.read[0;34m(self, nrows)[0m
+[1;32m    330[0m     data [38;5;241m=[39m {k: v [38;5;28;01mfor[39;00m k, (i, v) [38;5;129;01min[39;00m [38;5;28mzip[39m(names, data_tups)}
+[1;32m    332[0m     names, date_data [38;5;241m=[39m [38;5;28mself[39m[38;5;241m.[39m_do_date_conversions(names, data)
+[0;32m--> 333[0m     index, column_names [38;5;241m=[39m [38;5;28;43mself[39;49m[38;5;241;43m.[39;49m[43m_make_index[49m[43m([49m[43mdate_data[49m[43m,[49m[43m [49m[43malldata[49m[43m,[49m[43m [49m[43mnames[49m[43m)[49m
+[1;32m    335[0m [38;5;28;01mreturn[39;00m index, column_names, date_data
+
+File [0;32m/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/site-packages/pandas/io/parsers/base_parser.py:371[0m, in [0;36mParserBase._make_index[0;34m(self, data, alldata, columns, indexnamerow)[0m
+[1;32m    368[0m     index [38;5;241m=[39m [38;5;28;01mNone[39;00m
+[1;32m    370[0m [38;5;28;01melif[39;00m [38;5;129;01mnot[39;00m [38;5;28mself[39m[38;5;241m.[39m_has_complex_date_col:
+[0;32m--> 371[0m     simple_index [38;5;241m=[39m [38;5;28;43mself[39;49m[38;5;241;43m.[39;49m[43m_get_simple_index[49m[43m([49m[43malldata[49m[43m,[49m[43m [49m[43mcolumns[49m[43m)[49m
+[1;32m    372[0m     index [38;5;241m=[39m [38;5;28mself[39m[38;5;241m.[39m_agg_index(simple_index)
+[1;32m    373[0m [38;5;28;01melif[39;00m [38;5;28mself[39m[38;5;241m.[39m_has_complex_date_col:
+
+File [0;32m/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/site-packages/pandas/io/parsers/base_parser.py:403[0m, in [0;36mParserBase._get_simple_index[0;34m(self, data, columns)[0m
+[1;32m    401[0m index [38;5;241m=[39m []
+[1;32m    402[0m [38;5;28;01mfor[39;00m idx [38;5;129;01min[39;00m [38;5;28mself[39m[38;5;241m.[39mindex_col:
+[0;32m--> 403[0m     i [38;5;241m=[39m [43mix[49m[43m([49m[43midx[49m[43m)[49m
+[1;32m    404[0m     to_remove[38;5;241m.[39mappend(i)
+[1;32m    405[0m     index[38;5;241m.[39mappend(data[i])
+
+File [0;32m/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/site-packages/pandas/io/parsers/base_parser.py:398[0m, in [0;36mParserBase._get_simple_index.<locals>.ix[0;34m(col)[0m
+[1;32m    396[0m [38;5;28;01mif[39;00m [38;5;129;01mnot[39;00m [38;5;28misinstance[39m(col, [38;5;28mstr[39m):
+[1;32m    397[0m     [38;5;28;01mreturn[39;00m col
+[0;32m--> 398[0m [38;5;28;01mraise[39;00m [38;5;167;01mValueError[39;00m([38;5;124mf[39m[38;5;124m"[39m[38;5;124mIndex [39m[38;5;132;01m{[39;00mcol[38;5;132;01m}[39;00m[38;5;124m invalid[39m[38;5;124m"[39m)
+
+[0;31mValueError[0m: Index rank invalid
+
+Status: FAILED (exit 1)
+Finished: Sat Mar 28 11:54:20 PM PDT 2026
+

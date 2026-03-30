@@ -11,6 +11,7 @@ all its args), then for each referenced file:
 """
 
 import argparse
+import csv
 import json
 import os
 import pandas as pd
@@ -58,6 +59,24 @@ def normalize_uk_pm_parquet(df):
     return df
 
 
+def normalize_to_pandas_ground_truth(df):
+    """Normalize columns using pandas-inferred dtypes as ground truth.
+
+    If pandas reads a column as numeric, keep it explicitly numeric so dumping
+    emits canonical numeric tokens that cuDF can infer consistently.
+    """
+    for col in df.columns:
+        series = df[col]
+        dtype = series.dtype
+        if pd.api.types.is_integer_dtype(dtype):
+            df[col] = pd.to_numeric(series, errors="coerce").astype("int64")
+        elif pd.api.types.is_float_dtype(dtype):
+            df[col] = pd.to_numeric(series, errors="coerce").astype("float64")
+        elif pd.api.types.is_bool_dtype(dtype):
+            df[col] = series.astype("boolean")
+    return df
+
+
 def reload_and_dump(path, loader, args, kw_json):
     """Re-run pd.read_* with the same args/kwargs, then overwrite file."""
     kwargs = json.loads(kw_json)
@@ -67,7 +86,9 @@ def reload_and_dump(path, loader, args, kw_json):
         return
     if loader == "csv":
         df = pd.read_csv(path, *args, **kwargs)
-        df.to_csv(path, index=False)
+        df = normalize_to_pandas_ground_truth(df)
+        # Keep text field escaping stable while preserving numeric tokens.
+        df.to_csv(path, index=False, quoting=csv.QUOTE_NONNUMERIC)
     elif loader == "parquet":
         df = pd.read_parquet(path, *args, **kwargs)
         if os.path.basename(path) == "uk_pm.parquet":
@@ -75,7 +96,13 @@ def reload_and_dump(path, loader, args, kw_json):
         df.to_parquet(path, index=False)
     elif loader == "table":
         df = pd.read_table(path, *args, **kwargs)
-        df.to_csv(path, sep=kwargs.get("sep", "\t"), index=False)
+        df = normalize_to_pandas_ground_truth(df)
+        df.to_csv(
+            path,
+            sep=kwargs.get("sep", "\t"),
+            index=False,
+            quoting=csv.QUOTE_NONNUMERIC,
+        )
     else:
         print(f"  ⚠️  Unsupported loader {loader!r}, skipping: {path}")
         return

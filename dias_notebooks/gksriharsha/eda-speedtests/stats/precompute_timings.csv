@@ -1,0 +1,3 @@
+benchmark_name,run_id,stage,source,elapsed_seconds
+eda-speedtests,1774764779-43fdc962,cell_exec_info,compute,4.076917
+eda-speedtests,1774764779-43fdc962,cudf_profile_info,compute,77.452071

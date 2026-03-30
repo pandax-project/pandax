@@ -1,0 +1,7 @@
+benchmark_name,run_id,stage,source,elapsed_seconds
+netflix-data-visualization,1774767261-04aa07bf,cell_exec_info,compute,93.200890
+netflix-data-visualization,1774767261-04aa07bf,cudf_profile_info,compute,785.311574
+netflix-data-visualization,1774815994-7bd55281,cell_exec_info,cache,0.236724
+netflix-data-visualization,1774815994-7bd55281,cudf_profile_info,cache,0.002396
+netflix-data-visualization,1774816027-31d6e032,cell_exec_info,cache,0.157591
+netflix-data-visualization,1774816027-31d6e032,cudf_profile_info,cache,0.001674

@@ -1,0 +1,4 @@
+benchmark_name,run_id,stage,source,elapsed_seconds
+feedback3-eda-hf-custom-trainer-sift,1774777096-f4a192b9,cell_exec_info,compute,3.237170
+feedback3-eda-hf-custom-trainer-sift,1774821806-3bc1351c,cell_exec_info,cache,0.000157
+feedback3-eda-hf-custom-trainer-sift,1774821806-3bc1351c,cudf_profile_info,compute,49.592949

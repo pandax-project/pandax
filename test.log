@@ -1,0 +1,87 @@
+Found 19 files. Comparing dtypes:
+
+File: /scratch/jieq/pandax/dias_notebooks/aieducation/what-course-are-you-going-to-take/input/course-reviews-university-of-waterloo/course_data_clean.csv
+  Loader: pd.read_csv( ..., args=(), kwargs={})
+  ✅ All column dtypes match.
+
+File: /scratch/jieq/pandax/dias_notebooks/ampiiere/animal-crossing-villager-popularity-analysis/input/acnh-villager-popularity/acnh_villager_data.csv
+  Loader: pd.read_csv( ..., args=(), kwargs={})
+  ✅ All column dtypes match.
+
+File: /scratch/jieq/pandax/dias_notebooks/ampiiere/animal-crossing-villager-popularity-analysis/input/animal-crossing-new-horizons-nookplaza-dataset/villagers.csv
+  Loader: pd.read_csv( ..., args=(), kwargs={})
+  ✅ All column dtypes match.
+
+File: /scratch/jieq/pandax/dias_notebooks/dataranch/supermarket-sales-prediction-xgboost-fastai/input/superstore/SampleSuperstore.csv
+  Loader: pd.read_csv( ..., args=(), kwargs={})
+  ✅ All column dtypes match.
+
+File: /scratch/jieq/pandax/dias_notebooks/erikbruin/nlp-on-student-writing-eda/input/feedback-prize-2021/sample_submission.csv
+  Loader: pd.read_csv( ..., args=(), kwargs={'dtype': {'class': 'float64', 'predictionstring': 'float64'}})
+  ✅ All column dtypes match.
+
+File: /scratch/jieq/pandax/dias_notebooks/erikbruin/nlp-on-student-writing-eda/input/feedback-prize-2021/train.csv
+  Loader: pd.read_csv( ..., args=(), kwargs={})
+  ❌ Mismatched dtypes:
+    – 'discourse_id': pandas=float64, cudf=object
+    – 'discourse_start': pandas=float64, cudf=object
+    – 'discourse_end': pandas=float64, cudf=object
+
+File: /scratch/jieq/pandax/dias_notebooks/gksriharsha/eda-speedtests/input/speedtest-data-by-ookla/fixed_year_2021_quarter_03.csv
+  Loader: pd.read_csv( ..., args=(), kwargs={})
+  ✅ All column dtypes match.
+
+File: /scratch/jieq/pandax/dias_notebooks/josecode1/billionaires-statistics-2023/input/Billionaires Statistics Dataset.csv
+  Loader: pd.read_csv( ..., args=(), kwargs={})
+  ✅ All column dtypes match.
+
+File: /scratch/jieq/pandax/dias_notebooks/joshuaswords/netflix-data-visualization/input/netflix-shows/netflix_titles.csv
+  Loader: pd.read_csv( ..., args=(), kwargs={})
+  ✅ All column dtypes match.
+
+File: /scratch/jieq/pandax/dias_notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/input/feedback-prize-english-language-learning/test.csv
+  Loader: pd.read_csv( ..., args=(), kwargs={})
+  ✅ All column dtypes match.
+
+File: /scratch/jieq/pandax/dias_notebooks/lextoumbourou/feedback3-eda-hf-custom-trainer-sift/input/feedback-prize-english-language-learning/train.csv
+  Loader: pd.read_csv( ..., args=(), kwargs={})
+  ❌ Mismatched dtypes:
+    – 'cohesion': pandas=float64, cudf=object
+    – 'syntax': pandas=float64, cudf=object
+    – 'vocabulary': pandas=float64, cudf=object
+    – 'phraseology': pandas=float64, cudf=object
+    – 'grammar': pandas=float64, cudf=object
+    – 'conventions': pandas=float64, cudf=object
+
+File: /scratch/jieq/pandax/dias_notebooks/madhurpant/beautiful-kaggle-2022-analysis/input/kaggle-survey-2022/kaggle_survey_2022_responses.csv
+  Loader: pd.read_csv( ..., args=(), kwargs={})
+  ✅ All column dtypes match.
+
+File: /scratch/jieq/pandax/dias_notebooks/mpwolke/just-you-wait-rishi-sunak/input/latest-elected-uk-prime-minister-rishi-sunak/uk_pm.csv
+  Loader: pd.read_csv( ..., args=(), kwargs={'delimiter': ',', 'encoding': 'utf8'})
+  ✖ Error loading with pd or cudf: read_csv() got an unexpected keyword argument 'encoding'
+
+File: /scratch/jieq/pandax/dias_notebooks/mpwolke/just-you-wait-rishi-sunak/input/latest-elected-uk-prime-minister-rishi-sunak/uk_pm.parquet
+  Loader: pd.read_parquet( ..., args=(), kwargs={})
+  ✅ All column dtypes match.
+
+File: /scratch/jieq/pandax/dias_notebooks/sanket7994/imdb-dataset-eda-project/input/imdb-official-movies-dataset/title-metadata.csv
+  Loader: pd.read_csv( ..., args=(), kwargs={})
+  ✅ All column dtypes match.
+
+File: /scratch/jieq/pandax/dias_notebooks/sanket7994/imdb-dataset-eda-project/input/imdb-official-movies-dataset/title-ratings.csv
+  Loader: pd.read_csv( ..., args=(), kwargs={})
+  ✅ All column dtypes match.
+
+File: /scratch/jieq/pandax/dias_notebooks/spscientist/student-performance-in-exams/input/StudentsPerformance.csv
+  Loader: pd.read_csv( ..., args=(), kwargs={})
+  ✅ All column dtypes match.
+
+File: /scratch/jieq/pandax/ds_notebooks/nyc-flight/input/nyc_flights.csv
+  Loader: pd.read_csv( ..., args=(), kwargs={})
+  ✅ All column dtypes match.
+
+File: /scratch/jieq/pandax/ds_notebooks/nyc-flight/input/nyc_weather.csv
+  Loader: pd.read_csv( ..., args=(), kwargs={})
+  ✅ All column dtypes match.
+

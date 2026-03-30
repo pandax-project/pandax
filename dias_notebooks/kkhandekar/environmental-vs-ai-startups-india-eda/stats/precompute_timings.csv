@@ -1,0 +1,3 @@
+benchmark_name,run_id,stage,source,elapsed_seconds
+environmental-vs-ai-startups-india-eda,1774776796-a1124916,cell_exec_info,compute,2.131108
+environmental-vs-ai-startups-india-eda,1774776796-a1124916,cudf_profile_info,compute,14.798018

@@ -1,2 +1,3 @@
 benchmark_name,run_id,stage,source,elapsed_seconds
 supermarket-sales-prediction-xgboost-fastai,1774763114-d1eeee65,cell_exec_info,compute,5.516042
+supermarket-sales-prediction-xgboost-fastai,1774763114-d1eeee65,cudf_profile_info,compute,326.204721
