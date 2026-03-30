@@ -1,0 +1,3 @@
+benchmark_name,run_id,stage,source,elapsed_seconds
+comprehensive-data-exploration-with-python,1774801934-d1708826,cell_exec_info,compute,7.000543
+comprehensive-data-exploration-with-python,1774801934-d1708826,cudf_profile_info,compute,89.146739

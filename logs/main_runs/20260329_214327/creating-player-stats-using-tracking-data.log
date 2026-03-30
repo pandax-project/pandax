@@ -1,0 +1,22 @@
+Command: python -u main.py creating-player-stats-using-tracking-data
+Started: Sun Mar 29 21:43:27 UTC 2026
+Traceback (most recent call last):
+  File "/home/sahilbhatia/pandax/main.py", line 18, in <module>
+    from utils.prediction import predict_cell_times_for_nb
+  File "/home/sahilbhatia/pandax/utils/prediction.py", line 8, in <module>
+    from sklearn.linear_model import LinearRegression
+  File "/home/jieq/.local/lib/python3.10/site-packages/sklearn/linear_model/__init__.py", line 42, in <module>
+    from ._passive_aggressive import PassiveAggressiveClassifier, PassiveAggressiveRegressor
+  File "/home/jieq/.local/lib/python3.10/site-packages/sklearn/linear_model/_passive_aggressive.py", line 8, in <module>
+    from ._stochastic_gradient import DEFAULT_EPSILON, BaseSGDClassifier, BaseSGDRegressor
+  File "/home/jieq/.local/lib/python3.10/site-packages/sklearn/linear_model/_stochastic_gradient.py", line 501, in <module>
+    class BaseSGDClassifier(LinearClassifierMixin, BaseSGD, metaclass=ABCMeta):
+  File "/home/jieq/.local/lib/python3.10/site-packages/sklearn/linear_model/_stochastic_gradient.py", line 516, in BaseSGDClassifier
+    "loss": [StrOptions(set(loss_functions))],
+  File "/home/jieq/.local/lib/python3.10/site-packages/sklearn/utils/_param_validation.py", line 397, in __init__
+    super().__init__(type=str, options=options, deprecated=deprecated)
+  File "/home/jieq/.local/lib/python3.10/site-packages/sklearn/utils/_param_validation.py", line 358, in __init__
+    super().__init__()
+  File "/home/jieq/.local/lib/python3.10/site-packages/sklearn/utils/_param_validation.py", line 262, in __init__
+    def __init__(self):
+KeyboardInterrupt

@@ -1,0 +1,3 @@
+benchmark_name,run_id,stage,source,elapsed_seconds
+indian-startup-growth-analysis,1774805119-e668c92a,cell_exec_info,compute,8.527333
+indian-startup-growth-analysis,1774805119-e668c92a,cudf_profile_info,compute,34.872780

@@ -1,0 +1,3 @@
+benchmark_name,run_id,stage,source,elapsed_seconds
+beautiful-kaggle-2022-analysis,1774764243-088ef06a,cell_exec_info,compute,45.483489
+beautiful-kaggle-2022-analysis,1774764243-088ef06a,cudf_profile_info,compute,199.201930

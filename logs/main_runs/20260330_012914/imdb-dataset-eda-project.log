@@ -1,0 +1,17 @@
+Command: python -u main.py imdb-dataset-eda-project --disable_scheduling
+Started: Mon Mar 30 01:29:14 UTC 2026
+Loaded cell exec info from /home/sahilbhatia/pandax/dias_notebooks/sanket7994/imdb-dataset-eda-project/src/intermediate/cell_exec_info.pkl
+Getting cudf profile information...
+Annotated notebook saved to /home/sahilbhatia/pandax/dias_notebooks/sanket7994/imdb-dataset-eda-project/src/cudf_profile.ipynb
+Error getting cudf profile info: Execution failed in cell %%RecordEvent
+%%cudf.pandas.profile
+### cell 12 ###
+
+longest_runtime = imdb_df.loc[imdb_df.groupby(['Title_Category'], 
+                                              sort=False)['Title_Runtime_Length'].idxmax()
+                             ][['Title_Category', 'Title_Name', 'Title_Runtime_Length']]
+
+longest_runtime.sort_values(by='Title_Runtime_Length', ascending = False).reset_index(drop=True): "None of [Index([75440, 103367, 17897, 102921, 111156, 74510, 73828, 88324, 21145,\n       103506],\n      dtype='int64')] are in the [index]"
+Status: FAILED (exit 1)
+Finished: Mon Mar 30 01:41:16 UTC 2026
+

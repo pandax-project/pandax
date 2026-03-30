@@ -1,0 +1,3 @@
+benchmark_name,run_id,stage,source,elapsed_seconds
+retail-supermarket-store-analysis,1774803956-d29805e1,cell_exec_info,compute,7.135902
+retail-supermarket-store-analysis,1774803956-d29805e1,cudf_profile_info,compute,52.203383

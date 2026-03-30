@@ -1,0 +1,54 @@
+Command: python -u main.py netflix-data-visualization
+Started: Mon Mar 30 01:27:45 UTC 2026
+Loaded cell exec info from /home/sahilbhatia/pandax/dias_notebooks/joshuaswords/netflix-data-visualization/src/intermediate/cell_exec_info.pkl
+Loaded cuDF profile info from /home/sahilbhatia/pandax/dias_notebooks/joshuaswords/netflix-data-visualization/src/intermediate/cudf_profile_info.pkl
+Annotated notebook saved to /home/sahilbhatia/pandax/dias_notebooks/joshuaswords/netflix-data-visualization/src/small_annotated.ipynb
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Executing 4 cells up to cell 0.
+========================================================
+Checkpointing before runing cell 0.
+Traceback (most recent call last):
+  File "/home/sahilbhatia/pandax/main.py", line 315, in <module>
+    asyncio.run(main())
+  File "/opt/conda/envs/rapids-25.02/lib/python3.10/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "/opt/conda/envs/rapids-25.02/lib/python3.10/asyncio/base_events.py", line 636, in run_until_complete
+    self.run_forever()
+  File "/opt/conda/envs/rapids-25.02/lib/python3.10/asyncio/base_events.py", line 603, in run_forever
+    self._run_once()
+  File "/opt/conda/envs/rapids-25.02/lib/python3.10/asyncio/base_events.py", line 1909, in _run_once
+    handle._run()
+  File "/opt/conda/envs/rapids-25.02/lib/python3.10/asyncio/events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "/home/sahilbhatia/pandax/main.py", line 178, in main
+    await rewrite_notebook(
+  File "/home/sahilbhatia/pandax/utils/rewrite.py", line 147, in rewrite_notebook
+    pre_checkpoint_path = _checkpoint_before_cell(
+  File "/home/sahilbhatia/pandax/utils/rewrite.py", line 254, in _checkpoint_before_cell
+    execute_notebook(make_notebook(executed_cells))
+  File "/home/sahilbhatia/pandax/utils/execution.py", line 547, in execute_notebook
+    nb_client.execute()
+  File "/home/jieq/.local/lib/python3.10/site-packages/jupyter_core/utils/__init__.py", line 164, in wrapped
+    return _runner_map[name].run(inner)
+  File "/home/jieq/.local/lib/python3.10/site-packages/jupyter_core/utils/__init__.py", line 127, in run
+    return fut.result(None)
+  File "/opt/conda/envs/rapids-25.02/lib/python3.10/concurrent/futures/_base.py", line 453, in result
+    self._condition.wait(timeout)
+  File "/opt/conda/envs/rapids-25.02/lib/python3.10/threading.py", line 320, in wait
+    waiter.acquire()
+KeyboardInterrupt
+Exception ignored in atexit callback: <bound method run_sync.<locals>.wrapped of <nbclient.client.NotebookClient object at 0x7f728d567730>>
+Traceback (most recent call last):
+  File "/home/jieq/.local/lib/python3.10/site-packages/jupyter_core/utils/__init__.py", line 158, in wrapped
+    return loop.run_until_complete(inner)
+  File "/opt/conda/envs/rapids-25.02/lib/python3.10/asyncio/base_events.py", line 636, in run_until_complete
+    self.run_forever()
+  File "/opt/conda/envs/rapids-25.02/lib/python3.10/asyncio/base_events.py", line 603, in run_forever
+    self._run_once()
+  File "/opt/conda/envs/rapids-25.02/lib/python3.10/asyncio/base_events.py", line 1871, in _run_once
+    event_list = self._selector.select(timeout)
+  File "/opt/conda/envs/rapids-25.02/lib/python3.10/selectors.py", line 469, in select
+    fd_event_list = self._selector.poll(timeout, max_ev)
+KeyboardInterrupt: 
+[IPKernelApp] WARNING | Parent appears to have exited, shutting down.

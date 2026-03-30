@@ -1,0 +1,6 @@
+benchmark_name,run_id,stage,source,elapsed_seconds
+imdb-dataset-eda-project,1774767398-baba3b85,cell_exec_info,compute,316.393841
+imdb-dataset-eda-project,1774805624-d49e7b82,cell_exec_info,cache,0.000378
+imdb-dataset-eda-project,1774834158-2591e762,cell_exec_info,cache,0.000380
+imdb-dataset-eda-project,1774837595-2780a28d,cell_exec_info,cache,0.000370
+imdb-dataset-eda-project,1774837595-2780a28d,cudf_profile_info,compute,783.909773

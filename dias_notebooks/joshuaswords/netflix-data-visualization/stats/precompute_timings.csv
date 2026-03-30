@@ -1,7 +1,18 @@
 benchmark_name,run_id,stage,source,elapsed_seconds
+<<<<<<< HEAD
+netflix-data-visualization,1774818786-96148b4e,cell_exec_info,compute,97.663526
+netflix-data-visualization,1774818786-96148b4e,cudf_profile_info,compute,708.251057
+netflix-data-visualization,1774822605-0d999c87,cell_exec_info,cache,0.123812
+netflix-data-visualization,1774822605-0d999c87,cudf_profile_info,cache,0.002163
+=======
 netflix-data-visualization,1774767261-04aa07bf,cell_exec_info,compute,93.200890
 netflix-data-visualization,1774767261-04aa07bf,cudf_profile_info,compute,785.311574
 netflix-data-visualization,1774815994-7bd55281,cell_exec_info,cache,0.236724
 netflix-data-visualization,1774815994-7bd55281,cudf_profile_info,cache,0.002396
 netflix-data-visualization,1774816027-31d6e032,cell_exec_info,cache,0.157591
 netflix-data-visualization,1774816027-31d6e032,cudf_profile_info,cache,0.001674
+>>>>>>> d495373679d540b73ce8d85cdfe7b6c0e2ebc9a2
+netflix-data-visualization,1774834070-abd46134,cell_exec_info,cache,0.123372
+netflix-data-visualization,1774834070-abd46134,cudf_profile_info,cache,0.002123
+netflix-data-visualization,1774834105-e9f8eb68,cell_exec_info,cache,0.121911
+netflix-data-visualization,1774834105-e9f8eb68,cudf_profile_info,cache,0.002078

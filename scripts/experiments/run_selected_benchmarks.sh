@@ -44,7 +44,7 @@ FAIL_COUNT=0
 
 for benchmark in "${BENCHMARKS[@]}"; do
   log_file="${LOG_DIR}/${benchmark}.log"
-  cmd="python -u main.py ${benchmark}"
+  cmd="python -u main.py ${benchmark} --disable_scheduling"
 
   if [[ "${DRY_RUN}" -eq 1 ]]; then
     echo "=== Would run ${benchmark} ==="
