@@ -1,0 +1,4 @@
+benchmark_name,run_id,cell_index,try_number,category,prompt_tokens,response_tokens,total_tokens
+nyc-airbnb,1774849558-0baed860,0,0,manager_decision,551,43,594
+nyc-airbnb,1774849558-0baed860,0,0,new_code_call,645,567,1212
+nyc-airbnb,1774849558-0baed860,1,0,manager_decision,457,32,489

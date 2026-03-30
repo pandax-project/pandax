@@ -1,0 +1,4 @@
+benchmark_name,run_id,stage,source,elapsed_seconds
+nyc-flight,1774849236-be971a5d,cell_exec_info,compute,25.334108
+nyc-flight,1774861441-d28336fd,cell_exec_info,cache,0.000222
+nyc-flight,1774861441-d28336fd,cudf_profile_info,compute,471.391115

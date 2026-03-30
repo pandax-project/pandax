@@ -358,6 +358,7 @@ async def _rewrite_cell(
     # TODO(jie): move this to before running the original cell.
     while num_tries < NUM_TRIES_PER_CELL:
         try_start_time = time.time()
+        current_try_post_checkpoint_path: Path | None = None
         print("========================================================")
         print(f"Rewriting cell {annotated_cell_idx}... Try {num_tries}... ")
         active_vars = [var.name for var in cell_exec_info.active_vars]
@@ -422,11 +423,11 @@ async def _rewrite_cell(
             )
         )
         # cell 4: checkpoint the post-execution state.
-        rewritten_post_checkpoint_path = get_post_checkpoint_path(
+        current_try_post_checkpoint_path = get_post_checkpoint_path(
             rewritten_nb_path, annotated_cell_idx, try_num=num_tries
         )
         rewritten_post_checkpoint_cell = get_save_checkpoint_cell(
-            rewritten_post_checkpoint_path
+            current_try_post_checkpoint_path
         )
         # cell 5: save the cell exec info.
         save_cell_exec_info_cell = make_code_cell("%PrintCellInfo opt_cell_exec_info")
@@ -619,13 +620,26 @@ with open("{opt_cell_exec_info_pkl_path}", "wb") as f:
             if accepted_rewritten_code:
                 print("Accepted the rewritten code.")
                 best_rewritten_code = rewritten_code
+                old_best_post_checkpoint_path = best_rewritten_post_checkpoint_path
                 print(
                     "Setting best_rewritten_post_checkpoint_path to ",
-                    rewritten_post_checkpoint_path,
+                    current_try_post_checkpoint_path,
                 )
-                best_rewritten_post_checkpoint_path = rewritten_post_checkpoint_path
+                if current_try_post_checkpoint_path is None:
+                    raise ValueError(
+                        f"Rewritten post-checkpoint path is None for cell {annotated_cell_idx}"
+                    )
+                best_rewritten_post_checkpoint_path = current_try_post_checkpoint_path
                 best_rewritten_time = rewritten_time
                 best_rewritten_cudf_profile_info = rewritten_cell_cudf_profile_info
+                # If a previously accepted rewritten checkpoint is superseded, remove it.
+                if (
+                    old_best_post_checkpoint_path is not None
+                    and old_best_post_checkpoint_path != post_checkpoint_path
+                    and old_best_post_checkpoint_path
+                    != best_rewritten_post_checkpoint_path
+                ):
+                    old_best_post_checkpoint_path.unlink(missing_ok=True)
 
         cudf_df = (
             rewritten_cell_cudf_profile_info.df_table
@@ -650,6 +664,14 @@ with open("{opt_cell_exec_info_pkl_path}", "wb") as f:
             category="total",
             elapsed_seconds=try_end_time - try_start_time,
         )
+        # Keep only the checkpoint needed for chaining to the next cell.
+        # Rejected try checkpoints are safe to delete here.
+        if (
+            current_try_post_checkpoint_path is not None
+            and current_try_post_checkpoint_path != best_rewritten_post_checkpoint_path
+            and current_try_post_checkpoint_path != post_checkpoint_path
+        ):
+            current_try_post_checkpoint_path.unlink(missing_ok=True)
         num_tries += 1
 
     if best_rewritten_code is None:

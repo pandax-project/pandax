@@ -1,0 +1,5 @@
+benchmark_name,run_id,stage,source,elapsed_seconds
+nyc-taxi,1774845290-d0f766f7,cell_exec_info,compute,1296.354759
+nyc-taxi,1774845290-d0f766f7,cudf_profile_info,compute,2174.181973
+nyc-taxi,1774849747-007ed6d4,cell_exec_info,cache,0.000627
+nyc-taxi,1774849747-007ed6d4,cudf_profile_info,cache,0.002321

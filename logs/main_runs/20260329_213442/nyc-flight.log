@@ -1,0 +1,183 @@
+Command: python -u main.py nyc-flight --disable_scheduling
+Started: Sun Mar 29 10:40:33 PM PDT 2026
+Annotated notebook saved to /scratch/jieq/pandax/ds_notebooks/nyc-flight/src/cell_exec_info.ipynb
+Executing code: import sys, os
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df, convert_col
+import pickle
+Executing code: %%RecordEventWithColumnInfo
+import numpy as np
+import pandas as pd
+from pathlib import Path
+from utils.benchmarks import BENCHMARKS_TO_PATHS
+
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+benchmark_name = "nyc-flight"
+factor = 2
+flights_df = pd.read_csv(
+    Path(BENCHMARKS_TO_PATHS[benchmark_name]).parent / "input" / "nyc_flights.csv"
+)
+flights_df = pd.concat([flights_df] * factor, ignore_index=True)
+Executing code: %%RecordEventWithColumnInfo
+### cell 1 ###
+
+flights_df.shape, flights_df.columns, flights_df.dtypes
+Executing code: %%RecordEventWithColumnInfo
+### cell 2 ###
+
+flights_df.dest.unique()
+flights_df.head(10)
+Executing code: %%RecordEventWithColumnInfo
+### cell 3 ###
+
+flights_df["dest"][flights_df["dest"] == "SEA"].value_counts()
+Executing code: %%RecordEventWithColumnInfo
+### cell 4 ###
+
+flights_df["carrier"][flights_df["dest"] == "SEA"].value_counts()
+Executing code: %%RecordEventWithColumnInfo
+### cell 5 ###
+
+len(flights_df["tailnum"][flights_df["dest"] == "SEA"].unique())
+Executing code: %%RecordEventWithColumnInfo
+### cell 6 ###
+
+flights_df["arr_delay"][flights_df["dest"] == "SEA"].mean()
+Executing code: %%RecordEventWithColumnInfo
+### cell 7 ###
+
+f = flights_df[flights_df["dest"] == "SEA"].groupby("origin").size()
+f_total = len(flights_df[flights_df.dest == "SEA"])
+f.loc["EWR"] / f_total, f.loc["JFK"] / f_total
+Executing code: %%RecordEventWithColumnInfo
+### cell 8 ###
+
+df = flights_df.groupby(["month", "day"], as_index=False).agg({"dep_delay": np.mean})
+df2 = flights_df.groupby(["month", "day"], as_index=False).agg({"arr_delay": np.mean})
+df.loc[df["dep_delay"].idxmax()], df2.loc[df2["arr_delay"].idxmax()]
+/scratch/jieq/elastic-notebook/elastic/core/common/tracking_dataframe.py:125: FutureWarning: The provided callable <function mean at 0x7077173c8af0> is currently using SeriesGroupBy.mean. In a future version of pandas, the provided callable will be used directly. To keep current behavior pass the string "mean" instead.
+  result = attr_value(*args, **kwargs)
+/scratch/jieq/elastic-notebook/elastic/core/common/tracking_dataframe.py:125: FutureWarning: The provided callable <function mean at 0x7077173c8af0> is currently using SeriesGroupBy.mean. In a future version of pandas, the provided callable will be used directly. To keep current behavior pass the string "mean" instead.
+  result = attr_value(*args, **kwargs)
+Executing code: %%RecordEventWithColumnInfo
+### cell 9 ###
+
+df
+Executing code: %%RecordEventWithColumnInfo
+### cell 10 ###
+
+df = flights_df.groupby(["day", "month"], as_index=False).agg(
+    {"arr_delay": np.mean, "dep_delay": np.mean}
+)
+df["total_delay"] = df["arr_delay"] + df["dep_delay"]
+df.sort_values("total_delay", ascending=False).head(1)
+/scratch/jieq/elastic-notebook/elastic/core/common/tracking_dataframe.py:125: FutureWarning: The provided callable <function mean at 0x7077173c8af0> is currently using SeriesGroupBy.mean. In a future version of pandas, the provided callable will be used directly. To keep current behavior pass the string "mean" instead.
+  result = attr_value(*args, **kwargs)
+Executing code: %%RecordEventWithColumnInfo
+### cell 11 ###
+
+ds = flights_df.dropna(subset=["dep_delay"]).groupby(["month"])["dep_delay"].mean()
+ds
+Executing code: %%RecordEventWithColumnInfo
+### cell 12 ###
+
+dt = flights_df.dropna(subset=["dep_delay"]).groupby(["hour"])["dep_delay"].mean()
+dt
+Executing code: %%RecordEventWithColumnInfo
+### cell 13 ###
+
+df = flights_df
+df["speed"] = df["distance"] / df["air_time"]
+df[df["speed"] == df.speed.max()]
+Executing code: %%RecordEventWithColumnInfo
+### cell 14 ###
+
+count = len(flights_df)
+df = flights_df.groupby(["carrier", "flight", "dest"]).size().reset_index(name="Size")
+for i in df.index:
+    if df.loc[i]["Size"] == 365:
+        print(
+            "Carrier: %s, Flight: %s, Destination: %s"
+            % (df.loc[i]["carrier"], df.loc[i]["flight"], df.loc[i]["dest"])
+        )
+Executing code: %%RecordEventWithColumnInfo
+### cell 15 ###
+
+gdf = flights_df
+counts = gdf.groupby(["carrier", "flight", "dest"]).size().reset_index(name="size")
+complete_year = counts[counts["size"] == 365]
+complete_year[["carrier", "flight", "dest"]]
+Executing code: %%RecordEventWithColumnInfo
+### cell 16 ###
+
+df = flights_df[flights_df["month"] == 6]
+df = df.groupby("carrier", as_index=False).agg(
+    {"arr_delay": np.mean, "dep_delay": np.mean}
+)
+df["total_delay"] = df["arr_delay"] + df["dep_delay"]
+for i in df.index:
+    if df.loc[i]["total_delay"] == df["total_delay"].min():
+        print(df.loc[i]["carrier"], df.loc[i]["total_delay"])
+df
+/scratch/jieq/elastic-notebook/elastic/core/common/tracking_dataframe.py:125: FutureWarning: The provided callable <function mean at 0x7077173c8af0> is currently using SeriesGroupBy.mean. In a future version of pandas, the provided callable will be used directly. To keep current behavior pass the string "mean" instead.
+  result = attr_value(*args, **kwargs)
+/scratch/jieq/elastic-notebook/elastic/core/common/tracking_dataframe.py:125: FutureWarning: The provided callable <function mean at 0x7077173c8af0> is currently using SeriesGroupBy.mean. In a future version of pandas, the provided callable will be used directly. To keep current behavior pass the string "mean" instead.
+  result = attr_value(*args, **kwargs)
+Executing code: %%RecordEventWithColumnInfo
+### cell 17 ###
+
+weather_df = pd.read_csv(
+    Path(BENCHMARKS_TO_PATHS[benchmark_name]).parent / "input" / "nyc_weather.csv"
+)
+df = flights_df
+df_c = pd.merge(df, weather_df, on=["month", "day", "hour", "origin"])
+df_c.head(10)
+Executing code: %PrintCellInfo cell_exec_info
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Ran small notebook to get cell exec info in 25.334107637405396 seconds
+Getting cudf profile information...
+Annotated notebook saved to /scratch/jieq/pandax/ds_notebooks/nyc-flight/src/cudf_profile.ipynb
+Traceback (most recent call last):
+  File "/scratch/jieq/pandax/main.py", line 315, in <module>
+    asyncio.run(main())
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/asyncio/base_events.py", line 636, in run_until_complete
+    self.run_forever()
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/asyncio/base_events.py", line 603, in run_forever
+    self._run_once()
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/asyncio/base_events.py", line 1909, in _run_once
+    handle._run()
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/asyncio/events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "/scratch/jieq/pandax/main.py", line 158, in main
+    cudf_profile_infos = checkpoint_and_get_cudf_profile_info(small_notebook_path)
+  File "/scratch/jieq/pandax/utils/rewrite.py", line 69, in checkpoint_and_get_cudf_profile_info
+    execute_notebook(cudf_nb)
+  File "/scratch/jieq/pandax/utils/execution.py", line 547, in execute_notebook
+    nb_client.execute()
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/site-packages/jupyter_core/utils/__init__.py", line 164, in wrapped
+    return _runner_map[name].run(inner)
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/site-packages/jupyter_core/utils/__init__.py", line 127, in run
+    return fut.result(None)
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/concurrent/futures/_base.py", line 453, in result
+    self._condition.wait(timeout)
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/threading.py", line 320, in wait
+    waiter.acquire()
+KeyboardInterrupt
+Exception ignored in atexit callback: <bound method run_sync.<locals>.wrapped of <nbclient.client.NotebookClient object at 0x70769f27afb0>>
+Traceback (most recent call last):
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/site-packages/jupyter_core/utils/__init__.py", line 158, in wrapped
+    return loop.run_until_complete(inner)
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/asyncio/base_events.py", line 636, in run_until_complete
+    self.run_forever()
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/asyncio/base_events.py", line 603, in run_forever
+    self._run_once()
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/asyncio/base_events.py", line 1871, in _run_once
+    event_list = self._selector.select(timeout)
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/selectors.py", line 469, in select
+    fd_event_list = self._selector.poll(timeout, max_ev)
+KeyboardInterrupt: 

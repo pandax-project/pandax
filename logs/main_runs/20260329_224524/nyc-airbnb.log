@@ -1,0 +1,332 @@
+Command: python -u main.py nyc-airbnb --disable_scheduling
+Started: Sun Mar 29 10:45:24 PM PDT 2026
+Annotated notebook saved to /scratch/jieq/pandax/ds_notebooks/nyc-airbnb/src/cell_exec_info.ipynb
+Executing code: import sys, os
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df, convert_col
+import pickle
+Executing code: %%RecordEventWithColumnInfo
+#
+# Import Visualization FrameWork Tools
+import pandas as pd
+import numpy as np
+from pathlib import Path
+from utils.benchmarks import BENCHMARKS_TO_PATHS
+
+# import missingno as msno
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+benchmark_name = "nyc-airbnb"
+df = pd.read_csv(Path(BENCHMARKS_TO_PATHS[benchmark_name]).parent / "input" / "AB_NYC_2019.csv")
+factor = 3
+df = pd.concat([df] * factor)
+df.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 1 ###
+
+df.shape
+Executing code: %%RecordEventWithColumnInfo
+### cell 2 ###
+
+# check null-value and each columns' dtype to do EDA.
+print(df.info())
+Executing code: %%RecordEventWithColumnInfo
+### cell 3 ###
+
+df = df.drop(["id", "last_review", "name", "host_name"], axis=1)
+df.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 4 ###
+
+df = df.drop(df[df["availability_365"] == 0].index, axis=0)
+df = df.reset_index()
+df.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 5 ###
+
+df["reviews_per_month"] = df["reviews_per_month"].fillna(0)
+df.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 6 ###
+
+df.isnull().sum()
+Executing code: %%RecordEventWithColumnInfo
+### cell 7 ###
+
+df.shape
+Executing code: %%RecordEventWithColumnInfo
+### cell 8 ###
+
+nyc_sub_1 = ["Manhattan", "Brooklyn", "Queens", "Bronx", "Staten Island"]
+
+x_1 = nyc_sub_1
+y_1 = []
+for i_1 in x_1:
+    y_1.append(df[df["neighbourhood_group"] == i_1]["price"].values.tolist())
+y_1
+Executing code: %%RecordEventWithColumnInfo
+### cell 9 ###
+
+nyc_sub_2 = ["Manhattan", "Brooklyn", "Queens", "Bronx", "Staten Island"]
+# --- End of sample data creation ---
+
+
+# The optimized one-liner using groupby
+# .apply(list) collects all values for each group into a list
+grouped_prices = df.groupby("neighbourhood_group")["price"].apply(list)
+
+# The result is a pandas Series, with boroughs as the index
+# and the list of prices as the values.
+# print(grouped_prices)
+#
+# Output would look like:
+# neighbourhood_group
+# Bronx              [175, 229, 403, 114, 308, 401, 381, 169, 14...
+# Brooklyn           [187, 134, 421, 112, 179, 344, 185, 335, 41...
+# Manhattan          [376, 269, 396, 429, 332, 287, 237, 275, 43...
+# Queens             [487, 310, 342, 290, 488, 303, 442, 334, 16...
+# Staten Island      [410, 423, 222, 172, 497, 180, 290, 391, 16...
+
+# To get the exact same output as your original code (a list of lists in a specific order)
+# you can reindex the result and convert it to a list.
+y_optimized = grouped_prices.reindex(nyc_sub_2).tolist()
+y_optimized
+Executing code: %%RecordEventWithColumnInfo
+### cell 10 ###
+
+df["price"].values[0]
+Executing code: %%RecordEventWithColumnInfo
+### cell 11 ###
+
+# Seperate by each Price
+df["price_group"] = 0
+for idx, pri in enumerate(df["price"][:100]):
+    if df.loc[idx, "price"] < 50:
+        df.loc[idx, "price_group"] = 0
+    elif 50 <= df.loc[idx, "price"] < 250:
+        df.loc[idx, "price_group"] = 1
+    elif 250 <= df.loc[idx, "price"] < 500:
+        df.loc[idx, "price_group"] = 2
+    elif 500 <= df.loc[idx, "price"] < 750:
+        df.loc[idx, "price_group"] = 3
+    elif 750 <= df.loc[idx, "price"] < 1000:
+        df.loc[idx, "price_group"] = 4
+    else:
+        df.loc[idx, "price_group"] = 5
+Executing code: %%RecordEventWithColumnInfo
+### cell 12 ###
+
+suburb_area = [59100000, 183400000, 464900000, 109000000, 151500000]
+distance_room_to_room = []
+for i_2, city_1 in enumerate(nyc_sub_2):
+    distance_room_to_room.append(
+        (suburb_area[i_2] / len(df[df["neighbourhood_group"] == city_1])) * (1 / 1000)
+    )
+
+distance_room_to_room
+Executing code: %%RecordEventWithColumnInfo
+### cell 13 ###
+
+total_amount_sub = []
+total_amount_sub_50_250 = []
+aver_price_total = []
+aver_price_50_250 = []
+for i_3, city_2 in enumerate(nyc_sub_2):
+    req = df[
+        (df["neighbourhood_group"] == city_2) & (df["price"] > 50) & (df["price"] < 250)
+    ]
+    total_amount_sub.append(len(df[df["neighbourhood_group"] == city_2]))
+    total_amount_sub_50_250.append(len(req))
+    aver_price_total.append(
+        round(np.mean(df[df["neighbourhood_group"] == city_2]["price"]), 3)
+    )
+    aver_price_50_250.append(round(np.mean(req["price"]), 3))
+total_amount_sub, total_amount_sub_50_250, aver_price_total, aver_price_50_250
+/scratch/jieq/elastic-notebook/elastic/core/common/pandas.py:78: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  obj[col] = col_series
+Executing code: %%RecordEventWithColumnInfo
+### cell 14 ###
+
+nei_x_1 = []
+nei_y_1 = []
+colors_1 = []
+
+for nei_1 in df["neighbourhood"].value_counts().index:
+    nei_x_1.append(nei_1)
+    nei_y_1.append(np.mean(df[df["neighbourhood"] == nei_1]["price"].values))
+
+for neigh_1 in nei_x_1:
+    if (
+        df[df["neighbourhood"] == neigh_1]["neighbourhood_group"].values[0]
+        == "Manhattan"
+    ):
+        colors_1.append("red")
+    elif (
+        df[df["neighbourhood"] == neigh_1]["neighbourhood_group"].values[0]
+        == "Brooklyn"
+    ):
+        colors_1.append("blue")
+    elif (
+        df[df["neighbourhood"] == neigh_1]["neighbourhood_group"].values[0] == "Queens"
+    ):
+        colors_1.append("green")
+    elif df[df["neighbourhood"] == neigh_1]["neighbourhood_group"].values[0] == "Bronx":
+        colors_1.append("orange")
+    elif (
+        df[df["neighbourhood"] == neigh_1]["neighbourhood_group"].values[0]
+        == "Staten Island"
+    ):
+        colors_1.append("purple")
+
+nei_x_1, nei_y_1, colors_1
+/scratch/jieq/elastic-notebook/elastic/core/common/pandas.py:78: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  obj[col] = col_series
+Executing code: %%RecordEventWithColumnInfo
+### cell 15 ###
+
+nei_x_aver_h_1 = []
+nei_x_aver_l_1 = []
+nei_y_aver_h_1 = []
+nei_y_aver_l_1 = []
+for nei_2 in df["neighbourhood"].value_counts().index:
+    if np.mean(df[df["neighbourhood"] == nei_2]["price"].values) >= round(
+        np.mean(nei_y_1), 3
+    ):
+        nei_x_aver_h_1.append(nei_2)
+        nei_y_aver_h_1.append(np.mean(df[df["neighbourhood"] == nei_2]["price"].values))
+    elif np.mean(df[df["neighbourhood"] == nei_2]["price"].values) < round(
+        np.mean(nei_y_1), 3
+    ):
+        nei_x_aver_l_1.append(nei_2)
+        nei_y_aver_l_1.append(np.mean(df[df["neighbourhood"] == nei_2]["price"].values))
+
+nei_x_aver_h_1, nei_x_aver_l_1, nei_y_aver_h_1, nei_y_aver_l_1
+/scratch/jieq/elastic-notebook/elastic/core/common/pandas.py:78: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  obj[col] = col_series
+Executing code: %%RecordEventWithColumnInfo
+### cell 16 ###
+
+colors_2 = []
+for neigh_2 in nei_x_aver_h_1:
+    if (
+        df[df["neighbourhood"] == neigh_2]["neighbourhood_group"].values[0]
+        == "Manhattan"
+    ):
+        colors_2.append("red")
+    elif (
+        df[df["neighbourhood"] == neigh_2]["neighbourhood_group"].values[0]
+        == "Brooklyn"
+    ):
+        colors_2.append("blue")
+    elif (
+        df[df["neighbourhood"] == neigh_2]["neighbourhood_group"].values[0] == "Queens"
+    ):
+        colors_2.append("green")
+    elif df[df["neighbourhood"] == neigh_2]["neighbourhood_group"].values[0] == "Bronx":
+        colors_2.append("orange")
+    elif (
+        df[df["neighbourhood"] == neigh_2]["neighbourhood_group"].values[0]
+        == "Staten Island"
+    ):
+        colors_2.append("purple")
+colors_2
+Executing code: %%RecordEventWithColumnInfo
+### cell 17 ###
+
+colors_3 = []
+for neigh_3 in nei_x_aver_h_1:
+    if (
+        df[df["neighbourhood"] == neigh_3]["neighbourhood_group"].values[0]
+        == "Manhattan"
+    ):
+        colors_3.append("red")
+    elif (
+        df[df["neighbourhood"] == neigh_3]["neighbourhood_group"].values[0]
+        == "Brooklyn"
+    ):
+        colors_3.append("blue")
+    elif (
+        df[df["neighbourhood"] == neigh_3]["neighbourhood_group"].values[0] == "Queens"
+    ):
+        colors_3.append("green")
+    elif df[df["neighbourhood"] == neigh_3]["neighbourhood_group"].values[0] == "Bronx":
+        colors_3.append("orange")
+    elif (
+        df[df["neighbourhood"] == neigh_3]["neighbourhood_group"].values[0]
+        == "Staten Island"
+    ):
+        colors_3.append("purple")
+colors_3
+Executing code: %%RecordEventWithColumnInfo
+### cell 18 ###
+
+x_2 = df["calculated_host_listings_count"].value_counts().sort_index().index.astype(str)
+y_2 = df["calculated_host_listings_count"].value_counts().sort_index().values
+
+x_2, y_2
+/scratch/jieq/elastic-notebook/elastic/core/common/pandas.py:78: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  obj[col] = col_series
+Executing code: %PrintCellInfo cell_exec_info
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Ran small notebook to get cell exec info in 12.709413528442383 seconds
+Getting cudf profile information...
+Annotated notebook saved to /scratch/jieq/pandax/ds_notebooks/nyc-airbnb/src/cudf_profile.ipynb
+Traceback (most recent call last):
+  File "/scratch/jieq/pandax/main.py", line 315, in <module>
+    asyncio.run(main())
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/asyncio/base_events.py", line 636, in run_until_complete
+    self.run_forever()
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/asyncio/base_events.py", line 603, in run_forever
+    self._run_once()
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/asyncio/base_events.py", line 1909, in _run_once
+    handle._run()
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/asyncio/events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "/scratch/jieq/pandax/main.py", line 158, in main
+    cudf_profile_infos = checkpoint_and_get_cudf_profile_info(small_notebook_path)
+  File "/scratch/jieq/pandax/utils/rewrite.py", line 69, in checkpoint_and_get_cudf_profile_info
+    execute_notebook(cudf_nb)
+  File "/scratch/jieq/pandax/utils/execution.py", line 547, in execute_notebook
+    nb_client.execute()
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/site-packages/jupyter_core/utils/__init__.py", line 164, in wrapped
+    return _runner_map[name].run(inner)
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/site-packages/jupyter_core/utils/__init__.py", line 127, in run
+    return fut.result(None)
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/concurrent/futures/_base.py", line 453, in result
+    self._condition.wait(timeout)
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/threading.py", line 320, in wait
+    waiter.acquire()
+KeyboardInterrupt
+Exception ignored in atexit callback: <bound method run_sync.<locals>.wrapped of <nbclient.client.NotebookClient object at 0x738b72e37dc0>>
+Traceback (most recent call last):
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/site-packages/jupyter_core/utils/__init__.py", line 158, in wrapped
+    return loop.run_until_complete(inner)
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/asyncio/base_events.py", line 636, in run_until_complete
+    self.run_forever()
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/asyncio/base_events.py", line 603, in run_forever
+    self._run_once()
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/asyncio/base_events.py", line 1871, in _run_once
+    event_list = self._selector.select(timeout)
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/selectors.py", line 469, in select
+    fd_event_list = self._selector.poll(timeout, max_ev)
+KeyboardInterrupt: 

@@ -7,7 +7,7 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
 # You listed 6 benchmarks; all are included here.
 BENCHMARKS=(
-  "nyc-airbnb"
+  # "nyc-airbnb"
   "nyc-taxi"
   "nyc-flight"
   "imdb"
@@ -16,6 +16,7 @@ BENCHMARKS=(
   # "eda-speedtests"
   # "billionaires-statistics-2023"
   "netflix-data-visualization"
+  "imdb-dataset-eda-project"
   # "environmental-vs-ai-startups-india-eda"
   # "feedback3-eda-hf-custom-trainer-sift"
   # "adidas-retail-eda-data-visualization"

@@ -1,0 +1,4 @@
+benchmark_name,run_id,stage,source,elapsed_seconds
+nyc-airbnb,1774849526-590aa064,cell_exec_info,compute,12.709414
+nyc-airbnb,1774849558-0baed860,cell_exec_info,cache,0.000192
+nyc-airbnb,1774849558-0baed860,cudf_profile_info,compute,108.198791
