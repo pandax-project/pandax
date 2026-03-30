@@ -620,7 +620,6 @@ with open("{opt_cell_exec_info_pkl_path}", "wb") as f:
             if accepted_rewritten_code:
                 print("Accepted the rewritten code.")
                 best_rewritten_code = rewritten_code
-                old_best_post_checkpoint_path = best_rewritten_post_checkpoint_path
                 print(
                     "Setting best_rewritten_post_checkpoint_path to ",
                     current_try_post_checkpoint_path,
@@ -629,17 +628,33 @@ with open("{opt_cell_exec_info_pkl_path}", "wb") as f:
                     raise ValueError(
                         f"Rewritten post-checkpoint path is None for cell {annotated_cell_idx}"
                     )
+                # Keep a handle to the previous winner's post-checkpoint before we update
+                # `best_rewritten_post_checkpoint_path`. If this try wins, that previous path
+                # becomes stale and can be safely removed (subject to guards below).
+                previous_best_rewritten_post_checkpoint_path = (
+                    best_rewritten_post_checkpoint_path
+                )
                 best_rewritten_post_checkpoint_path = current_try_post_checkpoint_path
                 best_rewritten_time = rewritten_time
                 best_rewritten_cudf_profile_info = rewritten_cell_cudf_profile_info
-                # If a previously accepted rewritten checkpoint is superseded, remove it.
+                # Cleanup policy for accepted tries:
+                # 1) Never delete `post_checkpoint_path` here. That path belongs to the
+                #    original execution and is returned to the caller for the non-rewritten
+                #    lineage, so it may still be used as a pre-checkpoint later.
+                # 2) Never delete the newly selected best checkpoint.
+                # 3) Delete only the previous best rewritten checkpoint when it is different
+                #    from both of the above; once superseded, it is no longer reachable.
                 if (
-                    old_best_post_checkpoint_path is not None
-                    and old_best_post_checkpoint_path != post_checkpoint_path
-                    and old_best_post_checkpoint_path
+                    previous_best_rewritten_post_checkpoint_path is not None
+                    and previous_best_rewritten_post_checkpoint_path != post_checkpoint_path
+                    and previous_best_rewritten_post_checkpoint_path
                     != best_rewritten_post_checkpoint_path
                 ):
-                    old_best_post_checkpoint_path.unlink(missing_ok=True)
+                    previous_best_rewritten_post_checkpoint_path.unlink(missing_ok=True)
+            elif current_try_post_checkpoint_path is not None:
+                # Rejected tries are not part of either returned checkpoint lineage.
+                # Their post-checkpoint files are ephemeral and can be removed immediately.
+                current_try_post_checkpoint_path.unlink(missing_ok=True)
 
         cudf_df = (
             rewritten_cell_cudf_profile_info.df_table
@@ -657,15 +672,6 @@ with open("{opt_cell_exec_info_pkl_path}", "wb") as f:
         all_rewritten_code_info.append(rewritten_code_info)
         try_end_time = time.time()
         print(f"Try {num_tries} took {try_end_time - try_start_time} seconds.")
-    
-        # Keep only the checkpoint needed for chaining to the next cell.
-        # Rejected try checkpoints are safe to delete here.
-        if (
-            current_try_post_checkpoint_path is not None
-            and current_try_post_checkpoint_path != best_rewritten_post_checkpoint_path
-            and current_try_post_checkpoint_path != post_checkpoint_path
-        ):
-            current_try_post_checkpoint_path.unlink(missing_ok=True)
         num_tries += 1
 
     if best_rewritten_code is None:

@@ -139,7 +139,7 @@ def main() -> None:
         global_max, window_max_sum = analyze_rewrite_wall_timings(
             df, args.cell_window_size
         )
-        # print(f"{benchmark_name}: {window_max_sum}")
+        print(f"{benchmark_name} {global_max:.6f} {window_max_sum:.6f}")
         if args.category_totals:
             category_totals = analyze_category_totals(df)
             non_total_categories_sum = float(
