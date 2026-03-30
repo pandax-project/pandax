@@ -656,14 +656,8 @@ with open("{opt_cell_exec_info_pkl_path}", "wb") as f:
         )
         all_rewritten_code_info.append(rewritten_code_info)
         try_end_time = time.time()
-        log_rewrite_timing(
-            benchmark_name=benchmark_name,
-            run_id=run_id,
-            cell_idx=annotated_cell_idx,
-            try_num=num_tries,
-            category="total",
-            elapsed_seconds=try_end_time - try_start_time,
-        )
+        print(f"Try {num_tries} took {try_end_time - try_start_time} seconds.")
+    
         # Keep only the checkpoint needed for chaining to the next cell.
         # Rejected try checkpoints are safe to delete here.
         if (

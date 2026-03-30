@@ -83,20 +83,19 @@ def analyze_agent_call_ratio(df: pd.DataFrame) -> tuple[float, float, float]:
     if category_totals.empty:
         return 0.0, 0.0, 0.0
 
-    non_total_categories_sum = float(category_totals["total_elapsed_seconds"].sum())
+    total_elapsed = float(category_totals["total_elapsed_seconds"].sum())
     agent_call_elapsed = float(
         category_totals.loc[
             category_totals["category"] == "agent_call", "total_elapsed_seconds"
         ].sum()
     )
-    other_elapsed = non_total_categories_sum - agent_call_elapsed
 
-    if other_elapsed <= 0:
+    if total_elapsed <= 0:
         ratio = float("inf") if agent_call_elapsed > 0 else 0.0
     else:
-        ratio = agent_call_elapsed / other_elapsed
+        ratio = agent_call_elapsed / total_elapsed
 
-    return agent_call_elapsed, other_elapsed, ratio
+    return agent_call_elapsed, total_elapsed, ratio
 
 def main() -> None:
     parser = argparse.ArgumentParser(
@@ -130,7 +129,7 @@ def main() -> None:
         action="store_true",
         help=(
             "Also print ratio of category 'agent_call' elapsed_seconds "
-            "to all other non-total category elapsed_seconds."
+            "to total elapsed_seconds across categories."
         ),
     )
     args = parser.parse_args()
@@ -140,8 +139,6 @@ def main() -> None:
         global_max, window_max_sum = analyze_rewrite_wall_timings(
             df, args.cell_window_size
         )
-        print(benchmark_name, global_max, window_max_sum)
-        continue
         # print(f"{benchmark_name}: {window_max_sum}")
         if args.category_totals:
             category_totals = analyze_category_totals(df)
@@ -159,13 +156,14 @@ def main() -> None:
                         f"{float(row.total_elapsed_seconds):.6f}"
                     )
             print(f"  non_total_categories_sum: {non_total_categories_sum:.6f}")
-
+        
         if args.agent_call_ratio:
-            agent_call_elapsed, other_elapsed, ratio = analyze_agent_call_ratio(df)
+            agent_call_elapsed, total_elapsed, ratio = analyze_agent_call_ratio(df)
             ratio_display = "inf" if ratio == float("inf") else f"{ratio:.6f}"
-            print(f"  agent_call_elapsed_seconds: {agent_call_elapsed:.6f}")
-            print(f"  other_elapsed_seconds: {other_elapsed:.6f}")
-            print(f"  agent_call_to_other_ratio: {ratio_display}")
+            print(benchmark_name, ratio_display)
+            # print(f"  agent_call_elapsed_seconds: {agent_call_elapsed:.6f}")
+            # print(f"  total_elapsed_seconds: {total_elapsed:.6f}")
+            # print(f"  agent_call_to_total_ratio: {ratio_display}")
 
 
 if __name__ == "__main__":
