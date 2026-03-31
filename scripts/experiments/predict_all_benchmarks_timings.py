@@ -18,7 +18,7 @@ from utils.prediction import modify_factor_and_run
 from utils.verification import extract_factors, load_code_lines
 
 BENCHMARK_NAMES = [
-    "feedback3-eda-hf-custom-trainer-sift",
+    # "feedback3-eda-hf-custom-trainer-sift",
     "beautiful-kaggle-2022-analysis",
     "creating-player-stats-using-tracking-data",
     "comprehensive-data-exploration-with-python",

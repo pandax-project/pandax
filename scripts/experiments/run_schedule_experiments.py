@@ -7,7 +7,15 @@ import pandas as pd
 from utils.benchmarks import BENCHMARK_NAMES, BENCHMARKS_TO_PATHS
 from utils.schedule import get_actual_time_for_schedule, get_schedule_and_cost
 
-BENCHMARK_NAMES = ["environmental-vs-ai-startups-india-eda"]
+BENCHMARK_NAMES = [
+    # "feedback3-eda-hf-custom-trainer-sift",
+    "beautiful-kaggle-2022-analysis",
+    "creating-player-stats-using-tracking-data",
+    "comprehensive-data-exploration-with-python",
+    "retail-supermarket-store-analysis",
+    "adidas-retail-eda-data-visualization",
+    "indian-startup-growth-analysis",
+]
 
 for name in BENCHMARK_NAMES:
     print(name)
@@ -63,7 +71,7 @@ for name in BENCHMARK_NAMES:
     )
     print("Ground truth schedule is correct")
     print()
-    exit()
+    continue
 
     # Just use the cost model for transfer costs.
     cost_model_schedule, cost_model_total_cost = get_schedule_and_cost(
