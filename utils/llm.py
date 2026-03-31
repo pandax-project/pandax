@@ -157,7 +157,7 @@ def get_rewritten_cell_info(
 def get_repaired_cell_code(
     original_cell_code: str, rewritten_cell_code: str | None
 ) -> str | None:
-    # TODO(sahil): return the test harness as well.
+    # TODO: return the test harness as well.
     """Repair the rewritten cell to be semantically equivalent to the original cell. Returns None if the cell cannot be repaired."""
     if rewritten_cell_code is None:
         raise RuntimeError("Cannot repair None!")

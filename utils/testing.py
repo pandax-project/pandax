@@ -62,7 +62,7 @@ def get_test_code_from_cell_exec_info(
         # FIXME(jie): handle styler objects here as well.
 
     # Compare the outputs.
-    # TODO(jie): this can be potentially combined with the above code.
+    # TODO: this can be potentially combined with the above code.
     compare_output_code = """
 import numpy as np
 if os.getenv("USE_GPU") == "True":
@@ -88,7 +88,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:

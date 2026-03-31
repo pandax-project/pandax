@@ -264,7 +264,7 @@ def _checkpoint_before_cell(
     return pre_checkpoint_path
 
 
-# TODO(jie): figure out the type.
+# TODO: figure out the type.
 async def _rewrite_cell(
     benchmark_name: str,
     run_id: str,
@@ -355,7 +355,7 @@ async def _rewrite_cell(
         best_rewritten_post_checkpoint_path,
     )
 
-    # TODO(jie): move this to before running the original cell.
+    # TODO: move this to before running the original cell.
     while num_tries < NUM_TRIES_PER_CELL:
         try_start_time = time.time()
         current_try_post_checkpoint_path: Path | None = None

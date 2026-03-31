@@ -1190,7 +1190,7 @@ is_orig_output_array = isinstance(orig_output, (cudf.pandas._wrappers.numpy.ndar
 is_opt_output_array = isinstance(opt_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -1266,7 +1266,7 @@ Cell [0;32mIn [8], line 10[0m
 [1;32m      8[0m is_opt_output_array [38;5;241m=[39m [38;5;28misinstance[39m(opt_output, (cudf[38;5;241m.[39mpandas[38;5;241m.[39m_wrappers[38;5;241m.[39mnumpy[38;5;241m.[39mndarray, np[38;5;241m.[39mndarray))
 [1;32m      9[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 10[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     11[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     11[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     12[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m:
@@ -1376,7 +1376,7 @@ is_orig_output_array = isinstance(orig_output, (cudf.pandas._wrappers.numpy.ndar
 is_opt_output_array = isinstance(opt_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -1455,7 +1455,7 @@ Cell [0;32mIn [8], line 10[0m
 [1;32m      8[0m is_opt_output_array [38;5;241m=[39m [38;5;28misinstance[39m(opt_output, (cudf[38;5;241m.[39mpandas[38;5;241m.[39m_wrappers[38;5;241m.[39mnumpy[38;5;241m.[39mndarray, np[38;5;241m.[39mndarray))
 [1;32m      9[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 10[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     11[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     11[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     12[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m:
@@ -2887,7 +2887,7 @@ is_orig_output_array = isinstance(orig_output, (cudf.pandas._wrappers.numpy.ndar
 is_opt_output_array = isinstance(opt_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -3926,7 +3926,7 @@ is_orig_output_array = isinstance(orig_output, (cudf.pandas._wrappers.numpy.ndar
 is_opt_output_array = isinstance(opt_output, (cudf.pandas._wrappers.numpy.ndarray, np.ndarray))
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:

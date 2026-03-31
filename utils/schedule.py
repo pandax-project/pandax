@@ -188,7 +188,7 @@ def get_cost_model_inputs(
 
 
 ### Step 5: Run the CPU to GPU and GPU to CPU notebooks to get both the real transfer times and the cost model transfer times.
-# TODO(jie): fix the type.
+# TODO: fix the type.
 def _get_transfer_times_nb(
     nb_path: Path,
     cpu_to_gpu: bool,

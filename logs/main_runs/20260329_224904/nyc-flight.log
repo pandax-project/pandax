@@ -239,7 +239,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -301,7 +301,7 @@ During handling of the above exception, another exception occurred:
 
 [0;31mValueError[0m                                Traceback (most recent call last)
 [0;32m/tmp/ipykernel_3781565/3821969080.py[0m in [0;36m?[0;34m()[0m
-[1;32m     27[0m [0;31m# TODO(jie): this is a hack.[0m[0;34m[0m[0;34m[0m[0m
+[1;32m     27[0m [0;31m# TODO: this is a hack.[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     28[0m [0;32melif[0m [0;34m([0m[0;34m([0m[0mis_orig_output_pd[0m [0;32mor[0m [0mis_opt_output_pd[0m[0;34m)[0m [0;32mand[0m [0;34m([0m[0mis_orig_output_array[0m [0;32mor[0m [0mis_opt_output_array[0m[0;34m)[0m[0;34m)[0m [0;32mor[0m [0;34m([0m[0mis_orig_output_array[0m [0;32mand[0m [0mis_opt_output_array[0m[0;34m)[0m[0;34m:[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     29[0m     [0;32massert[0m [0mlist[0m[0;34m([0m[0morig_output[0m[0;34m)[0m [0;34m==[0m [0mlist[0m[0;34m([0m[0mopt_output[0m[0;34m)[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     30[0m [0;32melse[0m[0;34m:[0m[0;34m[0m[0;34m[0m[0m
@@ -392,7 +392,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -454,7 +454,7 @@ During handling of the above exception, another exception occurred:
 
 [0;31mValueError[0m                                Traceback (most recent call last)
 [0;32m/tmp/ipykernel_3781565/3821969080.py[0m in [0;36m?[0;34m()[0m
-[1;32m     27[0m [0;31m# TODO(jie): this is a hack.[0m[0;34m[0m[0;34m[0m[0m
+[1;32m     27[0m [0;31m# TODO: this is a hack.[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     28[0m [0;32melif[0m [0;34m([0m[0;34m([0m[0mis_orig_output_pd[0m [0;32mor[0m [0mis_opt_output_pd[0m[0;34m)[0m [0;32mand[0m [0;34m([0m[0mis_orig_output_array[0m [0;32mor[0m [0mis_opt_output_array[0m[0;34m)[0m[0;34m)[0m [0;32mor[0m [0;34m([0m[0mis_orig_output_array[0m [0;32mand[0m [0mis_opt_output_array[0m[0;34m)[0m[0;34m:[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     29[0m     [0;32massert[0m [0mlist[0m[0;34m([0m[0morig_output[0m[0;34m)[0m [0;34m==[0m [0mlist[0m[0;34m([0m[0mopt_output[0m[0;34m)[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     30[0m [0;32melse[0m[0;34m:[0m[0;34m[0m[0;34m[0m[0m
@@ -547,7 +547,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -609,7 +609,7 @@ During handling of the above exception, another exception occurred:
 
 [0;31mValueError[0m                                Traceback (most recent call last)
 [0;32m/tmp/ipykernel_3781565/3821969080.py[0m in [0;36m?[0;34m()[0m
-[1;32m     27[0m [0;31m# TODO(jie): this is a hack.[0m[0;34m[0m[0;34m[0m[0m
+[1;32m     27[0m [0;31m# TODO: this is a hack.[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     28[0m [0;32melif[0m [0;34m([0m[0;34m([0m[0mis_orig_output_pd[0m [0;32mor[0m [0mis_opt_output_pd[0m[0;34m)[0m [0;32mand[0m [0;34m([0m[0mis_orig_output_array[0m [0;32mor[0m [0mis_opt_output_array[0m[0;34m)[0m[0;34m)[0m [0;32mor[0m [0;34m([0m[0mis_orig_output_array[0m [0;32mand[0m [0mis_opt_output_array[0m[0;34m)[0m[0;34m:[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     29[0m     [0;32massert[0m [0mlist[0m[0;34m([0m[0morig_output[0m[0;34m)[0m [0;34m==[0m [0mlist[0m[0;34m([0m[0mopt_output[0m[0;34m)[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     30[0m [0;32melse[0m[0;34m:[0m[0;34m[0m[0;34m[0m[0m
@@ -763,7 +763,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -825,7 +825,7 @@ During handling of the above exception, another exception occurred:
 
 [0;31mValueError[0m                                Traceback (most recent call last)
 [0;32m/tmp/ipykernel_3782280/3821969080.py[0m in [0;36m?[0;34m()[0m
-[1;32m     27[0m [0;31m# TODO(jie): this is a hack.[0m[0;34m[0m[0;34m[0m[0m
+[1;32m     27[0m [0;31m# TODO: this is a hack.[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     28[0m [0;32melif[0m [0;34m([0m[0;34m([0m[0mis_orig_output_pd[0m [0;32mor[0m [0mis_opt_output_pd[0m[0;34m)[0m [0;32mand[0m [0;34m([0m[0mis_orig_output_array[0m [0;32mor[0m [0mis_opt_output_array[0m[0;34m)[0m[0;34m)[0m [0;32mor[0m [0;34m([0m[0mis_orig_output_array[0m [0;32mand[0m [0mis_opt_output_array[0m[0;34m)[0m[0;34m:[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     29[0m     [0;32massert[0m [0mlist[0m[0;34m([0m[0morig_output[0m[0;34m)[0m [0;34m==[0m [0mlist[0m[0;34m([0m[0mopt_output[0m[0;34m)[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     30[0m [0;32melse[0m[0;34m:[0m[0;34m[0m[0;34m[0m[0m
@@ -922,7 +922,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -984,7 +984,7 @@ During handling of the above exception, another exception occurred:
 
 [0;31mValueError[0m                                Traceback (most recent call last)
 [0;32m/tmp/ipykernel_3782280/3821969080.py[0m in [0;36m?[0;34m()[0m
-[1;32m     27[0m [0;31m# TODO(jie): this is a hack.[0m[0;34m[0m[0;34m[0m[0m
+[1;32m     27[0m [0;31m# TODO: this is a hack.[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     28[0m [0;32melif[0m [0;34m([0m[0;34m([0m[0mis_orig_output_pd[0m [0;32mor[0m [0mis_opt_output_pd[0m[0;34m)[0m [0;32mand[0m [0;34m([0m[0mis_orig_output_array[0m [0;32mor[0m [0mis_opt_output_array[0m[0;34m)[0m[0;34m)[0m [0;32mor[0m [0;34m([0m[0mis_orig_output_array[0m [0;32mand[0m [0mis_opt_output_array[0m[0;34m)[0m[0;34m:[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     29[0m     [0;32massert[0m [0mlist[0m[0;34m([0m[0morig_output[0m[0;34m)[0m [0;34m==[0m [0mlist[0m[0;34m([0m[0mopt_output[0m[0;34m)[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     30[0m [0;32melse[0m[0;34m:[0m[0;34m[0m[0;34m[0m[0m
@@ -1083,7 +1083,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -1145,7 +1145,7 @@ During handling of the above exception, another exception occurred:
 
 [0;31mValueError[0m                                Traceback (most recent call last)
 [0;32m/tmp/ipykernel_3782280/3821969080.py[0m in [0;36m?[0;34m()[0m
-[1;32m     27[0m [0;31m# TODO(jie): this is a hack.[0m[0;34m[0m[0;34m[0m[0m
+[1;32m     27[0m [0;31m# TODO: this is a hack.[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     28[0m [0;32melif[0m [0;34m([0m[0;34m([0m[0mis_orig_output_pd[0m [0;32mor[0m [0mis_opt_output_pd[0m[0;34m)[0m [0;32mand[0m [0;34m([0m[0mis_orig_output_array[0m [0;32mor[0m [0mis_opt_output_array[0m[0;34m)[0m[0;34m)[0m [0;32mor[0m [0;34m([0m[0mis_orig_output_array[0m [0;32mand[0m [0mis_opt_output_array[0m[0;34m)[0m[0;34m:[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     29[0m     [0;32massert[0m [0mlist[0m[0;34m([0m[0morig_output[0m[0;34m)[0m [0;34m==[0m [0mlist[0m[0;34m([0m[0mopt_output[0m[0;34m)[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     30[0m [0;32melse[0m[0;34m:[0m[0;34m[0m[0;34m[0m[0m
@@ -1700,7 +1700,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -1799,7 +1799,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -1900,7 +1900,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -2140,7 +2140,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -2243,7 +2243,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -2351,7 +2351,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -3928,7 +3928,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -4062,7 +4062,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -4198,7 +4198,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -4346,7 +4346,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -4420,7 +4420,7 @@ During handling of the above exception, another exception occurred:
 
 [0;31mValueError[0m                                Traceback (most recent call last)
 [0;32m/tmp/ipykernel_3794477/720702364.py[0m in [0;36m?[0;34m()[0m
-[1;32m     29[0m [0;31m# TODO(jie): this is a hack.[0m[0;34m[0m[0;34m[0m[0m
+[1;32m     29[0m [0;31m# TODO: this is a hack.[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     30[0m [0;32melif[0m [0;34m([0m[0;34m([0m[0mis_orig_output_pd[0m [0;32mor[0m [0mis_opt_output_pd[0m[0;34m)[0m [0;32mand[0m [0;34m([0m[0mis_orig_output_array[0m [0;32mor[0m [0mis_opt_output_array[0m[0;34m)[0m[0;34m)[0m [0;32mor[0m [0;34m([0m[0mis_orig_output_array[0m [0;32mand[0m [0mis_opt_output_array[0m[0;34m)[0m[0;34m:[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     31[0m     [0;32massert[0m [0mlist[0m[0;34m([0m[0morig_output[0m[0;34m)[0m [0;34m==[0m [0mlist[0m[0;34m([0m[0mopt_output[0m[0;34m)[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     32[0m [0;32melse[0m[0;34m:[0m[0;34m[0m[0;34m[0m[0m
@@ -4527,7 +4527,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -4601,7 +4601,7 @@ During handling of the above exception, another exception occurred:
 
 [0;31mValueError[0m                                Traceback (most recent call last)
 [0;32m/tmp/ipykernel_3794477/720702364.py[0m in [0;36m?[0;34m()[0m
-[1;32m     29[0m [0;31m# TODO(jie): this is a hack.[0m[0;34m[0m[0;34m[0m[0m
+[1;32m     29[0m [0;31m# TODO: this is a hack.[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     30[0m [0;32melif[0m [0;34m([0m[0;34m([0m[0mis_orig_output_pd[0m [0;32mor[0m [0mis_opt_output_pd[0m[0;34m)[0m [0;32mand[0m [0;34m([0m[0mis_orig_output_array[0m [0;32mor[0m [0mis_opt_output_array[0m[0;34m)[0m[0;34m)[0m [0;32mor[0m [0;34m([0m[0mis_orig_output_array[0m [0;32mand[0m [0mis_opt_output_array[0m[0;34m)[0m[0;34m:[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     31[0m     [0;32massert[0m [0mlist[0m[0;34m([0m[0morig_output[0m[0;34m)[0m [0;34m==[0m [0mlist[0m[0;34m([0m[0mopt_output[0m[0;34m)[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     32[0m [0;32melse[0m[0;34m:[0m[0;34m[0m[0;34m[0m[0m
@@ -4710,7 +4710,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -4784,7 +4784,7 @@ During handling of the above exception, another exception occurred:
 
 [0;31mValueError[0m                                Traceback (most recent call last)
 [0;32m/tmp/ipykernel_3794477/720702364.py[0m in [0;36m?[0;34m()[0m
-[1;32m     29[0m [0;31m# TODO(jie): this is a hack.[0m[0;34m[0m[0;34m[0m[0m
+[1;32m     29[0m [0;31m# TODO: this is a hack.[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     30[0m [0;32melif[0m [0;34m([0m[0;34m([0m[0mis_orig_output_pd[0m [0;32mor[0m [0mis_opt_output_pd[0m[0;34m)[0m [0;32mand[0m [0;34m([0m[0mis_orig_output_array[0m [0;32mor[0m [0mis_opt_output_array[0m[0;34m)[0m[0;34m)[0m [0;32mor[0m [0;34m([0m[0mis_orig_output_array[0m [0;32mand[0m [0mis_opt_output_array[0m[0;34m)[0m[0;34m:[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     31[0m     [0;32massert[0m [0mlist[0m[0;34m([0m[0morig_output[0m[0;34m)[0m [0;34m==[0m [0mlist[0m[0;34m([0m[0mopt_output[0m[0;34m)[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     32[0m [0;32melse[0m[0;34m:[0m[0;34m[0m[0;34m[0m[0m
@@ -4911,7 +4911,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -5244,7 +5244,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -5299,7 +5299,7 @@ Cell [0;32mIn[9], line 26[0m
 [1;32m     23[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     25[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 26[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     27[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     27[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     28[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -5376,7 +5376,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -5431,7 +5431,7 @@ Cell [0;32mIn[9], line 26[0m
 [1;32m     23[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     25[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 26[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     27[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     27[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     28[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -5510,7 +5510,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -5565,7 +5565,7 @@ Cell [0;32mIn[9], line 26[0m
 [1;32m     23[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     25[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 26[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     27[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     27[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     28[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -5649,7 +5649,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -5704,7 +5704,7 @@ Cell [0;32mIn[9], line 26[0m
 [1;32m     23[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     25[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 26[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     27[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     27[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     28[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -5781,7 +5781,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -5836,7 +5836,7 @@ Cell [0;32mIn[9], line 26[0m
 [1;32m     23[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     25[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 26[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     27[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     27[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     28[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -5915,7 +5915,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -5970,7 +5970,7 @@ Cell [0;32mIn[9], line 26[0m
 [1;32m     23[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     25[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 26[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     27[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     27[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     28[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -6063,7 +6063,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -6118,7 +6118,7 @@ Cell [0;32mIn[9], line 26[0m
 [1;32m     23[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     25[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 26[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     27[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     27[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     28[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -6198,7 +6198,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -6253,7 +6253,7 @@ Cell [0;32mIn[9], line 26[0m
 [1;32m     23[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     25[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 26[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     27[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     27[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     28[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -6335,7 +6335,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -6390,7 +6390,7 @@ Cell [0;32mIn[9], line 26[0m
 [1;32m     23[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     25[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 26[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     27[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     27[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     28[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -6489,7 +6489,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -6544,7 +6544,7 @@ Cell [0;32mIn[9], line 26[0m
 [1;32m     23[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     25[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 26[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     27[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     27[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     28[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -6626,7 +6626,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -6681,7 +6681,7 @@ Cell [0;32mIn[9], line 26[0m
 [1;32m     23[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     25[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 26[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     27[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     27[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     28[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -6773,7 +6773,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -6828,7 +6828,7 @@ Cell [0;32mIn[9], line 26[0m
 [1;32m     23[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     25[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 26[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     27[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     27[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     28[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -7014,7 +7014,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -7076,7 +7076,7 @@ Cell [0;32mIn[9], line 26[0m
 [1;32m     23[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     25[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 26[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     27[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     27[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     28[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -7142,7 +7142,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -7204,7 +7204,7 @@ Cell [0;32mIn[9], line 26[0m
 [1;32m     23[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     25[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 26[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     27[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     27[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     28[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -7272,7 +7272,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -7334,7 +7334,7 @@ Cell [0;32mIn[9], line 26[0m
 [1;32m     23[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     25[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 26[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     27[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     27[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     28[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -7471,7 +7471,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -7533,7 +7533,7 @@ Cell [0;32mIn[9], line 26[0m
 [1;32m     23[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     25[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 26[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     27[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     27[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     28[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -7602,7 +7602,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -7664,7 +7664,7 @@ Cell [0;32mIn[9], line 26[0m
 [1;32m     23[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     25[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 26[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     27[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     27[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     28[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -7817,7 +7817,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -7882,7 +7882,7 @@ Cell [0;32mIn[9], line 26[0m
 [1;32m     23[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     25[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 26[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     27[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     27[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     28[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -7943,7 +7943,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -8008,7 +8008,7 @@ Cell [0;32mIn[9], line 26[0m
 [1;32m     23[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     25[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 26[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     27[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     27[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     28[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -8389,7 +8389,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -8454,7 +8454,7 @@ Cell [0;32mIn[9], line 28[0m
 [1;32m     25[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     27[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 28[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     29[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     29[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     30[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -8523,7 +8523,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -8588,7 +8588,7 @@ Cell [0;32mIn[9], line 28[0m
 [1;32m     25[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     27[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 28[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     29[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     29[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     30[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -8659,7 +8659,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -8724,7 +8724,7 @@ Cell [0;32mIn[9], line 28[0m
 [1;32m     25[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     27[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 28[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     29[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     29[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     30[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -8801,7 +8801,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -8866,7 +8866,7 @@ Cell [0;32mIn[9], line 28[0m
 [1;32m     25[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     27[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 28[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     29[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     29[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     30[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -8939,7 +8939,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -9004,7 +9004,7 @@ Cell [0;32mIn[9], line 28[0m
 [1;32m     25[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     27[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 28[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     29[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     29[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     30[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -9079,7 +9079,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -9144,7 +9144,7 @@ Cell [0;32mIn[9], line 28[0m
 [1;32m     25[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     27[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 28[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     29[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     29[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     30[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -9218,7 +9218,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -9283,7 +9283,7 @@ Cell [0;32mIn[9], line 28[0m
 [1;32m     25[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     27[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 28[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     29[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     29[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     30[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -9355,7 +9355,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -9420,7 +9420,7 @@ Cell [0;32mIn[9], line 28[0m
 [1;32m     25[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     27[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 28[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     29[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     29[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     30[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -9494,7 +9494,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -9559,7 +9559,7 @@ Cell [0;32mIn[9], line 28[0m
 [1;32m     25[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     27[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 28[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     29[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     29[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     30[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -9648,7 +9648,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -9713,7 +9713,7 @@ Cell [0;32mIn[9], line 28[0m
 [1;32m     25[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     27[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 28[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     29[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     29[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     30[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -9790,7 +9790,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -9855,7 +9855,7 @@ Cell [0;32mIn[9], line 28[0m
 [1;32m     25[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     27[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 28[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     29[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     29[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     30[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -9946,7 +9946,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -10011,7 +10011,7 @@ Cell [0;32mIn[9], line 28[0m
 [1;32m     25[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     27[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 28[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     29[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     29[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     30[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -10155,7 +10155,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -10246,7 +10246,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -10339,7 +10339,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -12764,7 +12764,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -12848,7 +12848,7 @@ Cell [0;32mIn[9], line 26[0m
 [1;32m     23[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     25[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 26[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     27[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     27[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     28[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -12951,7 +12951,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -13035,7 +13035,7 @@ Cell [0;32mIn[9], line 26[0m
 [1;32m     23[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     25[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 26[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     27[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     27[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     28[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -13149,7 +13149,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -13252,7 +13252,7 @@ During handling of the above exception, another exception occurred:
 
 [0;31mValueError[0m                                Traceback (most recent call last)
 [0;32m/tmp/ipykernel_3818598/2601570451.py[0m in [0;36m?[0;34m()[0m
-[1;32m     27[0m [0;31m# TODO(jie): this is a hack.[0m[0;34m[0m[0;34m[0m[0m
+[1;32m     27[0m [0;31m# TODO: this is a hack.[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     28[0m [0;32melif[0m [0;34m([0m[0;34m([0m[0mis_orig_output_pd[0m [0;32mor[0m [0mis_opt_output_pd[0m[0;34m)[0m [0;32mand[0m [0;34m([0m[0mis_orig_output_array[0m [0;32mor[0m [0mis_opt_output_array[0m[0;34m)[0m[0;34m)[0m [0;32mor[0m [0;34m([0m[0mis_orig_output_array[0m [0;32mand[0m [0mis_opt_output_array[0m[0;34m)[0m[0;34m:[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     29[0m     [0;32massert[0m [0mlist[0m[0;34m([0m[0morig_output[0m[0;34m)[0m [0;34m==[0m [0mlist[0m[0;34m([0m[0mopt_output[0m[0;34m)[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     30[0m [0;32melse[0m[0;34m:[0m[0;34m[0m[0;34m[0m[0m
@@ -13421,7 +13421,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -13514,7 +13514,7 @@ Cell [0;32mIn[9], line 26[0m
 [1;32m     23[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     25[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 26[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     27[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     27[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     28[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -13587,7 +13587,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -13680,7 +13680,7 @@ Cell [0;32mIn[9], line 26[0m
 [1;32m     23[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     25[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 26[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     27[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     27[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     28[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -13755,7 +13755,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -13848,7 +13848,7 @@ Cell [0;32mIn[9], line 26[0m
 [1;32m     23[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     25[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 26[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     27[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     27[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     28[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -14312,7 +14312,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -14405,7 +14405,7 @@ Cell [0;32mIn[9], line 26[0m
 [1;32m     23[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     25[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 26[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     27[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     27[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     28[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -14479,7 +14479,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -14572,7 +14572,7 @@ Cell [0;32mIn[9], line 26[0m
 [1;32m     23[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     25[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 26[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     27[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     27[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     28[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 
@@ -14668,7 +14668,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -14761,7 +14761,7 @@ Cell [0;32mIn[9], line 26[0m
 [1;32m     23[0m     [38;5;28;01massert[39;00m opt_output[38;5;241m.[39mto_html() [38;5;241m==[39m orig_output
 [1;32m     25[0m [38;5;28;01mif[39;00m is_orig_output_pd [38;5;129;01mand[39;00m is_opt_output_pd:
 [0;32m---> 26[0m     [38;5;28;01massert[39;00m orig_output[38;5;241m.[39mequals(opt_output)
-[1;32m     27[0m [38;5;66;03m# TODO(jie): this is a hack.[39;00m
+[1;32m     27[0m [38;5;66;03m# TODO: this is a hack.[39;00m
 [1;32m     28[0m [38;5;28;01melif[39;00m ((is_orig_output_pd [38;5;129;01mor[39;00m is_opt_output_pd) [38;5;129;01mand[39;00m (is_orig_output_array [38;5;129;01mor[39;00m is_opt_output_array)) [38;5;129;01mor[39;00m (is_orig_output_array [38;5;129;01mand[39;00m is_opt_output_array):
 
 [0;31mAssertionError[0m: 

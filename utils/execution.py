@@ -645,7 +645,7 @@ def schedule_dp_data_on_cpu(
     dp_gpu[0] = gpu_times[0]
 
     # Assume the data exists on CPU.
-    # TODO(jie)
+    # TODO
 
     for i in range(1, n):
         # Stay on CPU.
@@ -701,7 +701,7 @@ def schedule_dp_data_on_gpu(
     dp_gpu[0] = gpu_times[0]
 
     # Assume the data exists on CPU.
-    # TODO(jie)
+    # TODO
 
     for i in range(1, n):
         # Stay on CPU.
@@ -799,7 +799,7 @@ def make_transfer_cells_and_get_next_index(
                 curr_insert_index += 1
                 notebook.cells.insert(curr_insert_index, transfer_cell)
             else:
-                # TODO(sahil): find out if series are ever placed on the GPU.
+                # TODO: find out if series are ever placed on the GPU.
                 # add a dummy transfer cell for series.
                 if pre_exec:
                     transfer_code_annotations = f"## Transfer_pre {annotated_cell_idx} ##\npd_{df_name} = {df_name}"

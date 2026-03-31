@@ -520,7 +520,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -641,7 +641,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -764,7 +764,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -883,7 +883,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -946,7 +946,7 @@ During handling of the above exception, another exception occurred:
 
 [0;31mValueError[0m                                Traceback (most recent call last)
 [0;32m/tmp/ipykernel_3663872/2379546886.py[0m in [0;36m?[0;34m()[0m
-[1;32m     29[0m [0;31m# TODO(jie): this is a hack.[0m[0;34m[0m[0;34m[0m[0m
+[1;32m     29[0m [0;31m# TODO: this is a hack.[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     30[0m [0;32melif[0m [0;34m([0m[0;34m([0m[0mis_orig_output_pd[0m [0;32mor[0m [0mis_opt_output_pd[0m[0;34m)[0m [0;32mand[0m [0;34m([0m[0mis_orig_output_array[0m [0;32mor[0m [0mis_opt_output_array[0m[0;34m)[0m[0;34m)[0m [0;32mor[0m [0;34m([0m[0mis_orig_output_array[0m [0;32mand[0m [0mis_opt_output_array[0m[0;34m)[0m[0;34m:[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     31[0m     [0;32massert[0m [0mlist[0m[0;34m([0m[0morig_output[0m[0;34m)[0m [0;34m==[0m [0mlist[0m[0;34m([0m[0mopt_output[0m[0;34m)[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     32[0m [0;32melse[0m[0;34m:[0m[0;34m[0m[0;34m[0m[0m
@@ -1050,7 +1050,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -1113,7 +1113,7 @@ During handling of the above exception, another exception occurred:
 
 [0;31mValueError[0m                                Traceback (most recent call last)
 [0;32m/tmp/ipykernel_3663872/2379546886.py[0m in [0;36m?[0;34m()[0m
-[1;32m     29[0m [0;31m# TODO(jie): this is a hack.[0m[0;34m[0m[0;34m[0m[0m
+[1;32m     29[0m [0;31m# TODO: this is a hack.[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     30[0m [0;32melif[0m [0;34m([0m[0;34m([0m[0mis_orig_output_pd[0m [0;32mor[0m [0mis_opt_output_pd[0m[0;34m)[0m [0;32mand[0m [0;34m([0m[0mis_orig_output_array[0m [0;32mor[0m [0mis_opt_output_array[0m[0;34m)[0m[0;34m)[0m [0;32mor[0m [0;34m([0m[0mis_orig_output_array[0m [0;32mand[0m [0mis_opt_output_array[0m[0;34m)[0m[0;34m:[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     31[0m     [0;32massert[0m [0mlist[0m[0;34m([0m[0morig_output[0m[0;34m)[0m [0;34m==[0m [0mlist[0m[0;34m([0m[0mopt_output[0m[0;34m)[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     32[0m [0;32melse[0m[0;34m:[0m[0;34m[0m[0;34m[0m[0m
@@ -1219,7 +1219,7 @@ elif is_opt_output_styler:
 
 if is_orig_output_pd and is_opt_output_pd:
     assert orig_output.equals(opt_output)
-# TODO(jie): this is a hack.
+# TODO: this is a hack.
 elif ((is_orig_output_pd or is_opt_output_pd) and (is_orig_output_array or is_opt_output_array)) or (is_orig_output_array and is_opt_output_array):
     assert list(orig_output) == list(opt_output)
 else:
@@ -1282,7 +1282,7 @@ During handling of the above exception, another exception occurred:
 
 [0;31mValueError[0m                                Traceback (most recent call last)
 [0;32m/tmp/ipykernel_3663872/2379546886.py[0m in [0;36m?[0;34m()[0m
-[1;32m     29[0m [0;31m# TODO(jie): this is a hack.[0m[0;34m[0m[0;34m[0m[0m
+[1;32m     29[0m [0;31m# TODO: this is a hack.[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     30[0m [0;32melif[0m [0;34m([0m[0;34m([0m[0mis_orig_output_pd[0m [0;32mor[0m [0mis_opt_output_pd[0m[0;34m)[0m [0;32mand[0m [0;34m([0m[0mis_orig_output_array[0m [0;32mor[0m [0mis_opt_output_array[0m[0;34m)[0m[0;34m)[0m [0;32mor[0m [0;34m([0m[0mis_orig_output_array[0m [0;32mand[0m [0mis_opt_output_array[0m[0;34m)[0m[0;34m:[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     31[0m     [0;32massert[0m [0mlist[0m[0;34m([0m[0morig_output[0m[0;34m)[0m [0;34m==[0m [0mlist[0m[0;34m([0m[0mopt_output[0m[0;34m)[0m[0;34m[0m[0;34m[0m[0m
 [1;32m     32[0m [0;32melse[0m[0;34m:[0m[0;34m[0m[0;34m[0m[0m

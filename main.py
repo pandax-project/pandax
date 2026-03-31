@@ -307,7 +307,7 @@ async def main():
     )
     schedule_info.to_csv(original_notebook_path / "schedule_info.csv")
 
-    # TODO(jie): clear checkpoints.
+    # TODO: clear checkpoints.
     # Clear all checkpoints in the original and annotated notebooks.
 
 

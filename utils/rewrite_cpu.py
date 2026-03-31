@@ -229,7 +229,7 @@ async def rewrite_notebook_cpu(
             )
 
     # Clear all the checkpoints we made.
-    # TODO(jie): remove this.
+    # TODO: remove this.
     # clear_all_checkpoints(annotated_nb_path)
     rewritten_nb = make_notebook(rewritten_nb_cells)
     save_notebook(rewritten_nb, rewritten_nb_path)
@@ -357,7 +357,7 @@ async def _rewrite_cell_cpu(
         best_small_rewritten_post_checkpoint_path,
     )
 
-    # TODO(jie): move this to before running the original cell.
+    # TODO: move this to before running the original cell.
     while num_tries < num_tries_per_cell:
         print("========================================================")
         print(f"Rewriting cell {annotated_cell_idx}... Try {num_tries}... ")
@@ -446,7 +446,7 @@ with open("{opt_cell_exec_info_pkl_path}", "wb") as f:
                 save_output_cell,
             ]
         )
-        # TODO(jie): this is for debugging. We can remove it later.
+        # TODO: this is for debugging. We can remove it later.
         save_notebook(rewritten_cell_notebook, rewritten_cell_notebook_save_path)
 
         # Run the new notebook.
