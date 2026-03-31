@@ -7,6 +7,8 @@ import pandas as pd
 from utils.benchmarks import BENCHMARK_NAMES, BENCHMARKS_TO_PATHS
 from utils.schedule import get_actual_time_for_schedule, get_schedule_and_cost
 
+BENCHMARK_NAMES = ["imdb-dataset-eda-project"]
+
 for name in BENCHMARK_NAMES:
     print(name)
     path = Path(BENCHMARKS_TO_PATHS[name])
@@ -46,8 +48,6 @@ for name in BENCHMARK_NAMES:
     )
     end_time = time.time()
     print(f"Time taken: {end_time - start_time} seconds")
-    continue
-    exit()
     actual_time_for_ground_truth_schedule = get_actual_time_for_schedule(
         ground_truth_schedule,
         orig_cpu_times,
@@ -63,6 +63,7 @@ for name in BENCHMARK_NAMES:
     )
     print("Ground truth schedule is correct")
     print()
+    exit()
 
     # Just use the cost model for transfer costs.
     cost_model_schedule, cost_model_total_cost = get_schedule_and_cost(

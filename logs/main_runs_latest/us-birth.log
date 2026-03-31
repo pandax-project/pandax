@@ -1,0 +1,271 @@
+Command: python -u main.py us-birth --disable_scheduling
+Started: Mon Mar 30 04:19:23 AM PDT 2026
+Annotated notebook saved to /scratch/jieq/pandax/ds_notebooks/us-birth/src/cell_exec_info.ipynb
+Executing code: import sys, os
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df, convert_col
+import pickle
+Executing code: %%RecordEventWithColumnInfo
+# 
+#Importing all necessary libraries
+
+import numpy as np
+import pandas as pd
+import seaborn as sns
+# %matplotlib inline
+import matplotlib.pyplot as plt
+import time
+from pathlib import Path
+from utils.benchmarks import BENCHMARKS_TO_PATHS
+
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+#Alternatively you can use this code to get the dataset
+# url = "https://raw.githubusercontent.com/jakevdp/data-CDCbirths/master/births.csv"
+benchmark_name = "us-birth"
+birth_data = pd.read_csv(Path(BENCHMARKS_TO_PATHS[benchmark_name]).parent / "input" / "births.csv")
+factor = 50
+birth_data = pd.concat([birth_data] * factor)
+birth_data.sample(5, random_state=0)
+Executing code: %%RecordEventWithColumnInfo
+### cell 1 ###
+
+birth_data.shape, birth_data.info()
+Executing code: %%RecordEventWithColumnInfo
+### cell 2 ###
+
+birth_data = birth_data.fillna(0)
+birth_data['day'] = birth_data['day'].astype(int)
+birth_data.info()
+Executing code: %%RecordEventWithColumnInfo
+### cell 3 ###
+
+birth_data.sample(5, random_state=0)
+Executing code: %%RecordEventWithColumnInfo
+### cell 4 ###
+
+#Code to add the decade column 
+birth_data['decade'] = 10 * (birth_data['year'] // 10)
+birth_data.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 5 ###
+
+#take a look at male and female births as a function of decade
+birth_data.pivot_table('births', index='decade', columns='gender', aggfunc='sum')
+Executing code: %%RecordEventWithColumnInfo
+### cell 6 ###
+
+#Code to present male and female mean(births) against decade numericaly
+birth_data.pivot_table('births', index='decade', columns='gender', aggfunc='mean')
+Executing code: %%RecordEventWithColumnInfo
+### cell 7 ###
+
+years2check = [1988, 1989]
+
+for year in years2check:
+  yearly_data = birth_data[birth_data['year'] == year]
+  print("Births data for - ", year)
+  print(yearly_data)
+/scratch/jieq/elastic-notebook/elastic/core/common/pandas.py:78: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  obj[col] = col_series
+Executing code: %%RecordEventWithColumnInfo
+### cell 8 ###
+
+#Descriptive summary before removing outliers
+birth_data.describe()
+/scratch/jieq/elastic-notebook/elastic/core/common/pandas.py:78: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  obj[col] = col_series
+Executing code: %%RecordEventWithColumnInfo
+### cell 9 ###
+
+# Assuming 'birth_data' is a cuDF DataFrame
+# For example:
+# data = np.random.normal(loc=4000, scale=500, size=10000)
+# birth_data = cudf.DataFrame({'births': data})
+
+# 1. Your original setup code is fine
+#    (Use .to_numpy() to transfer data to the CPU for the numpy function)
+quartiles = np.percentile(birth_data['births'].to_numpy(), [25, 50, 75])
+mu = quartiles[1]
+sig = 0.74 * (quartiles[2] - quartiles[0])
+
+# 2. Pre-calculate the final boundary values
+lower_bound = mu - 5 * sig
+upper_bound = mu + 5 * sig
+
+# 3. Create the query string using an f-string
+#    This injects the *values* of lower_bound and upper_bound into the string
+query_string = f"(births > {lower_bound}) & (births < {upper_bound})"
+
+# 4. Use the generated string in the query() method
+births = birth_data.query(query_string)
+
+# The rest of your code works as expected
+birth_data.shape, births.sample(5, random_state=0)
+/scratch/jieq/elastic-notebook/elastic/core/common/pandas.py:78: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  obj[col] = col_series
+Executing code: %%RecordEventWithColumnInfo
+### cell 10 ###
+
+#Descriptive summary after removal of outliers
+births.describe()
+/scratch/jieq/elastic-notebook/elastic/core/common/pandas.py:78: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  obj[col] = col_series
+Executing code: %%RecordEventWithColumnInfo
+### cell 11 ###
+
+births.year.unique()
+Executing code: %%RecordEventWithColumnInfo
+### cell 12 ###
+
+# create a datetime index from the year, month, day
+births.index = pd.to_datetime(10000 * births.year + 100 * births.month + births.day, format='%Y%m%d')
+births.head()
+/scratch/jieq/elastic-notebook/elastic/core/common/pandas.py:78: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  obj[col] = col_series
+Executing code: %%RecordEventWithColumnInfo
+### cell 13 ###
+
+#Creating another column 'dayofweek' using dayofweek attribute of pandas DatetimeIndex
+births['dayofweek'] = births.index.dayofweek
+births.head()
+<ipython-input-1-ddda269cf61a>:4: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  births['dayofweek'] = births.index.dayofweek
+/scratch/jieq/elastic-notebook/elastic/core/common/pandas.py:78: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  obj[col] = col_series
+Executing code: %%RecordEventWithColumnInfo
+### cell 14 ###
+
+mapping = {0: 'Monday', 1: 'Tuesady', 2: 'Wednesday', 3: 'Thursday', 4: 'Friday', 5: 'Saturday', 6: 'Sunday'}
+births['dayofweek'] = births['dayofweek'].map(mapping)
+<ipython-input-1-3bb1118160f9>:4: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  births['dayofweek'] = births['dayofweek'].map(mapping)
+/scratch/jieq/elastic-notebook/elastic/core/common/pandas.py:78: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  obj[col] = col_series
+Executing code: %%RecordEventWithColumnInfo
+### cell 15 ###
+
+births.head()
+/scratch/jieq/elastic-notebook/elastic/core/common/pandas.py:78: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  obj[col] = col_series
+Executing code: %%RecordEventWithColumnInfo
+### cell 16 ###
+
+births_by_date = births.pivot_table('births', [births.index.month, births.index.day])
+births_by_date.sample(10, random_state=0)
+/scratch/jieq/elastic-notebook/elastic/core/common/pandas.py:78: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  obj[col] = col_series
+Executing code: %%RecordEventWithColumnInfo
+### cell 17 ###
+
+births_by_date.shape
+Executing code: %%RecordEventWithColumnInfo
+### cell 18 ###
+
+#Creating index like timeseries
+# births_by_date.index = [pd.datetime(2020, month, day) for (month, day) in births_by_date.index]
+# births_by_date.head()
+births_by_date.index = [
+    pd.Timestamp(2020, month, day)
+    for (month, day) in births_by_date.index
+]
+births_by_date.head()
+/scratch/jieq/elastic-notebook/elastic/core/common/pandas.py:78: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  obj[col] = col_series
+Executing code: %PrintCellInfo cell_exec_info
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Ran small notebook to get cell exec info in 14.540820121765137 seconds
+Getting cudf profile information...
+Annotated notebook saved to /scratch/jieq/pandax/ds_notebooks/us-birth/src/cudf_profile.ipynb
+Traceback (most recent call last):
+  File "/scratch/jieq/pandax/main.py", line 315, in <module>
+    asyncio.run(main())
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/asyncio/base_events.py", line 636, in run_until_complete
+    self.run_forever()
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/asyncio/base_events.py", line 603, in run_forever
+    self._run_once()
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/asyncio/base_events.py", line 1909, in _run_once
+    handle._run()
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/asyncio/events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "/scratch/jieq/pandax/main.py", line 158, in main
+    cudf_profile_infos = checkpoint_and_get_cudf_profile_info(small_notebook_path)
+  File "/scratch/jieq/pandax/utils/rewrite.py", line 69, in checkpoint_and_get_cudf_profile_info
+    execute_notebook(cudf_nb)
+  File "/scratch/jieq/pandax/utils/execution.py", line 547, in execute_notebook
+    nb_client.execute()
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/site-packages/jupyter_core/utils/__init__.py", line 164, in wrapped
+    return _runner_map[name].run(inner)
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/site-packages/jupyter_core/utils/__init__.py", line 127, in run
+    return fut.result(None)
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/concurrent/futures/_base.py", line 453, in result
+    self._condition.wait(timeout)
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/threading.py", line 320, in wait
+    waiter.acquire()
+KeyboardInterrupt
+Exception ignored in atexit callback: <bound method run_sync.<locals>.wrapped of <nbclient.client.NotebookClient object at 0x76b95f376650>>
+Traceback (most recent call last):
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/site-packages/jupyter_core/utils/__init__.py", line 158, in wrapped
+    return loop.run_until_complete(inner)
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/asyncio/base_events.py", line 636, in run_until_complete
+    self.run_forever()
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/asyncio/base_events.py", line 603, in run_forever
+    self._run_once()
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/asyncio/base_events.py", line 1871, in _run_once
+    event_list = self._selector.select(timeout)
+  File "/scratch/jieq/conda-envs/rapids-26.02/lib/python3.10/selectors.py", line 469, in select
+    fd_event_list = self._selector.poll(timeout, max_ev)
+KeyboardInterrupt: 
+[IPKernelApp] WARNING | Parent appears to have exited, shutting down.
