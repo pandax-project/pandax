@@ -7,7 +7,7 @@ import pandas as pd
 from utils.benchmarks import BENCHMARK_NAMES, BENCHMARKS_TO_PATHS
 from utils.schedule import get_actual_time_for_schedule, get_schedule_and_cost
 
-BENCHMARK_NAMES = ["imdb-dataset-eda-project"]
+BENCHMARK_NAMES = ["environmental-vs-ai-startups-india-eda"]
 
 for name in BENCHMARK_NAMES:
     print(name)

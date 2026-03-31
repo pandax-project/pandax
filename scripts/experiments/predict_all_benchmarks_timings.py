@@ -17,7 +17,16 @@ from utils.benchmarks import BENCHMARK_NAMES, BENCHMARKS_TO_PATHS
 from utils.prediction import modify_factor_and_run
 from utils.verification import extract_factors, load_code_lines
 
-BENCHMARK_NAMES = ["supermarket-sales-prediction-xgboost-fastai"]
+BENCHMARK_NAMES = [
+    "feedback3-eda-hf-custom-trainer-sift",
+    "beautiful-kaggle-2022-analysis",
+    "creating-player-stats-using-tracking-data",
+    "comprehensive-data-exploration-with-python",
+    "retail-supermarket-store-analysis",
+    "adidas-retail-eda-data-visualization",
+    "indian-startup-growth-analysis",
+]
+
 def main(use_gpu: bool) -> None:
     failed_paths: list[str] = []
     rewritten_dir = "rewritten" if use_gpu else "rewritten_cpu"
