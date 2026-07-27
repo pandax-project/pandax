@@ -1,4 +1,12 @@
 # PandaX
+This repository contains the code for **PandaX**.
+
+🚧 **Status:** Code will be released soon.  
+📄 **Publication:** The paper that describes this project is currently under submission.
+
+Meanwhile, see more information here:  
+👉 https://pandax-project.github.io/
+
 
 ## Setup
 To create the conda environment, run:
@@ -50,10 +58,15 @@ pip install -e .
 
 Add both pandax repo and elastic-notebook repo to your `$PYTHONPATH` env variable.
 
-This repository contains the code for **PandaX**.
+## Running benchmarks
+First, generate the rewritten notebooks by:
+```python
+python -u main.py {benchmark_name}
+```
 
-🚧 **Status:** Code will be released soon.  
-📄 **Publication:** The paper that describes this project is currently under submission.
+The rewritten notebooks will be saved in `path to benchmark / rewritten / o4_mini_high.ipynb`
 
-Meanwhile, see more information here:  
-👉 https://pandax-project.github.io/
+Then, run:
+```python
+python scripts/experiments/predict_all_benchmarks_timings.py (--use-gpu/--no-use-gpu)
+```

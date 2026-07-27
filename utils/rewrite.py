@@ -79,6 +79,7 @@ def checkpoint_and_get_cudf_profile_info(nb_path: Path) -> dict[int, CudfProfile
                 f"Cudf profile info is None for cell {annotated_cell_index}."
             )
         cudf_profile_infos[annotated_cell_index] = cudf_profile_info
+    cudf_nb_path.unlink(missing_ok=True)
     print("Done getting cudf profile information.")
     return cudf_profile_infos
 
@@ -229,6 +230,9 @@ async def rewrite_notebook(
     rewritten_nb_path = small_nb_path.parent / "rewritten" / "o4_mini_high.ipynb"
     save_notebook(rewritten_nb, rewritten_nb_path)
     print(f"Rewritten notebook saved to {rewritten_nb_path}")
+    # Remove intermediate notebooks; we only keep rewritten/o4_mini_high.ipynb.
+    small_annotated_nb_path.unlink(missing_ok=True)
+    small_rewritten_nb_path.unlink(missing_ok=True)
     return rewritten_nb, rewritten_times
 
 
@@ -285,7 +289,6 @@ async def _rewrite_cell(
 
     num_tries = 0
     is_correct = False
-    rewritten_cell_notebook_save_path = None
     all_rewritten_code_info: list[CodeInfo] = []
     rewritten_code_info = None
     rewritten_cell_cudf_profile_info = None
@@ -321,11 +324,6 @@ async def _rewrite_cell(
             post_checkpoint_cell,
         ]
     )
-    # Save the original cell notebook.
-    original_cell_notebook_save_path = (
-        nb_path.parent / f"original_cell_{annotated_cell_idx}.ipynb"
-    )
-    save_notebook(original_cell_notebook, original_cell_notebook_save_path)
     # Execute the original cell notebook.
     execute_notebook(original_cell_notebook)
     original_time = parse_wall_time_to_ms_from_all_outputs(
@@ -359,6 +357,7 @@ async def _rewrite_cell(
     while num_tries < NUM_TRIES_PER_CELL:
         try_start_time = time.time()
         current_try_post_checkpoint_path: Path | None = None
+        opt_cell_exec_info_pkl_path: Path | None = None
         print("========================================================")
         print(f"Rewriting cell {annotated_cell_idx}... Try {num_tries}... ")
         active_vars = [var.name for var in cell_exec_info.active_vars]
@@ -533,12 +532,9 @@ with open("{opt_cell_exec_info_pkl_path}", "wb") as f:
                 print(f"An unexpected error occurred {e}")
             is_correct = False
         finally:
-            # dump the rewritten cell notebook.
-            rewritten_cell_notebook_save_path = (
-                nb_path.parent
-                / f"rewrite_cell_{annotated_cell_idx}_try_{num_tries}.ipynb"
-            )
-            save_notebook(rewritten_cell_notebook, rewritten_cell_notebook_save_path)
+            # Failed tries should not leave behind checkpoints.
+            if not is_correct and current_try_post_checkpoint_path is not None:
+                current_try_post_checkpoint_path.unlink(missing_ok=True)
 
         print(f"Rewritten time: {rewritten_time} ms")
 
@@ -556,11 +552,6 @@ with open("{opt_cell_exec_info_pkl_path}", "wb") as f:
             cudf_cell = make_code_cell(
                 maybe_annotate_code_with_cudf_profile(rewritten_code)
             )
-            # Save the new cell notebook for profiling
-            rewritten_cell_profile_notebook_save_path = (
-                nb_path.parent
-                / f"rewrite_cell_{annotated_cell_idx}_try_{num_tries}_profile.ipynb"
-            )
             rewritten_cell_profile_notebook = make_notebook(
                 [
                     load_elastic_notebook_cell,
@@ -568,10 +559,6 @@ with open("{opt_cell_exec_info_pkl_path}", "wb") as f:
                     load_checkpoint_cell,
                     cudf_cell,
                 ]
-            )
-            save_notebook(
-                rewritten_cell_profile_notebook,
-                rewritten_cell_profile_notebook_save_path,
             )
             cudf_profile_start_time = time.time()
             execute_notebook(rewritten_cell_profile_notebook)
@@ -670,6 +657,8 @@ with open("{opt_cell_exec_info_pkl_path}", "wb") as f:
             execution_output=execution_output,
         )
         all_rewritten_code_info.append(rewritten_code_info)
+        if opt_cell_exec_info_pkl_path is not None:
+            opt_cell_exec_info_pkl_path.unlink(missing_ok=True)
         try_end_time = time.time()
         print(f"Try {num_tries} took {try_end_time - try_start_time} seconds.")
         num_tries += 1

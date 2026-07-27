@@ -1,0 +1,339 @@
+Command: python -u main.py nyc-taxi --disable_scheduling
+Started: Mon Mar 30 18:38:48 UTC 2026
+Annotated notebook saved to /home/sahilbhatia/pandax/ds_notebooks/nyc-taxi/src/cell_exec_info.ipynb
+Executing code: import sys, os
+%load_ext ElasticNotebook
+from elastic.core.common.pandas import compare_df, convert_col
+import pickle
+import cudf
+Executing code: %%RecordEventWithColumnInfo
+#
+# import dias.rewriter
+# import important libraries - matplotlib, seaborn and pandas
+import pandas as pd
+from pathlib import Path
+from utils.benchmarks import BENCHMARKS_TO_PATHS
+
+Executing code: %%RecordEventWithColumnInfo
+### cell 0 ###
+
+benchmark_name = "nyc-taxi"
+file_loc = Path(BENCHMARKS_TO_PATHS[benchmark_name]).parent / "input" / "yellow_tripdata.csv"
+factor = 0.1
+# read file
+trip_data = pd.read_csv(file_loc)
+trip_data.sample(frac=factor, random_state=0)
+trip_data.shape, trip_data.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 1 ###
+
+# print data tail
+trip_data.tail()
+Executing code: %%RecordEventWithColumnInfo
+### cell 2 ###
+
+# print data info
+trip_data.info()
+Executing code: %%RecordEventWithColumnInfo
+### cell 3 ###
+
+# remove following columns - 'VendorID','RatecodeID','store_and_fwd_flag'
+trip_data.drop(["VendorID", "RatecodeID", "store_and_fwd_flag"], axis=1, inplace=True)
+# print data head
+trip_data.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 4 ###
+
+# convert 'tpep_pickup_datetime' and 'tpep_dropoff_datetime' to datetime format
+trip_data["tpep_pickup_datetime"] = pd.to_datetime(
+    trip_data["tpep_pickup_datetime"], errors="coerce"
+)
+trip_data["tpep_dropoff_datetime"] = pd.to_datetime(
+    trip_data["tpep_dropoff_datetime"], errors="coerce"
+)
+# print data info
+print(trip_data.info())
+# print data head
+trip_data.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 5 ###
+
+# create 'duration' column using pd.Timedelta(minutes=1)
+trip_data["duration"] = (
+    trip_data["tpep_dropoff_datetime"] - trip_data["tpep_pickup_datetime"]
+) / pd.Timedelta(minutes=1)
+# create 'trip_pickup_hour' column using 'tpep_pickup_datetime' column
+trip_data["trip_pickup_hour"] = trip_data["tpep_pickup_datetime"].dt.hour
+# create 'trip_dropoff_hour' column using 'tpep_dropoff_datetime' column
+trip_data["trip_dropoff_hour"] = trip_data["tpep_dropoff_datetime"].dt.hour
+# create 'trip_day' column using 'tpep_pickup_datetime' column - use day_name()
+trip_data["trip_day"] = trip_data["tpep_pickup_datetime"].dt.day_name()
+# print data info
+print(trip_data.info())
+# print data head
+trip_data.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 6 ###
+
+# print missing values for each column - use .isnull().sum
+trip_data.isnull().sum(axis=0).reset_index()
+Executing code: %%RecordEventWithColumnInfo
+### cell 7 ###
+
+# value_counts for 'payment_type' column
+trip_data["payment_type"].value_counts()
+Executing code: %%RecordEventWithColumnInfo
+### cell 8 ###
+
+# function for mapping numerical payment_type to actual payment
+def map_payment_type(x):
+    if x == 1:
+        return "Credit_card"
+    elif x == 2:
+        return "Cash"
+    elif x == 3:
+        return "No_charge"
+    elif x == 4:
+        return "Dispute"
+    elif x == 5:
+        return "Unknown"
+    else:
+        return "Voided_trip"
+
+
+# use .apply and lambda on payment_type column to change 'payment_type' column
+trip_data["payment_type"] = trip_data.payment_type.apply(lambda x: map_payment_type(x))
+# print data head
+trip_data.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 9 ###
+
+# print data info to show that payment_type data type has changed
+trip_data.info()
+Executing code: %%RecordEventWithColumnInfo
+### cell 10 ###
+
+# create 'total_taxes' column from summing 'extra','mta_tax', 'improvement_surcharge'
+trip_data["total_taxes"] = (
+    trip_data["extra"] + trip_data["mta_tax"] + trip_data["improvement_surcharge"]
+)
+# drop 'extra','mta_tax','improvement_surcharge' columns
+trip_data.drop(["extra", "mta_tax", "improvement_surcharge"], axis=1, inplace=True)
+# print data head
+trip_data.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 11 ###
+
+# continuous_columns list
+continuous_columns = [
+    "fare_amount",
+    "tip_amount",
+    "total_taxes",
+    "total_amount",
+    "duration",
+    "trip_distance",
+    "tolls_amount",
+]
+Executing code: %%RecordEventWithColumnInfo
+### cell 12 ###
+
+# use .describe() for showing the statistics for continuous columns
+trip_data[continuous_columns].describe()
+Executing code: %%RecordEventWithColumnInfo
+### cell 13 ###
+
+# using .loc to show negative values in fare_amount
+trip_data.loc[trip_data["fare_amount"] < 0]
+Executing code: %%RecordEventWithColumnInfo
+### cell 14 ###
+
+# using .loc to show negative values in tip_amount
+trip_data.loc[trip_data["tip_amount"] < 0]
+Executing code: %%RecordEventWithColumnInfo
+### cell 15 ###
+
+# using .loc to show negative values in tolls_amount
+trip_data.loc[trip_data["tolls_amount"] < 0]
+Executing code: %%RecordEventWithColumnInfo
+### cell 16 ###
+
+# using .loc to show negative values in total_taxes
+trip_data.loc[trip_data["total_taxes"] < 0]
+Executing code: %%RecordEventWithColumnInfo
+### cell 17 ###
+
+# using .loc to show negative values in total_amount
+trip_data.loc[trip_data["total_amount"] < 0]
+Executing code: %%RecordEventWithColumnInfo
+### cell 18 ###
+
+# data shape before filtering negative fare_amount rows
+print(trip_data.shape)
+# using .loc to filter only those rows where fare_amount is positive
+trip_data = trip_data.loc[trip_data["fare_amount"] >= 0]
+trip_data.shape, trip_data.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 19 ###
+
+# using .loc to show negative values in duration
+trip_data.loc[trip_data["duration"] < 0]
+Executing code: %%RecordEventWithColumnInfo
+### cell 20 ###
+
+# using .loc to filter only those rows where duration is positive
+trip_data = trip_data.loc[trip_data["duration"] >= 0]
+trip_data.shape
+Executing code: %%RecordEventWithColumnInfo
+### cell 21 ###
+
+# use .describe() again to show the statistics for these continuous variables
+trip_data[continuous_columns].describe()
+Executing code: %%RecordEventWithColumnInfo
+### cell 22 ###
+
+# list of categorical_variables
+categorical_variables = [
+    "payment_type",
+    "trip_pickup_hour",
+    "trip_dropoff_hour",
+    "trip_day",
+    "PULocationID",
+    "DOLocationID",
+]
+Executing code: %%RecordEventWithColumnInfo
+### cell 23 ###
+
+# start exploration with payment_type using .value_counts()
+trip_data["payment_type"].value_counts()
+Executing code: %%RecordEventWithColumnInfo
+### cell 24 ###
+
+# but this is a series for ease of plotting we need to use dataframe using .reset_index() on value_counts()
+payment_type_category_count = trip_data["payment_type"].value_counts().reset_index()
+payment_type_category_count.columns = ["payment_type", "count"]
+# print the above dataframe
+payment_type_category_count
+Executing code: %%RecordEventWithColumnInfo
+### cell 25 ###
+
+# we are shown the count under each category but it is better to have count% for comparison - create count_percent col
+payment_type_category_count["count_percent"] = (
+    payment_type_category_count["count"] / trip_data.shape[0]
+) * 100
+# print the data frame
+payment_type_category_count
+Executing code: %%RecordEventWithColumnInfo
+### cell 26 ###
+
+# let's see the number of categories available in both pickup and dropoff location - PULocationID and DOLocationID
+(
+    trip_data["PULocationID"].value_counts().shape,
+    trip_data["DOLocationID"].value_counts().shape,
+)
+Executing code: %%RecordEventWithColumnInfo
+### cell 27 ###
+
+# create routes column using PULocationID and DOLocationID with lambda function
+trip_data["routes"] = trip_data.apply(
+    lambda x: str(x["PULocationID"]) + "-" + str(x["DOLocationID"]), axis=1
+)
+Executing code: %%RecordEventWithColumnInfo
+### cell 28 ###
+
+trip_data.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 29 ###
+
+# look into value_counts of 'passenger_count'
+trip_data["passenger_count"].value_counts()
+Executing code: %%RecordEventWithColumnInfo
+### cell 30 ###
+
+# restricted_fare_amount_data dataframe formation by filtering fare_amount less than 50 dollars
+restricted_fare_amount_data = trip_data.loc[trip_data["fare_amount"] <= 50]
+restricted_fare_amount_data.shape
+/home/sahilbhatia/elastic-notebook/elastic/core/common/pandas.py:78: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  obj[col] = col_series
+Executing code: %%RecordEventWithColumnInfo
+### cell 31 ###
+
+# restricted_total_amount_data for filtering total_amount data to less than 50 dollars
+restricted_total_amount_data = trip_data.loc[trip_data["total_amount"] <= 50]
+restricted_total_amount_data.shape
+Executing code: %%RecordEventWithColumnInfo
+### cell 32 ###
+
+restricted_tip_amount_data = trip_data.loc[trip_data["tip_amount"] < 10]
+restricted_total_taxes_data = trip_data.loc[trip_data["total_taxes"] < 10]
+restricted_tip_amount_data.shape, restricted_total_taxes_data.shape
+Executing code: %%RecordEventWithColumnInfo
+### cell 33 ###
+
+# create a new series using value_counts() on 'PULocationID'
+pickup_location_value_counts = trip_data["PULocationID"].value_counts()
+# show the series
+pickup_location_value_counts.head()
+Executing code: %%RecordEventWithColumnInfo
+### cell 34 ###
+
+# top 10 frequent pickup locations using .nlargest(10).index
+top_10_frequent_pickup_locations = pickup_location_value_counts.nlargest(10).index
+top_10_frequent_pickup_locations
+Executing code: %%RecordEventWithColumnInfo
+### cell 35 ###
+
+# create restricted_duration dataframe with .loc on 'duration' column
+restricted_duration = trip_data.loc[trip_data["duration"] < 50]
+restricted_duration.shape
+Executing code: %PrintCellInfo cell_exec_info
+Executing code: %reset -f
+Executing code: %reload_ext ElasticNotebook
+Ran small notebook to get cell exec info in 1315.5303008556366 seconds
+Getting cudf profile information...
+Annotated notebook saved to /home/sahilbhatia/pandax/ds_notebooks/nyc-taxi/src/cudf_profile.ipynb
+Traceback (most recent call last):
+  File "/home/sahilbhatia/pandax/main.py", line 315, in <module>
+    asyncio.run(main())
+  File "/opt/conda/envs/rapids-25.02/lib/python3.10/asyncio/runners.py", line 44, in run
+    return loop.run_until_complete(main)
+  File "/opt/conda/envs/rapids-25.02/lib/python3.10/asyncio/base_events.py", line 636, in run_until_complete
+    self.run_forever()
+  File "/opt/conda/envs/rapids-25.02/lib/python3.10/asyncio/base_events.py", line 603, in run_forever
+    self._run_once()
+  File "/opt/conda/envs/rapids-25.02/lib/python3.10/asyncio/base_events.py", line 1909, in _run_once
+    handle._run()
+  File "/opt/conda/envs/rapids-25.02/lib/python3.10/asyncio/events.py", line 80, in _run
+    self._context.run(self._callback, *self._args)
+  File "/home/sahilbhatia/pandax/main.py", line 158, in main
+    cudf_profile_infos = checkpoint_and_get_cudf_profile_info(small_notebook_path)
+  File "/home/sahilbhatia/pandax/utils/rewrite.py", line 69, in checkpoint_and_get_cudf_profile_info
+    execute_notebook(cudf_nb)
+  File "/home/sahilbhatia/pandax/utils/execution.py", line 547, in execute_notebook
+    nb_client.execute()
+  File "/home/jieq/.local/lib/python3.10/site-packages/jupyter_core/utils/__init__.py", line 164, in wrapped
+    return _runner_map[name].run(inner)
+  File "/home/jieq/.local/lib/python3.10/site-packages/jupyter_core/utils/__init__.py", line 127, in run
+    return fut.result(None)
+  File "/opt/conda/envs/rapids-25.02/lib/python3.10/concurrent/futures/_base.py", line 453, in result
+    self._condition.wait(timeout)
+  File "/opt/conda/envs/rapids-25.02/lib/python3.10/threading.py", line 320, in wait
+    waiter.acquire()
+KeyboardInterrupt
+Exception ignored in atexit callback: <bound method run_sync.<locals>.wrapped of <nbclient.client.NotebookClient object at 0x7f8dc0182dd0>>
+Traceback (most recent call last):
+  File "/home/jieq/.local/lib/python3.10/site-packages/jupyter_core/utils/__init__.py", line 158, in wrapped
+    return loop.run_until_complete(inner)
+  File "/opt/conda/envs/rapids-25.02/lib/python3.10/asyncio/base_events.py", line 636, in run_until_complete
+    self.run_forever()
+  File "/opt/conda/envs/rapids-25.02/lib/python3.10/asyncio/base_events.py", line 603, in run_forever
+    self._run_once()
+  File "/opt/conda/envs/rapids-25.02/lib/python3.10/asyncio/base_events.py", line 1871, in _run_once
+    event_list = self._selector.select(timeout)
+  File "/opt/conda/envs/rapids-25.02/lib/python3.10/selectors.py", line 469, in select
+    fd_event_list = self._selector.poll(timeout, max_ev)
+KeyboardInterrupt: 
+[IPKernelApp] WARNING | Parent appears to have exited, shutting down.
